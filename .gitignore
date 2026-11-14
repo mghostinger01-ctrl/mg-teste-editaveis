@@ -9,6 +9,9 @@ api/lookup_cpf.php
 api/save_client.php
 api/tracker.php
 api/webhook.php
+assets/css/
+assets/images/
+assets/js/
 carrinho.php
 categoria.php
 checkout.php
@@ -26,3 +29,4 @@ u714044492_Casas66.sql
 scratch/
 config/
 database.sqlite
+README.md
