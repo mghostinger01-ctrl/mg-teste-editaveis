@@ -1,11 +1,22 @@
 # Arquivos da loja e testes que não pertencem ao projeto
 admin/
+api/cep.php
+api/check_status.php
+api/confirm_payment.php
+api/generate_pix.php
+api/get_my_orders.php
+api/lookup_cpf.php
+api/save_client.php
+api/tracker.php
+api/webhook.php
 carrinho.php
 categoria.php
 checkout.php
+docs/
 endereco.php
 gateway_debug.log
 home.php
+includes/
 pagamento.php
 pix.php
 schema.sql
