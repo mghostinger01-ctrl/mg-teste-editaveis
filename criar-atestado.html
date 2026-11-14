@@ -359,6 +359,134 @@
         /* Presets de dias no formulário */
         
         /* ─── MODAL E SELETOR DE ASSINATURAS FEITAS À MÃO (12 ESTILOS) ─── */
+        
+        /* Grade inline de assinaturas */
+        .sig-selector-wrapper {
+            background: #111415;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: 14px;
+        }
+        body.light-theme .sig-selector-wrapper {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .btn-sig-variation {
+            background: rgba(0, 220, 130, 0.12);
+            border: 1px solid rgba(0, 220, 130, 0.35);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+        .btn-sig-variation:hover {
+            background: var(--primary);
+            color: #0b0d0e;
+        }
+
+        .sig-styles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 9px;
+            margin-top: 8px;
+        }
+        @media (max-width: 480px) {
+            .sig-styles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sig-style-card {
+            background: #ffffff;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 8px 6px 6px 6px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            user-select: none;
+            height: 96px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        .sig-style-card:hover {
+            border-color: rgba(0, 220, 130, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .sig-style-card.active {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 1px var(--primary), 0 4px 14px rgba(0, 220, 130, 0.28);
+        }
+
+        .sig-card-badge {
+            position: absolute;
+            top: 4px;
+            right: 5px;
+            width: 15px;
+            height: 15px;
+            background: var(--primary);
+            color: #0b0d0e;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 9.5px;
+            font-weight: 900;
+        }
+        .sig-style-card.active .sig-card-badge {
+            display: flex;
+        }
+
+        .sig-preview-box {
+            width: 100%;
+            height: 60px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 1px;
+        }
+
+        .sig-preview-box svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .sig-style-title {
+            font-family: Arial, sans-serif;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .sig-style-sub {
+            font-family: Arial, sans-serif;
+            font-size: 8.5px;
+            color: #64748b;
+            text-align: center;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
         .sig-active-preview-card {
             background: #111415;
             border: 1px solid var(--border);
@@ -1964,30 +2092,27 @@
                     </div>
                 </div>
 
-                <!-- PREVIEW DA ASSINATURA ATIVA E BOTÃO PARA ABRIR MODAL COM 12 ESTILOS -->
-                <div class="sig-active-preview-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <!-- SELETOR DE ESTILOS DE ASSINATURA FEITA À MÃO (12 OPÇÕES COMPLETAS) -->
+                <div class="sig-selector-wrapper">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
                         <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
-                            <span>Assinatura do Médico</span>
+                            <span>Opções de Assinatura Feita à Mão</span>
                         </label>
-                        <span id="lblEstiloAtual" style="font-size:11.5px; font-weight:700; color:var(--primary);">Cursiva Clássica</span>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button type="button" class="btn-sig-variation" onclick="openSigModal()" title="Abrir janela com todos os estilos em tela cheia" style="background:rgba(239, 68, 68, 0.15); border-color:rgba(239, 68, 68, 0.4); color:#ef4444;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                                <span>Ver em Modal</span>
+                            </button>
+                            <button type="button" class="btn-sig-variation" onclick="proximaVariacaoAssinatura()" title="Gerar novo traço manual com pequenas variações de caligrafia">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                <span>Variar Traço</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="sig-preview-display" id="activeSigDisplay" onclick="openSigModal()" title="Clique para abrir galeria com 12 estilos de assinaturas">
-                        <svg id="activeSigSvg" viewBox="15 15 210 90" preserveAspectRatio="xMidYMid meet" style="width:100%; height:100%;">
-                        </svg>
-                    </div>
-
-                    <div class="sig-action-buttons">
-                        <button type="button" class="btn-open-sig-modal" onclick="openSigModal()">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                            <span>Gerar / Trocar Estilo</span>
-                        </button>
-                        <button type="button" class="btn-sig-variation-btn" onclick="proximaVariacaoAssinatura()" title="Gerar variação do traço manual">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                            <span>Variar</span>
-                        </button>
+                    <div class="sig-styles-grid" id="sigStylesGrid" style="max-height: 460px; overflow-y: auto; padding-right: 2px;">
+                        <!-- Gerado dinamicamente com os 12 estilos de assinaturas -->
                     </div>
                 </div>
             </div>
@@ -2990,20 +3115,33 @@
             layer.innerHTML = activeSvg;
         }
 
-        // Atualiza a prévia ativa na lateral
-        const previewDisplay = document.getElementById('activeSigSvg');
-        if (previewDisplay) {
-            previewDisplay.innerHTML = activeSvg;
-        }
+        // Renderiza a grade inline com os 12 estilos
+        renderInlineCards(docName);
 
-        const lblEstilo = document.getElementById('lblEstiloAtual');
-        if (lblEstilo) {
-            const curStyle = SIGNATURE_STYLES.find(s => s.id === currentSigStyleIndex);
-            lblEstilo.textContent = curStyle ? curStyle.name : 'Cursiva';
-        }
-
-        // Atualiza os cards do modal se o modal estiver aberto
+        // Renderiza os cards do modal se estiver aberto
         renderModalCards(docName);
+    }
+
+    function renderInlineCards(docName) {
+        const grid = document.getElementById('sigStylesGrid');
+        if (!grid) return;
+
+        grid.innerHTML = SIGNATURE_STYLES.map((style) => {
+            const isActive = (style.id === currentSigStyleIndex);
+            const previewSvg = generateDoctorSignature(docName, style.id, currentSigColor, currentSigVariation);
+            return `
+                <div class="sig-style-card ${isActive ? 'active' : ''}" onclick="selectSigStyle(${style.id})" title="${style.name} - ${style.desc}">
+                    <span class="sig-card-badge">✓</span>
+                    <div class="sig-preview-box">
+                        <svg viewBox="15 15 210 90" preserveAspectRatio="xMidYMid meet">
+                            ${previewSvg}
+                        </svg>
+                    </div>
+                    <div class="sig-style-title">${style.name}</div>
+                    <div class="sig-style-sub">${style.desc}</div>
+                </div>
+            `;
+        }).join('');
     }
 
     function openSigModal() {
