@@ -1,0 +1,17 @@
+# Arquivos da loja e testes que não pertencem ao projeto
+admin/
+carrinho.php
+categoria.php
+checkout.php
+endereco.php
+gateway_debug.log
+home.php
+pagamento.php
+pix.php
+schema.sql
+setup.php
+u714044492_Casas66.sql
+.user.ini
+scratch/
+config/
+database.sqlite
