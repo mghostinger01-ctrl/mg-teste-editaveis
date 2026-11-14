@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
+    <!-- Google Fonts para Assinaturas Feitas à Mão -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Allura&family=Caveat:wght@600;700&family=Cedarville+Cursive&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Homemade+Apple&family=La+Belle+Aurore&family=Marck+Script&family=Mr+Dafoe&family=Pinyon+Script&family=Sacramento&display=swap" rel="stylesheet">
+
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2902,7 +2908,7 @@
                 const uY = 70;
                 svg = `
                     <g transform="rotate(${rot}, 100, 56)">
-                        <text x="24" y="58" font-family="'Cedarville Cursive', cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.4">${textToDisplay}</text>
+                        <text x="24" y="58" style="font-family:'Cedarville Cursive', cursive;" font-family="Cedarville Cursive, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.4">${textToDisplay}</text>
                         <path d="M 22 ${uY} C 70 ${uY + 4}, 140 ${uY - 3}, 205 ${uY + 1} Q 215 ${uY + 2}, 222 ${uY - 2}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" />
                         <circle cx="225" cy="${uY - 3}" r="1.4" fill="${color}" />
                     </g>
@@ -2915,7 +2921,7 @@
                 const uY = 73;
                 svg = `
                     <g transform="rotate(${rot}, 100, 58)">
-                        <text x="25" y="55" font-family="'Allura', cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.8">${textToDisplay}</text>
+                        <text x="25" y="55" style="font-family:'Allura', cursive;" font-family="Allura, cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.8">${textToDisplay}</text>
                         <path d="M 24 ${uY} C 65 ${uY + 3}, 125 ${uY - 4}, 185 ${uY + 2} C 198 ${uY + 4}, 210 ${uY - 2}, 222 ${uY - 5}" fill="none" stroke="${color}" stroke-width="1.9" stroke-linecap="round" />
                         <circle cx="224" cy="${uY - 6}" r="1.5" fill="${color}" />
                     </g>
@@ -2928,7 +2934,7 @@
                 const uY = 71;
                 svg = `
                     <g transform="rotate(${rot}, 100, 56)">
-                        <text x="22" y="56" font-family="'Mr Dafoe', cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.5">${textToDisplay}</text>
+                        <text x="22" y="56" style="font-family:'Mr Dafoe', cursive;" font-family="Mr Dafoe, cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.5">${textToDisplay}</text>
                         <path d="M 20 ${uY} C 60 ${uY + 2}, 130 ${uY - 2}, 190 ${uY + 1} Q 205 ${uY + 2}, 224 ${uY - 1}" fill="none" stroke="${color}" stroke-width="2.6" stroke-linecap="round" />
                         <circle cx="226" cy="${uY - 2}" r="1.8" fill="${color}" />
                     </g>
@@ -2941,7 +2947,7 @@
                 const uY = 72;
                 svg = `
                     <g transform="rotate(${rot}, 100, 56)">
-                        <text x="24" y="54" font-family="'Great Vibes', cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.8">${textToDisplay}</text>
+                        <text x="24" y="54" style="font-family:'Great Vibes', cursive;" font-family="Great Vibes, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.8">${textToDisplay}</text>
                         <path d="M 22 ${uY} C 50 ${uY - 4}, 90 ${uY + 6}, 150 ${uY - 3} C 185 ${uY - 8}, 205 ${uY + 4}, 225 ${uY}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" />
                         <circle cx="227" cy="${uY}" r="1.4" fill="${color}" />
                     </g>
@@ -2954,7 +2960,7 @@
                 const uY = 71;
                 svg = `
                     <g transform="rotate(${rot}, 100, 56)">
-                        <text x="22" y="57" font-family="'La Belle Aurore', cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.2">${textToDisplay}</text>
+                        <text x="22" y="57" style="font-family:'La Belle Aurore', cursive;" font-family="La Belle Aurore, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.2">${textToDisplay}</text>
                         <path d="M 20 ${uY} C 70 ${uY + 2}, 140 ${uY - 3}, 220 ${uY}" fill="none" stroke="${color}" stroke-width="1.3" stroke-linecap="round" />
                         <circle cx="222" cy="${uY}" r="1.2" fill="${color}" />
                     </g>
@@ -2966,7 +2972,7 @@
                 const uY = 72;
                 svg = `
                     <g>
-                        <text x="24" y="56" font-family="'Marck Script', cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.4">${textToDisplay}</text>
+                        <text x="24" y="56" style="font-family:'Marck Script', cursive;" font-family="Marck Script, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.4">${textToDisplay}</text>
                         <path d="M 22 ${uY} L 220 ${uY}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" />
                         <path d="M 32 ${uY + 4} L 180 ${uY + 4}" fill="none" stroke="${color}" stroke-width="1.0" stroke-linecap="round" opacity="0.85" />
                     </g>
@@ -2979,7 +2985,7 @@
                 const uY = 71;
                 svg = `
                     <g transform="rotate(${rot}, 100, 56)">
-                        <text x="22" y="55" font-family="'Homemade Apple', cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.3">${textToDisplay}</text>
+                        <text x="22" y="55" style="font-family:'Homemade Apple', cursive;" font-family="Homemade Apple, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.3">${textToDisplay}</text>
                         <path d="M 20 ${uY} C 60 ${uY + 4}, 120 ${uY - 4}, 180 ${uY + 3} Q 200 ${uY + 5}, 224 ${uY - 4}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" />
                     </g>
                 `;
@@ -2991,7 +2997,7 @@
                 const uY = 72;
                 svg = `
                     <g transform="rotate(${rot}, 100, 56)">
-                        <text x="24" y="56" font-family="'Dancing Script', cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.6">${textToDisplay}</text>
+                        <text x="24" y="56" style="font-family:'Dancing Script', cursive;" font-family="Dancing Script, cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.6">${textToDisplay}</text>
                         <path d="M 22 ${uY} C 65 ${uY - 3}, 120 ${uY + 5}, 175 ${uY - 2} C 190 ${uY - 5}, 208 ${uY + 2}, 225 ${uY - 2}" fill="none" stroke="${color}" stroke-width="2.1" stroke-linecap="round" />
                         <circle cx="227" cy="${uY - 3}" r="1.5" fill="${color}" />
                     </g>
@@ -3045,7 +3051,7 @@
                 if (shortName.length > 18) fontSize = 25;
                 svg = `
                     <g transform="rotate(-4, 95, 56)">
-                        <text x="32" y="54" font-family="'Alex Brush', cursive" font-size="${fontSize}" font-weight="700" fill="${color}" letter-spacing="1">${shortName}</text>
+                        <text x="32" y="54" style="font-family:'Alex Brush', cursive;" font-family="Alex Brush, cursive" font-size="${fontSize}" font-weight="700" fill="${color}" letter-spacing="1">${shortName}</text>
                         <path d="M 30 68 C 75 62, 130 64, 185 60 C 200 59, 180 74, 145 76 C 105 78, 60 76, 40 74" fill="none" stroke="${color}" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" />
                         <circle cx="192" cy="58" r="1.7" fill="${color}" />
                     </g>
@@ -3078,7 +3084,7 @@
                 const rot = -5 + (hash % 4);
                 svg = `
                     <g transform="rotate(${rot}, 95, 58)">
-                        <text x="58" y="58" font-family="'Caveat', cursive" font-size="28" font-weight="700" fill="${color}">${doc.first}</text>
+                        <text x="58" y="58" style="font-family:'Caveat', cursive;" font-family="Caveat, cursive" font-size="28" font-weight="700" fill="${color}">${doc.first}</text>
                         <path d="M 40 62 C 30 38, 70 22, 130 24 C 185 26, 210 50, 198 72 C 185 92, 105 96, 50 86 C 25 81, 30 68, 60 65 L 200 62" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
                         <circle cx="203" cy="62" r="1.6" fill="${color}" />
                     </g>
@@ -3086,7 +3092,7 @@
                 break;
             }
             default: {
-                svg = `<text x="25" y="56" font-family="'Cedarville Cursive', cursive" font-size="26" fill="${color}">${textToDisplay}</text>`;
+                svg = `<text x="25" y="56" style="font-family:'Cedarville Cursive', cursive;" font-family="Cedarville Cursive, cursive" font-size="26" fill="${color}">${textToDisplay}</text>`;
             }
         }
 
