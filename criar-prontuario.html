@@ -1932,6 +1932,76 @@ function formatarMunicipioUfLimpo(input, candUf) {
 
         
         // ─── MÉTODO PARA EXPORTAR BLOB DO PRONTUÁRIO PARA O COMBO ───
+        // ─── CAPTURA LIMPA E ISOLADA DE CADA PÁGINA A4 (SEM CORTES OU DESLOCAMENTOS) ───
+        async function capturePageCleanA4(pageEl) {
+            if (document.fonts) {
+                try { await document.fonts.ready; } catch(e){}
+            }
+
+            const clone = pageEl.cloneNode(true);
+            clone.style.width = '794px';
+            clone.style.minHeight = '1123px';
+            clone.style.height = '1123px';
+            clone.style.maxHeight = '1123px';
+            clone.style.margin = '0';
+            clone.style.boxShadow = 'none';
+            clone.style.background = '#ffffff';
+            clone.style.transform = 'none';
+            clone.style.boxSizing = 'border-box';
+            clone.style.overflow = 'hidden';
+            clone.style.position = 'relative';
+
+            // Marca d'água sutil para impressão oficial
+            const watermarks = clone.querySelectorAll('.p2-watermark-bg');
+            watermarks.forEach(w => w.classList.add('watermark-faint'));
+
+            // Sincroniza foto do condutor na cópia se for a página 1
+            const origFoto = pageEl.querySelector('#view_foto');
+            const cloneFoto = clone.querySelector('#view_foto');
+            if (origFoto && cloneFoto && origFoto.src) {
+                cloneFoto.src = origFoto.src;
+            }
+
+            // Container 100% fixo no topo-esquerdo (0, 0) isolado de grids, sidebars ou zooms
+            const hiddenContainer = document.createElement('div');
+            hiddenContainer.style.cssText = 'position:fixed; left:0; top:0; width:794px; height:1123px; background:#ffffff; z-index:9999999; margin:0; padding:0; overflow:hidden; pointer-events:none;';
+            hiddenContainer.appendChild(clone);
+            document.body.appendChild(hiddenContainer);
+
+            // Aguarda imagens estarem carregadas
+            const imgs = clone.querySelectorAll('img');
+            await Promise.all(Array.from(imgs).map(img => {
+                if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+                return new Promise(res => {
+                    img.onload = res;
+                    img.onerror = res;
+                    setTimeout(res, 400);
+                });
+            }));
+
+            await new Promise(r => setTimeout(r, 80));
+
+            const canvas = await html2canvas(clone, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                width: 794,
+                height: 1123,
+                windowWidth: 794,
+                windowHeight: 1123,
+                scrollX: 0,
+                scrollY: 0,
+                x: 0,
+                y: 0
+            });
+
+            hiddenContainer.remove();
+            return canvas;
+        }
+
+        // ─── MÉTODO PARA EXPORTAR BLOB DO PRONTUÁRIO PARA O COMBO ───
         window.gerarPdfProntuarioBlob = async function(nomeCondutor, fotoBase64) {
             try {
                 const JsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
@@ -1962,41 +2032,8 @@ function formatarMunicipioUfLimpo(input, candUf) {
                 const nomeLimpo = (nomeCondutor || document.getElementById('inp_nome')?.value || 'CONDUTOR').trim().replace(/\s+/g, '_');
                 const filename = 'Prontuario_DETRAN_' + nomeLimpo + '.pdf';
 
-                const watermarks = document.querySelectorAll('.p2-watermark-bg');
-                watermarks.forEach(w => w.classList.add('watermark-faint'));
-
-                const wrapper = document.getElementById('zoomWrapper');
-                const prevTransform = wrapper ? wrapper.style.transform : '';
-                const prevMargin = wrapper ? wrapper.style.marginBottom : '';
-                if (wrapper) {
-                    wrapper.style.transform = 'none';
-                    wrapper.style.marginBottom = '0px';
-                }
-
-                await new Promise(r => setTimeout(r, 150));
-
-                const canvas1 = await html2canvas(page1, {
-                    scale: 2, useCORS: true, allowTaint: false,
-                    backgroundColor: '#ffffff',
-                    width: 794,
-                    height: 1123,
-                    windowWidth: 794,
-                    windowHeight: 1123
-                });
-
-                const canvas2 = await html2canvas(page2, {
-                    scale: 2, useCORS: true, allowTaint: false,
-                    backgroundColor: '#ffffff',
-                    width: 794,
-                    height: 1123,
-                    windowWidth: 794,
-                    windowHeight: 1123
-                });
-
-                if (wrapper) {
-                    wrapper.style.transform = prevTransform;
-                    wrapper.style.marginBottom = prevMargin;
-                }
+                const canvas1 = await capturePageCleanA4(page1);
+                const canvas2 = await capturePageCleanA4(page2);
 
                 const pdf = new JsPDF({
                     orientation: 'portrait',
@@ -2028,44 +2065,8 @@ function formatarMunicipioUfLimpo(input, candUf) {
             const nomeLimpo = (nomeCondutor || document.getElementById('inp_nome').value || 'CONDUTOR').trim().replace(/\s+/g, '_');
             const filename = `Prontuario_DETRAN_${nomeLimpo}.pdf`;
 
-            // Tornar marca d'água fraca para o PDF
-            const watermarks = document.querySelectorAll('.p2-watermark-bg');
-            watermarks.forEach(w => w.classList.add('watermark-faint'));
-
-            // Remover zoom para captura perfeita
-            const wrapper = document.getElementById('zoomWrapper');
-            const prevTransform = wrapper ? wrapper.style.transform : '';
-            const prevMargin = wrapper ? wrapper.style.marginBottom : '';
-            if (wrapper) {
-                wrapper.style.transform = 'none';
-                wrapper.style.marginBottom = '0px';
-            }
-
-            // Renderiza Página 1 (alta resolução 3x)
-            const canvas1 = await html2canvas(page1, {
-                scale: 2, useCORS: true, allowTaint: false,
-                backgroundColor: '#ffffff',
-                width: 794,
-                height: 1123,
-                windowWidth: 794,
-                windowHeight: 1123
-            });
-
-            // Renderiza Página 2 (alta resolução 3x)
-            const canvas2 = await html2canvas(page2, {
-                scale: 2, useCORS: true, allowTaint: false,
-                backgroundColor: '#ffffff',
-                width: 794,
-                height: 1123,
-                windowWidth: 794,
-                windowHeight: 1123
-            });
-
-            // Restaurar zoom
-            if (wrapper) {
-                wrapper.style.transform = prevTransform;
-                wrapper.style.marginBottom = prevMargin;
-            }
+            const canvas1 = await capturePageCleanA4(page1);
+            const canvas2 = await capturePageCleanA4(page2);
 
             const pdf = new JsPDF({
                 orientation: 'portrait',
