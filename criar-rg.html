@@ -444,12 +444,14 @@
         #previewTransformWrapper {
             transform-origin: top center;
             transition: transform 0.2s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* ─── FORMATO 1: CARTÃO OFICIAL ULTRA-HD (989px × 685px) ─── */
+        /* ─── FORMATO 1: CARTÃO OFICIAL ULTRA-HD (LARGURA PADRÃO 1024px) ─── */
         .card-cin-view {
-            width: 989px;
-            height: 685px;
+            width: 1024px;
             position: relative;
             background-color: #ffffff;
             background-size: 100% 100%;
@@ -460,6 +462,11 @@
             overflow: hidden;
             user-select: none;
             flex-shrink: 0;
+            margin: 0 auto;
+        }
+        #viewFrenteContainer {
+            width: 1024px !important;
+            height: 709px !important;
         }
         #viewVersoContainer {
             width: 1024px !important;
@@ -487,13 +494,13 @@
             margin: 0 !important;
         }
 
-        /* Foto 3x4 Frente */
+        /* Foto 3x4 Frente (Escala 1024x709) */
         #cfPhoto {
             position: absolute;
-            top: 262px;
-            left: 105px;
-            width: 186px;
-            height: 254px;
+            top: 271px;
+            left: 109px;
+            width: 193px;
+            height: 263px;
             object-fit: cover;
             z-index: 5;
             box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
@@ -502,10 +509,10 @@
         /* Assinatura Frente */
         #cfSigBox {
             position: absolute;
-            top: 520px;
-            left: 310px;
-            width: 440px;
-            height: 44px;
+            top: 538px;
+            left: 321px;
+            width: 456px;
+            height: 46px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -521,22 +528,22 @@
         #cfSigText {
             display: none;
             font-family: 'Homemade Apple', cursive;
-            font-size: 25px;
+            font-size: 26px;
             color: #000000;
             font-weight: 600;
         }
 
-        /* Posições Cirúrgicas dos Campos da Frente (Escala 989x685) */
-        #cfUf { top: 142px; left: 436px; width: 150px; font-size: 14.5px; font-weight: 800; text-align: center; text-transform: uppercase; }
-        #cfSsp { top: 167px; left: 466px; width: 90px; font-size: 11px; font-weight: 800; text-align: center; text-transform: uppercase; }
-        #cfNome { top: 273px; left: 334px; width: 440px; font-size: 16px; }
-        #cfNomeSocial { top: 335px; left: 334px; width: 440px; font-size: 15px; }
-        #cfCpf { top: 403px; left: 334px; width: 250px; font-size: 14.5px; }
-        #cfSexo { top: 403px; left: 597px; width: 140px; font-size: 14.5px; }
-        #cfNasc { top: 454px; left: 334px; width: 250px; font-size: 14.5px; }
-        #cfNac { top: 454px; left: 597px; width: 140px; font-size: 14.5px; }
-        #cfNat { top: 503px; left: 334px; width: 250px; font-size: 14.5px; text-transform: uppercase; }
-        #cfVal { top: 503px; left: 597px; width: 140px; font-size: 14.5px; }
+        /* Posições dos Campos da Frente (Escala 1024x709) */
+        #cfUf { top: 147px; left: 451px; width: 155px; font-size: 15px; font-weight: 800; text-align: center; text-transform: uppercase; }
+        #cfSsp { top: 173px; left: 482px; width: 93px; font-size: 11.5px; font-weight: 800; text-align: center; text-transform: uppercase; }
+        #cfNome { top: 283px; left: 346px; width: 456px; font-size: 16.5px; }
+        #cfNomeSocial { top: 347px; left: 346px; width: 456px; font-size: 15.5px; }
+        #cfCpf { top: 417px; left: 346px; width: 259px; font-size: 15px; }
+        #cfSexo { top: 417px; left: 618px; width: 145px; font-size: 15px; }
+        #cfNasc { top: 470px; left: 346px; width: 259px; font-size: 15px; }
+        #cfNac { top: 470px; left: 618px; width: 145px; font-size: 15px; }
+        #cfNat { top: 521px; left: 346px; width: 259px; font-size: 15px; text-transform: uppercase; }
+        #cfVal { top: 521px; left: 618px; width: 145px; font-size: 15px; }
 
         /* Posições do Verso (Escala Oficial 1024x798) */
         #cvQrBox {
@@ -637,12 +644,12 @@
             margin: 15px 0;
         }
         .a4-card-scaled {
-            transform: scale(0.68);
+            transform: scale(0.66);
             transform-origin: top center;
-            margin-bottom: -210px;
+            margin-bottom: -240px;
         }
 
-        #a4CardVersoWrap { margin-bottom: -255px; }
+        #a4CardVersoWrap { margin-bottom: -270px; }
         .a4-footer-info {
             border-top: 1px solid #e2e8f0;
             padding-top: 12px;
@@ -1338,7 +1345,7 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
                 const elFrente = document.getElementById('viewFrenteContainer');
                 const elVerso = document.getElementById('viewVersoContainer');
 
-                const canvasFrente = await captureElementClean(elFrente, 989, 685);
+                const canvasFrente = await captureElementClean(elFrente, 1024, 709);
                 const canvasVerso = await captureElementClean(elVerso, 1024, 798);
 
                 const { jsPDF } = window.jspdf;
@@ -1354,9 +1361,9 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
                 pdf.setFillColor(255, 255, 255);
                 pdf.rect(0, 0, 1064, 1560, 'F');
                 const imgFrente = canvasFrente.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgFrente, 'JPEG', 37, 25, 989, 685);
+                pdf.addImage(imgFrente, 'JPEG', 20, 25, 1024, 709);
                 const imgVerso = canvasVerso.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgVerso, 'JPEG', 20, 735, 1024, 798);
+                pdf.addImage(imgVerso, 'JPEG', 20, 750, 1024, 798);
 
                 const cpfClean = (document.getElementById('inpCpf').value || 'CIN').replace(/\D/g, '');
                 const fileName = `CIN_Cartao_${cpfClean}.pdf`;
@@ -1399,8 +1406,8 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
             try {
                 const isVerso = (currentActiveTab === 'verso');
                 const el = isVerso ? document.getElementById('viewVersoContainer') : document.getElementById('viewFrenteContainer');
-                const w = isVerso ? 1024 : 989;
-                const h = isVerso ? 798 : 685;
+                const w = 1024;
+                const h = isVerso ? 798 : 709;
                 const canvas = await captureElementClean(el, w, h);
                 const a = document.createElement('a');
                 const cpfClean = (document.getElementById('inpCpf').value || 'CIN').replace(/\D/g, '');
