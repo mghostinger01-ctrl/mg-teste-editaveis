@@ -7119,6 +7119,13 @@ function updateDashboardMetrics() {
                     cor: '#00dc82'
                 }
             );
+
+            // 4. Credita comissão recorrente de plano de revenda (3% Starter, 5% Master, 7% Prime) se o cliente tiver indicador
+            try {
+                await creditarComissaoPlanoIndicador(activeUserForSaldo, amount);
+            } catch(eCom) {
+                console.warn('[Admin] Erro comissão manual:', eCom);
+            }
         }
 
         function maskCpfInputAdmin(el) {
@@ -8250,6 +8257,117 @@ function updateDashboardMetrics() {
             }).join('');
         }
 
+        // ─── CRÉDITO DE COMISSÃO DO PLANO DE REVENDA (STARTER 3%, MASTER PRO 5%, PRIME VIP 7%) ───
+        async function creditarComissaoPlanoIndicador(clienteUser, valorRecarga) {
+            if (!clienteUser || !valorRecarga || valorRecarga <= 0) return;
+            try {
+                // 1. Procura indicação onde o cliente é o indicado
+                const indRef = (indicacoesData || []).find(item => {
+                    const matchId = (item.indicado_id && clienteUser.id && String(item.indicado_id) === String(clienteUser.id));
+                    const matchEmail = (item.indicado_email && clienteUser.email && item.indicado_email.toLowerCase().trim() === clienteUser.email.toLowerCase().trim());
+                    return matchId || matchEmail;
+                });
+
+                if (!indRef) return;
+
+                // 2. Procura o indicador nos usuários
+                let indicador = usersData.find(u => {
+                    const matchId = (indRef.indicador_id && u.id && String(u.id) === String(indRef.indicador_id));
+                    const matchEmail = (indRef.indicador_email && u.email && u.email.toLowerCase().trim() === indRef.indicador_email.toLowerCase().trim());
+                    return matchId || matchEmail;
+                });
+
+                if (!indicador) return;
+
+                // 3. Verifica se o indicador possui plano ativo com comissão
+                const isAtivo = String(indicador.plano_status || 'inativo').toLowerCase() === 'ativo';
+                let pctComissao = 0;
+                if (isAtivo) {
+                    if (indicador.plano_comissao !== undefined && indicador.plano_comissao !== null && parseInt(indicador.plano_comissao, 10) > 0) {
+                        pctComissao = parseInt(indicador.plano_comissao, 10);
+                    } else if (indicador.plano === 'Prime VIP') {
+                        pctComissao = 7;
+                    } else if (indicador.plano === 'Master Pro') {
+                        pctComissao = 5;
+                    } else if (indicador.plano === 'Starter') {
+                        pctComissao = 3;
+                    }
+                }
+
+                if (pctComissao <= 0) return;
+
+                // 4. Calcula a comissão sobre o valor da recarga
+                const comissaoVal = Number((valorRecarga * (pctComissao / 100)).toFixed(2));
+                if (comissaoVal <= 0) return;
+
+                // 5. Credita a comissão no saldo do indicador
+                const novoSaldoIndicador = Number(((parseFloat(indicador.saldo) || 0) + comissaoVal).toFixed(2));
+                indicador.saldo = novoSaldoIndicador;
+
+                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
+                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+
+                try {
+                    await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(indicador.id)}`, {
+                        method: 'PATCH',
+                        headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ saldo: novoSaldoIndicador })
+                    });
+                } catch(eComSup) {}
+
+                // Se o indicador for o usuário atualmente logado nesta máquina, sincroniza na hora
+                try {
+                    const loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                    if (loggedUser.email && indicador.email && loggedUser.email.toLowerCase().trim() === indicador.email.toLowerCase().trim()) {
+                        loggedUser.saldo = novoSaldoIndicador;
+                        localStorage.setItem('happynation_user', JSON.stringify(loggedUser));
+                        if (window.MGSaldo) window.MGSaldo.set(novoSaldoIndicador);
+                    }
+                } catch(eLog) {}
+
+                // Registra no histórico de atividades do indicador
+                try {
+                    const indEmail = (indicador.email || '').toLowerCase().trim();
+                    if (indEmail) {
+                        const actKey = 'happynation_activities_' + indEmail;
+                        const acts = JSON.parse(localStorage.getItem(actKey) || '[]');
+                        acts.unshift({
+                            title: `COMISSÃO (${pctComissao}% ${indicador.plano.toUpperCase()}) - RECARGA DE ${(clienteUser.nome || 'CLIENTE').toUpperCase()}`,
+                            time: 'agora',
+                            created_at: new Date().toISOString(),
+                            val: `+ R$ ${comissaoVal.toFixed(2).replace('.', ',')}`
+                        });
+                        if (acts.length > 50) acts.length = 50;
+                        localStorage.setItem(actKey, JSON.stringify(acts));
+                    }
+                } catch(eHist) {}
+
+                // Registra no feed de atividades do Painel Admin
+                logAdminActivity(
+                    'comissao',
+                    `Comissão ${pctComissao}% (${indicador.plano})`,
+                    `${indicador.nome} (indicou ${clienteUser.nome || 'Cliente'})`,
+                    `+ R$ ${comissaoVal.toFixed(2).replace('.', ',')}`,
+                    'concluido',
+                    {
+                        subRotulo: `Comissão sobre recarga de R$ ${valorRecarga.toFixed(2).replace('.', ',')}`,
+                        tagClass: 'badge-saldo',
+                        tagText: 'COMISSÃO',
+                        cor: '#00dc82'
+                    }
+                );
+
+                saveStorage();
+                renderUsersTable();
+
+                setTimeout(() => {
+                    showToast(`💰 COMISSÃO DE RECARGA PAGA! +R$ ${comissaoVal.toFixed(2).replace('.', ',')} (${pctComissao}% ${indicador.plano}) para o indicador ${indicador.nome}!`);
+                }, 700);
+            } catch(err) {
+                console.warn('[Comissão de Plano] Falha ao processar comissão:', err);
+            }
+        }
+
         async function approveRecarga(recId) {
             const r = recargasData.find(item => String(item.id) === String(recId));
             if (r) {
@@ -8379,6 +8497,13 @@ function updateDashboardMetrics() {
                     }
                 } catch(eBonus) {
                     console.warn('[Indicação] Erro no fluxo de bônus:', eBonus);
+                }
+
+                // ── COMISSÃO RECORRENTE DO PLANO DE REVENDA PARA O INDICADOR (3% STARTER, 5% MASTER, 7% PRIME) ──
+                try {
+                    await creditarComissaoPlanoIndicador(user, v);
+                } catch(eComissao) {
+                    console.warn('[Comissão de Plano] Erro ao creditar comissão:', eComissao);
                 }
 
                 // Atualiza status da recarga no Supabase

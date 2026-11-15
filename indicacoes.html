@@ -1147,6 +1147,9 @@
         </div>
     </div>
 
+    <!-- BANNER DINÂMICO DE COMISSÃO DO PLANO ATIVO -->
+    <div id="planCommissionBanner" style="display:none; margin-bottom: 22px;"></div>
+
     <!-- Benefícios da Indicação -->
     <div class="card" style="margin-bottom: 22px;">
         <div class="card-title">
@@ -1450,6 +1453,44 @@ async function loadReferralData() {
     if (statTotalEl) statTotalEl.textContent = totalCount;
     const statBonusEl = document.getElementById('statBonusAcumulado');
     if (statBonusEl) statBonusEl.textContent = `R$ ${totalBonus.toFixed(2).replace('.', ',')}`;
+    
+    // Renderiza status da comissão de plano de revenda se ativo
+    const planBanner = document.getElementById('planCommissionBanner');
+    const userPlan = (window.MGSaldo && typeof window.MGSaldo.getUserPlan === 'function') ? window.MGSaldo.getUserPlan() : { isAtivo: false, comissao: 0, plano: 'Nenhum' };
+    if (planBanner) {
+        if (userPlan.isAtivo && userPlan.comissao > 0) {
+            planBanner.style.display = 'block';
+            planBanner.innerHTML = `
+                <div style="background: linear-gradient(135deg, rgba(0, 220, 130, 0.12), rgba(168, 85, 247, 0.12)); border: 1px solid rgba(0, 220, 130, 0.35); border-radius: 16px; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(0, 220, 130, 0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00dc82;">
+                            👑
+                        </div>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-weight: 800; color: #fff; font-size: 15px;">Comissão Ativa: +${userPlan.comissao}% sobre Recargas</span>
+                                <span style="background: rgba(0, 220, 130, 0.2); color: #00dc82; font-weight: 800; font-size: 11px; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px;">PLANO ${userPlan.plano.toUpperCase()}</span>
+                            </div>
+                            <div style="color: #94a3b8; font-size: 12.5px; margin-top: 4px;">
+                                Como assinante do <strong>Plano ${userPlan.plano}</strong>, você recebe <strong>${userPlan.comissao}% de comissão em saldo</strong> automaticamente sempre que qualquer um dos seus indicados fizer uma recarga!
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 26px; font-weight: 900; color: #00dc82;">+${userPlan.comissao}%</span>
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">Comissão Contínua</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            planBanner.style.display = 'none';
+        }
+    }
+    const statComissao = document.getElementById('statComissaoPlano');
+    if (statComissao) {
+        statComissao.textContent = (userPlan.isAtivo && userPlan.comissao > 0) ? ('+' + userPlan.comissao + '%') : '0%';
+    }
+
     const statActiveEl = document.getElementById('statIndicacoesAtivas');
     if (statActiveEl) statActiveEl.textContent = paidList.length;
 
