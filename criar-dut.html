@@ -522,10 +522,11 @@ document.addEventListener('DOMContentLoaded', function() {
         async function exportDutPdf() {
             let loggedUser = {};
             try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e) {}
-            const precoDut = parseFloat(localStorage.getItem('happynation_dut_price')) || 25.00;
+            const rawPrecoDut = parseFloat(localStorage.getItem('happynation_dut_price')) || 25.00;
+            const precoDut = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(rawPrecoDut) : rawPrecoDut;
             let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
 
-            if (userSaldo < precoDut) {
+            if (precoDut > 0 && userSaldo < precoDut) {
                 alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do DUT custa R$ ${precoDut.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
                 window.location.href = 'recargas.html';
                 return;

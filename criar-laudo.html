@@ -1389,9 +1389,10 @@
             loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}');
         } catch(e) {}
         let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
-        const custoAtestado = parseFloat(localStorage.getItem('happynation_atestado_price')) || 20.00;
+        const rawCustoAtestado = parseFloat(localStorage.getItem('happynation_atestado_price')) || 20.00;
+        const custoAtestado = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(rawCustoAtestado) : rawCustoAtestado;
 
-        if (userSaldo < custoAtestado) {
+        if (custoAtestado > 0 && userSaldo < custoAtestado) {
             alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do atestado custa R$ ${custoAtestado.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
             window.location.href = 'recargas.html';
             return;

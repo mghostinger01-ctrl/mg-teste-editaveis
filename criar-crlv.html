@@ -1408,8 +1408,8 @@
 
         // Saldo do usuário e preço configurado
         function getCrlvPrice() {
-            const p = localStorage.getItem('happynation_crlv_price');
-            return p ? parseFloat(p) : 25.00;
+            const p = parseFloat(localStorage.getItem('happynation_crlv_price')) || 25.00;
+            return (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(p) : p;
         }
 
         function loadUserBalance() {
@@ -1441,7 +1441,7 @@
             let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
             const custoCrlv = getCrlvPrice();
 
-            if (userSaldo < custoCrlv) {
+            if (custoCrlv > 0 && userSaldo < custoCrlv) {
                 alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do CRLV Digital custa R$ ${custoCrlv.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
                 window.location.href = 'recargas.html';
                 return;

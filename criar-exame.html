@@ -1975,9 +1975,10 @@
             loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}');
         } catch(e) {}
         let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
-        const custoExame = parseFloat(localStorage.getItem('happynation_exame_price')) || 20.00;
+        const rawCustoExame = parseFloat(localStorage.getItem('happynation_exame_price')) || 20.00;
+        const custoExame = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(rawCustoExame) : rawCustoExame;
 
-        if (!window._skipExameDeduct && userSaldo < custoExame) {
+        if (!window._skipExameDeduct && custoExame > 0 && userSaldo < custoExame) {
             alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do laudo custa R$ ${custoExame.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
             window.location.href = 'recargas.html';
             return;

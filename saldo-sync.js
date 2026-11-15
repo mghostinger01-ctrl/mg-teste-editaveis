@@ -195,9 +195,9 @@
       let queryUrl = '';
 
       if (user.id) {
-        queryUrl = `${SUPABASE_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}&select=id,saldo,status`;
+        queryUrl = `${SUPABASE_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}&select=id,saldo,status,plano,plano_status,plano_desconto,plano_comissao,plano_validade`;
       } else if (cleanEmail) {
-        queryUrl = `${SUPABASE_URL}/rest/v1/usuarios?email=ilike.${encodeURIComponent(cleanEmail)}&select=id,saldo,status`;
+        queryUrl = `${SUPABASE_URL}/rest/v1/usuarios?email=ilike.${encodeURIComponent(cleanEmail)}&select=id,saldo,status,plano,plano_status,plano_desconto,plano_comissao,plano_validade`;
       } else {
         isFetching = false;
         return;
@@ -223,6 +223,16 @@
               persistAll(remoteSaldo);
             }
           }
+          // Sincroniza dados do plano do usuário em tempo real
+          let userChanged = false;
+          if (row.plano !== undefined && row.plano !== user.plano) { user.plano = row.plano; userChanged = true; }
+          if (row.plano_status !== undefined && row.plano_status !== user.plano_status) { user.plano_status = row.plano_status; userChanged = true; }
+          if (row.plano_desconto !== undefined && row.plano_desconto !== user.plano_desconto) { user.plano_desconto = row.plano_desconto; userChanged = true; }
+          if (row.plano_comissao !== undefined && row.plano_comissao !== user.plano_comissao) { user.plano_comissao = row.plano_comissao; userChanged = true; }
+          if (row.plano_validade !== undefined && row.plano_validade !== user.plano_validade) { user.plano_validade = row.plano_validade; userChanged = true; }
+          if (userChanged) {
+            try { localStorage.setItem(USER_KEY, JSON.stringify(user)); } catch(e){}
+          }
           // Atualiza status se bloqueado
           if (row.status === 'blocked' && user.status !== 'blocked') {
             user.status = 'blocked';
@@ -239,10 +249,70 @@
     }
   }
 
+  // ─── Planos de Revenda & Descontos do Usuário ──────────────────────────────
+  function getUserPlan() {
+    let user = safeJSON(USER_KEY, {});
+    const email = (user && user.email ? user.email : '').toLowerCase().trim();
+    const adminUsers = safeJSON(ADMIN_KEY, []);
+    let match = null;
+    if (email && Array.isArray(adminUsers)) {
+      match = adminUsers.find(u => u && u.email && u.email.toLowerCase().trim() === email);
+    }
+    const plano = (match && match.plano && match.plano !== 'Nenhum') ? match.plano : (user.plano || 'Nenhum');
+    const status = (match && match.plano_status) ? match.plano_status : (user.plano_status || 'inativo');
+    const isAtivo = String(status).toLowerCase() === 'ativo';
+
+    let desconto = 0;
+    if (isAtivo) {
+      if (match && match.plano_desconto !== undefined && match.plano_desconto !== null) {
+        desconto = parseInt(match.plano_desconto, 10) || 0;
+      } else if (user.plano_desconto !== undefined && user.plano_desconto !== null) {
+        desconto = parseInt(user.plano_desconto, 10) || 0;
+      } else {
+        if (plano === 'Prime VIP') desconto = 100;
+        else if (plano === 'Master Pro') desconto = 50;
+        else if (plano === 'Starter') desconto = 25;
+      }
+    }
+
+    const isFree = isAtivo && (desconto >= 100 || plano === 'Prime VIP');
+    const comissao = isAtivo ? (parseInt((match && match.plano_comissao) || user.plano_comissao, 10) || (plano === 'Prime VIP' ? 7 : plano === 'Master Pro' ? 5 : plano === 'Starter' ? 3 : 0)) : 0;
+
+    return {
+      plano,
+      status,
+      isAtivo,
+      desconto,
+      isFree,
+      comissao
+    };
+  }
+
+  function calcDiscount(basePrice) {
+    const val = parseFloat(basePrice) || 0;
+    if (val <= 0) return 0;
+    const plan = getUserPlan();
+    if (plan.isFree) return 0;
+    if (plan.desconto > 0) {
+      const finalPrice = val * (1 - (plan.desconto / 100));
+      return Math.max(0, Math.round(finalPrice * 100) / 100);
+    }
+    return val;
+  }
+
   // ─── API Global window.MGSaldo ─────────────────────────────────────────────
   window.MGSaldo = {
     get: function () {
       return getSaldoNumber();
+    },
+    getUserPlan: getUserPlan,
+    calcDiscount: calcDiscount,
+    canAfford: function (amount) {
+      const plan = getUserPlan();
+      if (plan.isFree) return true; // VIP 100% OFF nunca é barrado por saldo insuficiente
+      const finalPrice = calcDiscount(amount);
+      if (finalPrice <= 0) return true;
+      return getSaldoNumber() >= finalPrice;
     },
     set: function (val) {
       const num = Math.max(0, parseFloat(val) || 0);
@@ -252,14 +322,45 @@
       return num;
     },
     update: function (delta) {
+      const d = parseFloat(delta) || 0;
+      const plan = getUserPlan();
+      // SE O USUÁRIO TIVER PLANO PRIME VIP (100% OFF) E FOR DÉBITO (delta < 0), NUNCA DESCONTA SALDO!
+      if (d < 0 && plan.isFree) {
+        console.log('[SaldoSync] Usuário possui Plano Prime VIP (100% OFF Docs Grátis). Saldo mantido sem desconto.');
+        return getSaldoNumber();
+      }
       const current = getSaldoNumber();
-      const novo = Math.max(0, current + (parseFloat(delta) || 0));
+      const novo = Math.max(0, current + d);
       lastLocalUpdate = Date.now();
       persistAll(novo);
       persistRemote(novo);
       return novo;
     },
     deduct: async function (amount, activityPayload) {
+      const plan = getUserPlan();
+      if (plan.isFree) {
+        console.log('[SaldoSync] Usuário possui Plano Prime VIP (100% OFF). Emissão gratuita sem desconto de saldo.');
+        try {
+          const user = safeJSON(USER_KEY, {});
+          const uEmail = (user.email || '').toLowerCase().trim();
+          if (activityPayload && typeof activityPayload === 'object' && uEmail) {
+            const actKey = 'happynation_activities_' + uEmail;
+            const acts = safeJSON(actKey, []);
+            const descricao = activityPayload.descricao || 'Emissão de Documento';
+            const subRotulo = activityPayload.subRotulo || '';
+            acts.unshift({
+              title: (subRotulo ? subRotulo + ' - ' : '') + String(descricao).toUpperCase(),
+              time: 'agora',
+              created_at: new Date().toISOString(),
+              val: 'GRÁTIS (Prime VIP)'
+            });
+            if (acts.length > 50) acts.length = 50;
+            try { localStorage.setItem(actKey, JSON.stringify(acts)); } catch(e) {}
+          }
+        } catch(e){}
+        return true;
+      }
+
       const val = parseFloat(amount) || 0;
       if (val <= 0) return true;
 

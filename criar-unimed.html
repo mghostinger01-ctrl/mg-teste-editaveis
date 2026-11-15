@@ -1909,10 +1909,11 @@ function gerarQr(forceReal = false) {
 async function gerarPdf() {
     let loggedUser = null;
     try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}'); } catch(e){}
-    const custoDoc = parseFloat(localStorage.getItem('happynation_unimed_price')) || 15.00;
+    const rawCustoDoc = parseFloat(localStorage.getItem('happynation_unimed_price')) || 15.00;
+    const custoDoc = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(rawCustoDoc) : rawCustoDoc;
     let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
 
-    if (userSaldo < custoDoc) {
+    if (custoDoc > 0 && userSaldo < custoDoc) {
         alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do Atestado Unimed custa R$ ${custoDoc.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
         window.location.href = 'recargas.html';
         return;

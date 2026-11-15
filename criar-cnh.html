@@ -4362,9 +4362,16 @@ window.addEventListener('load', () => {
 
 // ─── SISTEMA DINÂMICO DE COMBO (CNH + EXAME + PRONTUÁRIO) ───
 function getComboPrices() {
-    const cnh = parseFloat(localStorage.getItem('happynation_cnh_price')) || 26.00;
-    const exame = parseFloat(localStorage.getItem('happynation_exame_price')) || 20.00;
-    const prontuario = parseFloat(localStorage.getItem('happynation_prontuario_price')) || 25.00;
+    let cnh = parseFloat(localStorage.getItem('happynation_cnh_price')) || 26.00;
+    let exame = parseFloat(localStorage.getItem('happynation_exame_price')) || 20.00;
+    let prontuario = parseFloat(localStorage.getItem('happynation_prontuario_price')) || 25.00;
+
+    // Aplica desconto do plano do usuário se disponível (ex: 100% OFF no Prime VIP, 50% Master Pro, 25% Starter)
+    if (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') {
+        cnh = window.MGSaldo.calcDiscount(cnh);
+        exame = window.MGSaldo.calcDiscount(exame);
+        prontuario = window.MGSaldo.calcDiscount(prontuario);
+    }
     return { cnh, exame, prontuario };
 }
 
@@ -4388,10 +4395,10 @@ function updateComboPricing() {
     }
 
     const exLabel = document.getElementById('comboExamePriceLabel');
-    if (exLabel) exLabel.textContent = '+ R$ ' + prices.exame.toFixed(2).replace('.', ',');
+    if (exLabel) exLabel.textContent = (prices.exame === 0) ? '+ GRÁTIS' : ('+ R$ ' + prices.exame.toFixed(2).replace('.', ','));
 
     const prLabel = document.getElementById('comboProntuarioPriceLabel');
-    if (prLabel) prLabel.textContent = '+ R$ ' + prices.prontuario.toFixed(2).replace('.', ',');
+    if (prLabel) prLabel.textContent = (prices.prontuario === 0) ? '+ GRÁTIS' : ('+ R$ ' + prices.prontuario.toFixed(2).replace('.', ','));
 
     let total = prices.cnh;
     let count = 1;
@@ -4400,8 +4407,14 @@ function updateComboPricing() {
     if (hasExame) { total += prices.exame; count++; docs.push('Exame'); }
     if (hasProntuario) { total += prices.prontuario; count++; docs.push('Prontuário'); }
 
+    const userPlan = (window.MGSaldo && typeof window.MGSaldo.getUserPlan === 'function') ? window.MGSaldo.getUserPlan() : null;
+    const isFree = userPlan && userPlan.isFree;
+    const planBadge = (userPlan && userPlan.isAtivo && userPlan.desconto > 0 && !isFree) ? ` (${userPlan.desconto}% OFF)` : '';
+
     const sumTotal = document.getElementById('comboSummaryTotal');
-    if (sumTotal) sumTotal.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+    if (sumTotal) {
+        sumTotal.textContent = isFree ? 'GRÁTIS (Plano Prime VIP)' : ('R$ ' + total.toFixed(2).replace('.', ',') + planBadge);
+    }
 
     const sumCount = document.getElementById('comboSummaryCount');
     if (sumCount) {
@@ -4410,14 +4423,15 @@ function updateComboPricing() {
 
     const btnText = document.getElementById('btnGenerateText');
     if (btnText) {
+        const priceLabel = isFree ? 'GRÁTIS (Prime VIP)' : ('R$ ' + total.toFixed(2).replace('.', ','));
         if (count === 3) {
-            btnText.textContent = 'Gerar Combo Completo (3 PDFs) • R$ ' + total.toFixed(2).replace('.', ',');
+            btnText.textContent = 'Gerar Combo Completo (3 PDFs) • ' + priceLabel;
         } else if (hasExame) {
-            btnText.textContent = 'Gerar CNH + Exame em PDF • R$ ' + total.toFixed(2).replace('.', ',');
+            btnText.textContent = 'Gerar CNH + Exame em PDF • ' + priceLabel;
         } else if (hasProntuario) {
-            btnText.textContent = 'Gerar CNH + Prontuário em PDF • R$ ' + total.toFixed(2).replace('.', ',');
+            btnText.textContent = 'Gerar CNH + Prontuário em PDF • ' + priceLabel;
         } else {
-            btnText.textContent = 'Gerar CNH em PDF • R$ ' + total.toFixed(2).replace('.', ',');
+            btnText.textContent = 'Gerar CNH em PDF • ' + priceLabel;
         }
     }
 
@@ -4426,7 +4440,8 @@ function updateComboPricing() {
         let saldoStr = '0,00';
         const bEl = document.getElementById('bottomBarSaldo');
         if (bEl) saldoStr = bEl.textContent;
-        costInfo.innerHTML = 'Gerar consumirá <span class="cost-price">R$ ' + total.toFixed(2).replace('.', ',') + '</span> (saldo: <span id="bottomBarSaldo">' + saldoStr + '</span>)';
+        const displayCost = isFree ? 'GRÁTIS (Prime VIP)' : ('R$ ' + total.toFixed(2).replace('.', ','));
+        costInfo.innerHTML = 'Gerar consumirá <span class="cost-price">' + displayCost + '</span> (saldo: <span id="bottomBarSaldo">' + saldoStr + '</span>)';
     }
 
     return total;
@@ -4798,7 +4813,7 @@ async function generateNow() {
     const hasComboExame = !!(document.getElementById('chkComboExame')?.checked);
     const hasComboProntuario = !!(document.getElementById('chkComboProntuario')?.checked);
 
-    if (!isEditMode && userSaldo < totalCustoCombo) {
+    if (!isEditMode && totalCustoCombo > 0 && userSaldo < totalCustoCombo) {
         alert('⚠️ Saldo insuficiente! Você possui R$ ' + userSaldo.toFixed(2).replace('.', ',') + ' e o total selecionado custa R$ ' + totalCustoCombo.toFixed(2).replace('.', ',') + '.\n\nRedirecionando para a tela de recargas...');
         window.location.href = 'recargas.html';
         return;

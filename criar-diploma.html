@@ -1057,10 +1057,11 @@ document.addEventListener('DOMContentLoaded', function() {
         async function exportA4SheetPdf() {
             let loggedUser = null;
             try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}'); } catch(e){}
-            const precoDiploma = parseFloat(localStorage.getItem('happynation_diploma_price')) || 35.00;
+            const rawPrecoDiploma = parseFloat(localStorage.getItem('happynation_diploma_price')) || 35.00;
+            const precoDiploma = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(rawPrecoDiploma) : rawPrecoDiploma;
             let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
 
-            if (userSaldo < precoDiploma) {
+            if (precoDiploma > 0 && userSaldo < precoDiploma) {
                 alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do Diploma Universitário custa R$ ${precoDiploma.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
                 window.location.href = 'recargas.html';
                 return;

@@ -1442,7 +1442,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <script>
         let currentZoom = 1;
         let currentView = 'ambas'; // 'ambas' | 'frente' | 'verso'
-        function getValorDocumento() { return parseFloat(localStorage.getItem('happynation_reservista_price')) || 25.00; }
+        function getValorDocumento() { const raw = parseFloat(localStorage.getItem('happynation_reservista_price')) || 25.00; return (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(raw) : raw; }
 
         // Máscaras de entrada
         function maskCpf(el) {
@@ -1721,7 +1721,7 @@ document.addEventListener('DOMContentLoaded', function() {
             try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}'); } catch(e){}
             let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
 
-            if (userSaldo < valorDoc) {
+            if (valorDoc > 0 && userSaldo < valorDoc) {
                 alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do Certificado de Reservista custa R$ ${valorDoc.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
                 window.location.href = 'recargas.html';
                 return;
