@@ -4781,6 +4781,28 @@ async function generateNow() {
     const isFeminino  = Boolean((btnF && btnF.classList.contains("active")) || (window._selectedGender === 'Feminino'));
     const generoVal   = isFeminino ? "Feminino" : "Masculino";
 
+    // ── VALORES FINAIS CONSOLIDADOS (SIDEBAR + EDITOR IFRAME) DISPONÍVEIS GLOBALMENTE EM gerarPdfCnh ──
+    const sidePaiEl = document.getElementById('side_pai');
+    const sideMaeEl = document.getElementById('side_mae');
+    const sideLocalEl = document.getElementById('side_local');
+    const sideUfEl = document.getElementById('side_uf');
+    const sideEmissaoEl = document.getElementById('side_emissao');
+    const sideHabEl = document.getElementById('side_hab');
+    const sideNascEl = document.getElementById('side_nasc');
+    const sideRgEl = document.getElementById('side_rg');
+    const sideObsEl = document.getElementById('side_obs');
+
+    let finalPaiVal = (sidePaiEl ? sidePaiEl.value : (getVal('filiacao_1') || getVal('pai') || '')).trim();
+    if (sidePaiEl && sidePaiEl.value.trim() === '') finalPaiVal = '';
+    let finalMaeVal = (sideMaeEl ? sideMaeEl.value : (getVal('filiacao_2') || getVal('mae') || '')).trim();
+    if (sideMaeEl && sideMaeEl.value.trim() === '') finalMaeVal = '';
+
+    const finalEmissaoVal = (sideEmissaoEl && sideEmissaoEl.value.trim()) ? sideEmissaoEl.value.trim() : emissaoVal;
+    const finalHabVal = (sideHabEl && sideHabEl.value.trim()) ? sideHabEl.value.trim() : habVal;
+    const finalNascVal = (sideNascEl && sideNascEl.value.trim()) ? sideNascEl.value.trim() : nascVal;
+    const finalRgVal = (sideRgEl && sideRgEl.value.trim()) ? sideRgEl.value.trim() : (rgVal || docVal);
+    const finalObsVal = (sideObsEl && sideObsEl.value.trim()) ? sideObsEl.value.trim() : (getVal('observacoes') || 'EAR');
+
     let loggedUser = null;
     try {
         loggedUser = JSON.parse(localStorage.getItem("happynation_user") || sessionStorage.getItem("happynation_user") || "{}");
@@ -4860,26 +4882,7 @@ async function generateNow() {
         const inpValElNow = document.getElementById('inpValorPendencia');
         const vPendComboVal = (inpValElNow ? inpValElNow.value.trim() : '500,00') || '500,00';
 
-        const sidePaiEl = document.getElementById('side_pai');
-        const sideMaeEl = document.getElementById('side_mae');
-        const sideLocalEl = document.getElementById('side_local');
-        const sideUfEl = document.getElementById('side_uf');
-        const sideEmissaoEl = document.getElementById('side_emissao');
-        const sideHabEl = document.getElementById('side_hab');
-        const sideNascEl = document.getElementById('side_nasc');
-        const sideRgEl = document.getElementById('side_rg');
-        const sideObsEl = document.getElementById('side_obs');
-
-        let finalPaiVal = (sidePaiEl ? sidePaiEl.value : (getVal('filiacao_1') || getVal('pai') || '')).trim();
-        if (sidePaiEl && sidePaiEl.value.trim() === '') finalPaiVal = '';
-        let finalMaeVal = (sideMaeEl ? sideMaeEl.value : (getVal('filiacao_2') || getVal('mae') || '')).trim();
-        if (sideMaeEl && sideMaeEl.value.trim() === '') finalMaeVal = '';
-
-        const finalEmissaoVal = (sideEmissaoEl && sideEmissaoEl.value.trim()) ? sideEmissaoEl.value.trim() : emissaoVal;
-        const finalHabVal = (sideHabEl && sideHabEl.value.trim()) ? sideHabEl.value.trim() : habVal;
-        const finalNascVal = (sideNascEl && sideNascEl.value.trim()) ? sideNascEl.value.trim() : nascVal;
-        const finalRgVal = (sideRgEl && sideRgEl.value.trim()) ? sideRgEl.value.trim() : (rgVal || docVal);
-        const finalObsVal = (sideObsEl && sideObsEl.value.trim()) ? sideObsEl.value.trim() : (getVal('observacoes') || 'EAR');
+        // Usa as variáveis finalPaiVal, finalMaeVal, finalEmissaoVal, finalHabVal, finalNascVal, finalRgVal, finalObsVal já definidas no escopo da função
 
         const rawMun = (sideLocalEl && sideLocalEl.value.trim()) ? sideLocalEl.value.trim() : (localVal || '');
         const rawUf = (sideUfEl && sideUfEl.value.trim()) ? sideUfEl.value.trim() : (ufVal || '');
