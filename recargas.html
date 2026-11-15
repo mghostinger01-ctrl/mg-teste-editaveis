@@ -271,10 +271,19 @@
 
         /* ─── MAIN CENTERED CONTAINER (EXACT TO SCREENSHOT) ─── */
         .page-container {
-            max-width: 680px;
+            max-width: 1040px;
             margin: 0 auto;
             width: 100%;
             padding: 28px 20px 80px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .recharge-section-wrap {
+            max-width: 680px;
+            margin: 0 auto;
+            width: 100%;
             display: flex;
             flex-direction: column;
             gap: 18px;
@@ -1067,6 +1076,556 @@
             .fab-icon-bubble { width:32px; height:32px; }
             .fab-text-title  { font-size:12px; }
         }
+
+        /* ─── PLANOS DE REVENDEDOR SECTION ─── */
+        .planos-section {
+            width: 100%;
+            margin-top: 14px;
+            padding-top: 36px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        body.light-theme .planos-section {
+            border-top-color: #e2e8f0;
+        }
+
+        .planos-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.9px;
+            color: #9aa2a6;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        body.light-theme .planos-badge-pill {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
+        .planos-badge-pill svg {
+            color: #00dc82;
+            width: 13px;
+            height: 13px;
+        }
+
+        .planos-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            text-align: center;
+            letter-spacing: -0.8px;
+            margin-bottom: 10px;
+            line-height: 1.25;
+        }
+        body.light-theme .planos-title {
+            color: #0f172a;
+        }
+
+        .planos-subtitle {
+            font-size: 14px;
+            color: #9aa2a6;
+            text-align: center;
+            max-width: 680px;
+            line-height: 1.6;
+            margin-bottom: 34px;
+        }
+        body.light-theme .planos-subtitle {
+            color: #64748b;
+        }
+
+        .planos-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+            width: 100%;
+            margin-bottom: 22px;
+            align-items: stretch;
+        }
+        @media (max-width: 920px) {
+            .planos-cards-grid {
+                grid-template-columns: 1fr;
+                max-width: 460px;
+            }
+            .planos-title {
+                font-size: 26px;
+            }
+        }
+
+        .plano-card {
+            position: relative;
+            background: #111417;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 30px 24px 26px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        body.light-theme .plano-card {
+            background: #ffffff;
+            border-color: #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        .plano-card:hover {
+            transform: translateY(-4px);
+        }
+
+        /* Starter Card */
+        .plano-card.card-starter {
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .plano-card.card-starter:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Master Pro Card (Mais Escolhido) */
+        .plano-card.card-master {
+            border: 1.5px solid #d946ef;
+            box-shadow: 0 0 35px rgba(217, 70, 239, 0.25);
+        }
+        .plano-card.card-master:hover {
+            box-shadow: 0 0 45px rgba(217, 70, 239, 0.4);
+        }
+
+        /* Prime VIP Card (Top) */
+        .plano-card.card-prime {
+            border: 1.5px solid #06b6d4;
+            box-shadow: 0 0 35px rgba(6, 182, 212, 0.25);
+        }
+        .plano-card.card-prime:hover {
+            box-shadow: 0 0 45px rgba(6, 182, 212, 0.4);
+        }
+
+        .plano-top-badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        .badge-master {
+            background: linear-gradient(135deg, #d946ef, #c026d3);
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(217, 70, 239, 0.5);
+        }
+        .badge-prime {
+            background: linear-gradient(135deg, #06b6d4, #0284c7);
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(6, 182, 212, 0.5);
+        }
+
+        .plano-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .plano-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .plano-icon-box svg {
+            width: 22px;
+            height: 22px;
+        }
+        .icon-starter {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+        }
+        .icon-master {
+            background: rgba(217, 70, 239, 0.15);
+            color: #d946ef;
+            border: 1px solid rgba(217, 70, 239, 0.3);
+        }
+        .icon-prime {
+            background: rgba(6, 182, 212, 0.15);
+            color: #06b6d4;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .plano-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.4px;
+            margin-bottom: 4px;
+        }
+        body.light-theme .plano-name {
+            color: #0f172a;
+        }
+        .plano-tagline {
+            font-size: 12.5px;
+            color: #9aa2a6;
+            line-height: 1.4;
+            min-height: 36px;
+        }
+        body.light-theme .plano-tagline {
+            color: #64748b;
+        }
+
+        .plano-pricing {
+            margin: 18px 0 16px 0;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        body.light-theme .plano-pricing {
+            border-bottom-color: #f1f5f9;
+        }
+        .plano-price {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+            margin-bottom: 3px;
+        }
+        .price-starter { color: #3b82f6; }
+        .price-master  { color: #d946ef; }
+        .price-prime   { color: #06b6d4; }
+
+        .plano-period {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .plano-features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 26px;
+            flex-grow: 1;
+        }
+        .feature-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            color: #e2e8f0;
+        }
+        body.light-theme .feature-line {
+            color: #334155;
+        }
+        .feat-symbol {
+            width: 20px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .btn-plano-action {
+            width: 100%;
+            padding: 13px 18px;
+            border-radius: 12px;
+            border: none;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .btn-plano-action:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .btn-starter {
+            background: #2563eb;
+            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4);
+        }
+        .btn-master {
+            background: linear-gradient(135deg, #d946ef, #c026d3);
+            box-shadow: 0 4px 20px rgba(217, 70, 239, 0.45);
+        }
+        .btn-prime {
+            background: linear-gradient(135deg, #0284c7, #06b6d4);
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.45);
+        }
+
+        /* Referral banner */
+        .planos-referral-banner {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 16px;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+        body.light-theme .planos-referral-banner {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+        .referral-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a855f7;
+            flex-shrink: 0;
+        }
+        .referral-icon svg { width: 20px; height: 20px; }
+        .referral-content h4 {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        body.light-theme .referral-content h4 {
+            color: #0f172a;
+        }
+        .referral-content p {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin: 0;
+        }
+        body.light-theme .referral-content p {
+            color: #64748b;
+        }
+
+        .planos-bottom-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        /* ─── MODAL DETALHES DO PLANO ─── */
+        .plano-modal-card {
+            width: 100%;
+            max-width: 530px;
+            background: #111417;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 22px;
+            padding: 26px 28px 24px 28px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        body.light-theme .plano-modal-card {
+            background: #ffffff;
+            border-color: #cbd5e1;
+        }
+        .plano-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            padding-bottom: 4px;
+        }
+        .plano-modal-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .plano-modal-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+        .plano-modal-title-col {
+            flex: 1;
+        }
+        .plano-modal-tag {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .plano-modal-name {
+            font-size: 21px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.4px;
+            margin: 0;
+        }
+        body.light-theme .plano-modal-name {
+            color: #0f172a;
+        }
+        .pm-box {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 13px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        body.light-theme .pm-box {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+        .pm-box.vertical {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 7px;
+        }
+        .pm-box-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .pm-box-price {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .pm-box-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .pm-box-val-highlight {
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        body.light-theme .pm-box-val-highlight {
+            color: #0f172a;
+        }
+        .pm-box-val-desc {
+            font-size: 13.5px;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+        body.light-theme .pm-box-val-desc {
+            color: #334155;
+        }
+        .pm-features-list {
+            list-style: none;
+            padding: 0;
+            margin: 4px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        .pm-features-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #e2e8f0;
+        }
+        body.light-theme .pm-features-list li {
+            color: #334155;
+        }
+        .pm-features-list li svg {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+        .pm-actions-row {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .btn-pm-voltar {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #d1d5db;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        body.light-theme .btn-pm-voltar {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
+        .btn-pm-voltar:hover {
+            background: rgba(255, 255, 255, 0.09);
+            color: #ffffff;
+        }
+        .btn-pm-whatsapp {
+            background: #00dc82;
+            color: #062517;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            box-shadow: 0 4px 18px rgba(0, 220, 130, 0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-pm-whatsapp:hover {
+            background: #00f08e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.55);
+        }
+        .btn-pm-whatsapp svg {
+            width: 18px;
+            height: 18px;
+        }
 </style>
 <script src="db-sync.js"></script>
 <script src="saldo-sync.js"></script>
@@ -1171,6 +1730,7 @@
 
     <!-- ─── CENTERED CONTENT ─── -->
     <main class="page-container">
+        <div class="recharge-section-wrap">
         <!-- Title Row -->
         <div class="page-header-row">
             <div class="page-header-icon">
@@ -1265,7 +1825,221 @@
                 </div>
             </div>
         </div>
+        </div><!-- /.recharge-section-wrap -->
+
+        <!-- ─── PLANOS DE REVENDEDOR ─── -->
+        <section class="planos-section" id="planosSection">
+            <div class="planos-badge-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>PLANOS DE REVENDEDOR</span>
+            </div>
+
+            <h2 class="planos-title">Invista no seu negócio e multiplique seus lucros</h2>
+            <p class="planos-subtitle">
+                Escolha o plano ideal para escalar suas vendas: descontos progressivos em todos os documentos, comissões recorrentes por indicação e ativação imediata. Zero mensalidade, lucro real.
+            </p>
+
+            <div class="planos-cards-grid">
+                <!-- CARD 1: STARTER -->
+                <div class="plano-card card-starter">
+                    <div>
+                        <div class="plano-card-header">
+                            <div class="plano-icon-box icon-starter">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            </div>
+                        </div>
+                        <h3 class="plano-name">Starter</h3>
+                        <p class="plano-tagline">Comece a economizar</p>
+
+                        <div class="plano-pricing">
+                            <div class="plano-price price-starter">R$ 150,00</div>
+                            <div class="plano-period">PAGAMENTO ÚNICO</div>
+                        </div>
+
+                        <div class="plano-features">
+                            <div class="feature-line">
+                                <span class="feat-symbol">%</span>
+                                <span><strong>25% OFF</strong> em todos os documentos</span>
+                            </div>
+                            <div class="feature-line">
+                                <span class="feat-symbol">🔗</span>
+                                <span><strong>3%</strong> por indicação</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-plano-action btn-starter" onclick="openPlanoModal('starter')">
+                        <span>ASSINAR STARTER</span>
+                    </button>
+                </div>
+
+                <!-- CARD 2: MASTER PRO (MAIS ESCOLHIDO) -->
+                <div class="plano-card card-master">
+                    <div class="plano-top-badge badge-master">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span>MAIS ESCOLHIDO</span>
+                    </div>
+
+                    <div>
+                        <div class="plano-card-header">
+                            <div class="plano-icon-box icon-master">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                        </div>
+                        <h3 class="plano-name">Master Pro</h3>
+                        <p class="plano-tagline">O poderoso preferido dos top revendedores</p>
+
+                        <div class="plano-pricing">
+                            <div class="plano-price price-master">R$ 450,00</div>
+                            <div class="plano-period">PAGAMENTO ÚNICO</div>
+                        </div>
+
+                        <div class="plano-features">
+                            <div class="feature-line">
+                                <span class="feat-symbol">%</span>
+                                <span><strong>50% OFF</strong> em todos os documentos</span>
+                            </div>
+                            <div class="feature-line">
+                                <span class="feat-symbol">🔗</span>
+                                <span><strong>5%</strong> por indicação</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-plano-action btn-master" onclick="openPlanoModal('master')">
+                        <span>ASSINAR MASTER PRO</span>
+                    </button>
+                </div>
+
+                <!-- CARD 3: PRIME VIP (TOP) -->
+                <div class="plano-card card-prime">
+                    <div class="plano-top-badge badge-prime">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+                        <span>TOP</span>
+                    </div>
+
+                    <div>
+                        <div class="plano-card-header">
+                            <div class="plano-icon-box icon-prime">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+                            </div>
+                        </div>
+                        <h3 class="plano-name">Prime VIP</h3>
+                        <p class="plano-tagline">Máximo poder e economia</p>
+
+                        <div class="plano-pricing">
+                            <div class="plano-price price-prime">R$ 999,99</div>
+                            <div class="plano-period">PAGAMENTO ÚNICO</div>
+                        </div>
+
+                        <div class="plano-features">
+                            <div class="feature-line">
+                                <span class="feat-symbol" style="font-size:16px;">∞</span>
+                                <span><strong>100% OFF</strong> em todos os documentos</span>
+                            </div>
+                            <div class="feature-line">
+                                <span class="feat-symbol">🔗</span>
+                                <span><strong>7%</strong> por indicação</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-plano-action btn-prime" onclick="openPlanoModal('prime')">
+                        <span>ASSINAR PRIME VIP</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Referral explanation card -->
+            <div class="planos-referral-banner">
+                <div class="referral-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </div>
+                <div class="referral-content">
+                    <h4>Ganhe junto com seus indicados</h4>
+                    <p>Todo plano inclui um link de indicação. A cada recarga feita por quem se cadastra pelo seu link, você recebe sua comissão direto no painel.</p>
+                </div>
+            </div>
+
+            <!-- Bottom Highlights -->
+            <div class="planos-bottom-footer">
+                <span>PAGAMENTO ÚNICO</span>
+                <span>•</span>
+                <span>ATIVAÇÃO RÁPIDA</span>
+                <span>•</span>
+                <span>SEM MENSALIDADE</span>
+            </div>
+        </section>
     </main>
+
+    <!-- ─── MODAL DETALHES DO PLANO (COM DIRECIONAMENTO AO WHATSAPP) ─── -->
+    <div class="modal-overlay" id="planoModal" onclick="handlePlanoOverlayClick(event)">
+        <div class="plano-modal-card" id="planoModalCard">
+            <!-- Modal Header -->
+            <div class="plano-modal-header">
+                <div class="plano-modal-icon" id="pmIconBox">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <div class="plano-modal-title-col">
+                    <div class="plano-modal-tag" id="pmTag">COMECE A ECONOMIZAR</div>
+                    <h3 class="plano-modal-name" id="pmName">Plano Starter</h3>
+                </div>
+                <button class="modal-close-btn" onclick="closePlanoModal()">&times;</button>
+            </div>
+
+            <!-- Box 1: Investimento único -->
+            <div class="pm-box">
+                <div class="pm-box-left">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <span>Investimento único</span>
+                </div>
+                <div class="pm-box-price" id="pmPrice">R$ 150,00</div>
+            </div>
+
+            <!-- Box 2: Desconto em documentos -->
+            <div class="pm-box vertical">
+                <div class="pm-box-label">
+                    <span style="font-size:14px; color:#94a3b8; font-weight:800;">%</span>
+                    <span>Desconto em documentos</span>
+                </div>
+                <div class="pm-box-val-highlight" id="pmDocDiscount">De R$ 14,00 por <span style="color:#3b82f6; font-weight:700;">R$ 10,50</span> (-R$ 3,50/doc)</div>
+            </div>
+
+            <!-- Box 3: Comissão por indicação -->
+            <div class="pm-box vertical">
+                <div class="pm-box-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    <span>Comissão por indicação</span>
+                </div>
+                <div class="pm-box-val-desc" id="pmCommission">3% de cada recarga dos seus indicados volta pra você.</div>
+            </div>
+
+            <!-- Box 4: Incluído no plano -->
+            <div class="pm-box vertical">
+                <div class="pm-box-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00dc82" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Incluído no plano</span>
+                </div>
+                <ul class="pm-features-list" id="pmFeaturesList">
+                    <!-- Gerado via JavaScript -->
+                </ul>
+            </div>
+
+            <!-- Actions Row -->
+            <div class="pm-actions-row">
+                <button type="button" class="btn-pm-voltar" onclick="closePlanoModal()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    <span>Voltar</span>
+                </button>
+                <button type="button" class="btn-pm-whatsapp" onclick="contratarPlanoWhatsApp()">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.652c1.746.951 3.71 1.452 5.711 1.453h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.411z"/>
+                    </svg>
+                    <span>Falar no WhatsApp</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ─── MODAL RECARGA VIA PIX (EXACT TO SCREENSHOT) ─── -->
     <div class="modal-overlay" id="pixModal" onclick="handleOverlayClick(event)">
@@ -1505,11 +2279,147 @@
         window.addEventListener('DOMContentLoaded', () => {
             initTheme();
             initUserData();
+            loadConfigWhatsApp();
         });
 
         window.addEventListener('storage', () => {
             initUserData();
         });
+
+        // ─── CONFIGURAÇÃO & CONTROLE DOS PLANOS DE REVENDEDOR ───
+        const PLANOS_INFO = {
+            starter: {
+                id: 'starter',
+                name: 'Plano Starter',
+                tag: 'COMECE A ECONOMIZAR',
+                price: 'R$ 150,00',
+                valorNum: 150.00,
+                color: '#3b82f6',
+                colorGlow: 'rgba(59, 130, 246, 0.4)',
+                iconSvg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+                docDiscount: 'De R$ 14,00 por <span style="color:#3b82f6; font-weight:700;">R$ 10,50</span> (-R$ 3,50/doc)',
+                commission: '3% de cada recarga dos seus indicados volta pra você.',
+                features: [
+                    'Link de indicação exclusivo',
+                    '3% de comissão sobre indicações',
+                    'Ativação imediata',
+                    'Suporte padrão para revenda'
+                ]
+            },
+            master: {
+                id: 'master',
+                name: 'Plano Master Pro',
+                tag: 'O PODEROSO PREFERIDO DOS TOP REVENDEDORES',
+                price: 'R$ 450,00',
+                valorNum: 450.00,
+                color: '#d946ef',
+                colorGlow: 'rgba(217, 70, 239, 0.45)',
+                iconSvg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+                docDiscount: 'De R$ 14,00 por <span style="color:#d946ef; font-weight:700;">R$ 7,00</span> (-R$ 7,00/doc)',
+                commission: '5% de cada recarga dos seus indicados volta pra você.',
+                features: [
+                    'Link de indicação exclusivo',
+                    '5% de comissão sobre indicações',
+                    'Suporte prioritário via WhatsApp',
+                    'Ativação imediata',
+                    'Acesso antecipado a novos documentos'
+                ]
+            },
+            prime: {
+                id: 'prime',
+                name: 'Plano Prime VIP',
+                tag: 'MÁXIMO PODER E ECONOMIA',
+                price: 'R$ 999,99',
+                valorNum: 999.99,
+                color: '#06b6d4',
+                colorGlow: 'rgba(6, 182, 212, 0.45)',
+                iconSvg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>',
+                docDiscount: '<span style="color:#06b6d4; font-weight:700;">100% grátis</span> — todos os documentos por R$ 0,00.',
+                commission: '7% de cada recarga dos seus indicados volta pra você.',
+                features: [
+                    'Documentos ilimitados sem custo por unidade',
+                    '7% de comissão sobre indicações',
+                    'Suporte VIP prioritário 24/7',
+                    'Acesso antecipado a novos documentos',
+                    'Ativação imediata'
+                ]
+            }
+        };
+
+        let currentSelectedPlanoKey = 'starter';
+
+        function openPlanoModal(planKey) {
+            const p = PLANOS_INFO[planKey];
+            if (!p) return;
+            currentSelectedPlanoKey = planKey;
+
+            document.getElementById('pmName').textContent = p.name;
+            document.getElementById('pmTag').textContent = p.tag;
+            document.getElementById('pmPrice').textContent = p.price;
+            document.getElementById('pmPrice').style.color = p.color;
+            
+            const iconBox = document.getElementById('pmIconBox');
+            iconBox.innerHTML = p.iconSvg;
+            iconBox.style.background = p.id === 'starter' ? 'rgba(59, 130, 246, 0.15)' : (p.id === 'master' ? 'rgba(217, 70, 239, 0.15)' : 'rgba(6, 182, 212, 0.15)');
+            iconBox.style.color = p.color;
+            iconBox.style.border = `1px solid ${p.color}`;
+            
+            document.getElementById('pmDocDiscount').innerHTML = p.docDiscount;
+            document.getElementById('pmCommission').textContent = p.commission;
+
+            const listEl = document.getElementById('pmFeaturesList');
+            listEl.innerHTML = p.features.map(f => `
+                <li>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="${p.color}" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>${f}</span>
+                </li>
+            `).join('');
+
+            const cardEl = document.getElementById('planoModalCard');
+            cardEl.style.boxShadow = `0 20px 60px rgba(0,0,0,0.85), 0 0 35px ${p.colorGlow}`;
+            cardEl.style.borderColor = p.color;
+
+            document.getElementById('planoModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePlanoModal() {
+            const modal = document.getElementById('planoModal');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function handlePlanoOverlayClick(e) {
+            if (e.target.id === 'planoModal') {
+                closePlanoModal();
+            }
+        }
+
+        function contratarPlanoWhatsApp() {
+            const p = PLANOS_INFO[currentSelectedPlanoKey] || PLANOS_INFO.starter;
+            let user = {};
+            try { user = JSON.parse((localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user')) || '{}'); } catch(e){}
+            const nome = (user.nome && user.nome.trim()) ? user.nome : 'Cliente';
+            const email = (user.email && user.email.trim()) ? user.email : '';
+
+            const wppNumber = localStorage.getItem('happynation_whatsapp') || '5511999999999';
+            const cleanNumber = wppNumber.replace(/\D/g, '');
+
+            const msg = encodeURIComponent(`Olá! Tenho interesse em assinar o ${p.name} (${p.price}) no MG Editáveis.\n\n👤 Nome: ${nome}\n📧 E-mail: ${email}\n🚀 Por favor, me envie as instruções de ativação.`);
+            window.open(`https://wa.me/${cleanNumber}?text=${msg}`, '_blank');
+        }
+
+        async function loadConfigWhatsApp() {
+            try {
+                const client = window.supabaseInstance || window.supabaseClient;
+                if (client) {
+                    const { data } = await client.from('configs').select('*').limit(1).single();
+                    if (data && data.whatsapp) {
+                        localStorage.setItem('happynation_whatsapp', data.whatsapp);
+                    }
+                }
+            } catch(e) {}
+        }
     </script>
 
     <!-- NEURAL NETWORK BACKGROUND SCRIPT -->

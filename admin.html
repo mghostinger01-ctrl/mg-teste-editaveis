@@ -2297,6 +2297,15 @@
                             <span class="nav-badge" id="badgePendingIndicados" style="background:rgba(0,220,130,0.15); color:#00dc82; font-weight:700;">0</span>
                         </div>
                     </li>
+                    <li>
+                        <div class="nav-item" onclick="switchTab('assinantes', this)">
+                            <div class="nav-item-left">
+                                <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+                                <span>Assinantes & Planos</span>
+                            </div>
+                            <span class="nav-badge" id="badgeAssinantesCount" style="background:rgba(217,70,239,0.15); color:#d946ef; font-weight:700;">0</span>
+                        </div>
+                    </li>
                 </ul>
             </div>
 
@@ -3488,6 +3497,118 @@
                 </div>
             </div>
 
+            <!-- TAB: ASSINANTES & PLANOS DE REVENDA -->
+            <div class="view-panel" id="view-assinantes">
+                <div class="section-header">
+                    <div class="sec-title-group">
+                        <div class="sec-title" style="display:flex; align-items:center; gap:10px;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d946ef" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <span>Gestão de Assinantes & Planos de Revenda</span>
+                        </div>
+                        <div class="sec-subtitle">Gerencie os planos de revenda dos usuários, libere acessos manuais, cancele assinaturas e controle os descontos em documentos e comissões.</div>
+                    </div>
+                </div>
+
+                <!-- 4 KPI STAT CARDS -->
+                <div class="grid-4" style="margin-bottom:24px;">
+                    <div class="card stat-card" style="border-left: 4px solid #d946ef;">
+                        <div class="stat-top">
+                            <span class="stat-label">Assinantes Ativos</span>
+                            <div class="stat-icon-wrap" style="background:rgba(217,70,239,0.15); color:#d946ef;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-val" id="statAssinantesAtivos">0</div>
+                        <div class="stat-sub">Usuários com plano ativo</div>
+                    </div>
+
+                    <div class="card stat-card" style="border-left: 4px solid #3b82f6;">
+                        <div class="stat-top">
+                            <span class="stat-label">Plano Starter (25% OFF)</span>
+                            <div class="stat-icon-wrap" style="background:rgba(59,130,246,0.15); color:#3b82f6;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-val" id="statAssinantesStarter" style="color:#3b82f6;">0</div>
+                        <div class="stat-sub">R$ 150,00 • 3% indicação</div>
+                    </div>
+
+                    <div class="card stat-card" style="border-left: 4px solid #d946ef;">
+                        <div class="stat-top">
+                            <span class="stat-label">Plano Master Pro (50% OFF)</span>
+                            <div class="stat-icon-wrap" style="background:rgba(217,70,239,0.15); color:#d946ef;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-val" id="statAssinantesMaster" style="color:#d946ef;">0</div>
+                        <div class="stat-sub">R$ 450,00 • 5% indicação</div>
+                    </div>
+
+                    <div class="card stat-card" style="border-left: 4px solid #06b6d4;">
+                        <div class="stat-top">
+                            <span class="stat-label">Plano Prime VIP (100% OFF)</span>
+                            <div class="stat-icon-wrap" style="background:rgba(6,182,212,0.15); color:#06b6d4;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-val" id="statAssinantesPrime" style="color:#06b6d4;">0</div>
+                        <div class="stat-sub">R$ 999,99 • Docs Grátis • 7%</div>
+                    </div>
+                </div>
+
+                <!-- TABLE CARD -->
+                <div class="card">
+                    <div class="card-header-bar" style="flex-wrap:wrap; gap:12px;">
+                        <div class="table-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d946ef" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <span>Lista de Assinantes & Planos de Revenda</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <button class="btn-act" onclick="openAddAssinanteModal()" style="background:#d946ef; color:#ffffff; font-weight:700; border:none; padding:7px 14px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 4px 14px rgba(217,70,239,0.35);">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <span>+ Liberar / Alterar Plano</span>
+                            </button>
+                            <select id="filterAssinantePlano" class="search-inp" style="width:160px; cursor:pointer;" onchange="renderAssinantesTable()">
+                                <option value="">Todos os Planos</option>
+                                <option value="Starter">Starter (25% OFF)</option>
+                                <option value="Master Pro">Master Pro (50% OFF)</option>
+                                <option value="Prime VIP">Prime VIP (100% OFF)</option>
+                            </select>
+                            <select id="filterAssinanteStatus" class="search-inp" style="width:140px; cursor:pointer;" onchange="renderAssinantesTable()">
+                                <option value="">Todos Status</option>
+                                <option value="ativo">Ativos</option>
+                                <option value="pendente">Pendentes</option>
+                                <option value="cancelado">Cancelados</option>
+                            </select>
+                            <div class="search-box-wrap">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" class="search-inp" id="searchAssinanteInp" placeholder="Buscar por cliente, e-mail..." onkeyup="renderAssinantesTable()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>WhatsApp</th>
+                                    <th>Plano</th>
+                                    <th>Desconto Docs</th>
+                                    <th>Comissão</th>
+                                    <th>Status</th>
+                                    <th>Validade / Data</th>
+                                    <th style="text-align:right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assinantesTableBody">
+                                <!-- Preenchido dinamicamente via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- TAB: ATUALIZAÇÕES (ROADMAP) -->
             <div class="view-panel" id="view-atualizacoes">
                 <div class="section-header" style="margin-bottom:18px;">
@@ -4169,6 +4290,67 @@
         </main>
     </div>
 
+    <!-- MODAL LIBERAR / ALTERAR PLANO DE REVENDEDOR -->
+    <div class="modal-overlay" id="modalAssinante">
+        <div class="modal-card" style="max-width:540px;">
+            <div class="modal-header">
+                <div class="modal-title" id="modalAssinanteTitle">Liberar / Alterar Plano de Revenda</div>
+                <div class="modal-sub">Atribua descontos automáticos em documentos e comissões para o cliente.</div>
+            </div>
+
+            <div class="modal-field">
+                <label>Cliente</label>
+                <select class="modal-inp" id="modalAssinanteUserSelect" style="background:var(--bg-input); color:var(--text-primary);">
+                    <!-- Preenchido via JS -->
+                </select>
+            </div>
+
+            <div class="modal-field">
+                <label>Plano de Revenda</label>
+                <select class="modal-inp" id="modalAssinantePlanoSelect" style="background:var(--bg-input); color:var(--text-primary);" onchange="updateModalPlanoPreview()">
+                    <option value="Starter">Plano Starter (R$ 150,00 • 25% OFF Docs • 3% Indicação)</option>
+                    <option value="Master Pro" selected>Plano Master Pro (R$ 450,00 • 50% OFF Docs • 5% Indicação)</option>
+                    <option value="Prime VIP">Plano Prime VIP (R$ 999,99 • 100% OFF Docs • 7% Indicação)</option>
+                </select>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="modal-field">
+                    <label>Status</label>
+                    <select class="modal-inp" id="modalAssinanteStatusSelect" style="background:var(--bg-input); color:var(--text-primary);">
+                        <option value="ativo" selected>Ativo (Liberado)</option>
+                        <option value="pendente">Pendente (Aguardando)</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <div class="modal-field">
+                    <label>Validade</label>
+                    <select class="modal-inp" id="modalAssinanteValidadeSelect" style="background:var(--bg-input); color:var(--text-primary);">
+                        <option value="Vitalício" selected>Vitalício (Sem expiração)</option>
+                        <option value="30 dias">30 dias</option>
+                        <option value="60 dias">60 dias</option>
+                        <option value="90 dias">90 dias</option>
+                        <option value="1 ano">1 ano</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-field">
+                <label>Observação / Motivo (Opcional)</label>
+                <input type="text" class="modal-inp" id="modalAssinanteObs" placeholder="Ex: Pago via Pix, Ativação manual, Cortesia">
+            </div>
+
+            <div id="modalPlanoPreviewBox" style="background:rgba(217,70,239,0.08); border:1px solid rgba(217,70,239,0.25); border-radius:8px; padding:10px 14px; font-size:12.5px; color:#e2e8f0; margin-top:4px;">
+                <!-- Preview JS -->
+            </div>
+
+            <div class="modal-btns">
+                <button type="button" class="btn-m-cancel" onclick="closeModal('modalAssinante')">Cancelar</button>
+                <button type="button" class="btn-m-submit" style="background:#d946ef;" onclick="confirmSalvarAssinante()">Salvar Plano 👑</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DE ADICIONAR SALDO AO CLIENTE -->
     <div class="modal-overlay" id="modalSaldo">
         <div class="modal-card">
@@ -4417,6 +4599,7 @@
         let recargasData = JSON.parse(localStorage.getItem('happynation_admin_recargas')) || [];
         let indicacoesData = JSON.parse(localStorage.getItem('happynation_indicacoes')) || [];
         let cnhsData = JSON.parse(localStorage.getItem('happynation_admin_cnhs')) || [];
+        let assinantesData = JSON.parse(localStorage.getItem('happynation_assinantes')) || [];
         let examesData = [];
         let atestadosData = [];
         let activeUserForSaldo = null;
@@ -4427,6 +4610,7 @@
             localStorage.setItem('happynation_admin_recargas', JSON.stringify(recargasData));
             localStorage.setItem('happynation_admin_cnhs', JSON.stringify(cnhsData));
             localStorage.setItem('happynation_indicacoes', JSON.stringify(indicacoesData));
+            localStorage.setItem('happynation_assinantes', JSON.stringify(assinantesData));
 
             // Sincroniza em tempo real com o usuário logado para o index.html e demais páginas
             try {
@@ -4445,6 +4629,10 @@
                     current.phone = found.phone || '';
                     current.saldo = parseFloat(found.saldo) || 0;
                     current.status = found.status || 'approved';
+                    current.plano = found.plano || 'Nenhum';
+                    current.plano_status = found.plano_status || 'inativo';
+                    current.plano_desconto = found.plano_desconto || 0;
+                    current.plano_comissao = found.plano_comissao || 0;
                     localStorage.setItem('happynation_user', JSON.stringify(current));
                 }
             } catch(e) {}
@@ -4616,11 +4804,30 @@
                             cnhsCount: 0,
                             role: u.role || 'client',
                             status: (u.status === 'pendente' ? 'pending' : (u.status === 'aprovado' ? 'approved' : (u.status || 'pending'))),
+                            plano: u.plano || 'Nenhum',
+                            plano_status: u.plano_status || 'inativo',
+                            plano_desconto: parseInt(u.plano_desconto || 0),
+                            plano_comissao: parseInt(u.plano_comissao || 0),
+                            plano_validade: u.plano_validade || 'Vitalício',
+                            plano_ativado_em: u.plano_ativado_em || null,
                             created_at: u.created_at
                         }));
 
                     localStorage.setItem('happynation_admin_users', JSON.stringify(usersData));
                 }
+
+                // 1.1. Busca dados da tabela 'assinantes' se existir no Supabase
+                try {
+                    const { data: sAssinantes } = await client
+                        .from('assinantes')
+                        .select('*')
+                        .order('id', { ascending: false });
+
+                    if (Array.isArray(sAssinantes) && sAssinantes.length > 0) {
+                        assinantesData = sAssinantes;
+                        localStorage.setItem('happynation_assinantes', JSON.stringify(assinantesData));
+                    }
+                } catch(eAss) {}
 
                 // 2. Busca recargas PIX
                 const { data: sRecargas, error: errRec } = await client
@@ -4745,6 +4952,7 @@
 
                 renderIndicadosAdmin();
                 renderUsersTable();
+                renderAssinantesTable();
                 renderRecargasTable();
                 renderCnhsTable();
                 renderAdminActivities();
@@ -7082,6 +7290,510 @@ function updateDashboardMetrics() {
             showToast(`✅ Bônus liberado manualmente! +R$ ${bonusIndicadorVal.toFixed(2)} para ${ind.indicador_nome} e +R$ ${bonusIndicadoVal.toFixed(2)} para ${ind.indicado_nome}!`);
         }
 
+        // ─── GESTÃO DE ASSINANTES & PLANOS DE REVENDEDOR NO ADMIN ───
+        const PLANOS_CONFIG = {
+            'Starter': {
+                nome: 'Plano Starter',
+                valor: 150.00,
+                desconto_doc: 25,
+                comissao: 3,
+                color: '#3b82f6',
+                bgBadge: 'rgba(59,130,246,0.15)',
+                borderBadge: 'rgba(59,130,246,0.3)',
+                icon: '★'
+            },
+            'Master Pro': {
+                nome: 'Plano Master Pro',
+                valor: 450.00,
+                desconto_doc: 50,
+                comissao: 5,
+                color: '#d946ef',
+                bgBadge: 'rgba(217,70,239,0.15)',
+                borderBadge: 'rgba(217,70,239,0.35)',
+                icon: '⚡'
+            },
+            'Prime VIP': {
+                nome: 'Plano Prime VIP',
+                valor: 999.99,
+                desconto_doc: 100,
+                comissao: 7,
+                color: '#06b6d4',
+                bgBadge: 'rgba(6,182,212,0.15)',
+                borderBadge: 'rgba(6,182,212,0.35)',
+                icon: '👑'
+            }
+        };
+
+        function renderAssinantesTable() {
+            const tbody = document.getElementById('assinantesTableBody');
+            if (!tbody) return;
+
+            // Sincroniza assinantes a partir de usuários cadastrados que tenham plano ativo ou definido
+            if (Array.isArray(usersData)) {
+                usersData.forEach(u => {
+                    if (u.plano && u.plano !== 'Nenhum' && !assinantesData.some(a => String(a.user_id) === String(u.id))) {
+                        const cfg = PLANOS_CONFIG[u.plano] || PLANOS_CONFIG['Starter'];
+                        assinantesData.push({
+                            id: 'ass_' + u.id + '_' + Date.now(),
+                            user_id: u.id,
+                            user_nome: u.nome,
+                            user_email: u.email,
+                            user_phone: u.phone || '--',
+                            plano: u.plano,
+                            valor: cfg.valor,
+                            desconto_doc: u.plano_desconto || cfg.desconto_doc,
+                            comissao_indicacao: u.plano_comissao || cfg.comissao,
+                            status: u.plano_status || 'ativo',
+                            validade: u.plano_validade || 'Vitalício',
+                            observacao: 'Sincronizado do usuário',
+                            created_at: u.plano_ativado_em || u.created_at || new Date().toISOString()
+                        });
+                    }
+                });
+            }
+
+            // Contadores KPI
+            let ativosCount = 0;
+            let starterCount = 0;
+            let masterCount = 0;
+            let primeCount = 0;
+
+            assinantesData.forEach(item => {
+                if (item.status === 'ativo') {
+                    ativosCount++;
+                    if (item.plano === 'Starter') starterCount++;
+                    else if (item.plano === 'Master Pro') masterCount++;
+                    else if (item.plano === 'Prime VIP') primeCount++;
+                }
+            });
+
+            const statAtivosEl = document.getElementById('statAssinantesAtivos');
+            if (statAtivosEl) statAtivosEl.textContent = ativosCount;
+
+            const statStarterEl = document.getElementById('statAssinantesStarter');
+            if (statStarterEl) statStarterEl.textContent = starterCount;
+
+            const statMasterEl = document.getElementById('statAssinantesMaster');
+            if (statMasterEl) statMasterEl.textContent = masterCount;
+
+            const statPrimeEl = document.getElementById('statAssinantesPrime');
+            if (statPrimeEl) statPrimeEl.textContent = primeCount;
+
+            const badgeCountEl = document.getElementById('badgeAssinantesCount');
+            if (badgeCountEl) {
+                badgeCountEl.textContent = ativosCount;
+                badgeCountEl.style.display = ativosCount > 0 ? 'inline-block' : 'none';
+            }
+
+            // Filtros
+            const q = (document.getElementById('searchAssinanteInp')?.value || '').toLowerCase().trim();
+            const fPlano = document.getElementById('filterAssinantePlano')?.value || '';
+            const fStatus = document.getElementById('filterAssinanteStatus')?.value || '';
+
+            let filtered = [...assinantesData];
+
+            if (fPlano) {
+                filtered = filtered.filter(a => a.plano === fPlano);
+            }
+            if (fStatus) {
+                filtered = filtered.filter(a => a.status === fStatus);
+            }
+            if (q) {
+                filtered = filtered.filter(a => 
+                    (a.user_nome || '').toLowerCase().includes(q) ||
+                    (a.user_email || '').toLowerCase().includes(q) ||
+                    (a.plano || '').toLowerCase().includes(q)
+                );
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding:38px 20px; color:#94a3b8;">
+                            <div style="font-size:28px; margin-bottom:8px;">💎</div>
+                            <div style="font-size:14px; font-weight:700; color:#fff;">Nenhum assinante encontrado</div>
+                            <div style="font-size:12px; margin-top:4px;">Clique em <strong>+ Liberar / Alterar Plano</strong> acima para atribuir um plano a qualquer cliente.</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(item => {
+                const cfg = PLANOS_CONFIG[item.plano] || PLANOS_CONFIG['Starter'];
+                const cleanPhone = (item.user_phone || '').replace(/\D/g, '');
+                const wppLink = cleanPhone ? `https://wa.me/${cleanPhone.startsWith('55') ? cleanPhone : '55' + cleanPhone}` : null;
+                
+                let statusBadge = '';
+                if (item.status === 'ativo') {
+                    statusBadge = `<span class="badge-status-app approved" style="background:rgba(0,220,130,0.15); color:#00dc82; font-weight:700; padding:4px 10px; border-radius:12px;">Ativo</span>`;
+                } else if (item.status === 'pendente') {
+                    statusBadge = `<span class="badge-status-app pending" style="background:rgba(234,179,8,0.15); color:#eab308; font-weight:700; padding:4px 10px; border-radius:12px;">Pendente</span>`;
+                } else {
+                    statusBadge = `<span class="badge-status-app blocked" style="background:rgba(239,68,68,0.15); color:#ef4444; font-weight:700; padding:4px 10px; border-radius:12px;">Cancelado</span>`;
+                }
+
+                const initialLetter = (item.user_nome || 'C').charAt(0).toUpperCase();
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff; font-size:13px; border:1px solid rgba(255,255,255,0.12);">
+                                    ${initialLetter}
+                                </div>
+                                <div>
+                                    <div style="font-weight:700; color:#fff; font-size:13.5px;">${item.user_nome || 'Cliente'}</div>
+                                    <div style="font-size:11.5px; color:#9aa2a6;">${item.user_email || '--'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            ${wppLink ? `
+                                <a href="${wppLink}" target="_blank" style="color:#00dc82; text-decoration:none; display:inline-flex; align-items:center; gap:5px; font-weight:600; font-size:12.5px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.652c1.746.951 3.71 1.452 5.711 1.453h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.411z"/></svg>
+                                    <span>${item.user_phone}</span>
+                                </a>
+                            ` : `<span style="color:#64748b;">${item.user_phone || '--'}</span>`}
+                        </td>
+                        <td>
+                            <span style="background:${cfg.bgBadge}; color:${cfg.color}; border:1px solid ${cfg.borderBadge}; padding:4px 10px; border-radius:10px; font-weight:800; font-size:12px; display:inline-flex; align-items:center; gap:5px;">
+                                <span>${cfg.icon}</span>
+                                <span>${item.plano}</span>
+                            </span>
+                        </td>
+                        <td>
+                            <span style="font-weight:700; color:#fff; font-size:13px;">${item.desconto_doc}% OFF</span>
+                        </td>
+                        <td>
+                            <span style="font-weight:700; color:#00dc82; font-size:13px;">${item.comissao_indicacao}%</span>
+                        </td>
+                        <td>
+                            ${statusBadge}
+                        </td>
+                        <td>
+                            <div style="font-size:12px; color:#fff;">${item.validade || 'Vitalício'}</div>
+                            <div style="font-size:11px; color:#64748b;">${item.created_at ? new Date(item.created_at).toLocaleDateString('pt-BR') : '--'}</div>
+                        </td>
+                        <td style="text-align:right;">
+                            <div style="display:inline-flex; align-items:center; gap:6px;">
+                                ${item.status === 'ativo' ? `
+                                    <button class="btn-act" onclick="cancelarAssinatura('${item.user_id}')" style="background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.25); padding:5px 9px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer;" title="Cancelar Plano">
+                                        Cancelar
+                                    </button>
+                                ` : `
+                                    <button class="btn-act" onclick="liberarAssinatura('${item.user_id}')" style="background:rgba(0,220,130,0.15); color:#00dc82; border:1px solid rgba(0,220,130,0.3); padding:5px 9px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer;" title="Liberar / Ativar Plano">
+                                        Liberar ✅
+                                    </button>
+                                `}
+                                <button class="btn-act" onclick="openAddAssinanteModal('${item.user_id}')" style="background:rgba(255,255,255,0.06); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:5px 9px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;" title="Alterar Plano">
+                                    Alterar
+                                </button>
+                                <button class="btn-act" onclick="excluirAssinatura('${item.user_id}')" style="background:rgba(255,255,255,0.03); color:#94a3b8; border:1px solid rgba(255,255,255,0.06); padding:5px 8px; border-radius:6px; font-size:11px; cursor:pointer;" title="Remover Assinatura">
+                                    🗑️
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openAddAssinanteModal(editUserId) {
+            const userSelect = document.getElementById('modalAssinanteUserSelect');
+            if (!userSelect) return;
+
+            userSelect.innerHTML = usersData.map(u => `
+                <option value="${u.id}">${u.nome} (${u.email}) - Saldo: R$ ${(u.saldo || 0).toFixed(2)}</option>
+            `).join('');
+
+            const titleEl = document.getElementById('modalAssinanteTitle');
+            const planoSelect = document.getElementById('modalAssinantePlanoSelect');
+            const statusSelect = document.getElementById('modalAssinanteStatusSelect');
+            const validadeSelect = document.getElementById('modalAssinanteValidadeSelect');
+            const obsInp = document.getElementById('modalAssinanteObs');
+
+            if (editUserId) {
+                userSelect.value = editUserId;
+                const existing = assinantesData.find(a => String(a.user_id) === String(editUserId));
+                const user = usersData.find(u => String(u.id) === String(editUserId));
+                
+                titleEl.textContent = 'Alterar Plano de Revendedor';
+                if (existing) {
+                    planoSelect.value = existing.plano || 'Master Pro';
+                    statusSelect.value = existing.status || 'ativo';
+                    validadeSelect.value = existing.validade || 'Vitalício';
+                    obsInp.value = existing.observacao || '';
+                } else if (user) {
+                    planoSelect.value = (user.plano && user.plano !== 'Nenhum') ? user.plano : 'Master Pro';
+                    statusSelect.value = user.plano_status || 'ativo';
+                    validadeSelect.value = user.plano_validade || 'Vitalício';
+                    obsInp.value = '';
+                }
+            } else {
+                titleEl.textContent = 'Liberar Plano para Usuário';
+                planoSelect.value = 'Master Pro';
+                statusSelect.value = 'ativo';
+                validadeSelect.value = 'Vitalício';
+                obsInp.value = '';
+            }
+
+            updateModalPlanoPreview();
+            const modal = document.getElementById('modalAssinante');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeModalAssinante() {
+            closeModal('modalAssinante');
+        }
+
+        function updateModalPlanoPreview() {
+            const plano = document.getElementById('modalAssinantePlanoSelect')?.value || 'Master Pro';
+            const box = document.getElementById('modalPlanoPreviewBox');
+            if (!box) return;
+
+            const cfg = PLANOS_CONFIG[plano] || PLANOS_CONFIG['Master Pro'];
+            box.style.borderColor = cfg.color;
+            box.style.background = cfg.bgBadge;
+            box.innerHTML = `
+                <div style="font-weight:700; color:${cfg.color}; margin-bottom:3px;">
+                    ${cfg.icon} ${cfg.nome} • R$ ${cfg.valor.toFixed(2).replace('.', ',')}
+                </div>
+                <div style="font-size:12px; color:#cbd5e1; line-height:1.4;">
+                    • <strong>${cfg.desconto_doc}% OFF</strong> em todos os documentos emitidos.<br>
+                    • <strong>${cfg.comissao}% de comissão</strong> sobre recargas dos indicados.<br>
+                    • Suporte prioritário e ativação imediata no WebApp.
+                </div>
+            `;
+        }
+
+        async function confirmSalvarAssinante() {
+            const userId = document.getElementById('modalAssinanteUserSelect')?.value;
+            const plano = document.getElementById('modalAssinantePlanoSelect')?.value || 'Master Pro';
+            const status = document.getElementById('modalAssinanteStatusSelect')?.value || 'ativo';
+            const validade = document.getElementById('modalAssinanteValidadeSelect')?.value || 'Vitalício';
+            const obs = document.getElementById('modalAssinanteObs')?.value.trim() || '';
+
+            if (!userId) {
+                showToast('Selecione um cliente válido.');
+                return;
+            }
+
+            const user = usersData.find(u => String(u.id) === String(userId));
+            if (!user) {
+                showToast('Cliente não encontrado.');
+                return;
+            }
+
+            const cfg = PLANOS_CONFIG[plano] || PLANOS_CONFIG['Starter'];
+
+            // Atualiza usuário
+            user.plano = (status === 'cancelado') ? 'Nenhum' : plano;
+            user.plano_status = status;
+            user.plano_desconto = (status === 'ativo') ? cfg.desconto_doc : 0;
+            user.plano_comissao = (status === 'ativo') ? cfg.comissao : 0;
+            user.plano_validade = validade;
+            user.plano_ativado_em = new Date().toISOString();
+
+            // Atualiza ou insere em assinantesData
+            let assinante = assinantesData.find(a => String(a.user_id) === String(userId));
+            if (assinante) {
+                assinante.plano = plano;
+                assinante.valor = cfg.valor;
+                assinante.desconto_doc = cfg.desconto_doc;
+                assinante.comissao_indicacao = cfg.comissao;
+                assinante.status = status;
+                assinante.validade = validade;
+                assinante.observacao = obs;
+            } else {
+                assinante = {
+                    id: 'ass_' + userId + '_' + Date.now(),
+                    user_id: user.id,
+                    user_nome: user.nome,
+                    user_email: user.email,
+                    user_phone: user.phone || '--',
+                    plano: plano,
+                    valor: cfg.valor,
+                    desconto_doc: cfg.desconto_doc,
+                    comissao_indicacao: cfg.comissao,
+                    status: status,
+                    validade: validade,
+                    observacao: obs,
+                    created_at: new Date().toISOString()
+                };
+                assinantesData.unshift(assinante);
+            }
+
+            saveStorage();
+            renderAssinantesTable();
+            renderUsersTable();
+            closeModalAssinante();
+
+            showToast(`✅ Plano ${plano} (${status.toUpperCase()}) salvo para ${user.nome}!`);
+
+            // Sincroniza com Supabase
+            try {
+                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
+                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}`, {
+                    method: 'PATCH',
+                    headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        plano: user.plano,
+                        plano_status: user.plano_status,
+                        plano_desconto: user.plano_desconto,
+                        plano_comissao: user.plano_comissao
+                    })
+                });
+
+                await fetch(`${SUP_URL}/rest/v1/assinantes`, {
+                    method: 'POST',
+                    headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+                    body: JSON.stringify({
+                        user_id: user.id,
+                        user_nome: user.nome,
+                        user_email: user.email,
+                        user_phone: user.phone,
+                        plano: plano,
+                        valor: cfg.valor,
+                        desconto_doc: cfg.desconto_doc,
+                        comissao_indicacao: cfg.comissao,
+                        status: status,
+                        validade: validade,
+                        observacao: obs
+                    })
+                });
+            } catch(e) {}
+        }
+
+        async function liberarAssinatura(userId) {
+            const user = usersData.find(u => String(u.id) === String(userId));
+            if (!user) return;
+
+            let assinante = assinantesData.find(a => String(a.user_id) === String(userId));
+            const planoNome = (assinante && assinante.plano) ? assinante.plano : (user.plano && user.plano !== 'Nenhum' ? user.plano : 'Master Pro');
+            const cfg = PLANOS_CONFIG[planoNome] || PLANOS_CONFIG['Master Pro'];
+
+            user.plano = planoNome;
+            user.plano_status = 'ativo';
+            user.plano_desconto = cfg.desconto_doc;
+            user.plano_comissao = cfg.comissao;
+            user.plano_ativado_em = new Date().toISOString();
+
+            if (assinante) {
+                assinante.status = 'ativo';
+                assinante.plano = planoNome;
+            } else {
+                assinantesData.unshift({
+                    id: 'ass_' + userId + '_' + Date.now(),
+                    user_id: user.id,
+                    user_nome: user.nome,
+                    user_email: user.email,
+                    user_phone: user.phone || '--',
+                    plano: planoNome,
+                    valor: cfg.valor,
+                    desconto_doc: cfg.desconto_doc,
+                    comissao_indicacao: cfg.comissao,
+                    status: 'ativo',
+                    validade: 'Vitalício',
+                    observacao: 'Liberado pelo administrador',
+                    created_at: new Date().toISOString()
+                });
+            }
+
+            saveStorage();
+            renderAssinantesTable();
+            renderUsersTable();
+            showToast(`✅ Plano ${planoNome} liberado e ativado para ${user.nome}!`);
+
+            try {
+                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
+                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}`, {
+                    method: 'PATCH',
+                    headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        plano: user.plano,
+                        plano_status: 'ativo',
+                        plano_desconto: cfg.desconto_doc,
+                        plano_comissao: cfg.comissao
+                    })
+                });
+            } catch(e) {}
+        }
+
+        async function cancelarAssinatura(userId) {
+            const user = usersData.find(u => String(u.id) === String(userId));
+            if (!user) return;
+
+            let assinante = assinantesData.find(a => String(a.user_id) === String(userId));
+            if (assinante) {
+                assinante.status = 'cancelado';
+            }
+
+            user.plano_status = 'cancelado';
+            user.plano_desconto = 0;
+            user.plano_comissao = 0;
+
+            saveStorage();
+            renderAssinantesTable();
+            renderUsersTable();
+            showToast(`⚠️ Plano de ${user.nome} cancelado com sucesso.`);
+
+            try {
+                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
+                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}`, {
+                    method: 'PATCH',
+                    headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        plano_status: 'cancelado',
+                        plano_desconto: 0,
+                        plano_comissao: 0
+                    })
+                });
+            } catch(e) {}
+        }
+
+        async function excluirAssinatura(userId) {
+            if (!confirm('Deseja realmente remover o registro desta assinatura?')) return;
+
+            assinantesData = assinantesData.filter(a => String(a.user_id) !== String(userId));
+            const user = usersData.find(u => String(u.id) === String(userId));
+            if (user) {
+                user.plano = 'Nenhum';
+                user.plano_status = 'inativo';
+                user.plano_desconto = 0;
+                user.plano_comissao = 0;
+            }
+
+            saveStorage();
+            renderAssinantesTable();
+            renderUsersTable();
+            showToast('🗑️ Assinatura removida.');
+
+            try {
+                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
+                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                if (user) {
+                    await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}`, {
+                        method: 'PATCH',
+                        headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            plano: 'Nenhum',
+                            plano_status: 'inativo',
+                            plano_desconto: 0,
+                            plano_comissao: 0
+                        })
+                    });
+                }
+                await fetch(`${SUP_URL}/rest/v1/assinantes?user_id=eq.${encodeURIComponent(userId)}`, {
+                    method: 'DELETE',
+                    headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}` }
+                });
+            } catch(e) {}
+        }
+
         function renderIndicadosAdmin() {
             const tbody = document.getElementById('indicadosTableBody');
             if (!tbody) return;
@@ -8190,6 +8902,7 @@ function updateDashboardMetrics() {
 
         window.addEventListener('load', () => {
             renderUsersTable();
+            renderAssinantesTable();
             renderRecargasTable();
             renderCnhsTable();
             renderAdminActivities();
