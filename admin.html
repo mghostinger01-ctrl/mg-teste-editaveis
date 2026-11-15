@@ -2626,6 +2626,21 @@
                             </tbody>
                         </table>
                     </div>
+                    <!-- TABLE PAGINATION FOOTER -->
+                    <div class="table-footer" id="activitiesTableFooter">
+                        <div id="activitiesPaginationInfo">Mostrando 0 de 0 Atividades</div>
+                        <div class="pagination-controls">
+                            <span id="activitiesPageCurrentInfo">Página 1 de 1</span>
+                            <button type="button" class="btn-page" id="btnPrevActivitiesPage" onclick="prevActivitiesPage()" title="Página Anterior">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                <span>Anterior</span>
+                            </button>
+                            <button type="button" class="btn-page" id="btnNextActivitiesPage" onclick="nextActivitiesPage()" title="Próxima Página">
+                                <span>Próxima</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -5569,6 +5584,21 @@
             return 'Há ' + Math.floor(diff/86400) + ' d';
         }
 
+        let currentActivitiesPage = 1;
+        const ACTIVITIES_PER_PAGE = 15;
+
+        function prevActivitiesPage() {
+            if (currentActivitiesPage > 1) {
+                currentActivitiesPage--;
+                renderAdminActivities();
+            }
+        }
+
+        function nextActivitiesPage() {
+            currentActivitiesPage++;
+            renderAdminActivities();
+        }
+
         function renderAdminActivities() {
             const tbody = document.getElementById('adminActivitiesTbody');
             if (!tbody) return;
@@ -5893,14 +5923,46 @@
                 return db - da;
             });
 
-            const topActs = feed.slice(0, 50);
+            const totalActs = feed.length;
+            const totalPages = Math.ceil(totalActs / ACTIVITIES_PER_PAGE) || 1;
+            if (currentActivitiesPage > totalPages) currentActivitiesPage = totalPages;
+            if (currentActivitiesPage < 1) currentActivitiesPage = 1;
 
-            if (topActs.length === 0) {
+            const startIdx = (currentActivitiesPage - 1) * ACTIVITIES_PER_PAGE;
+            const endIdx = startIdx + ACTIVITIES_PER_PAGE;
+            const pageActs = feed.slice(startIdx, endIdx);
+
+            const pagInfo = document.getElementById('activitiesPaginationInfo');
+            if (pagInfo) {
+                if (totalActs === 0) {
+                    pagInfo.textContent = 'Mostrando 0 de 0 Atividades';
+                } else {
+                    pagInfo.textContent = `Mostrando ${startIdx + 1}-${Math.min(endIdx, totalActs)} de ${totalActs} Atividades`;
+                }
+            }
+
+            const pageCur = document.getElementById('activitiesPageCurrentInfo');
+            if (pageCur) {
+                pageCur.textContent = totalActs === 0 ? 'Página 0 de 0' : `Página ${currentActivitiesPage} de ${totalPages}`;
+            }
+
+            const btnPrev = document.getElementById('btnPrevActivitiesPage');
+            if (btnPrev) btnPrev.disabled = (currentActivitiesPage <= 1 || totalActs === 0);
+
+            const btnNext = document.getElementById('btnNextActivitiesPage');
+            if (btnNext) btnNext.disabled = (currentActivitiesPage >= totalPages || totalActs === 0);
+
+            const footerEl = document.getElementById('activitiesTableFooter');
+            if (footerEl) {
+                footerEl.style.display = totalActs === 0 ? 'none' : 'flex';
+            }
+
+            if (pageActs.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#475569; padding:24px;">Nenhuma atividade registrada ainda.</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = topActs.map(a => {
+            tbody.innerHTML = pageActs.map(a => {
                 const _tipo = a.tipo || '';
                 const subRot = a.subRotulo || (
                     _tipo === 'cnh'            ? 'CNH Digital' :
@@ -6038,6 +6100,7 @@
             const tbody = document.getElementById('adminActivitiesTbody');
             if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#475569; padding:24px;">Nenhuma atividade registrada ainda.</td></tr>';
             if (window.MGSync) window.MGSync.api.clear('activities');
+            currentActivitiesPage = 1;
             renderAdminActivities();
         }
 
