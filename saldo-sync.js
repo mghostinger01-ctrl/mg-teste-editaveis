@@ -361,7 +361,9 @@
         return true;
       }
 
-      const val = parseFloat(amount) || 0;
+      const isAlready = alreadyDiscounted === true || (activityPayload && activityPayload.alreadyDiscounted === true);
+      const raw = parseFloat(amount) || 0;
+      const val = isAlready ? raw : calcDiscount(raw);
       if (val <= 0) return true;
 
       const current = getSaldoNumber();

@@ -1803,6 +1803,15 @@
 
         // Download do PDF Oficial A4 (Frente e Verso em UMA ÚNICA FOLHA)
         async function downloadPdfCertificado() {
+            const rawCusto = 20.00;
+            const custoCert = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(rawCusto) : rawCusto;
+            const userSaldo = (window.MGSaldo ? window.MGSaldo.get() : 0);
+            if (custoCert > 0 && userSaldo < custoCert) {
+                alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do Certificado custa R$ ${custoCert.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
+                window.location.href = 'recargas.html';
+                return;
+            }
+
             const btn = document.getElementById('btnDownloadPdf');
             if (btn) {
                 btn.disabled = true;
