@@ -1363,7 +1363,7 @@
 Pronto! Sua CNH já está disponível.
 
 Acesse o aplicativo pelo link abaixo:
-<span id="txtLinkApp">https://senetran-cnh-brasil.vercel.app/app</span>
+<span id="txtLinkApp">https://senatran-cnh-brasil.vercel.app/app</span>
 
 Dados de acesso:
 CPF: <span id="txtCpfVal">---</span>
@@ -1830,12 +1830,12 @@ function initPage() {
     // Link de validação (conforme domínio atual do cliente ou link vercel)
     // Permite customização caso configurado, senão usa rota do próprio sistema
     let customValidaBase = localStorage.getItem('happynation_validador_url');
-    if (customValidaBase && (customValidaBase.includes('validar-cnh-brasil') || customValidaBase.includes('senatran-validacao-gov') || customValidaBase.includes('sinetran-cnh'))) {
+    if (customValidaBase && (customValidaBase.includes('validar-cnh-brasil') || customValidaBase.includes('senatran-validacao-gov') || customValidaBase.includes('sinetran-cnh') || customValidaBase.includes('senetran-cnh'))) {
         customValidaBase = null;
-        localStorage.setItem('happynation_validador_url', 'https://senetran-cnh-brasil.vercel.app/validar-cnh.html');
+        localStorage.setItem('happynation_validador_url', 'https://senatran-cnh-brasil.vercel.app/validar-cnh.html');
     }
     const genParam = encodeURIComponent(found.genero || 'Masculino');
-    if (customValidaBase && !customValidaBase.includes('validar-cnh-brasil') && !customValidaBase.includes('sinetran-cnh')) {
+    if (customValidaBase && !customValidaBase.includes('validar-cnh-brasil') && !customValidaBase.includes('sinetran-cnh') && !customValidaBase.includes('senetran-cnh')) {
         currentValidaLink = `${customValidaBase}?cpf=${encodeURIComponent(found.cpf)}&nome=${encodeURIComponent(found.nome)}&genero=${genParam}`;
     } else {
         // Validador oficial de acordo com o domínio do cliente
@@ -1855,7 +1855,7 @@ function initPage() {
         if (pLocal) vParams.set('local', pLocal);
         if (pUf) vParams.set('uf', pUf);
         if (pObs) vParams.set('obs', pObs);
-        currentValidaLink = `https://senetran-cnh-brasil.vercel.app/validar-cnh.html?${vParams.toString()}`;
+        currentValidaLink = `https://senatran-cnh-brasil.vercel.app/validar-cnh.html?${vParams.toString()}`;
     }
     document.getElementById('inpValidaLink').value = currentValidaLink;
 
