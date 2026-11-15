@@ -1976,6 +1976,13 @@ function verRGDigital(atestId) {
 }
 
 function editarRGDigital(atestId) {
+    const item = allRGs.find(x => String(x.id) === String(atestId));
+    if (item) {
+        try {
+            localStorage.setItem('happynation_edit_rg', JSON.stringify(item));
+            sessionStorage.setItem('happynation_edit_rg', JSON.stringify(item));
+        } catch(e) {}
+    }
     window.location.href = 'criar-rg.html?id=' + encodeURIComponent(atestId) + '&edit=true';
 }
 

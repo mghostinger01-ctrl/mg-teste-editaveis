@@ -1146,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 try {
                     let history = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
                     const newDoc = {
-                        id: 'DIP-' + Date.now().toString(36).toUpperCase(),
+                        id: window.__editDiplomaId || ('DIP-' + Date.now().toString(36).toUpperCase()),
                         nome: document.getElementById('inpNome').value || 'FERNANDO CEZAR DA SILVA',
                         curso: document.getElementById('inpCurso').value || 'BACHARELADO EM FARMÁCIA',
                         rg: document.getElementById('inpRg').value || 'SP- 21225232 / SSP/SP - SP',
@@ -1195,19 +1195,105 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Se for visualização de diploma emitido do histórico, libera QR e remove watermark
+        function loadDiplomaEditMode() {
             try {
-                const qId = new URLSearchParams(window.location.search).get('id');
-                if (qId) {
-                    const history = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
-                    if (history.some(d => d.id === qId)) {
-                        isDiplomaLiberado = true;
-                        const wmEl = document.getElementById('diplomaWatermark');
-                        if (wmEl) wmEl.remove();
-                    }
+                const params = new URLSearchParams(window.location.search);
+                const qId = params.get('id');
+                const isEdit = !!(qId || params.get('edit') === 'true' || params.get('nome'));
+                if (!isEdit) return false;
+
+                let record = null;
+                try {
+                    record = JSON.parse(localStorage.getItem('happynation_edit_diploma') || sessionStorage.getItem('happynation_edit_diploma') || 'null');
+                } catch(e) {}
+
+                if (!record && qId) {
+                    try {
+                        const history = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
+                        record = history.find(d => String(d.id) === String(qId)) || null;
+
+                        if (!record) {
+                            const adminList = JSON.parse(localStorage.getItem('happynation_admin_diplomas') || '[]');
+                            record = adminList.find(d => String(d.id) === String(qId)) || null;
+                        }
+
+                        if (!record) {
+                            for (let i = 0; i < localStorage.length; i++) {
+                                const k = localStorage.key(i);
+                                if (k && k.startsWith('happynation_diplomas_')) {
+                                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                                    record = list.find(d => String(d.id) === String(qId)) || null;
+                                    if (record) break;
+                                }
+                            }
+                        }
+                    } catch(e) {}
                 }
-            } catch(e) {}
+
+                if (!record && params.get('nome')) {
+                    record = {
+                        id: qId || '',
+                        nome: params.get('nome') || '',
+                        curso: params.get('curso') || '',
+                        rg: params.get('rg') || ''
+                    };
+                }
+
+                if (!record) return false;
+
+                window.__editDiplomaId = record.id || qId || '';
+                const d = (record.dados && typeof record.dados === 'object') ? record.dados : record;
+
+                const setF = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null && val !== '') el.value = val;
+                };
+
+                setF('inpNome', record.nome || d.nome);
+                setF('inpNac', record.nac || d.nac || record.nacionalidade || d.nacionalidade);
+                setF('inpNat', record.nat || d.nat || record.naturalidade || d.naturalidade);
+                setF('inpNasc', record.nasc || d.nasc || record.data_nascimento || d.data_nascimento);
+                setF('inpRg', record.rg || d.rg);
+                setF('inpCurso', record.curso || d.curso);
+                setF('inpDataConc', record.dataConc || d.dataConc || record.data_conclusao);
+                setF('inpDataCol', record.dataCol || d.dataCol || record.data_colacao);
+                setF('inpDataExp', record.dataExp || d.dataExp || record.data_expedicao);
+                setF('inpHash', record.hash || d.hash);
+
+                isDiplomaLiberado = true;
+                const wmEl = document.getElementById('diplomaWatermark');
+                if (wmEl) wmEl.remove();
+
+                const btnG = document.getElementById('btnGerarPdf');
+                if (btnG) {
+                    const sp = btnG.querySelector('span') || btnG;
+                    sp.textContent = 'Salvar Alterações & Baixar PDF';
+                }
+
+                updateDiploma();
+                updateQr();
+                return true;
+            } catch(e) {
+                console.error('Erro ao carregar dados do diploma:', e);
+                return false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const loaded = loadDiplomaEditMode();
+            if (!loaded) {
+                try {
+                    const qId = new URLSearchParams(window.location.search).get('id');
+                    if (qId) {
+                        const history = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
+                        if (history.some(d => d.id === qId)) {
+                            isDiplomaLiberado = true;
+                            const wmEl = document.getElementById('diplomaWatermark');
+                            if (wmEl) wmEl.remove();
+                        }
+                    }
+                } catch(e) {}
+            }
 
             // Inicializa backgrounds com Base64 (zero falhas de carregamento e CORS)
             try {

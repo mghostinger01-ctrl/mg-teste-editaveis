@@ -1592,7 +1592,79 @@
                 el.addEventListener('change', syncFields);
             });
 
-            syncFields();
+            function loadCrlvEditMode() {
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const isEdit = !!(params.get('id') || params.get('edit') === 'true' || params.get('placa') || params.get('nome'));
+                    if (!isEdit) return false;
+
+                    let record = null;
+                    try {
+                        record = JSON.parse(localStorage.getItem('happynation_edit_crlv') || sessionStorage.getItem('happynation_edit_crlv') || 'null');
+                    } catch(e) {}
+
+                    if (!record && (params.get('placa') || params.get('nome'))) {
+                        record = {
+                            placa: params.get('placa') || '',
+                            nome: params.get('nome') || '',
+                            renavam: params.get('renavam') || '',
+                            chassi: params.get('chassi') || '',
+                            marca_modelo: params.get('modelo') || ''
+                        };
+                    }
+
+                    if (!record) return false;
+
+                    const d = (record.dados && typeof record.dados === 'object') ? record.dados : record;
+                    const setF = (id, val) => {
+                        const el = document.getElementById(id);
+                        if (el && val !== undefined && val !== null && val !== '') el.value = val;
+                    };
+
+                    setF('inp_detran_uf', record.detran_uf || d.detran_uf);
+                    setF('inp_exercicio', record.exercicio || d.exercicio);
+                    setF('inp_renavam', record.renavam || d.renavam);
+                    setF('inp_placa', record.placa || d.placa);
+                    setF('inp_ano_fab', record.ano_fab || d.ano_fab);
+                    setF('inp_ano_mod', record.ano_mod || d.ano_mod);
+                    setF('inp_num_crv', record.num_crv || d.num_crv);
+                    setF('inp_cla', record.cla || d.cla);
+                    setF('inp_cat', record.cat || d.cat);
+                    setF('inp_marca_modelo', record.marca_modelo || d.marca_modelo);
+                    setF('inp_especie_tipo', record.especie_tipo || d.especie_tipo);
+                    setF('inp_placa_ant', record.placa_ant || d.placa_ant);
+                    setF('inp_chassi', record.chassi || d.chassi);
+                    setF('inp_cor', record.cor || d.cor);
+                    setF('inp_combustivel', record.combustivel || d.combustivel);
+                    setF('inp_categoria', record.categoria || d.categoria);
+                    setF('inp_capacidade', record.capacidade || d.capacidade);
+                    setF('inp_potencia', record.potencia || d.potencia);
+                    setF('inp_peso_bruto', record.peso_bruto || d.peso_bruto);
+                    setF('inp_motor', record.motor || d.motor);
+                    setF('inp_cmt', record.cmt || d.cmt);
+                    setF('inp_eixos', record.eixos || d.eixos);
+                    setF('inp_lotacao', record.lotacao || d.lotacao);
+                    setF('inp_carroceria', record.carroceria || d.carroceria);
+                    setF('inp_nome', record.nome || d.nome);
+                    setF('inp_cpf_cnpj', record.cpf_cnpj || d.cpf_cnpj || record.cpf || d.cpf);
+                    setF('inp_local', record.local || d.local);
+                    setF('inp_data', record.data || d.data);
+                    setF('inp_hora', record.hora || d.hora);
+                    setF('inp_hash', record.hash || d.hash);
+                    setF('inp_observacoes', record.observacoes || d.observacoes);
+
+                    syncFields();
+                    return true;
+                } catch(e) {
+                    console.error('Erro ao carregar dados do CRLV:', e);
+                    return false;
+                }
+            }
+
+            const wasCrlvLoaded = loadCrlvEditMode();
+            if (!wasCrlvLoaded) {
+                syncFields();
+            }
             loadUserBalance();
 
             // Sincroniza preços em tempo real

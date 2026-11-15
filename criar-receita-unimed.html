@@ -1686,35 +1686,50 @@ function atualizarPreview() {
             try {
                 const qs = new URLSearchParams(window.location.search);
                 const id = qs.get('id');
-                if (!id || qs.get('edit') !== 'true') return;
+                if (!id && qs.get('edit') !== 'true' && !qs.get('nome')) return;
                 let found = null;
-                for (let i = 0; i < localStorage.length && !found; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_receitas_')) {
-                        const list = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(list)) found = list.find(r => String(r.id) === String(id)) || null;
+                try {
+                    found = JSON.parse(localStorage.getItem('happynation_edit_receita') || sessionStorage.getItem('happynation_edit_receita') || 'null');
+                } catch(e) {}
+                if (!found && id) {
+                    for (let i = 0; i < localStorage.length && !found; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith('happynation_receitas_')) {
+                            const list = JSON.parse(localStorage.getItem(k) || '[]');
+                            if (Array.isArray(list)) found = list.find(r => String(r.id) === String(id)) || null;
+                        }
                     }
                 }
+                if (!found && qs.get('nome')) {
+                    found = { id: id || '', paciente: qs.get('nome') || '', cpf: qs.get('cpf') || '' };
+                }
                 if (!found) return;
-                window.__editReceitaId = found.id;
+                window.__editReceitaId = found.id || id || '';
                 isDocLiberado = true;
                 const wm = document.getElementById('recipeWatermark');
                 if (wm) wm.remove();
-                const set = (el, v) => { const e = document.getElementById(el); if (e && v !== undefined && v !== null) e.value = v; };
-                set('inpPaciente', found.paciente);
-                set('inpCPF', found.cpf);
-                set('inpNasc', found.nasc);
-                set('inpEmissao', found.emissao);
-                set('inpCidade', found.cidade || 'são paulo');
-                set('inpEndereco', found.endereco);
-                set('inpToken', found.token);
-                set('inpCodigo', found.codigo);
-                set('inpMedico', found.medico);
-                set('inpCRM', found.crm);
-                set('inpEndMedico', found.end_medico);
-                if (Array.isArray(found.medicamentos) && found.medicamentos.length) {
+                const d = (found.dados && typeof found.dados === 'object') ? found.dados : found;
+                const set = (el, v) => { const e = document.getElementById(el); if (e && v !== undefined && v !== null && v !== '') e.value = v; };
+                set('inpPaciente', found.paciente || d.paciente || found.nome || d.nome);
+                set('inpCPF', found.cpf || d.cpf);
+                set('inpNasc', found.nasc || d.nasc);
+                set('inpEmissao', found.emissao || d.emissao || found.data || d.data);
+                set('inpCidade', found.cidade || d.cidade || 'são paulo');
+                set('inpEndereco', found.endereco || d.endereco);
+                set('inpToken', found.token || d.token);
+                set('inpCodigo', found.codigo || d.codigo);
+                set('inpMedico', found.medico || d.medico);
+                set('inpCRM', found.crm || d.crm);
+                set('inpEndMedico', found.end_medico || d.end_medico);
+                const meds = found.medicamentos || d.medicamentos;
+                if (Array.isArray(meds) && meds.length) {
                     medicamentos.length = 0;
-                    found.medicamentos.forEach(m => medicamentos.push(m));
+                    meds.forEach(m => medicamentos.push(m));
+                }
+                const btnG = document.getElementById('btnGerarPdf');
+                if (btnG) {
+                    const sp = btnG.querySelector('span') || btnG;
+                    sp.textContent = 'Salvar Alterações & Baixar PDF';
                 }
             } catch(e) { console.warn('Erro ao carregar receita para edição:', e); }
         }

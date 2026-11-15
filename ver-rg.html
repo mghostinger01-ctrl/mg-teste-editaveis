@@ -453,15 +453,17 @@ O documento digital em PDF com assinatura eletrônica e QR Code de autenticidade
 
         const btnEdit = document.getElementById('btnEditRG DigitalTop');
         if (btnEdit) {
+            btnEdit.onclick = function(e) {
+                try {
+                    localStorage.setItem('happynation_edit_rg', JSON.stringify(currentRecord));
+                    sessionStorage.setItem('happynation_edit_rg', JSON.stringify(currentRecord));
+                } catch(err) {}
+            };
             const q = new URLSearchParams();
             q.set('id', currentRecord.id);
-            q.set('nome', currentRecord.paciente);
-            q.set('cns', currentRecord.cns);
-            q.set('cid', currentRecord.cid);
-            q.set('dias', currentRecord.dias);
-            q.set('medico', currentRecord.medico);
-            q.set('crm', currentRecord.crm);
-            btnEdit.href = 'criar-rg.html?' + q.toString();
+            if (currentRecord.nome) q.set('nome', currentRecord.nome);
+            if (currentRecord.cpf) q.set('cpf', currentRecord.cpf);
+            btnEdit.href = 'criar-rg.html?' + q.toString() + '&edit=true';
         }
     }
 

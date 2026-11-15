@@ -1579,6 +1579,13 @@
     }
 
     function editarDiploma(docId) {
+        const item = (typeof allDiplomas !== 'undefined' ? allDiplomas : []).find(x => String(x.id) === String(docId));
+        if (item) {
+            try {
+                localStorage.setItem('happynation_edit_diploma', JSON.stringify(item));
+                sessionStorage.setItem('happynation_edit_diploma', JSON.stringify(item));
+            } catch(e) {}
+        }
         window.location.href = 'criar-diploma.html?id=' + encodeURIComponent(docId) + '&edit=true';
     }
 

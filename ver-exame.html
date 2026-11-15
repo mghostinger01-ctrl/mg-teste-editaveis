@@ -673,6 +673,14 @@ Agradecemos pela preferência e estamos à disposição! 🚗💨
         // Link de edição do topo
         const btnEdit = document.getElementById('btnEditExameTop');
         if (btnEdit) {
+            btnEdit.onclick = function(e) {
+                if (currentExam) {
+                    try {
+                        localStorage.setItem('happynation_edit_exame', JSON.stringify(currentExam));
+                        sessionStorage.setItem('happynation_edit_exame', JSON.stringify(currentExam));
+                    } catch(err) {}
+                }
+            };
             const editQuery = new URLSearchParams();
             editQuery.set('id', currentExam.id);
             editQuery.set('nome', currentExam.nome);

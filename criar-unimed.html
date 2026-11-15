@@ -1958,7 +1958,7 @@ async function gerarPdf() {
         // ── REGISTRA NO HISTÓRICO DE ATESTADOS (atestados.html) ──
         try {
             const existingId = new URLSearchParams(window.location.search).get('id');
-            const atId = existingId || ('AT-' + Math.floor(10000 + Math.random() * 90000));
+            const atId = window.__editUnimedId || existingId || ('AT-' + Math.floor(10000 + Math.random() * 90000));
             const cpfVal = g('inpCpf');
             const profVal = g('inpProfissional') || 'Dr(a). Unimed';
             const crmVal = g('inpCrm') || 'CRMRJ-01212699';
@@ -2079,56 +2079,102 @@ async function gerarPdf() {
 function loadIfEditing() {
     const p = new URLSearchParams(window.location.search);
     const atId = p.get('id');
-    if (!atId) return;
+    const isEdit = !!(atId || p.get('edit') === 'true' || p.get('nome') || p.get('paciente'));
+    if (!isEdit) return;
 
     let found = null;
     try {
-        const last = JSON.parse(localStorage.getItem('happynation_last_atestado') || 'null');
-        if (last && String(last.id) === String(atId)) found = last;
-    } catch(e){}
+        found = JSON.parse(localStorage.getItem('happynation_edit_unimed') || sessionStorage.getItem('happynation_edit_unimed') || 'null');
+    } catch(e) {}
 
-    if (!found) {
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('happynation_atestados_')) {
-                try {
-                    const list = JSON.parse(localStorage.getItem(k) || '[]');
-                    const match = list.find(x => String(x.id) === String(atId));
-                    if (match) { found = match; break; }
-                } catch(e){}
+    if (!found && atId) {
+        try {
+            const hist = JSON.parse(localStorage.getItem('happynation_atestados_unimed_history') || '[]');
+            found = hist.find(x => String(x.id) === String(atId)) || null;
+
+            if (!found) {
+                const adminList = JSON.parse(localStorage.getItem('happynation_admin_atestados_unimed') || '[]');
+                found = adminList.find(x => String(x.id) === String(atId)) || null;
             }
-        }
+
+            if (!found) {
+                const last = JSON.parse(localStorage.getItem('happynation_last_atestado') || 'null');
+                if (last && String(last.id) === String(atId)) found = last;
+            }
+
+            if (!found) {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && (k.startsWith('happynation_atestados_') || k.startsWith('happynation_atestados_unimed_'))) {
+                        const list = JSON.parse(localStorage.getItem(k) || '[]');
+                        const match = list.find(x => String(x.id) === String(atId));
+                        if (match) { found = match; break; }
+                    }
+                }
+            }
+        } catch(e) {}
+    }
+
+    if (!found && (p.get('nome') || p.get('paciente'))) {
+        found = {
+            id: atId || '',
+            paciente: p.get('nome') || p.get('paciente') || '',
+            cpf: p.get('cpf') || p.get('cns') || '',
+            medico: p.get('medico') || '',
+            crm: p.get('crm') || '',
+            cid: p.get('cid') || '',
+            dias: p.get('dias') || ''
+        };
     }
 
     if (found) {
+        window.__editUnimedId = found.id || atId || '';
         isDocLiberado = true;
         const liveWm = document.getElementById('previewWatermarkOverlay');
         if (liveWm) liveWm.remove();
-        const d = found.dados || {};
-        const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
-        setVal('inpNomePaciente', found.paciente || found.nome);
-        setVal('inpCpf', found.cpf);
-        setVal('inpProfissional', found.medico);
-        setVal('inpCrm', found.crm);
-        setVal('inpCid', found.cid);
-        setVal('inpDias', found.dias);
-        setVal('inpNasc', d.nasc);
-        setVal('inpIdade', d.idade);
-        setVal('inpPront', d.pront);
-        setVal('inpAtend', d.atend);
-        setVal('inpConvenio', d.convenio);
-        setVal('inpSetor', d.setor);
-        setVal('inpMae', d.mae);
-        setVal('inpLeito', d.leito);
-        setVal('inpDataAss', d.dataAss);
-        setVal('inpDataAtend', d.dataAtend);
-        setVal('inpDiag', d.diag);
-        setVal('inpAcomp', d.acomp);
-        setVal('inpCpfAcomp', d.cpfAcomp);
-        setVal('inpUnidade1', found.unidade || d.unidade);
-        setVal('inpUnidade2', d.unidade2);
-        setVal('inpCodValid', d.codValid);
-        setVal('inpUrlQr', d.urlQr);
+
+        const d = (found.dados && typeof found.dados === 'object') ? found.dados : found;
+        const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null && val !== '') el.value = val; };
+
+        setVal('inpNomePaciente', found.paciente || found.nome || d.paciente || d.nome);
+        setVal('inpCpf', found.cpf || d.cpf);
+        setVal('inpProfissional', found.medico || d.medico || found.profissional || d.profissional);
+        setVal('inpCrm', found.crm || d.crm);
+        setVal('inpCid', found.cid || d.cid);
+        setVal('inpDias', found.dias || d.dias);
+        setVal('inpNasc', d.nasc || found.nasc);
+        setVal('inpIdade', d.idade || found.idade);
+        setVal('inpPront', d.pront || found.pront);
+        setVal('inpAtend', d.atend || found.atend);
+        setVal('inpConvenio', d.convenio || found.convenio);
+        setVal('inpSetor', d.setor || found.setor);
+        setVal('inpMae', d.mae || found.mae);
+        setVal('inpLeito', d.leito || found.leito);
+        setVal('inpDataAss', d.dataAss || found.dataAss || found.data);
+        setVal('inpDataAtend', d.dataAtend || found.dataAtend || found.data);
+        setVal('inpDiag', d.diag || found.diag);
+        setVal('inpAcomp', d.acomp || found.acomp);
+        setVal('inpCpfAcomp', d.cpfAcomp || found.cpfAcomp);
+        setVal('inpUnidade1', found.unidade || d.unidade || d.unidade1);
+        setVal('inpUnidade2', d.unidade2 || found.unidade2);
+        setVal('inpCodValid', d.codValid || found.codValid || found.auth_hash);
+        setVal('inpUrlQr', d.urlQr || found.urlQr || found.validation_url);
+
+        // Carimbo / Assinatura
+        if (found.carimbo || d.carimbo) {
+            const stampImg = document.getElementById('docStampImg');
+            if (stampImg) { stampImg.src = found.carimbo || d.carimbo; stampImg.style.display = 'block'; }
+        }
+        if (found.assinatura || d.assinatura) {
+            const sigImg = document.getElementById('docSigImg');
+            if (sigImg) { sigImg.src = found.assinatura || d.assinatura; sigImg.style.display = 'block'; }
+        }
+
+        const btnTxt = document.getElementById('btnGerarTxt');
+        if (btnTxt) btnTxt.textContent = 'Salvar Alterações & Baixar PDF';
+
+        updateDoc();
+        try { gerarQr(true); } catch(e) {}
     }
 }
 

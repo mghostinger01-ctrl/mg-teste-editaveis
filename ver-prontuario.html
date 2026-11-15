@@ -453,15 +453,19 @@ O documento digital em PDF com assinatura eletrônica e QR Code de autenticidade
 
         const btnEdit = document.getElementById('btnEditProntuarioTop');
         if (btnEdit) {
+            btnEdit.onclick = function(e) {
+                if (currentRecord) {
+                    try {
+                        localStorage.setItem('happynation_edit_prontuario', JSON.stringify(currentRecord));
+                        sessionStorage.setItem('happynation_edit_prontuario', JSON.stringify(currentRecord));
+                    } catch(err) {}
+                }
+            };
             const q = new URLSearchParams();
             q.set('id', currentRecord.id);
-            q.set('nome', currentRecord.paciente);
-            q.set('cns', currentRecord.cns);
-            q.set('cid', currentRecord.cid);
-            q.set('dias', currentRecord.dias);
-            q.set('medico', currentRecord.medico);
-            q.set('crm', currentRecord.crm);
-            btnEdit.href = 'criar-prontuario.html?' + q.toString();
+            if (currentRecord.nome || currentRecord.paciente) q.set('nome', currentRecord.nome || currentRecord.paciente);
+            if (currentRecord.cpf || currentRecord.cns) q.set('cpf', currentRecord.cpf || currentRecord.cns);
+            btnEdit.href = 'criar-prontuario.html?' + q.toString() + '&edit=true';
         }
     }
 

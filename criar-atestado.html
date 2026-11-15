@@ -3774,7 +3774,119 @@
             if (rLogo) rLogo.src = window.LOGO_UPA_OFICIAL_B64;
         }
 
+        // Modo de Edição / Visualização de Atestado Emitido
+        function loadAtestadoEditMode() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const atId = params.get('id');
+                const isEdit = !!(atId || params.get('edit') === 'true' || params.get('nome') || params.get('paciente'));
+                if (!isEdit) return false;
+
+                let record = null;
+                try {
+                    record = JSON.parse(localStorage.getItem('happynation_edit_atestado') || sessionStorage.getItem('happynation_edit_atestado') || 'null');
+                } catch(e) {}
+
+                if (!record && atId) {
+                    try {
+                        const loggedU = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                        const uMail = (loggedU && loggedU.email) ? loggedU.email.toLowerCase().trim() : 'cliente';
+                        const userList = JSON.parse(localStorage.getItem('happynation_atestados_' + uMail) || '[]');
+                        record = userList.find(x => String(x.id) === String(atId)) || null;
+
+                        if (!record) {
+                            for (let i = 0; i < localStorage.length; i++) {
+                                const k = localStorage.key(i);
+                                if (k && k.startsWith('happynation_atestados_')) {
+                                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                                    record = list.find(x => String(x.id) === String(atId)) || null;
+                                    if (record) break;
+                                }
+                            }
+                        }
+
+                        if (!record) {
+                            const adminList = JSON.parse(localStorage.getItem('happynation_admin_atestados') || '[]');
+                            record = adminList.find(x => String(x.id) === String(atId)) || null;
+                        }
+
+                        if (!record) {
+                            const last = JSON.parse(localStorage.getItem('happynation_last_atestado') || 'null');
+                            if (last && String(last.id) === String(atId)) record = last;
+                        }
+                    } catch(e) {}
+                }
+
+                if (!record && (params.get('nome') || params.get('paciente'))) {
+                    record = {
+                        id: atId || '',
+                        paciente: params.get('nome') || params.get('paciente') || '',
+                        cns: params.get('cns') || params.get('cpf') || '',
+                        cid: params.get('cid') || '',
+                        dias: params.get('dias') || '',
+                        medico: params.get('medico') || '',
+                        crm: params.get('crm') || ''
+                    };
+                }
+
+                if (!record) return false;
+
+                window.currentAtestadoIdToGen = record.id || atId || '';
+                const d = (record.dados && typeof record.dados === 'object') ? record.dados : record;
+
+                const setF = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null && val !== '') el.value = val;
+                };
+
+                setF('inp_nome', record.paciente || record.nome || d.paciente || d.nome);
+                setF('inp_cns', record.cns || record.cpf || d.cns || d.cpf);
+                setF('inp_cid', record.cid || d.cid);
+                setF('inp_unidade', record.unidade || d.unidade);
+                setF('inp_medico', record.medico || record.medico_nome || d.medico || d.medico_nome);
+                setF('inp_medico_esp', record.medico_esp || d.medico_esp);
+                setF('inp_crm', record.crm || d.crm);
+                setF('inp_data', record.data || d.data);
+                setF('inp_hora', record.hora || d.hora);
+                setF('inp_end1', record.end1 || d.end1);
+                setF('inp_end2', record.end2 || d.end2);
+                setF('inp_end3', record.end3 || d.end3);
+
+                const diasVal = record.dias || d.dias;
+                if (diasVal) {
+                    currentDiasNum = parseInt(diasVal, 10) || 1;
+                    const dEl = document.getElementById('diasContadorDisplay');
+                    if (dEl) dEl.textContent = currentDiasNum;
+                }
+
+                const sigVal = record.assinatura || d.assinatura;
+                if (sigVal) {
+                    const sImg = document.getElementById('docAssinaturaImg');
+                    if (sImg) { sImg.src = sigVal; sImg.style.display = 'block'; }
+                }
+
+                isAtestadoEmitido = true;
+                const liveWm = document.getElementById('previewWatermarkOverlay');
+                if (liveWm) liveWm.remove();
+
+                const btnTxt = document.getElementById('btnGerarTxt');
+                if (btnTxt) btnTxt.textContent = 'Salvar Alterações & Baixar PDF';
+
+                syncFromCheckout();
+                try { generateQrCodes(true); } catch(e) {}
+                return true;
+            } catch(err) {
+                console.error('Erro ao carregar dados do atestado:', err);
+                return false;
+            }
+        }
+
         initUser();
+
+        const wasLoaded = loadAtestadoEditMode();
+        if (!wasLoaded) {
+            syncFromCheckout();
+        }
 
         // Se estiver abrindo um atestado que já foi emitido anteriormente pelo cliente, desbloqueia
         try {

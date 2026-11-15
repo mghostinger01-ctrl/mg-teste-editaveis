@@ -2014,6 +2014,10 @@ function editarExame(examId) {
         window.location.href = 'criar-exame.html?id=' + encodeURIComponent(examId) + '&edit=true';
         return;
     }
+    try {
+        localStorage.setItem('happynation_edit_exame', JSON.stringify(c));
+        sessionStorage.setItem('happynation_edit_exame', JSON.stringify(c));
+    } catch(e) {}
     const q = new URLSearchParams();
     q.set('id', c.id);
     q.set('nome', c.nome);

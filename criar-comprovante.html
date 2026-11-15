@@ -1481,6 +1481,84 @@ function generateRandomData() {
             }
         }
 
+        function loadComprovanteEditMode() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const compId = params.get('id');
+                const isEdit = !!(compId || params.get('edit') === 'true' || params.get('nome') || params.get('titular'));
+                if (!isEdit) return false;
+
+                let record = null;
+                try {
+                    record = JSON.parse(localStorage.getItem('happynation_edit_comprovante') || sessionStorage.getItem('happynation_edit_comprovante') || 'null');
+                } catch(e) {}
+
+                if (!record && compId) {
+                    try {
+                        const adminActs = JSON.parse(localStorage.getItem('happynation_admin_activities') || '[]');
+                        record = adminActs.find(a => String(a.id) === String(compId)) || null;
+
+                        if (!record) {
+                            for (let i = 0; i < localStorage.length; i++) {
+                                const k = localStorage.key(i);
+                                if (k && k.startsWith('happynation_comprovantes_')) {
+                                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                                    record = list.find(r => String(r.id) === String(compId)) || null;
+                                    if (record) break;
+                                }
+                            }
+                        }
+                    } catch(e) {}
+                }
+
+                if (!record && (params.get('nome') || params.get('titular'))) {
+                    record = {
+                        id: compId || '',
+                        titular: params.get('titular') || params.get('nome') || '',
+                        valor: params.get('valor') || ''
+                    };
+                }
+
+                if (!record) return false;
+
+                window.__editComprovanteId = record.id || compId || '';
+                const d = (record.dados && typeof record.dados === 'object') ? record.dados : record;
+
+                const setF = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null && val !== '') el.value = val;
+                };
+
+                setF('inpTitulo', record.titulo || d.titulo);
+                setF('inpDataHora', record.dataHora || d.dataHora || record.data);
+                setF('inpValor', record.valor || d.valor);
+                setF('inpOperacao', record.operacao || d.operacao);
+                setF('inpBeneficiario', record.beneficiario || d.beneficiario);
+                setF('inpCnpjBeneficiario', record.cnpjBeneficiario || d.cnpjBeneficiario);
+                setF('inpBanco', record.banco || d.banco);
+                setF('inpTitular', record.titular || d.titular || record.nome || d.nome);
+                setF('inpCpfTitular', record.cpfTitular || d.cpfTitular || record.cpf || d.cpf);
+                setF('inpVencimento', record.vencimento || d.vencimento);
+                setF('inpCodigoBarras', record.codigoBarras || d.codigoBarras);
+                setF('inpNsu', record.nsu || d.nsu);
+                setF('inpPagador', record.pagador || d.pagador || record.titular || d.titular);
+                setF('inpMeioPagamento', record.meioPagamento || d.meioPagamento);
+                setF('inpCorrespondente', record.correspondente || d.correspondente);
+                setF('inpCompensacao', record.compensacao || d.compensacao);
+                setF('inpFooterLeft', record.footerLeft || d.footerLeft);
+                setF('inpFooterRight', record.footerRight || d.footerRight);
+
+                const btnTxt = document.getElementById('btnGerarTxt');
+                if (btnTxt) btnTxt.textContent = 'Salvar Alterações & Baixar PDF';
+
+                updateDoc();
+                return true;
+            } catch(e) {
+                console.error('Erro ao carregar dados do comprovante:', e);
+                return false;
+            }
+        }
+
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
             // Carregar logo via Base64 se disponível
@@ -1489,7 +1567,10 @@ function generateRandomData() {
                 if (logoEl) logoEl.src = window.MP_LOGO_B64;
             }
 
-            updateDoc();
+            const wasEdit = loadComprovanteEditMode();
+            if (!wasEdit) {
+                updateDoc();
+            }
             autoFitMobileZoom();
             window.addEventListener('resize', autoFitMobileZoom);
             window.addEventListener('orientationchange', () => setTimeout(autoFitMobileZoom, 200));

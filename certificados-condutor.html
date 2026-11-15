@@ -1164,6 +1164,13 @@
         }
 
         function editarCertificado(id) {
+            const item = (typeof allCertificados !== 'undefined' ? allCertificados : []).find(x => String(x.id || x.codigo || x.certNumero) === String(id));
+            if (item) {
+                try {
+                    localStorage.setItem('happynation_edit_certificado_condutor', JSON.stringify(item));
+                    sessionStorage.setItem('happynation_edit_certificado_condutor', JSON.stringify(item));
+                } catch(e) {}
+            }
             window.location.href = 'criar-certificado-condutor.html?id=' + encodeURIComponent(id) + '&edit=true';
         }
 

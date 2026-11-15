@@ -1334,6 +1334,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const cpfClean = (document.getElementById('inpCpf').value || 'CIN').replace(/\D/g, '');
                 pdf.save(`RG_Digital_${cpfClean}.pdf`);
+                salvarRgNoHistorico();
             } catch(err) {
                 console.error('Erro ao gerar PDF do RG Digital:', err);
                 alert('Erro ao gerar o PDF. Tente novamente ou utilize o botão Imprimir A4.');
@@ -1345,30 +1346,201 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Salvar no Histórico Local
+        // Salvar / Atualizar no Histórico Local
         function salvarRgNoHistorico() {
+            const params = new URLSearchParams(window.location.search);
+            const rgId = window._currentEditRgId || params.get('id') || ('CIN-' + Math.floor(1000000 + Math.random() * 9000000));
             const nome = document.getElementById('inpNome').value || 'Mellyssa De Jesus Menino';
             const cpf = document.getElementById('inpCpf').value || '526.534.158-79';
             try {
+                const thumbPhoto = document.getElementById('thumbPhoto');
+                const thumbSig = document.getElementById('thumbSig');
+                const fotoSrc = (thumbPhoto && isCustomPhoto) ? thumbPhoto.src : null;
+                const sigSrc = (thumbSig && isCustomSig) ? thumbSig.src : null;
+
                 const item = {
-                    id: 'RG_' + Date.now(),
+                    id: rgId,
                     nome: nome,
                     cpf: cpf,
+                    sexo: document.getElementById('inpSexo').value || '',
+                    nasc: document.getElementById('inpNasc').value || '',
+                    nacionalidade: document.getElementById('inpNacionalidade').value || '',
+                    naturalidade: document.getElementById('inpNaturalidade').value || '',
+                    validade: document.getElementById('inpValidade').value || '',
+                    pai: document.getElementById('inpPai').value || '',
+                    mae: document.getElementById('inpMae').value || '',
+                    orgao: document.getElementById('inpOrgao').value || '',
+                    local: document.getElementById('inpLocal').value || '',
+                    emissao: document.getElementById('inpEmissao').value || '',
+                    dni: document.getElementById('inpDni').value || '',
+                    titulo: document.getElementById('inpTitulo').value || '',
+                    estado_civil: document.getElementById('inpEstadoCivil').value || '',
+                    doador: document.getElementById('inpDoador').value || '',
+                    foto: fotoSrc,
+                    assinatura: sigSrc,
                     data: new Date().toLocaleString('pt-BR'),
-                    status: 'Emitido'
+                    created_at: new Date().toISOString(),
+                    status: 'Regular / Oficial'
                 };
-                const hist = JSON.parse(localStorage.getItem('rg_historico') || '[]');
-                hist.unshift(item);
+                item.dados = Object.assign({}, item);
+
+                // Salva no rg_historico
+                let hist = JSON.parse(localStorage.getItem('rg_historico') || '[]');
+                const idxHist = hist.findIndex(x => String(x.id) === String(rgId));
+                if (idxHist >= 0) hist[idxHist] = Object.assign({}, hist[idxHist], item);
+                else hist.unshift(item);
                 localStorage.setItem('rg_historico', JSON.stringify(hist));
-                alert('Documento RG Digital salvo com sucesso no histórico local!');
+
+                // Salva no happynation_admin_rgs
+                let adminRgs = JSON.parse(localStorage.getItem('happynation_admin_rgs') || '[]');
+                const idxAdm = adminRgs.findIndex(x => String(x.id) === String(rgId));
+                if (idxAdm >= 0) adminRgs[idxAdm] = Object.assign({}, adminRgs[idxAdm], item);
+                else adminRgs.unshift(item);
+                localStorage.setItem('happynation_admin_rgs', JSON.stringify(adminRgs));
+
+                // Salva no usuário logado
+                try {
+                    let u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                    let uEmail = (u && u.email) ? u.email.toLowerCase().trim() : 'cliente';
+                    let uRgs = JSON.parse(localStorage.getItem('happynation_rgs_' + uEmail) || '[]');
+                    const idxU = uRgs.findIndex(x => String(x.id) === String(rgId));
+                    if (idxU >= 0) uRgs[idxU] = Object.assign({}, uRgs[idxU], item);
+                    else uRgs.unshift(item);
+                    localStorage.setItem('happynation_rgs_' + uEmail, JSON.stringify(uRgs));
+                } catch(eU) {}
+
+                localStorage.setItem('happynation_last_rg', JSON.stringify(item));
             } catch(e) {
-                alert('Erro ao salvar no histórico.');
+                console.error('Erro ao salvar RG no histórico:', e);
             }
         }
 
-        // Inicialização: Garante exibição idêntica à Foto 4
+        // Carrega dados se estiver em modo de edição
+        function loadRgEditMode() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const rgId = params.get('id');
+                const isEdit = !!(rgId || params.get('edit') === 'true' || params.get('nome') || params.get('cpf'));
+                if (!isEdit) return false;
+
+                let record = null;
+                try {
+                    record = JSON.parse(localStorage.getItem('happynation_edit_rg') || sessionStorage.getItem('happynation_edit_rg') || 'null');
+                } catch(e) {}
+
+                if (!record && rgId) {
+                    try {
+                        const adminRgs = JSON.parse(localStorage.getItem('happynation_admin_rgs') || '[]');
+                        record = adminRgs.find(x => String(x.id) === String(rgId)) || null;
+
+                        if (!record) {
+                            const hist = JSON.parse(localStorage.getItem('rg_historico') || '[]');
+                            record = hist.find(x => String(x.id) === String(rgId)) || null;
+                        }
+
+                        if (!record) {
+                            for (let i = 0; i < localStorage.length; i++) {
+                                const k = localStorage.key(i);
+                                if (k && k.startsWith('happynation_rgs_')) {
+                                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                                    record = list.find(x => String(x.id) === String(rgId)) || null;
+                                    if (record) break;
+                                }
+                            }
+                        }
+
+                        if (!record) {
+                            const last = JSON.parse(localStorage.getItem('happynation_last_rg') || 'null');
+                            if (last && String(last.id) === String(rgId)) record = last;
+                        }
+                    } catch(e) {}
+                }
+
+                // Fallback para URL params
+                if (!record && (params.get('nome') || params.get('cpf'))) {
+                    record = {
+                        id: rgId || '',
+                        nome: params.get('nome') || '',
+                        cpf: params.get('cpf') || ''
+                    };
+                }
+
+                if (!record) return false;
+
+                window._currentEditRgId = record.id || rgId || '';
+                const d = (record.dados && typeof record.dados === 'object') ? record.dados : record;
+
+                const setF = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null && val !== '') el.value = val;
+                };
+
+                setF('inpNome', record.nome || d.nome || record.paciente);
+                setF('inpCpf', record.cpf || d.cpf);
+                setF('inpSexo', record.sexo || d.sexo || record.genero || d.genero);
+                setF('inpNasc', record.nasc || d.nasc || record.data_nascimento || d.data_nascimento);
+                setF('inpNacionalidade', record.nacionalidade || d.nacionalidade || record.nac || d.nac);
+                setF('inpNaturalidade', record.naturalidade || d.naturalidade || record.nat || d.nat);
+                setF('inpValidade', record.validade || d.validade || record.val || d.val);
+                setF('inpPai', record.pai || d.pai || record.filiacao_1 || d.filiacao_1);
+                setF('inpMae', record.mae || d.mae || record.filiacao_2 || d.filiacao_2);
+                setF('inpOrgao', record.orgao || d.orgao);
+                setF('inpLocal', record.local || d.local || record.cidade || d.cidade);
+                setF('inpEmissao', record.emissao || d.emissao || record.data_emissao || d.data_emissao);
+                setF('inpDni', record.dni || d.dni);
+                setF('inpTitulo', record.titulo || d.titulo);
+                setF('inpEstadoCivil', record.estado_civil || d.estado_civil || record.estadoCivil);
+                setF('inpDoador', record.doador || d.doador);
+
+                // Restaura foto
+                const foto = record.foto || d.foto;
+                if (foto) {
+                    const tPhoto = document.getElementById('thumbPhoto');
+                    if (tPhoto) tPhoto.src = foto;
+                    const dynHolder = document.getElementById('dynPhotoHolder');
+                    const dynImg = document.getElementById('dynPhotoImg');
+                    if (dynImg && dynHolder) {
+                        dynImg.src = foto;
+                        dynHolder.style.display = 'block';
+                        isCustomPhoto = true;
+                    }
+                }
+
+                // Restaura assinatura
+                const ass = record.assinatura || d.assinatura;
+                if (ass) {
+                    const tSig = document.getElementById('thumbSig');
+                    if (tSig) tSig.src = ass;
+                    const dynSig = document.getElementById('dynSigHolder');
+                    const dynImg = document.getElementById('dynSigImg');
+                    const dynText = document.getElementById('dynSigText');
+                    if (dynImg && dynSig) {
+                        dynImg.src = ass;
+                        dynImg.style.display = 'block';
+                        if (dynText) dynText.style.display = 'none';
+                        dynSig.style.display = 'flex';
+                        isCustomSig = true;
+                    }
+                }
+
+                // Altera botão para salvar
+                const btnGerarTxt = document.getElementById('btnGerarTxt');
+                if (btnGerarTxt) btnGerarTxt.textContent = 'Salvar Alterações & Baixar PDF';
+
+                handleFieldChange();
+                return true;
+            } catch(e) {
+                console.error('Erro ao carregar dados do RG para edição:', e);
+                return false;
+            }
+        }
+
+        // Inicialização
         window.addEventListener('DOMContentLoaded', () => {
-            restoreMellyssaDefault();
+            const loaded = loadRgEditMode();
+            if (!loaded) {
+                restoreMellyssaDefault();
+            }
         });
     </script>
 </body>

@@ -1872,6 +1872,13 @@ function renderTable() {
 }
 
 function editarReceita(id) {
+    const item = (typeof allReceitas !== 'undefined' ? allReceitas : []).find(x => String(x.id) === String(id));
+    if (item) {
+        try {
+            localStorage.setItem('happynation_edit_receita', JSON.stringify(item));
+            sessionStorage.setItem('happynation_edit_receita', JSON.stringify(item));
+        } catch(e) {}
+    }
     window.location.href = 'criar-receita-unimed.html?id=' + encodeURIComponent(id) + '&edit=true';
 }
 

@@ -1511,9 +1511,69 @@
             window.print();
         }
 
+        function loadDirecionalEditMode() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const dId = params.get('id');
+                const isEdit = !!(dId || params.get('edit') === 'true' || params.get('nome'));
+                if (!isEdit) return false;
+
+                let record = null;
+                try {
+                    record = JSON.parse(localStorage.getItem('happynation_edit_direcional') || sessionStorage.getItem('happynation_edit_direcional') || 'null');
+                } catch(e) {}
+
+                if (!record && (params.get('nome') || params.get('aluno'))) {
+                    record = {
+                        nomeAluno: params.get('nome') || params.get('aluno') || '',
+                        renach: params.get('renach') || '',
+                        categoria: params.get('categoria') || '',
+                        nomeCurso: params.get('curso') || ''
+                    };
+                }
+
+                if (!record) return false;
+
+                const d = (record.dados && typeof record.dados === 'object') ? record.dados : record;
+                const setF = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null && val !== '') el.value = val;
+                };
+
+                setF('inpNomeAluno', record.nomeAluno || d.nomeAluno || record.nome || d.nome);
+                setF('inpRenach', record.renach || d.renach);
+                setF('inpCategoria', record.categoria || d.categoria);
+                setF('inpNomeCurso', record.nomeCurso || d.nomeCurso || record.curso || d.curso);
+                setF('inpCidade', record.cidade || d.cidade);
+                setF('inpCargaHoraria', record.cargaHoraria || d.cargaHoraria);
+                setF('inpCentro', record.centro || d.centro);
+                setF('inpPeriodo', record.periodo || d.periodo);
+                setF('inpValidade', record.validade || d.validade);
+                setF('inpDataExtenso', record.dataExtenso || d.dataExtenso || record.data);
+                setF('inpRegSob', record.regSob || d.regSob);
+                setF('inpLivro', record.livro || d.livro);
+                setF('inpFolha', record.folha || d.folha);
+                setF('inpDataReg', record.dataReg || d.dataReg);
+                setF('inpCodTurma', record.codTurma || d.codTurma);
+                setF('inpNomeInstrutor', record.nomeInstrutor || d.nomeInstrutor);
+                setF('inpCpfInstrutor', record.cpfInstrutor || d.cpfInstrutor);
+                setF('inpPortaria', record.portaria || d.portaria);
+                setF('inpDiarioOficial', record.diarioOficial || d.diarioOficial);
+
+                updateCertificado();
+                return true;
+            } catch(e) {
+                console.error('Erro ao carregar certificado direcional:', e);
+                return false;
+            }
+        }
+
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
-            updateCertificado();
+            const loaded = loadDirecionalEditMode();
+            if (!loaded) {
+                updateCertificado();
+            }
             resetZoom();
         });
     </script>

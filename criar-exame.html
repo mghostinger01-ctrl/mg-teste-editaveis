@@ -1829,16 +1829,30 @@
         const examId = params.get('id');
 
         let existingRecord = null;
-        if (examId) {
+        try {
+            existingRecord = JSON.parse(localStorage.getItem('happynation_edit_exame') || sessionStorage.getItem('happynation_edit_exame') || 'null');
+        } catch(e) {}
+        if (!existingRecord && examId) {
             try {
                 const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : '';
                 const uList = JSON.parse(localStorage.getItem('happynation_exames_' + uEmail) || '[]');
                 existingRecord = uList.find(x => x.id === examId);
                 if (!existingRecord) {
+                    const adminList = JSON.parse(localStorage.getItem('happynation_admin_exames') || '[]');
+                    existingRecord = adminList.find(x => x.id === examId);
+                }
+                if (!existingRecord) {
                     const last = JSON.parse(localStorage.getItem('happynation_last_exame') || '{}');
                     if (last && last.id === examId) existingRecord = last;
                 }
             } catch(e) {}
+        }
+        if (existingRecord) {
+            const btnG = document.getElementById('btnGerarPdf');
+            if (btnG) {
+                const sp = btnG.querySelector('span') || btnG;
+                sp.textContent = 'Salvar Alterações & Baixar PDF';
+            }
         }
 
         const getVal = (paramName, fieldName, fallback) => {

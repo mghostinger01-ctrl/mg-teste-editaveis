@@ -485,15 +485,27 @@ O documento digital em PDF com assinatura eletrônica e QR Code de autenticidade
 
         const btnEdit = document.getElementById('btnEditAtestadoTop');
         if (btnEdit) {
+            btnEdit.onclick = function(e) {
+                if (currentRecord) {
+                    const isUnimed = currentRecord.tipo === 'unimed' || (currentRecord.unidade && currentRecord.unidade.toLowerCase().includes('unimed'));
+                    const storageKey = isUnimed ? 'happynation_edit_unimed' : 'happynation_edit_atestado';
+                    try {
+                        localStorage.setItem(storageKey, JSON.stringify(currentRecord));
+                        sessionStorage.setItem(storageKey, JSON.stringify(currentRecord));
+                    } catch(err) {}
+                }
+            };
+            const isUnimed = currentRecord.tipo === 'unimed' || (currentRecord.unidade && currentRecord.unidade.toLowerCase().includes('unimed'));
+            const targetPage = isUnimed ? 'criar-unimed.html' : 'criar-atestado.html';
             const q = new URLSearchParams();
             q.set('id', currentRecord.id);
-            q.set('nome', currentRecord.paciente);
-            q.set('cns', currentRecord.cns);
-            q.set('cid', currentRecord.cid);
-            q.set('dias', currentRecord.dias);
-            q.set('medico', currentRecord.medico);
-            q.set('crm', currentRecord.crm);
-            btnEdit.href = 'criar-atestado.html?' + q.toString();
+            if (currentRecord.paciente || currentRecord.nome) q.set('nome', currentRecord.paciente || currentRecord.nome);
+            if (currentRecord.cns || currentRecord.cpf) q.set('cns', currentRecord.cns || currentRecord.cpf);
+            if (currentRecord.cid) q.set('cid', currentRecord.cid);
+            if (currentRecord.dias) q.set('dias', currentRecord.dias);
+            if (currentRecord.medico) q.set('medico', currentRecord.medico);
+            if (currentRecord.crm) q.set('crm', currentRecord.crm);
+            btnEdit.href = targetPage + '?' + q.toString() + '&edit=true';
         }
     }
 

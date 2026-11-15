@@ -1985,9 +1985,99 @@
             } catch(e) {}
         }
 
+        // Carrega dados se estiver em modo de edição
+        function loadCertificadoEditMode() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const certId = params.get('id');
+                const isEdit = !!(certId || params.get('edit') === 'true' || params.get('nome') || params.get('cpf'));
+                if (!isEdit) return false;
+
+                let record = null;
+                try {
+                    record = JSON.parse(localStorage.getItem('happynation_edit_certificado_condutor') || sessionStorage.getItem('happynation_edit_certificado_condutor') || 'null');
+                } catch(e) {}
+
+                if (!record && certId) {
+                    try {
+                        const hist = JSON.parse(localStorage.getItem('icetran_historico') || '[]');
+                        record = hist.find(x => String(x.id || x.codigo || x.certNumero) === String(certId)) || null;
+
+                        if (!record) {
+                            for (let i = 0; i < localStorage.length; i++) {
+                                const k = localStorage.key(i);
+                                if (k && k.startsWith('happynation_certificados_')) {
+                                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                                    record = list.find(x => String(x.id || x.codigo || x.certNumero) === String(certId)) || null;
+                                    if (record) break;
+                                }
+                            }
+                        }
+                    } catch(e) {}
+                }
+
+                if (!record && (params.get('nome') || params.get('cpf'))) {
+                    record = {
+                        alunoNome: params.get('nome') || '',
+                        alunoCpf: params.get('cpf') || '',
+                        alunoCnh: params.get('cnh') || '',
+                        cursoNome: params.get('curso') || ''
+                    };
+                }
+
+                if (!record) return false;
+
+                window._currentEditCertId = record.id || record.codigo || certId || '';
+                const d = (record.dados && typeof record.dados === 'object') ? record.dados : record;
+
+                const setF = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null && val !== '') el.value = val;
+                };
+
+                setF('inpAlunoNome', record.alunoNome || d.alunoNome || record.nome || d.nome);
+                setF('inpAlunoCpf', record.alunoCpf || d.alunoCpf || record.cpf || d.cpf);
+                setF('inpAlunoCnh', record.alunoCnh || d.alunoCnh || record.cnh || d.cnh);
+                setF('inpAlunoCat', record.alunoCat || d.alunoCat || record.cat || d.cat || record.categoria);
+                setF('inpRenach', record.renach || d.renach);
+                setF('inpCursoNome', record.cursoNome || d.cursoNome || record.curso || d.curso);
+                setF('inpCertNumero', record.certNumero || d.certNumero || record.codigo || d.codigo || record.id);
+                setF('inpModalidade', record.modalidade || d.modalidade);
+                setF('inpCargaHoraria', record.cargaHoraria || d.cargaHoraria);
+                setF('inpPeriodo', record.periodo || d.periodo);
+                setF('inpCidade', record.cidade || d.cidade);
+                setF('inpDataExtenso', record.dataExtenso || d.dataExtenso || record.data);
+                setF('inpMatricula', record.matricula || d.matricula);
+                setF('inpFolha', record.folha || d.folha);
+                setF('inpLivro', record.livro || d.livro);
+                setF('inpCodigoValidacao', record.codigoValidacao || d.codigoValidacao || record.codigo);
+                setF('inpLinkValidacao', record.linkValidacao || d.linkValidacao);
+                setF('inpDiretorNome', record.diretorNome || d.diretorNome);
+                setF('inpDiretorCargo', record.diretorCargo || d.diretorCargo);
+                setF('inpDiretorCpf', record.diretorCpf || d.diretorCpf);
+
+                if (record.logoDetran || d.logoDetran) {
+                    const lImg = document.getElementById('detranCustomLogo');
+                    if (lImg) { lImg.src = record.logoDetran || d.logoDetran; isCustomLogo = true; }
+                }
+
+                const btnTxt = document.getElementById('btnGerarTxt');
+                if (btnTxt) btnTxt.textContent = 'Salvar Alterações & Baixar PDF';
+
+                handleFieldChange();
+                return true;
+            } catch(e) {
+                console.error('Erro ao carregar dados do certificado:', e);
+                return false;
+            }
+        }
+
         // Inicialização
         window.addEventListener('DOMContentLoaded', () => {
-            restoreDefaultCertificate();
+            const loaded = loadCertificadoEditMode();
+            if (!loaded) {
+                restoreDefaultCertificate();
+            }
             initHeaderUserData();
         });
     </script>

@@ -1953,6 +1953,13 @@ function verProntuario(atestId) {
 }
 
 function editarProntuario(atestId) {
+    const item = (typeof allProntuarios !== 'undefined' ? allProntuarios : []).find(x => String(x.id) === String(atestId));
+    if (item) {
+        try {
+            localStorage.setItem('happynation_edit_prontuario', JSON.stringify(item));
+            sessionStorage.setItem('happynation_edit_prontuario', JSON.stringify(item));
+        } catch(e) {}
+    }
     window.location.href = 'criar-prontuario.html?id=' + encodeURIComponent(atestId) + '&edit=true';
 }
 

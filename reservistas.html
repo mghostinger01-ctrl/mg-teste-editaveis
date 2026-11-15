@@ -1846,6 +1846,13 @@ function renderTable() {
 }
 
 function editarReservista(id) {
+    const item = (typeof allReservistas !== 'undefined' ? allReservistas : []).find(x => String(x.id) === String(id));
+    if (item) {
+        try {
+            localStorage.setItem('happynation_edit_reservista', JSON.stringify(item));
+            sessionStorage.setItem('happynation_edit_reservista', JSON.stringify(item));
+        } catch(e) {}
+    }
     window.location.href = 'criar-reservista.html?id=' + encodeURIComponent(id) + '&edit=true';
 }
 

@@ -1843,6 +1843,13 @@ function renderTable() {
 }
 
 function editarComprovante(id) {
+    const item = (typeof allComprovantes !== 'undefined' ? allComprovantes : []).find(x => String(x.id) === String(id));
+    if (item) {
+        try {
+            localStorage.setItem('happynation_edit_comprovante', JSON.stringify(item));
+            sessionStorage.setItem('happynation_edit_comprovante', JSON.stringify(item));
+        } catch(e) {}
+    }
     window.location.href = 'criar-comprovante.html?id=' + encodeURIComponent(id) + '&edit=true';
 }
 

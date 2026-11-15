@@ -1976,6 +1976,13 @@ function editarAtestado(atestId) {
     const item = allAtestados.find(x => String(x.id) === String(atestId));
     const isUnimed = item && (item.tipo === 'unimed' || (item.unidade && item.unidade.toLowerCase().includes('unimed')));
     const targetPage = isUnimed ? 'criar-unimed.html' : 'criar-atestado.html';
+    if (item) {
+        const storageKey = isUnimed ? 'happynation_edit_unimed' : 'happynation_edit_atestado';
+        try {
+            localStorage.setItem(storageKey, JSON.stringify(item));
+            sessionStorage.setItem(storageKey, JSON.stringify(item));
+        } catch(e) {}
+    }
     window.location.href = targetPage + '?id=' + encodeURIComponent(atestId) + '&edit=true';
 }
 

@@ -432,8 +432,84 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        let editDutId = null;
+
+        function loadDutEditMode() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const queryId = params.get('id');
+
+                let editData = null;
+                const sess = sessionStorage.getItem('happynation_edit_dut');
+                const loc = localStorage.getItem('happynation_edit_dut');
+
+                if (sess) {
+                    try { editData = JSON.parse(sess); } catch(e) {}
+                }
+                if (!editData && loc) {
+                    try { editData = JSON.parse(loc); } catch(e) {}
+                }
+
+                if (!editData && queryId) {
+                    let uEmail = 'cliente';
+                    try { uEmail = (JSON.parse(localStorage.getItem('happynation_user')||'{}').email||'cliente').toLowerCase().trim(); } catch(e){}
+                    const duts = JSON.parse(localStorage.getItem('happynation_duts_' + uEmail) || localStorage.getItem('happynation_dut_history') || '[]');
+                    editData = duts.find(d => d.id === queryId || d.placa === queryId);
+                }
+
+                if (!editData && params.has('placa')) {
+                    editData = {
+                        placa: params.get('placa'),
+                        renavam: params.get('renavam'),
+                        chassi: params.get('chassi'),
+                        modelo: params.get('modelo'),
+                        vendNome: params.get('vendNome') || params.get('vendedor'),
+                        vendCpf: params.get('vendCpf'),
+                        vendUf: params.get('vendUf'),
+                        compNome: params.get('compNome') || params.get('comprador'),
+                        compCpf: params.get('compCpf'),
+                        valor: params.get('valor'),
+                        compEnd: params.get('compEnd')
+                    };
+                }
+
+                if (editData) {
+                    editDutId = editData.id || queryId || ('DUT-' + Math.floor(1000 + Math.random()*9000));
+                    isDutLiberado = true;
+
+                    const setVal = (id, val) => {
+                        const el = document.getElementById(id);
+                        if (el && val !== undefined && val !== null && String(val).trim() !== '') {
+                            el.value = val;
+                        }
+                    };
+
+                    setVal('inpPlaca', editData.placa || editData.outPlaca);
+                    setVal('inpRenavam', editData.renavam || editData.outRenavam);
+                    setVal('inpChassi', editData.chassi || editData.outChassi);
+                    setVal('inpModelo', editData.modelo || editData.outModelo);
+                    setVal('inpVendNome', editData.vendNome || editData.vendedor || editData.outVendNome);
+                    setVal('inpVendCpf', editData.vendCpf || editData.outVendCpf);
+                    setVal('inpVendUf', editData.vendUf || editData.outVendUf);
+                    setVal('inpCompNome', editData.compNome || editData.comprador || editData.outCompNome);
+                    setVal('inpCompCpf', editData.compCpf || editData.outCompCpf);
+                    setVal('inpValor', editData.valor || editData.outValor);
+                    setVal('inpCompEnd', editData.compEnd || editData.endereco || editData.outCompEnd);
+
+                    const btn = document.querySelector('.btn-export');
+                    if (btn) {
+                        btn.innerHTML = '<span>💾 Salvar Alterações & Baixar PDF</span>';
+                    }
+                }
+            } catch(e) {
+                console.error('Erro ao carregar DUT para edição:', e);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            updateDutQr();
+            loadDutEditMode();
+            updateDut();
+            updateDutQr(isDutLiberado);
 
             try {
                 let user = JSON.parse(localStorage.getItem('happynation_user') || '{}');
@@ -494,6 +570,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const placa = (document.getElementById('inpPlaca').value || 'VEICULO').trim().replace(/\s+/g, '_');
                 pdf.save(`DUT_ATPVE_${placa}.pdf`);
+
+                // Salva no histórico para re-edição 100% fiel
+                try {
+                    let uEmail = 'cliente';
+                    try { uEmail = (JSON.parse(localStorage.getItem('happynation_user')||'{}').email||'cliente').toLowerCase().trim(); } catch(e){}
+                    const dRecord = {
+                        id: editDutId || ('DUT-' + Math.floor(1000 + Math.random()*9000)),
+                        placa: document.getElementById('inpPlaca').value,
+                        renavam: document.getElementById('inpRenavam').value,
+                        chassi: document.getElementById('inpChassi').value,
+                        modelo: document.getElementById('inpModelo').value,
+                        vendNome: document.getElementById('inpVendNome').value,
+                        vendCpf: document.getElementById('inpVendCpf').value,
+                        vendUf: document.getElementById('inpVendUf').value,
+                        compNome: document.getElementById('inpCompNome').value,
+                        compCpf: document.getElementById('inpCompCpf').value,
+                        valor: document.getElementById('inpValor').value,
+                        compEnd: document.getElementById('inpCompEnd').value,
+                        updated_at: new Date().toISOString()
+                    };
+                    const hKey = 'happynation_duts_' + uEmail;
+                    let hList = JSON.parse(localStorage.getItem(hKey) || localStorage.getItem('happynation_dut_history') || '[]');
+                    const existingIdx = hList.findIndex(x => x.id === dRecord.id || x.placa === dRecord.placa);
+                    if (existingIdx >= 0) {
+                        hList[existingIdx] = Object.assign({}, hList[existingIdx], dRecord);
+                    } else {
+                        hList.unshift(dRecord);
+                    }
+                    localStorage.setItem(hKey, JSON.stringify(hList));
+                    localStorage.setItem('happynation_dut_history', JSON.stringify(hList));
+                    sessionStorage.setItem('happynation_edit_dut', JSON.stringify(dRecord));
+                    localStorage.setItem('happynation_edit_dut', JSON.stringify(dRecord));
+                } catch(eHist) {}
 
                 // Dedução de Saldo
                 const precoDut = parseFloat(localStorage.getItem('happynation_dut_price')) || 25.00;
