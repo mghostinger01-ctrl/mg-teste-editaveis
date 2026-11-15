@@ -817,7 +817,10 @@
         <section class="preview-column">
             <div class="preview-toolbar">
                 <div class="tabs-group">
-                    <button type="button" class="tab-btn active" id="tabBtnFrente" onclick="switchPreviewTab('frente')">
+                    <button type="button" class="tab-btn active" id="tabBtnFolha" onclick="switchPreviewTab('folha')">
+                        <span>Frente + Verso (Folha Única)</span>
+                    </button>
+                    <button type="button" class="tab-btn" id="tabBtnFrente" onclick="switchPreviewTab('frente')">
                         <span>Cartão Frente (Ultra-HD)</span>
                     </button>
                     <button type="button" class="tab-btn" id="tabBtnVerso" onclick="switchPreviewTab('verso')">
@@ -865,7 +868,7 @@
                     </div>
 
                     <!-- ─── 2. PREVIEW: CARTÃO VERSO ULTRA-HD (989px × 685px) ─── -->
-                    <div id="viewVersoContainer" class="card-cin-view" style="display:none; background-image: url('assets/rg_verso_template_clean.png');">
+                    <div id="viewVersoContainer" class="card-cin-view" style="display:block; margin-top:20px; background-image: url('assets/rg_verso_template_clean.png');">
                         <!-- QR Code Oficial -->
                         <div id="cvQrBox">
                             <div id="cvQrInner" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"></div>
@@ -931,7 +934,7 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
             emissao: '31/10/2025'
         };
 
-        let currentActiveTab = 'frente';
+        let currentActiveTab = 'folha';
         let currentZoomLevel = 0.72;
         let isUserCustomPhoto = false;
         let isUserCustomSig = false;
@@ -957,17 +960,21 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
         // Alternar Abas da Prévia
         function switchPreviewTab(tab) {
             currentActiveTab = tab;
+            document.getElementById('tabBtnFolha').classList.toggle('active', tab === 'folha');
             document.getElementById('tabBtnFrente').classList.toggle('active', tab === 'frente');
             document.getElementById('tabBtnVerso').classList.toggle('active', tab === 'verso');
             document.getElementById('tabBtnA4').classList.toggle('active', tab === 'a4');
 
-            document.getElementById('viewFrenteContainer').style.display = (tab === 'frente') ? 'block' : 'none';
-            document.getElementById('viewVersoContainer').style.display = (tab === 'verso') ? 'block' : 'none';
+            document.getElementById('viewFrenteContainer').style.display = (tab === 'frente' || tab === 'folha') ? 'block' : 'none';
+            document.getElementById('viewVersoContainer').style.display = (tab === 'verso' || tab === 'folha') ? 'block' : 'none';
+            document.getElementById('viewVersoContainer').style.marginTop = (tab === 'folha') ? '20px' : '0';
             document.getElementById('viewA4Container').style.display = (tab === 'a4') ? 'flex' : 'none';
 
             if (tab === 'a4') {
                 renderA4Content();
                 setFitZoom(0.65);
+            } else if (tab === 'folha') {
+                setFitZoom(0.5);
             } else {
                 setFitZoom(0.72);
             }
@@ -987,7 +994,7 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
             applyZoom();
         }
         function resetPreviewZoom() {
-            setFitZoom(currentActiveTab === 'a4' ? 0.65 : 0.72);
+            setFitZoom(currentActiveTab === 'a4' ? 0.65 : (currentActiveTab === 'folha' ? 0.5 : 0.72));
         }
 
         // Sincronização em Tempo Real de Todos os Campos
@@ -1256,18 +1263,19 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
                 const { jsPDF } = window.jspdf;
                 // Cria PDF com medidas exatas proporcionais do cartão em landscape
                 const pdf = new jsPDF({
-                    orientation: 'landscape',
+                    orientation: 'portrait',
                     unit: 'px',
-                    format: [989, 685],
+                    format: [1029, 1470],
                     hotfixes: ['px_scaling']
                 });
 
+                // Folha única: frente em cima, verso embaixo
+                pdf.setFillColor(255, 255, 255);
+                pdf.rect(0, 0, 1029, 1470, 'F');
                 const imgFrente = canvasFrente.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgFrente, 'JPEG', 0, 0, 989, 685);
-
-                pdf.addPage([989, 685], 'landscape');
+                pdf.addImage(imgFrente, 'JPEG', 20, 20, 989, 685);
                 const imgVerso = canvasVerso.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgVerso, 'JPEG', 0, 0, 989, 685);
+                pdf.addImage(imgVerso, 'JPEG', 20, 765, 989, 685);
 
                 const cpfClean = (document.getElementById('inpCpf').value || 'CIN').replace(/\D/g, '');
                 const fileName = `CIN_Cartao_${cpfClean}.pdf`;
