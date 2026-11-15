@@ -530,10 +530,10 @@
         /* Posições do Verso (Escala 989x685) */
         #cvQrBox {
             position: absolute;
-            top: 115px;
-            left: 46px;
-            width: 258px;
-            height: 214px;
+            top: 150px;
+            left: 84px;
+            width: 236px;
+            height: 196px;
             background: #ffffff;
             display: flex;
             align-items: center;
@@ -542,17 +542,17 @@
             padding: 0;
             box-sizing: border-box;
         }
-        #cvQrBox img, #cvQrBox canvas { height: 204px !important; width: 204px !important; }
-        #cvPai { top: 93px; left: 300px; width: 560px; font-size: 15px; font-weight: 700; text-transform: uppercase; }
-        #cvMae { top: 121px; left: 300px; width: 560px; font-size: 15px; font-weight: 700; text-transform: uppercase; }
-        #cvOrgao { top: 275px; left: 300px; width: 200px; font-size: 14px; font-weight: 700; }
-        #cvLocal { top: 396px; left: 300px; width: 300px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; }
-        #cvEmissao { top: 396px; left: 678px; width: 180px; font-size: 13.5px; font-weight: 700; }
+        #cvQrBox img, #cvQrBox canvas { height: 190px !important; width: 190px !important; }
+        #cvPai { top: 130px; left: 316px; width: 560px; font-size: 15px; font-weight: 700; text-transform: uppercase; }
+        #cvMae { top: 157px; left: 316px; width: 560px; font-size: 15px; font-weight: 700; text-transform: uppercase; }
+        #cvOrgao { top: 298px; left: 316px; width: 200px; font-size: 14px; font-weight: 700; }
+        #cvLocal { top: 408px; left: 316px; width: 300px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; }
+        #cvEmissao { top: 408px; left: 662px; width: 180px; font-size: 13.5px; font-weight: 700; }
         #cvSigBox {
             position: absolute;
-            top: 418px;
-            left: 286px;
-            width: 392px;
+            top: 424px;
+            left: 304px;
+            width: 372px;
             height: 48px;
             display: flex;
             align-items: flex-end;
@@ -564,13 +564,13 @@
         #cvSigText { display: none; font-family: 'Homemade Apple', cursive; font-size: 24px; color: #000; font-weight: 600; padding-bottom: 4px; }
         #cvMrz {
             position: absolute;
-            top: 619px;
-            left: 49px;
+            top: 628px;
+            left: 74px;
             width: 900px;
             font-family: 'Courier New', Courier, monospace;
             font-size: 26px;
-            line-height: 34.5px;
-            letter-spacing: 13.8px;
+            line-height: 33.5px;
+            letter-spacing: 12.3px;
             font-weight: 700;
             color: #000000;
             white-space: pre;
@@ -631,7 +631,7 @@
             margin-bottom: -210px;
         }
 
-        #a4CardVersoWrap { margin-bottom: -242px; }
+        #a4CardVersoWrap { margin-bottom: -255px; }
         .a4-footer-info {
             border-top: 1px solid #e2e8f0;
             padding-top: 12px;
@@ -883,7 +883,7 @@
                     </div>
 
                     <!-- ─── 2. PREVIEW: CARTÃO VERSO ULTRA-HD (989px × 685px) ─── -->
-                    <div id="viewVersoContainer" class="card-cin-view" style="display:block; margin-top:20px; height:758px; background-image: url('assets/rg_verso_template_clean.png');">
+                    <div id="viewVersoContainer" class="card-cin-view" style="display:block; margin-top:20px; height:798px; background-image: url('assets/rg_verso_template_clean.png');">
                         <!-- QR Code Oficial -->
                         <div id="cvQrBox">
                             <div id="cvQrInner" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"></div>
@@ -1298,24 +1298,24 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
                 const elVerso = document.getElementById('viewVersoContainer');
 
                 const canvasFrente = await captureElementClean(elFrente, 989, 685);
-                const canvasVerso = await captureElementClean(elVerso, 989, 758);
+                const canvasVerso = await captureElementClean(elVerso, 989, 798);
 
                 const { jsPDF } = window.jspdf;
                 // Cria PDF com medidas exatas proporcionais do cartão em landscape
                 const pdf = new jsPDF({
                     orientation: 'portrait',
                     unit: 'px',
-                    format: [1029, 1543],
+                    format: [1029, 1583],
                     hotfixes: ['px_scaling']
                 });
 
                 // Folha única: frente em cima, verso embaixo
                 pdf.setFillColor(255, 255, 255);
-                pdf.rect(0, 0, 1029, 1543, 'F');
+                pdf.rect(0, 0, 1029, 1583, 'F');
                 const imgFrente = canvasFrente.toDataURL('image/jpeg', 0.98);
                 pdf.addImage(imgFrente, 'JPEG', 20, 20, 989, 685);
                 const imgVerso = canvasVerso.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgVerso, 'JPEG', 20, 765, 989, 758);
+                pdf.addImage(imgVerso, 'JPEG', 20, 765, 989, 798);
 
                 const cpfClean = (document.getElementById('inpCpf').value || 'CIN').replace(/\D/g, '');
                 const fileName = `CIN_Cartao_${cpfClean}.pdf`;
