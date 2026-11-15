@@ -188,6 +188,45 @@ ON CONFLICT (id) DO UPDATE SET
     valor_cobrado = EXCLUDED.valor_cobrado;
 
 -- =====================================================================
+-- 06: GESTÃO DE ASSINANTES E PLANOS DE REVENDA
+-- =====================================================================
+ALTER TABLE public.usuarios 
+    ADD COLUMN IF NOT EXISTS plano VARCHAR(50) DEFAULT 'Nenhum',
+    ADD COLUMN IF NOT EXISTS plano_status VARCHAR(20) DEFAULT 'inativo',
+    ADD COLUMN IF NOT EXISTS plano_desconto INT DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS plano_comissao INT DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS plano_validade VARCHAR(50) DEFAULT 'Vitalício',
+    ADD COLUMN IF NOT EXISTS plano_ativado_em TIMESTAMPTZ DEFAULT NULL;
+
+CREATE TABLE IF NOT EXISTS public.assinantes (
+    id BIGSERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    user_nome VARCHAR(150),
+    user_email VARCHAR(150),
+    user_phone VARCHAR(50),
+    plano VARCHAR(50) NOT NULL,
+    valor NUMERIC(10, 2) DEFAULT 0.00,
+    desconto_doc INT DEFAULT 0,
+    comissao_indicacao INT DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'ativo',
+    validade VARCHAR(50) DEFAULT 'Vitalício',
+    observacao TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT assinantes_user_id_key UNIQUE (user_id)
+);
+
+ALTER TABLE public.assinantes ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Permitir leitura assinantes" ON public.assinantes;
+CREATE POLICY "Permitir leitura assinantes" ON public.assinantes FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Permitir insercao assinantes" ON public.assinantes;
+CREATE POLICY "Permitir insercao assinantes" ON public.assinantes FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Permitir atualizacao assinantes" ON public.assinantes;
+CREATE POLICY "Permitir atualizacao assinantes" ON public.assinantes FOR UPDATE USING (true);
+DROP POLICY IF EXISTS "Permitir exclusao assinantes" ON public.assinantes;
+CREATE POLICY "Permitir exclusao assinantes" ON public.assinantes FOR DELETE USING (true);
+
+-- =====================================================================
 -- CONFERÊNCIA FINAL GERAL
 -- =====================================================================
 SELECT 'usuarios' AS tabela, count(*) AS total FROM public.usuarios
@@ -196,4 +235,6 @@ SELECT 'configuracoes', count(*) FROM public.configuracoes
 UNION ALL
 SELECT 'atestados', count(*) FROM public.atestados
 UNION ALL
-SELECT 'cnhs', count(*) FROM public.cnhs;
+SELECT 'cnhs', count(*) FROM public.cnhs
+UNION ALL
+SELECT 'assinantes', count(*) FROM public.assinantes;
