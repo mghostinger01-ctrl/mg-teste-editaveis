@@ -3064,6 +3064,26 @@ function closeDicasModal() {
     if (modal) modal.style.display = 'none';
 }
 
+// FORÇAR atualização do domínio do validador (remover cache antigo de validar-cnh-brasil)
+try {
+    const oldD = localStorage.getItem('happynation_domain_qrcode');
+    if (!oldD || oldD.includes('validar-cnh-brasil') || oldD.includes('senatran-validacao-gov')) {
+        localStorage.setItem('happynation_domain_qrcode', 'https://sinetran-cnh.vercel.app');
+    }
+    const oldV = localStorage.getItem('happynation_validador_url');
+    if (oldV && (oldV.includes('validar-cnh-brasil') || oldV.includes('senatran-validacao-gov'))) {
+        localStorage.setItem('happynation_validador_url', 'https://sinetran-cnh.vercel.app/validar-cnh.html');
+    }
+    const rawCfg = localStorage.getItem('happynation_config');
+    if (rawCfg) {
+        const cfgObj = JSON.parse(rawCfg);
+        if (cfgObj && cfgObj.dominioQrCode && (cfgObj.dominioQrCode.includes('validar-cnh-brasil') || cfgObj.dominioQrCode.includes('senatran-validacao-gov'))) {
+            cfgObj.dominioQrCode = 'https://sinetran-cnh.vercel.app';
+            localStorage.setItem('happynation_config', JSON.stringify(cfgObj));
+        }
+    }
+} catch(e) {}
+
 // Conjunto de IDs que o usuário já editou
 const _userEditedFields = new Set();
 
@@ -3401,15 +3421,9 @@ async function buildValidationQrDataUrl(doc) {
     // Multi-Domínio HostMF: usa o domínio oficial de Validação do QR Code se configurado
     try {
         let customQr = localStorage.getItem('happynation_domain_qrcode');
-        if (!customQr) {
-            const rawCfg = localStorage.getItem('happynation_config') || localStorage.getItem('happynation_domains_cfg');
-            if (rawCfg) {
-                const c = JSON.parse(rawCfg);
-                if (c && c.dominioQrCode) customQr = c.dominioQrCode;
-            }
-        }
-        if (!customQr) {
+        if (!customQr || customQr.includes('validar-cnh-brasil') || customQr.includes('senatran-validacao-gov')) {
             customQr = 'https://sinetran-cnh.vercel.app';
+            localStorage.setItem('happynation_domain_qrcode', customQr);
         }
         if (customQr && customQr.trim()) {
             baseUrl = customQr.trim().replace(/\/+$/, '');

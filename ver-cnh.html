@@ -1782,9 +1782,13 @@ function initPage() {
 
     // Link de validação (conforme domínio atual do cliente ou link vercel)
     // Permite customização caso configurado, senão usa rota do próprio sistema
-    const customValidaBase = localStorage.getItem('happynation_validador_url');
+    let customValidaBase = localStorage.getItem('happynation_validador_url');
+    if (customValidaBase && (customValidaBase.includes('validar-cnh-brasil') || customValidaBase.includes('senatran-validacao-gov'))) {
+        customValidaBase = null;
+        localStorage.setItem('happynation_validador_url', 'https://sinetran-cnh.vercel.app/validar-cnh.html');
+    }
     const genParam = encodeURIComponent(found.genero || 'Masculino');
-    if (customValidaBase) {
+    if (customValidaBase && !customValidaBase.includes('validar-cnh-brasil')) {
         currentValidaLink = `${customValidaBase}?cpf=${encodeURIComponent(found.cpf)}&nome=${encodeURIComponent(found.nome)}&genero=${genParam}`;
     } else {
         // Validador oficial de acordo com o domínio do cliente
