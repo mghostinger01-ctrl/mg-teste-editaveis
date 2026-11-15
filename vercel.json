@@ -60,7 +60,7 @@
       "has": [
         {
           "type": "host",
-          "value": "validar-cnh-brasil.vercel.app"
+          "value": "sinetran-cnh.vercel.app"
         }
       ],
       "destination": "/validar-cnh.html",
@@ -166,7 +166,7 @@
       "has": [
         {
           "type": "host",
-          "value": "validar-cnh-brasil.vercel.app"
+          "value": "sinetran-cnh.vercel.app"
         }
       ],
       "destination": "/validar-cnh.html"

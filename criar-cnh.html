@@ -3409,13 +3409,13 @@ async function buildValidationQrDataUrl(doc) {
             }
         }
         if (!customQr) {
-            customQr = 'https://validar-cnh-brasil.vercel.app';
+            customQr = 'https://sinetran-cnh.vercel.app';
         }
         if (customQr && customQr.trim()) {
             baseUrl = customQr.trim().replace(/\/+$/, '');
         }
     } catch(e) {
-        baseUrl = 'https://validar-cnh-brasil.vercel.app';
+        baseUrl = 'https://sinetran-cnh.vercel.app';
     }
 
     const sideNomeEl = document.getElementById('side_nome');

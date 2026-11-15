@@ -2399,7 +2399,7 @@
                 if (k === 'cat' && !v) v = src.categoria;
                 if (v) q.set(k, v);
             });
-            let baseQr = 'https://validar-cnh-brasil.vercel.app';
+            let baseQr = 'https://sinetran-cnh.vercel.app';
             try {
                 const cQr = localStorage.getItem('happynation_domain_qrcode');
                 if (cQr && cQr.trim()) baseQr = cQr.trim().replace(/\/+$/, '');
