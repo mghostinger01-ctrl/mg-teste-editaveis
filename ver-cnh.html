@@ -1655,6 +1655,25 @@ function initPage() {
         if (sigFrame) sigFrame.style.display = 'block';
     }
 
+    // Extrai dados unificados da CNH para edição, links e validação
+    const dObj = (found.dados && typeof found.dados === 'object' && Object.keys(found.dados).length > 0) ? found.dados : found;
+    const pVal = dObj.validade || found.validade || '';
+    const pEmissao = dObj.emissao || dObj.data_emissao || found.emissao || '';
+    const pHab = dObj.hab || dObj.habilitacao || dObj.data_1_hab || found.hab || found.habilitacao || '';
+    const pRg = dObj.rg || dObj.doc_identidade || found.rg || found.doc_identidade || '';
+    const pNasc = dObj.nasc || dObj.data_nascimento || found.nasc || found.data_nascimento || '';
+    const pReg = dObj.reg || dObj.registro || found.reg || found.registro || '';
+    const pMae = dObj.mae || dObj.filiacao_2 || dObj.filiacao_mae || found.mae || found.filiacao_2 || found.filiacao_mae || '';
+    const pPai = dObj.pai || dObj.filiacao_1 || dObj.filiacao_pai || found.pai || found.filiacao_1 || found.filiacao_pai || '';
+    const pLocal = dObj.local || dObj.cidade || dObj.municipio || found.local || found.cidade || found.municipio || params.get('local') || params.get('cidade') || '';
+    const pUf = dObj.uf || dObj.estado || found.uf || found.estado || params.get('uf') || params.get('estado') || '';
+    const pObs = dObj.obs || dObj.observacoes || dObj.observacao || found.obs || found.observacoes || found.observacao || '';
+    const rawGen = dObj.genero || dObj.sexo || found.genero || found.sexo || 'Masculino';
+    const cleanGen = (rawGen && rawGen !== 'null' && rawGen !== 'undefined') ? String(rawGen).trim().toLowerCase() : '';
+    const pGen = cleanGen.startsWith('f') ? 'Feminino' : 'Masculino';
+    const rawCat = found.cat || found.categoria || dObj.cat || dObj.categoria || params.get('cat') || 'B';
+    const pCat = String(rawCat).trim().toUpperCase();
+
     // Botão de editar no topo de ver-cnh
     const btnEdit = document.getElementById('btnEditFromVer');
     if (btnEdit && found) {
@@ -1923,6 +1942,70 @@ function copyClientMessage() {
     });
 }
 
+
+function formatarMunicipioUfLimpo(input, candUf) {
+    if (!input && !candUf) return '';
+    let s = String(input || '').trim();
+    const ufIn = String(candUf || '').trim();
+
+    const estadoToSigla = {
+        'ACRE': 'AC', 'ALAGOAS': 'AL', 'AMAPA': 'AP', 'AMAPÁ': 'AP',
+        'AMAZONAS': 'AM', 'BAHIA': 'BA', 'CEARA': 'CE', 'CEARÁ': 'CE',
+        'DISTRITO FEDERAL': 'DF', 'ESPIRITO SANTO': 'ES', 'ESPÍRITO SANTO': 'ES',
+        'GOIAS': 'GO', 'GOIÁS': 'GO', 'MARANHAO': 'MA', 'MARANHÃO': 'MA',
+        'MATO GROSSO': 'MT', 'MATO GROSSO DO SUL': 'MS', 'MINAS GERAIS': 'MG',
+        'PARA': 'PA', 'PARÁ': 'PA', 'PARAIBA': 'PB', 'PARAÍBA': 'PB',
+        'PARANA': 'PR', 'PARANÁ': 'PR', 'PERNAMBUCO': 'PE', 'PIAUI': 'PI',
+        'PIAUÍ': 'PI', 'RIO DE JANEIRO': 'RJ', 'RIO GRANDE DO NORTE': 'RN',
+        'RIO GRANDE DO SUL': 'RS', 'RONDONIA': 'RO', 'RONDÔNIA': 'RO',
+        'RORAIMA': 'RR', 'SANTA CATARINA': 'SC', 'SAO PAULO': 'SP', 'SÃO PAULO': 'SP',
+        'SERGIPE': 'SE', 'TOCANTINS': 'TO'
+    };
+
+    let ufSigla = '';
+    if (ufIn) {
+        let uNorm = ufIn.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (/^[A-Z]{2}$/.test(uNorm)) {
+            ufSigla = uNorm;
+        } else if (estadoToSigla[uNorm]) {
+            ufSigla = estadoToSigla[uNorm];
+        }
+    }
+
+    let parts = s.split(/[,–\-\/]+/).map(p => p.trim()).filter(Boolean);
+    let cidade = parts[0] || '';
+    let cMatch = cidade.match(/^(.*?)\s+([A-Za-z]{2})$/);
+    if (cMatch) {
+        cidade = cMatch[1].trim();
+        if (!ufSigla) ufSigla = cMatch[2].toUpperCase();
+    }
+
+    for (let i = 1; i < parts.length; i++) {
+        let pNorm = parts[i].toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (/^[A-Z]{2}$/.test(pNorm) && !ufSigla) {
+            ufSigla = pNorm;
+            break;
+        }
+        for (let est in estadoToSigla) {
+            let estNorm = est.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            if (pNorm === estNorm && !ufSigla) {
+                ufSigla = estadoToSigla[est];
+                break;
+            }
+        }
+    }
+
+    if (!ufSigla && s.match(/^(.*?)[,\s–\-\/]+([A-Za-z]{2})$/)) {
+        let m = s.match(/^(.*?)[,\s–\-\/]+([A-Za-z]{2})$/);
+        cidade = m[1].trim();
+        ufSigla = m[2].toUpperCase();
+    }
+
+    if (cidade && ufSigla) {
+        return cidade.toUpperCase() + ', ' + ufSigla;
+    }
+    return (s || ufIn).toUpperCase();
+}
 
 function downloadComboExameVer() {
     if (!currentRecord) return;
