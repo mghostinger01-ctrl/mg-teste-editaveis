@@ -3867,22 +3867,57 @@ function initParamsSync() {
 
         // ── RESTAURAÇÃO INFALÍVEL DE FOTO E ASSINATURA NO MODO EDIÇÃO ──
         let savedFoto = window._currentFotoBase64 ||
-                        localStorage.getItem('happynation_foto_' + cnhId) ||
-                        (cleanCpfParam ? localStorage.getItem('happynation_foto_' + cleanCpfParam) : null) ||
-                        localStorage.getItem('happynation_foto_active') ||
+                        sessionStorage.getItem('happynation_combo_foto') ||
                         localStorage.getItem('happynation_combo_foto') ||
-                        sessionStorage.getItem('happynation_combo_foto');
+                        (cnhId ? localStorage.getItem('happynation_foto_' + cnhId) : null) ||
+                        (cleanCpfParam ? localStorage.getItem('happynation_foto_' + cleanCpfParam) : null) ||
+                        localStorage.getItem('happynation_foto_active');
 
         if (!savedFoto && mergedData.foto && !mergedData.foto.includes('eduardo_photo.png')) {
             savedFoto = mergedData.foto;
         }
 
+        // Procura foto em todas as listas de CNHs locais do usuário
+        if (!savedFoto) {
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('happynation_cnhs_')) {
+                        const l = JSON.parse(localStorage.getItem(k) || '[]');
+                        const match = l.find(x => x.id === cnhId || (cleanCpfParam && (x.cpf||'').replace(/\D/g, '') === cleanCpfParam));
+                        if (match && match.foto && !match.foto.includes('eduardo_photo.png')) {
+                            savedFoto = match.foto;
+                            break;
+                        }
+                    }
+                }
+            } catch(eFindFoto) {}
+        }
+
         let savedAss = window._currentAssBase64 ||
-                       localStorage.getItem('happynation_ass_' + cnhId) ||
-                       (cleanCpfParam ? localStorage.getItem('happynation_ass_' + cleanCpfParam) : null);
+                       (cnhId ? localStorage.getItem('happynation_ass_' + cnhId) : null) ||
+                       (cleanCpfParam ? localStorage.getItem('happynation_ass_' + cleanCpfParam) : null) ||
+                       localStorage.getItem('happynation_ass_active');
 
         if (!savedAss && mergedData.assinatura) {
             savedAss = mergedData.assinatura;
+        }
+
+        // Procura assinatura em todas as listas de CNHs locais do usuário
+        if (!savedAss) {
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('happynation_cnhs_')) {
+                        const l = JSON.parse(localStorage.getItem(k) || '[]');
+                        const match = l.find(x => x.id === cnhId || (cleanCpfParam && (x.cpf||'').replace(/\D/g, '') === cleanCpfParam));
+                        if (match && match.assinatura) {
+                            savedAss = match.assinatura;
+                            break;
+                        }
+                    }
+                }
+            } catch(eFindAss) {}
         }
 
         function renderFotoNoEditor(fB64) {
@@ -3928,7 +3963,7 @@ function initParamsSync() {
 
                 const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
                 const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
-                const res = await fetch(`${SUP_URL}/rest/v1/cnhs?select=*`, {
+                const res = await fetch(`${SUP_URL}/rest/v1/cnhs?select=*&order=created_at.desc`, {
                     headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
                 });
                 if (res.ok) {
@@ -4111,20 +4146,24 @@ function initParamsSync() {
             attachIframeListeners();
             populateSidebarFromIframe();
 
-        // Se houver foto/assinatura em memória ou storage no modo edição, reinjeta no iframe
-        if (window._currentFotoBase64) {
+        // Se houver foto/assinatura em memória ou storage no modo edição, reinjeta no iframe com z-index e prioridade
+        const fImgSrc = window._currentFotoBase64 || sessionStorage.getItem('happynation_combo_foto') || localStorage.getItem('happynation_combo_foto') || localStorage.getItem('happynation_foto_active');
+        if (fImgSrc && !fImgSrc.includes('eduardo_photo.png')) {
+            window._currentFotoBase64 = fImgSrc;
             try {
                 const fa = f.contentDocument ? f.contentDocument.getElementById('foto-area') : null;
-                if (fa && !fa.querySelector('img')) {
-                    fa.innerHTML = '<img src="' + window._currentFotoBase64 + '" alt="Foto" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"/>';
+                if (fa) {
+                    fa.innerHTML = '<img src="' + fImgSrc + '" alt="Foto" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;position:relative;z-index:2;"/>';
                 }
             } catch(eFa) {}
         }
-        if (window._currentAssBase64) {
+        const aImgSrc = window._currentAssBase64 || localStorage.getItem('happynation_ass_active');
+        if (aImgSrc) {
+            window._currentAssBase64 = aImgSrc;
             try {
                 const aa = f.contentDocument ? f.contentDocument.getElementById('assinatura-area') : null;
-                if (aa && !aa.querySelector('img')) {
-                    aa.innerHTML = '<img src="' + window._currentAssBase64 + '" alt="Assinatura" style="width:100%;height:100%;object-fit:contain;display:block;"/>';
+                if (aa) {
+                    aa.innerHTML = '<img src="' + aImgSrc + '" alt="Assinatura" style="width:100%;height:100%;object-fit:contain;display:block;position:relative;z-index:2;"/>';
                 }
             } catch(eAa) {}
         }

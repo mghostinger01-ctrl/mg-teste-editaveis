@@ -1925,10 +1925,36 @@ function editarCnh(cnhId) {
     const rawCat = c.cat || c.categoria || dObj.cat || dObj.categoria || 'B';
     const pCat = String(rawCat).trim().toUpperCase();
 
+    const cleanCpf = (c.cpf || '').replace(/\D/g, '');
     const fotoKey = 'happynation_foto_' + cnhId;
     const assKey  = 'happynation_ass_'  + cnhId;
-    const fotoB64 = localStorage.getItem(fotoKey) || c.foto || (c.dados && c.dados.foto) || null;
-    const assB64  = localStorage.getItem(assKey)  || c.assinatura || (c.dados && c.dados.assinatura) || null;
+    const fotoB64 = c.foto || (c.dados && c.dados.foto) || (dObj && dObj.foto) ||
+                    localStorage.getItem(fotoKey) ||
+                    (cleanCpf ? localStorage.getItem('happynation_foto_' + cleanCpf) : null) ||
+                    localStorage.getItem('happynation_foto_active') ||
+                    localStorage.getItem('happynation_combo_foto') ||
+                    sessionStorage.getItem('happynation_combo_foto') || null;
+    const assB64  = c.assinatura || (c.dados && c.dados.assinatura) || (dObj && dObj.assinatura) ||
+                    localStorage.getItem(assKey)  ||
+                    (cleanCpf ? localStorage.getItem('happynation_ass_' + cleanCpf) : null) ||
+                    localStorage.getItem('happynation_ass_active') || null;
+
+    if (fotoB64) {
+        try {
+            sessionStorage.setItem('happynation_combo_foto', fotoB64);
+            localStorage.setItem('happynation_combo_foto', fotoB64);
+            localStorage.setItem('happynation_foto_active', fotoB64);
+            localStorage.setItem('happynation_foto_' + cnhId, fotoB64);
+            if (cleanCpf) localStorage.setItem('happynation_foto_' + cleanCpf, fotoB64);
+        } catch(e) {}
+    }
+    if (assB64) {
+        try {
+            localStorage.setItem('happynation_ass_active', assB64);
+            localStorage.setItem('happynation_ass_' + cnhId, assB64);
+            if (cleanCpf) localStorage.setItem('happynation_ass_' + cleanCpf, assB64);
+        } catch(e) {}
+    }
 
     const record = Object.assign({}, dObj, c, {
         id: cnhId,

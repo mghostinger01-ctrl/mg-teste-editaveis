@@ -1677,10 +1677,38 @@ function initPage() {
             const rawCat = found.cat || found.categoria || dObj.cat || dObj.categoria || params.get('cat') || 'B';
             const pCat = String(rawCat).trim().toUpperCase();
 
-            const fotoB64 = found.foto || (found.dados && found.dados.foto) ||
-                            localStorage.getItem('happynation_foto_' + found.id) || null;
-            const assB64  = found.assinatura || (found.dados && found.dados.assinatura) ||
-                            localStorage.getItem('happynation_ass_'  + found.id) || null;
+            const photoEl = document.getElementById('cnhPhotoImg');
+            const photoSrc = (photoEl && photoEl.src && !photoEl.src.includes('eduardo_photo.png') && (photoEl.src.startsWith('data:') || photoEl.src.startsWith('http') || photoEl.src.startsWith('blob:'))) ? photoEl.src : null;
+            const sigEl = document.getElementById('cnhSignatureImg');
+            const sigSrc = (sigEl && sigEl.src && (sigEl.src.startsWith('data:') || sigEl.src.startsWith('http') || sigEl.src.startsWith('blob:'))) ? sigEl.src : null;
+
+            const cleanCpf = (found.cpf || '').replace(/\D/g, '');
+            const fotoB64 = photoSrc || found.foto || (found.dados && found.dados.foto) ||
+                            localStorage.getItem('happynation_foto_' + found.id) ||
+                            (cleanCpf ? localStorage.getItem('happynation_foto_' + cleanCpf) : null) ||
+                            localStorage.getItem('happynation_foto_active') ||
+                            sessionStorage.getItem('happynation_combo_foto') || null;
+            const assB64  = sigSrc || found.assinatura || (found.dados && found.dados.assinatura) ||
+                            localStorage.getItem('happynation_ass_'  + found.id) ||
+                            (cleanCpf ? localStorage.getItem('happynation_ass_'  + cleanCpf) : null) ||
+                            localStorage.getItem('happynation_ass_active') || null;
+
+            if (fotoB64) {
+                try {
+                    sessionStorage.setItem('happynation_combo_foto', fotoB64);
+                    localStorage.setItem('happynation_combo_foto', fotoB64);
+                    localStorage.setItem('happynation_foto_active', fotoB64);
+                    if (found.id) localStorage.setItem('happynation_foto_' + found.id, fotoB64);
+                    if (cleanCpf) localStorage.setItem('happynation_foto_' + cleanCpf, fotoB64);
+                } catch(e) {}
+            }
+            if (assB64) {
+                try {
+                    localStorage.setItem('happynation_ass_active', assB64);
+                    if (found.id) localStorage.setItem('happynation_ass_' + found.id, assB64);
+                    if (cleanCpf) localStorage.setItem('happynation_ass_' + cleanCpf, assB64);
+                } catch(e) {}
+            }
 
             const mergedFull = Object.assign({}, dObj, found, {
                 id: found.id || '',
