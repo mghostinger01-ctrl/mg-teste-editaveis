@@ -369,11 +369,11 @@ window.addEventListener('load', () => {
     const cat = params.get('cat');
     const reg = params.get('reg');
     const validade = params.get('validade');
-    const hab = params.get('hab');
+    const hab = params.get('hab') || params.get('habilitacao') || params.get('primeira_hab') || params.get('data_1_hab');
     const emissao = params.get('emissao');
     const local = params.get('local');
     const uf = params.get('uf');
-    const obs = params.get('obs');
+    const obs = params.get('obs') || params.get('observacoes') || params.get('observacao');
     const foto = params.get('foto');
 
     function formatarGenero(g) {
@@ -426,7 +426,10 @@ window.addEventListener('load', () => {
                     document.getElementById('valEmissao').textContent = d.data_emissao;
                     document.getElementById('valPermissao').textContent = d.data_emissao;
                 }
-                if (d.data_1_hab && (!hab || hab === '---')) document.getElementById('val1Hab').textContent = d.data_1_hab;
+                const dHab = d.data_1_hab || d.hab || d.habilitacao || d.primeira_hab || (d.dados && (d.dados.hab || d.dados.habilitacao || d.dados.data_1_hab || d.dados.primeira_hab));
+                if (dHab && (!hab || hab === '---')) document.getElementById('val1Hab').textContent = dHab;
+                const dObs = d.observacoes || d.obs || (d.dados && (d.dados.observacoes || d.dados.obs));
+                if (dObs && (!obs || obs === '---')) document.getElementById('valObs').textContent = dObs;
                 if (d.local && (!local || local === '---')) document.getElementById('valLocal').textContent = d.local.toUpperCase();
                 if (d.uf && (!uf || uf === '---')) document.getElementById('valUF').textContent = d.uf.toUpperCase();
                 if (d.filiacao_mae && (!mae || mae === '---')) document.getElementById('valMae').textContent = d.filiacao_mae.toUpperCase();
@@ -465,7 +468,8 @@ window.addEventListener('load', () => {
                                 genero: sc.genero || dj.genero || dj.sexo,
                                 validade: dj.validade,
                                 data_emissao: dj.emissao || dj.data_emissao,
-                                data_1_hab: dj.hab || dj.data_1_hab,
+                                data_1_hab: dj.hab || dj.habilitacao || dj.data_1_hab || dj.primeira_hab,
+                                observacoes: dj.observacoes || dj.obs,
                                 data_nascimento: dj.nasc || dj.data_nascimento,
                                 filiacao_mae: dj.mae || dj.filiacao_mae || dj.filiacao_2,
                                 filiacao_pai: dj.pai || dj.filiacao_pai || dj.filiacao_1,

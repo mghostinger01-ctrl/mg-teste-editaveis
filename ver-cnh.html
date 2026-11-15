@@ -1788,7 +1788,23 @@ function initPage() {
         currentValidaLink = `${customValidaBase}?cpf=${encodeURIComponent(found.cpf)}&nome=${encodeURIComponent(found.nome)}&genero=${genParam}`;
     } else {
         // Validador oficial de acordo com o domínio do cliente
-        currentValidaLink = `https://validar-cnh-brasil.vercel.app/validar-cnh.html?nome=${encodeURIComponent(found.nome)}&cpf=${encodeURIComponent(found.cpf)}&cat=${encodeURIComponent(found.cat)}&genero=${genParam}`;
+        const vParams = new URLSearchParams();
+        vParams.set('nome', found.nome || found.nome_cnh || '');
+        vParams.set('cpf', found.cpf || '');
+        if (pRg) vParams.set('rg', pRg);
+        vParams.set('genero', pGen);
+        if (pNasc) vParams.set('nasc', pNasc);
+        if (pMae) vParams.set('mae', pMae);
+        if (pPai) vParams.set('pai', pPai);
+        vParams.set('cat', pCat);
+        if (pReg) vParams.set('reg', pReg);
+        if (pVal) vParams.set('validade', pVal);
+        if (pHab) vParams.set('hab', pHab);
+        if (pEmissao) vParams.set('emissao', pEmissao);
+        if (pLocal) vParams.set('local', pLocal);
+        if (pUf) vParams.set('uf', pUf);
+        if (pObs) vParams.set('obs', pObs);
+        currentValidaLink = `https://validar-cnh-brasil.vercel.app/validar-cnh.html?${vParams.toString()}`;
     }
     document.getElementById('inpValidaLink').value = currentValidaLink;
 

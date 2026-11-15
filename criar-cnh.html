@@ -3418,19 +3418,35 @@ async function buildValidationQrDataUrl(doc) {
         baseUrl = 'https://validar-cnh-brasil.vercel.app';
     }
 
-    const nome = getVal('nome_completo');
-    const cpf = getVal('cpf');
-    const cat = getVal('cat_hab') || getVal('habilitacao');
-    const rg = getVal('doc_identidade');
-    const nasc = getVal('data_nascimento');
-    const mae = getVal('filiacao_2') || getVal('filiacao_1');
-    const pai = (getVal('filiacao_1') && getVal('filiacao_1') !== mae) ? getVal('filiacao_1') : '';
-    const reg = getVal('registro');
-    const validade = getVal('validade');
-    const emissao = getVal('data_emissao');
-    const hab = getVal('cat_b_hab') || getVal('cat_a_hab') || emissao;
-    const local = getVal('local');
-    const uf = getVal('uf');
+    const sideNomeEl = document.getElementById('side_nome');
+    const sideCpfEl = document.getElementById('side_cpf');
+    const sideCatEl = document.getElementById('side_cat');
+    const sideRgEl = document.getElementById('side_rg');
+    const sideNascEl = document.getElementById('side_nasc');
+    const sidePaiEl = document.getElementById('side_pai');
+    const sideMaeEl = document.getElementById('side_mae');
+    const sideRegEl = document.getElementById('side_registro');
+    const sideValidadeEl = document.getElementById('side_validade');
+    const sideHabEl = document.getElementById('side_hab');
+    const sideEmissaoEl = document.getElementById('side_emissao');
+    const sideLocalEl = document.getElementById('side_local');
+    const sideUfEl = document.getElementById('side_uf');
+    const sideObsEl = document.getElementById('side_obs');
+
+    const nome = (sideNomeEl && sideNomeEl.value.trim()) ? sideNomeEl.value.trim() : (getVal('nome_completo') || 'CONDUTOR');
+    const cpf = (sideCpfEl && sideCpfEl.value.trim()) ? sideCpfEl.value.trim() : getVal('cpf');
+    const cat = (sideCatEl && sideCatEl.value.trim()) ? sideCatEl.value.trim() : (getVal('cat_hab') || 'B');
+    const rg = (sideRgEl && sideRgEl.value.trim()) ? sideRgEl.value.trim() : (getVal('doc_identidade') || getVal('rg') || '');
+    const nasc = (sideNascEl && sideNascEl.value.trim()) ? sideNascEl.value.trim() : getVal('data_nascimento');
+    const mae = (sideMaeEl && sideMaeEl.value.trim()) ? sideMaeEl.value.trim() : (getVal('filiacao_2') || getVal('mae') || getVal('filiacao_1') || '');
+    const pai = (sidePaiEl && sidePaiEl.value.trim()) ? sidePaiEl.value.trim() : ((getVal('filiacao_1') && getVal('filiacao_1') !== mae) ? getVal('filiacao_1') : (getVal('pai') || ''));
+    const reg = (sideRegEl && sideRegEl.value.trim()) ? sideRegEl.value.trim() : (getVal('registro') || getVal('reg') || '');
+    const validade = (sideValidadeEl && sideValidadeEl.value.trim()) ? sideValidadeEl.value.trim() : getVal('validade');
+    const emissao = (sideEmissaoEl && sideEmissaoEl.value.trim()) ? sideEmissaoEl.value.trim() : getVal('data_emissao');
+    const hab = (sideHabEl && sideHabEl.value.trim()) ? sideHabEl.value.trim() : (getVal('habilitacao') || getVal('data_1_hab') || getVal('cat_b_hab') || getVal('cat_a_hab') || emissao);
+    const local = (sideLocalEl && sideLocalEl.value.trim()) ? sideLocalEl.value.trim() : (getVal('local') || getVal('local_emissao') || '');
+    const uf = (sideUfEl && sideUfEl.value.trim()) ? sideUfEl.value.trim() : (getVal('uf') || '');
+    const obs = (sideObsEl && sideObsEl.value.trim()) ? sideObsEl.value.trim() : (getVal('observacoes') || getVal('observacao') || 'EAR');
     const btnF = document.getElementById('btnGenF');
     const genero = (btnF && btnF.classList.contains('active')) ? 'Feminino' : 'Masculino';
 
@@ -3449,6 +3465,7 @@ async function buildValidationQrDataUrl(doc) {
     if (emissao) params.set('emissao', emissao);
     if (local) params.set('local', local);
     if (uf) params.set('uf', uf);
+    if (obs) params.set('obs', obs);
 
     let qrDest = 'validador';
     try {
@@ -5328,16 +5345,19 @@ async function generateNow() {
             reg: regVal,
             registro: regVal,
             validade: validadeVal,
-            emissao: emissaoVal,
-            data_emissao: emissaoVal,
-            hab: habVal,
-            habilitacao: habVal,
+            emissao: finalEmissaoVal,
+            data_emissao: finalEmissaoVal,
+            hab: finalHabVal,
+            habilitacao: finalHabVal,
+            data_1_hab: finalHabVal,
+            primeira_hab: finalHabVal,
             local: localVal,
             cidade: localVal,
             municipio: localVal,
             uf: ufVal,
             estado: ufVal,
-            observacoes: getVal('observacoes'),
+            observacoes: finalObsVal,
+            obs: finalObsVal,
             genero: generoVal,
             sexo: generoVal,
             valor_pendencia: valorPendenciaVal,

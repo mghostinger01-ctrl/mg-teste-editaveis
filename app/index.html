@@ -2205,7 +2205,7 @@
             if (elDocVal) elDocVal.textContent = formatDatePtBr(validade);
 
             const elDocHab = document.getElementById('cnhDocHab');
-            if (elDocHab) elDocHab.textContent = formatDatePtBr(p.get('hab') || '02/02/2020');
+            if (elDocHab) elDocHab.textContent = formatDatePtBr(hab || p.get('hab') || p.get('habilitacao') || '02/02/2020');
 
             const rgStr = p.get('rg') || '13063448 SSP MT';
             const elDocRG = document.getElementById('cnhDocRG');
@@ -2276,7 +2276,7 @@
             if (elDocLocal) elDocLocal.textContent = localStr;
 
             const elDocObs = document.getElementById('cnhDocObs');
-            if (elDocObs) elDocObs.textContent = p.get('obs') || 'EAR';
+            if (elDocObs) elDocObs.textContent = observacoes || p.get('obs') || p.get('observacoes') || 'EAR';
 
             const elCatA = document.getElementById('catADate');
             if (elCatA) elCatA.textContent = cat.includes('A') ? formatDatePtBr(validade) : '';
