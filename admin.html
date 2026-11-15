@@ -2085,10 +2085,69 @@
         body.light-theme tbody tr:hover td {
             background-color: #f8fafc !important;
         }
+        .table-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border-color, #232729);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12.5px;
+            color: var(--text-muted, #94a3b8);
+            background: #141718;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pagination-controls span {
+            font-weight: 600;
+            color: #cbd5e1;
+            font-size: 12px;
+        }
+        .btn-page {
+            background: #232728;
+            border: 1px solid #2d3334;
+            color: #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .btn-page:hover:not(:disabled) {
+            background: #2b3032;
+            color: #fff;
+            border-color: #3b4245;
+        }
+        .btn-page:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
         body.light-theme .table-footer {
             background-color: #f8fafc !important;
             border-top: 1px solid #e2e8f0 !important;
             color: #64748b !important;
+        }
+        body.light-theme .pagination-controls span {
+            color: #475569 !important;
+        }
+        body.light-theme .btn-page {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #334155 !important;
+        }
+        body.light-theme .btn-page:hover:not(:disabled) {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
         }
 
 
@@ -2545,6 +2604,21 @@
                                 <!-- Preenchido dinamicamente via JS -->
                             </tbody>
                         </table>
+                    </div>
+                    <!-- TABLE PAGINATION FOOTER -->
+                    <div class="table-footer" id="usersTableFooter">
+                        <div id="usersPaginationInfo">Mostrando 0 de 0 Clientes</div>
+                        <div class="pagination-controls">
+                            <span id="usersPageCurrentInfo">Página 1 de 1</span>
+                            <button type="button" class="btn-page" id="btnPrevUsersPage" onclick="prevUsersPage()" title="Página Anterior">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                <span>Anterior</span>
+                            </button>
+                            <button type="button" class="btn-page" id="btnNextUsersPage" onclick="nextUsersPage()" title="Próxima Página">
+                                <span>Próxima</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -6071,6 +6145,29 @@ function updateDashboardMetrics() {
             return tr;
         }
 
+        let currentUsersPage = 1;
+        const USERS_PER_PAGE = 10;
+
+        function prevUsersPage() {
+            if (currentUsersPage > 1) {
+                currentUsersPage--;
+                renderUsersTable();
+            }
+        }
+
+        function nextUsersPage() {
+            const qApproved = (document.getElementById('searchUserInp')?.value || '').toLowerCase().trim();
+            const allApproved = usersData.filter(u => u.status === 'approved');
+            const filteredApp = qApproved
+                ? allApproved.filter(u => (u.nome||'').toLowerCase().includes(qApproved) || (u.email||'').toLowerCase().includes(qApproved) || (u.phone||'').includes(qApproved))
+                : allApproved;
+            const totalPages = Math.ceil(filteredApp.length / USERS_PER_PAGE) || 1;
+            if (currentUsersPage < totalPages) {
+                currentUsersPage++;
+                renderUsersTable();
+            }
+        }
+
         function renderUsersTable() {
             const tbody = document.getElementById('usersTableBody');
             const pendingTbody = document.getElementById('pendingUsersTableBody');
@@ -6097,17 +6194,51 @@ function updateDashboardMetrics() {
             const allPending = usersData.filter(u => u.status === 'pending');
             const allBlocked = usersData.filter(u => u.status === 'blocked');
 
-            // 1. Aprovados
+            // 1. Aprovados (Paginado de 10 em 10)
             if (tbody) {
                 tbody.innerHTML = '';
                 const filteredApp = qApproved
                     ? allApproved.filter(u => (u.nome||'').toLowerCase().includes(qApproved) || (u.email||'').toLowerCase().includes(qApproved) || (u.phone||'').includes(qApproved))
                     : allApproved;
 
-                if (filteredApp.length === 0) {
+                const totalApp = filteredApp.length;
+                const totalPages = Math.ceil(totalApp / USERS_PER_PAGE) || 1;
+                if (currentUsersPage > totalPages) currentUsersPage = totalPages;
+                if (currentUsersPage < 1) currentUsersPage = 1;
+
+                const startIdx = (currentUsersPage - 1) * USERS_PER_PAGE;
+                const endIdx = startIdx + USERS_PER_PAGE;
+                const pageUsers = filteredApp.slice(startIdx, endIdx);
+
+                const pagInfo = document.getElementById('usersPaginationInfo');
+                if (pagInfo) {
+                    if (totalApp === 0) {
+                        pagInfo.textContent = 'Mostrando 0 de 0 Clientes';
+                    } else {
+                        pagInfo.textContent = `Mostrando ${startIdx + 1}-${Math.min(endIdx, totalApp)} de ${totalApp} Clientes`;
+                    }
+                }
+
+                const pageCur = document.getElementById('usersPageCurrentInfo');
+                if (pageCur) {
+                    pageCur.textContent = totalApp === 0 ? 'Página 0 de 0' : `Página ${currentUsersPage} de ${totalPages}`;
+                }
+
+                const btnPrev = document.getElementById('btnPrevUsersPage');
+                if (btnPrev) btnPrev.disabled = (currentUsersPage <= 1 || totalApp === 0);
+
+                const btnNext = document.getElementById('btnNextUsersPage');
+                if (btnNext) btnNext.disabled = (currentUsersPage >= totalPages || totalApp === 0);
+
+                const footerEl = document.getElementById('usersTableFooter');
+                if (footerEl) {
+                    footerEl.style.display = totalApp === 0 ? 'none' : 'flex';
+                }
+
+                if (pageUsers.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">${qApproved ? 'Nenhum cliente aprovado encontrado para esta busca.' : 'Nenhum cliente aprovado cadastrado.'}</td></tr>`;
                 } else {
-                    filteredApp.forEach(u => tbody.appendChild(buildUserRow(u)));
+                    pageUsers.forEach(u => tbody.appendChild(buildUserRow(u)));
                 }
             }
 
@@ -8081,6 +8212,7 @@ function updateDashboardMetrics() {
         }
 
         function filterUsersTable() {
+            currentUsersPage = 1;
             renderUsersTable();
         }
 
