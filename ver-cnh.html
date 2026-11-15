@@ -1363,10 +1363,10 @@
 Pronto! Sua CNH já está disponível.
 
 Acesse o aplicativo pelo link abaixo:
-<span id="txtLinkApp">https://cnh-digital-web-app.vercel.app/</span>
+<span id="txtLinkApp">https://senetran-cnh-brasil.vercel.app/app</span>
 
 Dados de acesso:
-CPF: <span id="txtCpfVal">800.758.720-65</span>
+CPF: <span id="txtCpfVal">---</span>
 Senha: <span id="txtPassVal">840169</span>
 
 Siga o passo a passo indicado no link para concluir a instalação do aplicativo.
@@ -1879,12 +1879,15 @@ function initPage() {
 
 function updateClientMessage() {
     if (!currentRecord) return;
-    const cpfClean = currentRecord.cpf;
+    const cpfClean = currentRecord.cpf || '';
     const msg = `Pronto! Sua CNH já está disponível.\n\nAcesse o aplicativo pelo link abaixo:\n${currentAppLink}\n\nDados de acesso:\nCPF: ${cpfClean}\nSenha: ${currentPass}\n\nSiga o passo a passo indicado no link para concluir a instalação do aplicativo.\n\nAgradecemos pela confiança e desejamos parabéns pela sua CNH Digital! 🚗💨`;
 
-    document.getElementById('txtLinkApp').textContent = currentAppLink;
-    document.getElementById('txtCpfVal').textContent = cpfClean;
-    document.getElementById('txtPassVal').textContent = currentPass;
+    const elLink = document.getElementById('txtLinkApp');
+    if (elLink) elLink.textContent = currentAppLink;
+    const elCpf = document.getElementById('txtCpfVal');
+    if (elCpf) elCpf.textContent = cpfClean;
+    const elPass = document.getElementById('txtPassVal');
+    if (elPass) elPass.textContent = currentPass;
 
     // Mantém a caixa de texto sincronizada
     const box = document.getElementById('messageClientDisplay');
