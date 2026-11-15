@@ -460,8 +460,13 @@
             flex-shrink: 0;
         }
         #viewVersoContainer {
-            width: 1015px !important;
-            height: 763px !important;
+            width: 1024px !important;
+            height: 798px !important;
+            background-color: #ffffff;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-image: url('assets/rg_verso_template_clean.png');
         }
 
         /* Elementos Dinâmicos Transparentes sobre o Fundo Guilhoche */
@@ -531,13 +536,13 @@
         #cfNat { top: 503px; left: 334px; width: 250px; font-size: 14.5px; text-transform: uppercase; }
         #cfVal { top: 503px; left: 597px; width: 140px; font-size: 14.5px; }
 
-        /* Posições do Verso (Escala 1015x763) */
+        /* Posições do Verso (Escala Oficial 1024x798) */
         #cvQrBox {
             position: absolute;
-            top: 140px;
-            left: 72px;
-            width: 198px;
-            height: 198px;
+            top: 148px;
+            left: 62px;
+            width: 208px;
+            height: 208px;
             background: #ffffff;
             display: flex;
             align-items: center;
@@ -546,37 +551,37 @@
             padding: 0;
             box-sizing: border-box;
         }
-        #cvQrBox img, #cvQrBox canvas { height: 198px !important; width: 198px !important; display: block; }
-        #cvPai { top: 111px; left: 308px; width: 550px; font-size: 14.5px; font-weight: 700; text-transform: uppercase; }
-        #cvMae { top: 137px; left: 308px; width: 550px; font-size: 14.5px; font-weight: 700; text-transform: uppercase; }
-        #cvOrgao { top: 283px; left: 308px; width: 200px; font-size: 14px; font-weight: 700; text-transform: uppercase; }
-        #cvLocal { top: 397px; left: 308px; width: 280px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; }
-        #cvEmissao { top: 397px; left: 660px; width: 180px; font-size: 13.5px; font-weight: 700; }
+        #cvQrBox img, #cvQrBox canvas { height: 208px !important; width: 208px !important; display: block; }
+        #cvPai { top: 120px; left: 314px; width: 550px; font-size: 15px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0.2px; }
+        #cvMae { top: 148px; left: 314px; width: 550px; font-size: 15px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0.2px; }
+        #cvOrgao { top: 302px; left: 315px; width: 200px; font-size: 14px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0.2px; }
+        #cvLocal { top: 420px; left: 315px; width: 280px; font-size: 14px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0.2px; }
+        #cvEmissao { top: 420px; left: 691px; width: 200px; font-size: 14px; font-weight: 700; color: #111; letter-spacing: 0.2px; }
         #cvSigBox {
             position: absolute;
-            top: 418px;
-            left: 290px;
-            width: 380px;
-            height: 46px;
+            top: 442px;
+            left: 297px;
+            width: 390px;
+            height: 41px;
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            border-bottom: 1.5px solid #111;
             z-index: 5;
+            background: transparent;
         }
         #cvSigImg { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
-        #cvSigText { display: none; font-family: 'Homemade Apple', cursive; font-size: 24px; color: #000; font-weight: 600; padding-bottom: 4px; }
+        #cvSigText { display: none; font-family: 'Homemade Apple', cursive; font-size: 24px; color: #111; font-weight: 600; line-height: 1; margin: 0; }
         #cvMrz {
             position: absolute;
-            top: 618px;
-            left: 56px;
+            top: 649px;
+            left: 64px;
             width: 880px;
-            font-family: Consolas, 'Courier New', monospace;
-            font-size: 19px;
-            line-height: 30px;
-            letter-spacing: 1px;
+            font-family: var(--font-mrz), 'Share Tech Mono', Consolas, monospace;
+            font-size: 18.5px;
+            line-height: 35.5px;
+            letter-spacing: 0.2px;
             font-weight: 700;
-            color: #000000;
+            color: #111111;
             white-space: pre;
             z-index: 5;
         }
@@ -886,8 +891,8 @@
                         </div>
                     </div>
 
-                    <!-- ─── 2. PREVIEW: CARTÃO VERSO ULTRA-HD (989px × 685px) ─── -->
-                    <div id="viewVersoContainer" class="card-cin-view" style="display:block; margin-top:20px; height:798px; background-image: url('assets/rg_verso_template_clean.png');">
+                    <!-- ─── 2. PREVIEW: CARTÃO VERSO ULTRA-HD (1024px × 798px) ─── -->
+                    <div id="viewVersoContainer" class="card-cin-view" style="display:block; margin-top:20px;">
                         <!-- QR Code Oficial -->
                         <div id="cvQrBox">
                             <div id="cvQrInner" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"></div>
@@ -902,14 +907,14 @@
 
                         <!-- Assinatura do Expedidor -->
                         <div id="cvSigBox">
-                            <img id="cvSigImg" src="assets/mellyssa_sig.png" alt="Assinatura">
+                            <img id="cvSigImg" src="assets/mellyssa_sig_clean.png" alt="Assinatura">
                             <span id="cvSigText"></span>
                         </div>
 
                         <!-- MRZ 3 Linhas -->
-                        <div id="cvMrz">IDBRA 52653415879 52653415879<<<
-080312F351030BRA<<<<<<<<<<<
-MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
+                        <div id="cvMrz">I D B R A 5 2 6 5 3 4 1 5 8 7 9 5 2 6 5 3 4 1 5 8 7 9 &lt; &lt; &lt;
+0 8 0 3 1 2 F 3 5 1 0 3 0 B R A &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt; &lt;
+M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt; &lt;</div>
                     </div>
 
                     <!-- ─── 3. PREVIEW: FOLHA A4 OFICIAL COMPLETA GOV.BR (794px × 1123px) ─── -->
@@ -1092,31 +1097,19 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
             // QR Code do Verso
             renderQrVerso(cpf);
 
-            const isVersoDefault = (pai.trim().toUpperCase() === DEFAULT_MELLYSSA.pai.toUpperCase() &&
-                                    mae.trim().toUpperCase() === DEFAULT_MELLYSSA.mae.toUpperCase() &&
-                                    orgao.trim().toUpperCase() === DEFAULT_MELLYSSA.orgao.toUpperCase() &&
-                                    local.trim().toUpperCase() === DEFAULT_MELLYSSA.local.toUpperCase() &&
-                                    emissao.trim() === DEFAULT_MELLYSSA.emissao &&
-                                    cpf.trim() === DEFAULT_MELLYSSA.cpf &&
-                                    !isUserCustomSig);
-
+            // Verso sempre usa template ultra-limpo e campos dinâmicos cirúrgicos
             const elVerso = document.getElementById('viewVersoContainer');
             if (elVerso) {
-                if (isVersoDefault) {
-                    elVerso.style.backgroundImage = "url('assets/rg_verso_referencia_usuario.jpg')";
-                    document.querySelectorAll('#viewVersoContainer .dyn-cin-field, #cvQrBox, #cvSigBox, #cvMrz').forEach(el => el.style.opacity = '0');
-                } else {
-                    elVerso.style.backgroundImage = "url('assets/rg_verso_template_clean.png')";
-                    document.querySelectorAll('#viewVersoContainer .dyn-cin-field, #cvQrBox, #cvSigBox, #cvMrz').forEach(el => el.style.opacity = '1');
-                }
+                elVerso.style.backgroundImage = "url('assets/rg_verso_template_clean.png')";
+                document.querySelectorAll('#viewVersoContainer .dyn-cin-field, #cvQrBox, #cvSigBox, #cvMrz').forEach(el => el.style.opacity = '1');
             }
 
             // Atualiza assinatura em texto se não for personalizada
             if (!isUserCustomSig) {
                 const sImg = document.getElementById('cfSigImg');
                 const sTxt = document.getElementById('cfSigText');
-                if (nome.toUpperCase() === DEFAULT_MELLYSSA.nome.toUpperCase()) {
-                    sImg.src = 'assets/mellyssa_sig.png';
+                if (nome.trim().toUpperCase() === DEFAULT_MELLYSSA.nome.toUpperCase()) {
+                    sImg.src = 'assets/mellyssa_sig_clean.png';
                     sImg.style.display = 'block';
                     sTxt.style.display = 'none';
                 } else {
@@ -1148,7 +1141,7 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
 
         // Geração Oficial do MRZ 3 Linhas ICAO Doc 9303 TD1
         function generateMrz(cpf, nome, nasc, sexo, val) {
-            const cleanCpf = (cpf || '').replace(/\D/g, '').padEnd(11, '0');
+            const cleanCpf = (cpf || '526.534.158-79').replace(/\D/g, '').padEnd(11, '0');
             let nascMrz = '080312';
             if (nasc && nasc.includes('/')) {
                 const p = nasc.split('/');
@@ -1169,9 +1162,9 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
                 .split(/\s+/)
                 .join('<');
 
-            const l1Raw = `IDBRA ${cleanCpf} ${cleanCpf}<<<`.slice(0, 31);
-            const l2Raw = `${nascMrz}${sexMrz}${valMrz}BRA<<<<<<<<<<<`.slice(0, 30);
-            const l3Raw = `${cleanNome.padEnd(30, '<').slice(0, 30)}`;
+            const l1Raw = ('IDBRA' + cleanCpf + cleanCpf + '<<<').slice(0, 30);
+            const l2Raw = (nascMrz + sexMrz + valMrz + 'BRA<<<<<<<<<<<<<').slice(0, 30);
+            const l3Raw = (cleanNome + '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<').slice(0, 30);
 
             const formatMrzLine = (s) => s.split('').join(' ');
             return `${formatMrzLine(l1Raw)}\n${formatMrzLine(l2Raw)}\n${formatMrzLine(l3Raw)}`;
@@ -1187,8 +1180,8 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
             if (window.QRCode) {
                 new QRCode(inner, {
                     text: qrUrl,
-                    width: 198,
-                    height: 198,
+                    width: 208,
+                    height: 208,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.M
@@ -1344,24 +1337,24 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
                 const elVerso = document.getElementById('viewVersoContainer');
 
                 const canvasFrente = await captureElementClean(elFrente, 989, 685);
-                const canvasVerso = await captureElementClean(elVerso, 1015, 763);
+                const canvasVerso = await captureElementClean(elVerso, 1024, 798);
 
                 const { jsPDF } = window.jspdf;
                 // Cria PDF com medidas exatas proporcionais do cartão em landscape
                 const pdf = new jsPDF({
                     orientation: 'portrait',
                     unit: 'px',
-                    format: [1055, 1530],
+                    format: [1064, 1560],
                     hotfixes: ['px_scaling']
                 });
 
                 // Folha única: frente em cima, verso embaixo
                 pdf.setFillColor(255, 255, 255);
-                pdf.rect(0, 0, 1055, 1530, 'F');
+                pdf.rect(0, 0, 1064, 1560, 'F');
                 const imgFrente = canvasFrente.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgFrente, 'JPEG', 33, 25, 989, 685);
+                pdf.addImage(imgFrente, 'JPEG', 37, 25, 989, 685);
                 const imgVerso = canvasVerso.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgVerso, 'JPEG', 20, 735, 1015, 763);
+                pdf.addImage(imgVerso, 'JPEG', 20, 735, 1024, 798);
 
                 const cpfClean = (document.getElementById('inpCpf').value || 'CIN').replace(/\D/g, '');
                 const fileName = `CIN_Cartao_${cpfClean}.pdf`;
@@ -1399,15 +1392,18 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
             }
         }
 
-        // 3. BAIXAR IMAGEM PNG ULTRA-HD DO CARTÃO FRENTE
+        // 3. BAIXAR IMAGEM PNG ULTRA-HD DO CARTÃO
         async function baixarImagemPng() {
             try {
-                const elFrente = document.getElementById('viewFrenteContainer');
-                const canvas = await captureElementClean(elFrente, 989, 685);
+                const isVerso = (currentActiveTab === 'verso');
+                const el = isVerso ? document.getElementById('viewVersoContainer') : document.getElementById('viewFrenteContainer');
+                const w = isVerso ? 1024 : 989;
+                const h = isVerso ? 798 : 685;
+                const canvas = await captureElementClean(el, w, h);
                 const a = document.createElement('a');
                 const cpfClean = (document.getElementById('inpCpf').value || 'CIN').replace(/\D/g, '');
                 a.href = canvas.toDataURL('image/png');
-                a.download = `CIN_Frente_${cpfClean}.png`;
+                a.download = `CIN_${isVerso ? 'Verso' : 'Frente'}_${cpfClean}.png`;
                 a.click();
             } catch(e) {
                 console.error('Erro ao baixar PNG:', e);
