@@ -1,45 +1,34 @@
 /**
  * MG Editáveis - Security Guard
  * Proteção total contra cópia, toque longo (mobile), download de fotos/logos e inspeção de código fonte.
- * ATIVO EXCLUSIVAMENTE PARA CLIENTES E VISITANTES. ADMINISTRADOR É 100% ISENTO.
+ * ATIVO EM TODO O SISTEMA.
  */
 (function() {
     'use strict';
 
-    // 1. CHECAGEM INICIAL DE ISENÇÃO DO ADMINISTRADOR E DO APP DO MOTORISTA
+    // 1. CHECAGEM DE ISENÇÃO APENAS PARA O PAINEL ADMIN DO DEVTOOLS
     function isExemptAdmin() {
         try {
             const path = window.location.pathname.toLowerCase();
-            // Qualquer página do aplicativo do motorista (onde o usuário precisa tirar print do documento) ou telas administrativas
-            if (path.includes('/app') || path.includes('app/index.html') || path.includes('admin') || path.includes('criar-cnh') || path.includes('cnh-editor') || path.includes('validar-cnh')) {
-                return true;
-            }
-
-            // Checa usuário logado no storage
-            const user = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
-            if (user && (user.role === 'admin' || user.email === 'moritzpj@gmail.com' || user.email === 'admin@mgeditaveis.com' || user.email === 'admin@happynation.app')) {
-                return true;
-            }
-
-            if (localStorage.getItem('happynation_admin_auth') || sessionStorage.getItem('happynation_admin_auth') ||
-                localStorage.getItem('happynation_is_admin') === 'true' || sessionStorage.getItem('happynation_is_admin') === 'true') {
-                return true;
+            if (path.includes('admin.html') || path.includes('/admin')) {
+                const user = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
+                if (user && (user.role === 'admin' || user.email === 'moritzpj@gmail.com' || user.email === 'admin@mgeditaveis.com' || user.email === 'admin@happynation.app')) {
+                    return true;
+                }
+                if (localStorage.getItem('happynation_admin_auth') || sessionStorage.getItem('happynation_admin_auth') ||
+                    localStorage.getItem('happynation_is_admin') === 'true' || sessionStorage.getItem('happynation_is_admin') === 'true') {
+                    return true;
+                }
             }
         } catch(e) {}
         return false;
     }
 
-    // Se for o administrador em qualquer tela admin, o Security Guard é 100% desligado
-    if (isExemptAdmin()) {
-        console.log('[Security Guard] Modo Administrador detectado: proteção desativada.');
-        return;
-    }
-
-    // 2. INJEÇÃO DE ESTILOS ANTI-CÓPIA, ANTI-DRAG E ANTI-TOUCH-CALLOUT PARA CLIENTES
+    // 2. INJEÇÃO DE ESTILOS ANTI-CÓPIA, ANTI-DRAG E ANTI-TOUCH-CALLOUT PARA TODO O SISTEMA
     const style = document.createElement('style');
     style.id = 'security-guard-styles';
     style.innerHTML = `
-        /* Desabilita seleção de texto e menu nativo de toque longo */
+        /* Desabilita totalmente seleção de texto e menu nativo de toque longo */
         *, *::before, *::after {
             -webkit-touch-callout: none !important;
             -webkit-user-select: none !important;
@@ -49,7 +38,7 @@
             user-select: none !important;
         }
 
-        /* Permite digitação e seleção apenas em campos de formulário legítimos */
+        /* Permite digitação em campos de formulário */
         input, textarea, [contenteditable="true"] {
             -webkit-touch-callout: default !important;
             -webkit-user-select: text !important;
@@ -59,7 +48,7 @@
             user-select: text !important;
         }
 
-        /* Impede arrastar ou salvar imagens, logos e fotos */
+        /* Impede arrastar ou segurar imagens, logos, SVGs, canvas e fotos */
         img, svg, picture, video, canvas, [role="img"] {
             -webkit-user-drag: none !important;
             -khtml-user-drag: none !important;
@@ -67,7 +56,19 @@
             -o-user-drag: none !important;
             user-drag: none !important;
             -webkit-touch-callout: none !important;
-            pointer-events: auto;
+            -webkit-user-select: none !important;
+            user-select: none !important;
+        }
+
+        /* Bloqueio absoluto de toque/download em fotos de documentos e prévias */
+        .cnh-photo-frame img, #cnhPhotoImg, #cnhSignatureImg, #cnhSignatureFrame img,
+        #foto-area img, #assinatura-area img, .sheet-a4 img, .sheet-doc img, #sheetDoc img,
+        .doc-preview img, .preview-area img, .document-sheet img, .photo-col img, .cnh-photo img,
+        .watermark-bg, .p2-watermark-bg, [id*="view_foto"], [id*="foto"] img {
+            pointer-events: none !important;
+            -webkit-touch-callout: none !important;
+            -webkit-user-drag: none !important;
+            user-select: none !important;
         }
 
         /* Modal de Bloqueio de Segurança Fullscreen */
@@ -188,40 +189,115 @@
         document.addEventListener('DOMContentLoaded', () => document.head.appendChild(style));
     }
 
-    // 3. BLOQUEIO DE BOTÃO DIREITO DO MOUSE E MENU DE CONTEXTO PARA CLIENTES
+    // 3. BLOQUEIO DE BOTÃO DIREITO DO MOUSE E MENU DE CONTEXTO (DESKTOP E MOBILE)
     window.addEventListener('contextmenu', function(e) {
-        if (isExemptAdmin()) return;
         const target = e.target;
         if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
-            return; // Permite menu básico em campos de digitação
+            return; // Permite menu básico de colar texto no formulário
         }
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, { capture: true, passive: false });
+
+    // 4. BLOQUEIO DE TOQUE LONGO EM IMAGENS NO MOBILE (IMPEDE MENU "FAZER DOWNLOAD DA IMAGEM")
+    ['touchstart', 'touchend', 'touchcancel'].forEach(function(evtName) {
+        window.addEventListener(evtName, function(e) {
+            const target = e.target;
+            if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+            // Se o toque for em imagem ou elemento gráfico
+            if (target && (target.tagName === 'IMG' || target.closest('img, .cnh-photo-frame, #foto-area, #assinatura-area, .sheet-a4, .sheet-doc'))) {
+                // Previne o menu de download nativo do Chrome / Safari
+                if (e.touches && e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }
+        }, { capture: true, passive: false });
+    });
+
+    // 5. BLOQUEIO DE COPIAR E RECORTAR EM TODO O SISTEMA (EXCETO DIGITAÇÃO EM INPUT)
+    window.addEventListener('copy', function(e) {
+        const target = e.target;
+        if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA')) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    }, { capture: true });
+
+    window.addEventListener('cut', function(e) {
+        const target = e.target;
+        if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA')) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    }, { capture: true });
+
+    // 6. BLOQUEIO DE COLAR FORA DE INPUTS
+    window.addEventListener('paste', function(e) {
+        const target = e.target;
+        if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && !target.isContentEditable)) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    }, { capture: true });
+
+    // 7. BLOQUEIO DE SELEÇÃO DE TEXTO
+    window.addEventListener('selectstart', function(e) {
+        const target = e.target;
+        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+            return true;
+        }
+        e.preventDefault();
+        return false;
+    }, { capture: true });
+
+    // 8. BLOQUEIO DE ARRASTAR ELEMENTOS E IMAGENS (DRAG & DROP PARA SALVAR)
+    window.addEventListener('dragstart', function(e) {
         e.preventDefault();
         e.stopPropagation();
         return false;
     }, { capture: true });
 
-    // 4. BLOQUEIO DE ARRASTAR ELEMENTOS E IMAGENS
-    window.addEventListener('dragstart', function(e) {
-        if (isExemptAdmin()) return;
-        e.preventDefault();
-        return false;
-    }, { capture: true });
-
-    // 5. BLOQUEIO DE TECLAS DE ATALHO DE INSPEÇÃO (F12, CTRL+SHIFT+I, CTRL+U, CTRL+S, ETC)
+    // 9. BLOQUEIO DE TECLAS DE ATALHO DE CÓPIA, INSPEÇÃO E SALVAMENTO
     window.addEventListener('keydown', function(e) {
-        if (isExemptAdmin()) return;
-
         const isCtrlOrMeta = e.ctrlKey || e.metaKey;
         const key = e.key ? e.key.toUpperCase() : '';
         const keyCode = e.keyCode || e.which;
+        const target = e.target;
+        const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
 
-        // PRINT / CAPTURA DE TELA É 100% LIBERADA (nunca bloqueia print)
+        // Ctrl+C fora de input
+        if (isCtrlOrMeta && key === 'C' && !isInput) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+
+        // Ctrl+V fora de input
+        if (isCtrlOrMeta && key === 'V' && !isInput) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+
+        // Ctrl+A fora de input (bloqueia selecionar tudo)
+        if (isCtrlOrMeta && key === 'A' && !isInput) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+
+        // PRINT / CAPTURA DE TELA É 100% LIBERADA
         if (key === 'PRINTSCREEN' || keyCode === 44) {
             return true;
         }
 
         // F12 (DevTools)
         if (key === 'F12' || keyCode === 123) {
+            if (isExemptAdmin()) return true;
             e.preventDefault();
             e.stopPropagation();
             triggerSecurityLockout('Tentativa de abertura do DevTools (F12)');
@@ -230,6 +306,7 @@
 
         // Ctrl+Shift+I / Meta+Alt+I (Inspecionar)
         if (isCtrlOrMeta && (e.shiftKey || e.altKey) && (key === 'I' || keyCode === 73)) {
+            if (isExemptAdmin()) return true;
             e.preventDefault();
             e.stopPropagation();
             triggerSecurityLockout('Tentativa de inspeção de elemento (Ctrl+Shift+I)');
@@ -238,6 +315,7 @@
 
         // Ctrl+Shift+J / Meta+Alt+J (Console)
         if (isCtrlOrMeta && (e.shiftKey || e.altKey) && (key === 'J' || keyCode === 74)) {
+            if (isExemptAdmin()) return true;
             e.preventDefault();
             e.stopPropagation();
             triggerSecurityLockout('Tentativa de abertura do console (Ctrl+Shift+J)');
@@ -246,6 +324,7 @@
 
         // Ctrl+Shift+C / Meta+Alt+C (Seletor de elementos)
         if (isCtrlOrMeta && (e.shiftKey || e.altKey) && (key === 'C' || keyCode === 67)) {
+            if (isExemptAdmin()) return true;
             e.preventDefault();
             e.stopPropagation();
             triggerSecurityLockout('Tentativa de inspeção de código (Ctrl+Shift+C)');
@@ -254,6 +333,7 @@
 
         // Ctrl+U / Meta+U (Ver Código Fonte)
         if (isCtrlOrMeta && (key === 'U' || keyCode === 85)) {
+            if (isExemptAdmin()) return true;
             e.preventDefault();
             e.stopPropagation();
             triggerSecurityLockout('Tentativa de visualização do código-fonte (Ctrl+U)');
@@ -264,15 +344,53 @@
         if (isCtrlOrMeta && (key === 'S' || keyCode === 83)) {
             e.preventDefault();
             e.stopPropagation();
-            triggerSecurityLockout('Tentativa de salvar código do site (Ctrl+S)');
             return false;
         }
     }, { capture: true });
 
-    // 6. PRINTS E CAPTURAS DE TELA SÃO 100% LIBERADOS SEM BLOQUEIO
+    // 10. PROTEÇÃO DENTRO DE IFRAMES DO SISTEMA
+    function protectIframe(ifr) {
+        try {
+            const doc = ifr.contentDocument || (ifr.contentWindow && ifr.contentWindow.document);
+            if (!doc || doc.getElementById('security-guard-iframe-styles')) return;
+
+            const st = doc.createElement('style');
+            st.id = 'security-guard-iframe-styles';
+            st.innerHTML = `
+                *, *::before, *::after {
+                    -webkit-touch-callout: none !important;
+                    -webkit-user-select: none !important;
+                    user-select: none !important;
+                }
+                img, svg, canvas {
+                    -webkit-touch-callout: none !important;
+                    -webkit-user-drag: none !important;
+                    user-drag: none !important;
+                    pointer-events: none !important;
+                }
+            `;
+            doc.head.appendChild(st);
+
+            ['contextmenu', 'dragstart', 'copy', 'cut', 'selectstart'].forEach(function(evName) {
+                doc.addEventListener(evName, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }, { capture: true, passive: false });
+            });
+        } catch(e) {}
+    }
+
+    function protectAllIframes() {
+        document.querySelectorAll('iframe').forEach(protectIframe);
+    }
+
+    window.addEventListener('load', protectAllIframes);
+    setInterval(protectAllIframes, 1500);
+
+    // 11. MODAL E REGISTRO DE VIOLAÇÃO
     let lockoutTriggered = false;
 
-    // 7. FUNÇÃO DE BLOQUEIO TOTAL E REGISTRO DE VIOLAÇÃO
     function triggerSecurityLockout(reason) {
         if (lockoutTriggered || isExemptAdmin()) return;
         lockoutTriggered = true;
@@ -283,7 +401,6 @@
             userEmail = user.email || '';
         } catch(e) {}
 
-        // Envia notificação imediata para a API registrar o IP e banir o acesso do cliente
         const payload = JSON.stringify({
             motivo: reason,
             user_email: userEmail,
@@ -306,7 +423,6 @@
             } catch(e) {}
         }
 
-        // Limpa totalmente dados locais e sessão do cliente infrator
         try {
             localStorage.clear();
             sessionStorage.clear();
@@ -314,7 +430,6 @@
             sessionStorage.setItem('mg_security_reason', reason);
         } catch(e) {}
 
-        // Se já está na tela de login, renderiza o modal diretamente; senão redireciona para login.html
         const isLogin = window.location.pathname.toLowerCase().endsWith('login.html');
         if (isLogin) {
             renderLockoutModal(reason);
@@ -325,11 +440,9 @@
         }
     }
 
-    // 8. RENDERIZAÇÃO DO MODAL DE VIOLAÇÃO COM BOTÃO WHATSAPP
     function renderLockoutModal(reason) {
         if (document.getElementById('mg-security-lockout-modal')) return;
 
-        // WhatsApp do suporte configurado ou padrão
         let whatsappNumber = '5521998821029';
         try {
             const cfg = JSON.parse(localStorage.getItem('happynation_webapp_customization') || '{}');
@@ -373,7 +486,6 @@
 
         document.body.appendChild(modal);
 
-        // Desbloqueio seguro para o Administrador caso tenha sido bloqueado acidentalmente
         window.mgUnlockAdmin = function() {
             const pwd = prompt('Digite a senha mestre de Administrador para desbloquear o acesso:');
             if (!pwd) return;
@@ -417,10 +529,7 @@
             .replace(/'/g, '&#039;');
     }
 
-    // 9. VERIFICA SE A URL OU SESSÃO DO CLIENTE JÁ ESTÁ MARCADA COMO BLOQUEADA
     window.addEventListener('DOMContentLoaded', function() {
-        if (isExemptAdmin()) return;
-
         const urlParams = new URLSearchParams(window.location.search);
         const isBlockedParam = urlParams.get('bloqueado') === 'violacao_seguranca';
         const reasonParam = urlParams.get('motivo');
@@ -430,7 +539,6 @@
         if (isBlockedParam || sessionBlocked) {
             renderLockoutModal(reasonParam || sessionReason || 'Violação de segurança detectada');
         } else {
-            // Consulta rápida para checar se o IP atual está bloqueado no backend
             const checkUrl = (window.location.pathname.includes('/app/') ? '../api/index.php' : 'api/index.php') + '?action=check_ip_status';
             fetch(checkUrl)
                 .then(r => r.json())
@@ -443,7 +551,6 @@
         }
     });
 
-    // Torna a função de bloqueio acessível se necessário
     window.mgSecurityGuard = {
         triggerLockout: triggerSecurityLockout,
         showModal: renderLockoutModal
