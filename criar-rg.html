@@ -16,8 +16,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+    <link rel="stylesheet" href="assets/ocrb.css">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@500;700&family=Share+Tech+Mono&family=Homemade+Apple&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@500;700&family=Homemade+Apple&display=swap');
 
         :root {
             --bg-color: #0b0d0e;
@@ -32,7 +34,7 @@
             --primary-glow: rgba(0, 220, 130, 0.25);
             --font-ui: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'Roboto Mono', monospace;
-            --font-mrz: 'Share Tech Mono', monospace;
+            --font-mrz: 'OCR-B', monospace;
         }
 
         body.light-theme {
@@ -552,11 +554,11 @@
             box-sizing: border-box;
         }
         #cvQrBox img, #cvQrBox canvas { height: 208px !important; width: 208px !important; display: block; }
-        #cvPai { top: 120px; left: 314px; width: 550px; font-size: 15px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0.2px; }
-        #cvMae { top: 148px; left: 314px; width: 550px; font-size: 15px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0.2px; }
-        #cvOrgao { top: 302px; left: 315px; width: 200px; font-size: 14px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0.2px; }
-        #cvLocal { top: 420px; left: 315px; width: 280px; font-size: 14px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0.2px; }
-        #cvEmissao { top: 420px; left: 691px; width: 200px; font-size: 14px; font-weight: 700; color: #111; letter-spacing: 0.2px; }
+        #cvPai { top: 119px; left: 314px; width: 550px; font-size: 18px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0px; }
+        #cvMae { top: 147px; left: 314px; width: 550px; font-size: 18px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0px; }
+        #cvOrgao { top: 302px; left: 315px; width: 200px; font-size: 16px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0px; }
+        #cvLocal { top: 419px; left: 315px; width: 280px; font-size: 16px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0px; }
+        #cvEmissao { top: 419px; left: 691px; width: 200px; font-size: 15px; font-weight: 700; color: #111; letter-spacing: 0px; }
         #cvSigBox {
             position: absolute;
             top: 442px;
@@ -576,11 +578,11 @@
             top: 649px;
             left: 64px;
             width: 880px;
-            font-family: var(--font-mrz), 'Share Tech Mono', Consolas, monospace;
-            font-size: 18.5px;
+            font-family: 'OCR-B', var(--font-mrz), monospace;
+            font-size: 19px;
             line-height: 35.5px;
-            letter-spacing: 0.2px;
-            font-weight: 700;
+            letter-spacing: 5px;
+            font-weight: 500;
             color: #111111;
             white-space: pre;
             z-index: 5;
