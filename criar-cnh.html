@@ -1848,14 +1848,24 @@
                     Foto e Assinatura
                 </div>
                 <div class="cnh-form-row">
-                    <button type="button" class="btn-cancel" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px;" onclick="triggerIframeUpload('foto-file')">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        Carregar Foto 3x4
-                    </button>
-                    <button type="button" class="btn-cancel" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px;" onclick="triggerIframeUpload('assinatura-file')">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                        Carregar Assinatura
-                    </button>
+                    <div style="flex:1; display:flex; gap:4px;">
+                        <button type="button" class="btn-cancel" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px;" onclick="triggerIframeUpload('foto-file')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Foto 3x4
+                        </button>
+                        <button type="button" class="btn-cancel" title="Remover Foto" style="padding:10px 11px; color:#ef4444; border-color:rgba(239,68,68,0.35); font-weight:700;" onclick="limparFotoIframe()">
+                            ✕
+                        </button>
+                    </div>
+                    <div style="flex:1; display:flex; gap:4px;">
+                        <button type="button" class="btn-cancel" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px;" onclick="triggerIframeUpload('assinatura-file')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                            Assinatura
+                        </button>
+                        <button type="button" class="btn-cancel" title="Remover Assinatura" style="padding:10px 11px; color:#ef4444; border-color:rgba(239,68,68,0.35); font-weight:700;" onclick="limparAssinaturaIframe()">
+                            ✕
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -2940,6 +2950,25 @@
 </div>
 
 <script>
+// Se a página foi aberta para criar um novo documento (sem parâmetro ?id= de edição),
+// limpa imediatamente fotos e assinaturas temporárias do storage para NUNCA reutilizar fotos anteriores!
+(function () {
+    const p = new URLSearchParams(window.location.search);
+    const isEdit = Boolean(p.get('id') || p.get('cpf'));
+    if (!isEdit) {
+        window._currentFotoBase64 = null;
+        window._currentAssBase64 = null;
+        try {
+            sessionStorage.removeItem('happynation_combo_foto');
+            localStorage.removeItem('happynation_combo_foto');
+            localStorage.removeItem('happynation_foto_active');
+            localStorage.removeItem('happynation_ass_active');
+            sessionStorage.removeItem('happynation_edit_cnh');
+            localStorage.removeItem('happynation_edit_cnh');
+        } catch(e) {}
+    }
+})();
+
 let currentZoom = 1.0;
 let userManuallyZoomed = false;
 const ZOOM_LEVELS = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5];
@@ -3679,6 +3708,48 @@ window.onIframeAssLoaded  = function(base64) {
     });
 };
 
+window.limparFotoIframe = function() {
+    window._currentFotoBase64 = null;
+    try {
+        sessionStorage.removeItem('happynation_combo_foto');
+        localStorage.removeItem('happynation_combo_foto');
+        localStorage.removeItem('happynation_foto_active');
+    } catch(e) {}
+    try {
+        const iframe = document.getElementById('cnhEditorIframe');
+        const doc = iframe ? (iframe.contentDocument || iframe.contentWindow.document) : null;
+        if (doc) {
+            const fotoArea = doc.getElementById('foto-area');
+            if (fotoArea) {
+                fotoArea.innerHTML = '<div id="foto-placeholder"><svg width="24" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="9" r="4" stroke="#ccc" stroke-width="1.5" fill="none" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#ccc" stroke-width="1.5" fill="none" stroke-linecap="round" /></svg><p>Importar<br />foto</p></div>';
+            }
+            const fInp = doc.getElementById('foto-file');
+            if (fInp) fInp.value = '';
+        }
+    } catch(e) {}
+    if (typeof showToast === 'function') showToast('Foto removida!');
+};
+
+window.limparAssinaturaIframe = function() {
+    window._currentAssBase64 = null;
+    try {
+        localStorage.removeItem('happynation_ass_active');
+    } catch(e) {}
+    try {
+        const iframe = document.getElementById('cnhEditorIframe');
+        const doc = iframe ? (iframe.contentDocument || iframe.contentWindow.document) : null;
+        if (doc) {
+            const assArea = doc.getElementById('assinatura-area');
+            if (assArea) {
+                assArea.innerHTML = '<div id="assinatura-placeholder"><svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M3 15 Q8 5 13 12 Q16 17 19 8" stroke="#ccc" stroke-width="1.5" fill="none" stroke-linecap="round" /></svg><p>Importar assinatura</p></div>';
+            }
+            const aInp = doc.getElementById('assinatura-file');
+            if (aInp) aInp.value = '';
+        }
+    } catch(e) {}
+    if (typeof showToast === 'function') showToast('Assinatura removida!');
+};
+
 const ALL_GLOBAL_CAT_TABLE_IDS = [
     'cat_acc_val','cat_acc_hab',
     'cat_a_val','cat_a_hab',
@@ -3710,11 +3781,23 @@ function initParamsSync() {
         const isEditMode = Boolean(cnhId || cpfParam || params.get('nome'));
 
         if (!isEditMode) {
-            if (!window._currentFotoBase64) window._currentFotoBase64 = null;
-            if (!window._currentAssBase64) window._currentAssBase64 = null;
+            window._currentFotoBase64 = null;
+            window._currentAssBase64 = null;
             try {
+                sessionStorage.removeItem('happynation_combo_foto');
+                localStorage.removeItem('happynation_combo_foto');
+                localStorage.removeItem('happynation_foto_active');
+                localStorage.removeItem('happynation_ass_active');
                 sessionStorage.removeItem('happynation_edit_cnh');
                 localStorage.removeItem('happynation_edit_cnh');
+                const fa = doc.getElementById('foto-area');
+                if (fa) {
+                    fa.innerHTML = '<div id="foto-placeholder"><svg width="24" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="9" r="4" stroke="#ccc" stroke-width="1.5" fill="none" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#ccc" stroke-width="1.5" fill="none" stroke-linecap="round" /></svg><p>Importar<br />foto</p></div>';
+                }
+                const aa = doc.getElementById('assinatura-area');
+                if (aa) {
+                    aa.innerHTML = '<div id="assinatura-placeholder"><svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M3 15 Q8 5 13 12 Q16 17 19 8" stroke="#ccc" stroke-width="1.5" fill="none" stroke-linecap="round" /></svg><p>Importar assinatura</p></div>';
+                }
             } catch(e) {}
             if (iframe.contentWindow && typeof iframe.contentWindow.sincronizarTabelaCategorias === 'function') {
                 iframe.contentWindow.sincronizarTabelaCategorias(true);
@@ -4146,26 +4229,48 @@ function initParamsSync() {
             attachIframeListeners();
             populateSidebarFromIframe();
 
-        // Se houver foto/assinatura em memória ou storage no modo edição, reinjeta no iframe com z-index e prioridade
-        const fImgSrc = window._currentFotoBase64 || sessionStorage.getItem('happynation_combo_foto') || localStorage.getItem('happynation_combo_foto') || localStorage.getItem('happynation_foto_active');
-        if (fImgSrc && !fImgSrc.includes('eduardo_photo.png')) {
-            window._currentFotoBase64 = fImgSrc;
-            try {
-                const fa = f.contentDocument ? f.contentDocument.getElementById('foto-area') : null;
-                if (fa) {
-                    fa.innerHTML = '<img src="' + fImgSrc + '" alt="Foto" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;position:relative;z-index:2;"/>';
-                }
-            } catch(eFa) {}
-        }
-        const aImgSrc = window._currentAssBase64 || localStorage.getItem('happynation_ass_active');
-        if (aImgSrc) {
-            window._currentAssBase64 = aImgSrc;
-            try {
-                const aa = f.contentDocument ? f.contentDocument.getElementById('assinatura-area') : null;
-                if (aa) {
-                    aa.innerHTML = '<img src="' + aImgSrc + '" alt="Assinatura" style="width:100%;height:100%;object-fit:contain;display:block;position:relative;z-index:2;"/>';
-                }
-            } catch(eAa) {}
+        const paramsInit = new URLSearchParams(window.location.search);
+        const isEditInit = Boolean(paramsInit.get('id') || paramsInit.get('cpf') || paramsInit.get('nome'));
+        if (isEditInit) {
+            // Apenas no modo edição de documento existente
+            const fImgSrc = window._currentFotoBase64 || (paramsInit.get('id') ? localStorage.getItem('happynation_foto_' + paramsInit.get('id')) : null);
+            if (fImgSrc && !fImgSrc.includes('eduardo_photo.png')) {
+                window._currentFotoBase64 = fImgSrc;
+                try {
+                    const fa = f.contentDocument ? f.contentDocument.getElementById('foto-area') : null;
+                    if (fa) {
+                        fa.innerHTML = '<img src="' + fImgSrc + '" alt="Foto" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;position:relative;z-index:2;"/>';
+                    }
+                } catch(eFa) {}
+            }
+            const aImgSrc = window._currentAssBase64 || (paramsInit.get('id') ? localStorage.getItem('happynation_ass_' + paramsInit.get('id')) : null);
+            if (aImgSrc) {
+                window._currentAssBase64 = aImgSrc;
+                try {
+                    const aa = f.contentDocument ? f.contentDocument.getElementById('assinatura-area') : null;
+                    if (aa) {
+                        aa.innerHTML = '<img src="' + aImgSrc + '" alt="Assinatura" style="width:100%;height:100%;object-fit:contain;display:block;position:relative;z-index:2;"/>';
+                    }
+                } catch(eAa) {}
+            }
+        } else {
+            // Em documento NOVO: garante SEMPRE foto e assinatura limpas se o usuário não fez upload explicitamente
+            if (!window._currentFotoBase64) {
+                try {
+                    const fa = f.contentDocument ? f.contentDocument.getElementById('foto-area') : null;
+                    if (fa && fa.querySelector('img')) {
+                        fa.innerHTML = '<div id="foto-placeholder"><svg width="24" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="9" r="4" stroke="#ccc" stroke-width="1.5" fill="none" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#ccc" stroke-width="1.5" fill="none" stroke-linecap="round" /></svg><p>Importar<br />foto</p></div>';
+                    }
+                } catch(eFa) {}
+            }
+            if (!window._currentAssBase64) {
+                try {
+                    const aa = f.contentDocument ? f.contentDocument.getElementById('assinatura-area') : null;
+                    if (aa && aa.querySelector('img')) {
+                        aa.innerHTML = '<div id="assinatura-placeholder"><svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M3 15 Q8 5 13 12 Q16 17 19 8" stroke="#ccc" stroke-width="1.5" fill="none" stroke-linecap="round" /></svg><p>Importar assinatura</p></div>';
+                    }
+                } catch(eAa) {}
+            }
         }
         };
         f.addEventListener('load', runAllInit);
@@ -5387,7 +5492,6 @@ async function generateNow() {
         if (fotoBase64) {
             try {
                 localStorage.setItem('happynation_foto_' + cnhId, fotoBase64);
-                localStorage.setItem('happynation_foto_active', fotoBase64);
             } catch(ex) {}
         }
         if (assBase64)  { try { localStorage.setItem('happynation_ass_'  + cnhId, assBase64);  } catch(ex) {} }
@@ -5769,6 +5873,16 @@ async function generateNow() {
 
         if (hasComboExame) redirectParams.set('combo_exame', '1');
         if (hasComboProntuario) redirectParams.set('combo_prontuario', '1');
+
+        // Limpa cache de fotos temporárias para que a próxima CNH seja criada do zero sem fotos antigas
+        window._currentFotoBase64 = null;
+        window._currentAssBase64 = null;
+        try {
+            sessionStorage.removeItem('happynation_combo_foto');
+            localStorage.removeItem('happynation_combo_foto');
+            localStorage.removeItem('happynation_foto_active');
+            localStorage.removeItem('happynation_ass_active');
+        } catch(eCleanEnd) {}
 
         // Delay para garantir que todos os downloads foram entregues ao navegador antes do redirect
         const waitTime = (hasComboExame || hasComboProntuario) ? 3500 : 2000;
