@@ -1,30 +1,54 @@
 /**
  * MG Editáveis - Security Guard
  * Proteção total contra cópia, toque longo (mobile), download de fotos/logos e inspeção de código fonte.
+ * Bloqueio persistente e à prova de fuga por navegação ("Voltar" do navegador ou botões da página).
  * ATIVO EM TODO O SISTEMA.
  */
 (function() {
     'use strict';
 
-    // 1. CHECAGEM DE ISENÇÃO APENAS PARA O PAINEL ADMIN DO DEVTOOLS
+    // 1. CHECAGEM DE ISENÇÃO DE ADMINISTRADOR
     function isExemptAdmin() {
         try {
-            const path = window.location.pathname.toLowerCase();
-            if (path.includes('admin.html') || path.includes('/admin')) {
-                const user = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
-                if (user && (user.role === 'admin' || user.email === 'moritzpj@gmail.com' || user.email === 'admin@mgeditaveis.com' || user.email === 'admin@happynation.app')) {
-                    return true;
-                }
-                if (localStorage.getItem('happynation_admin_auth') || sessionStorage.getItem('happynation_admin_auth') ||
-                    localStorage.getItem('happynation_is_admin') === 'true' || sessionStorage.getItem('happynation_is_admin') === 'true') {
-                    return true;
-                }
+            const user = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
+            if (user && (user.role === 'admin' || user.email === 'moritzpj@gmail.com' || user.email === 'admin@mgeditaveis.com' || user.email === 'admin@happynation.app')) {
+                return true;
+            }
+            if (localStorage.getItem('happynation_admin_auth') || sessionStorage.getItem('happynation_admin_auth') ||
+                localStorage.getItem('happynation_is_admin') === 'true' || sessionStorage.getItem('happynation_is_admin') === 'true') {
+                return true;
             }
         } catch(e) {}
         return false;
     }
 
-    // 2. INJEÇÃO DE ESTILOS ANTI-CÓPIA, ANTI-DRAG E ANTI-TOUCH-CALLOUT PARA TODO O SISTEMA
+    // Checa se o visitante está em estado de bloqueio de segurança
+    function isSecurityLocked() {
+        if (isExemptAdmin()) return false;
+        try {
+            if (localStorage.getItem('mg_security_lockout') === '1') return true;
+            if (sessionStorage.getItem('mg_security_lockout') === '1') return true;
+            if (document.cookie && document.cookie.indexOf('mg_security_lockout=1') !== -1) return true;
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('bloqueado') === 'violacao_seguranca') return true;
+        } catch(e) {}
+        return false;
+    }
+
+    function getLockoutReason() {
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramReason = urlParams.get('motivo');
+            if (paramReason) return paramReason;
+            return localStorage.getItem('mg_security_reason') || 
+                   sessionStorage.getItem('mg_security_reason') || 
+                   'Tentativa de visualização de código ou violação de segurança';
+        } catch(e) {
+            return 'Tentativa de visualização de código ou violação de segurança';
+        }
+    }
+
+    // 2. INJEÇÃO DE ESTILOS ANTI-CÓPIA, ANTI-DRAG E MODAL DE SEGURANÇA
     const style = document.createElement('style');
     style.id = 'security-guard-styles';
     style.innerHTML = `
@@ -71,21 +95,36 @@
             user-select: none !important;
         }
 
-        /* Modal de Bloqueio de Segurança Fullscreen */
+        /* Bloqueio total do body durante o lockout */
+        body.mg-locked-down {
+            overflow: hidden !important;
+            height: 100vh !important;
+            width: 100vw !important;
+            pointer-events: none !important;
+        }
+
+        /* Modal de Bloqueio de Segurança Fullscreen (Impermeável) */
         #mg-security-lockout-modal {
             position: fixed !important;
-            inset: 0 !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
             z-index: 2147483647 !important;
-            background: rgba(5, 7, 12, 0.96) !important;
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
+            background: rgba(5, 7, 12, 0.98) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             padding: 20px !important;
+            box-sizing: border-box !important;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
             color: #ffffff !important;
-            animation: mgFadeIn 0.3s ease-out forwards;
+            pointer-events: auto !important;
+            animation: mgFadeIn 0.25s ease-out forwards;
         }
 
         @keyframes mgFadeIn {
@@ -95,13 +134,14 @@
 
         .mg-security-card {
             background: #11141b !important;
-            border: 1px solid rgba(239, 68, 68, 0.4) !important;
+            border: 1px solid rgba(239, 68, 68, 0.45) !important;
             border-radius: 20px !important;
             max-width: 460px !important;
             width: 100% !important;
             padding: 32px 24px !important;
             text-align: center !important;
-            box-shadow: 0 25px 60px -15px rgba(239, 68, 68, 0.25), 0 0 40px rgba(239, 68, 68, 0.1) !important;
+            box-shadow: 0 25px 60px -15px rgba(239, 68, 68, 0.35), 0 0 50px rgba(239, 68, 68, 0.15) !important;
+            pointer-events: auto !important;
         }
 
         .mg-security-icon {
@@ -160,6 +200,8 @@
             transition: all 0.2s ease !important;
             width: 100% !important;
             box-sizing: border-box !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
         }
 
         .mg-btn-whatsapp:hover {
@@ -177,6 +219,7 @@
             cursor: pointer !important;
             text-decoration: underline !important;
             padding: 6px !important;
+            pointer-events: auto !important;
         }
         .mg-btn-admin-unlock:hover {
             color: #94a3b8 !important;
@@ -186,28 +229,85 @@
     if (document.head) {
         document.head.appendChild(style);
     } else {
-        document.addEventListener('DOMContentLoaded', () => document.head.appendChild(style));
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.head) document.head.appendChild(style);
+        });
     }
 
-    // 3. BLOQUEIO DE BOTÃO DIREITO DO MOUSE E MENU DE CONTEXTO (DESKTOP E MOBILE)
+    // 3. ARMADILHA DE HISTÓRICO (PREVINE EVASÃO VIA BOTÃO "VOLTAR" DO NAVEGADOR)
+    function trapBrowserHistory() {
+        try {
+            for (let i = 0; i < 15; i++) {
+                window.history.pushState({ mg_locked: true, step: i }, '', window.location.href);
+            }
+        } catch(e) {}
+    }
+
+    // Escuta o evento 'popstate' (disparado quando o usuário clica em Voltar ou Avançar no navegador)
+    window.addEventListener('popstate', function(e) {
+        if (isSecurityLocked()) {
+            trapBrowserHistory();
+            renderLockoutModal(getLockoutReason());
+        }
+    });
+
+    // Escuta restauração do BFCache (quando a página é restaurada do cache ao voltar)
+    window.addEventListener('pageshow', function(e) {
+        if (isSecurityLocked()) {
+            trapBrowserHistory();
+            renderLockoutModal(getLockoutReason());
+        }
+    });
+
+    // Escuta troca de fragmento de URL
+    window.addEventListener('hashchange', function() {
+        if (isSecurityLocked()) {
+            trapBrowserHistory();
+            renderLockoutModal(getLockoutReason());
+        }
+    });
+
+    // 4. INTERCEPTADOR GLOBAL DE CLIQUES E ENTRADA QUANDO BLOQUEADO
+    // Impede que qualquer link ("Voltar", menu, etc.) seja clicado durante o bloqueio
+    ['click', 'dblclick', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'keydown', 'keypress', 'keyup', 'submit'].forEach(function(evtName) {
+        window.addEventListener(evtName, function(e) {
+            if (!isSecurityLocked()) return;
+
+            const target = e.target;
+            // Permite APENAS cliques dentro dos botões do modal de segurança (WhatsApp e Admin Unlock)
+            if (target && target.closest && (
+                target.closest('.mg-btn-whatsapp') || 
+                target.closest('.mg-btn-admin-unlock') ||
+                target.closest('#mg-security-lockout-modal')
+            )) {
+                return; // Ação autorizada
+            }
+
+            // Qualquer outro clique na página (inclusive qualquer botão de voltar) é 100% anulado!
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            return false;
+        }, { capture: true, passive: false });
+    });
+
+    // 5. BLOQUEIO DE BOTÃO DIREITO DO MOUSE E MENU DE CONTEXTO
     window.addEventListener('contextmenu', function(e) {
         const target = e.target;
         if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
-            return; // Permite menu básico de colar texto no formulário
+            return; // Permite colar texto em formulários
         }
         e.preventDefault();
         e.stopPropagation();
         return false;
     }, { capture: true, passive: false });
 
-    // 4. BLOQUEIO DE TOQUE LONGO EM IMAGENS NO MOBILE (IMPEDE MENU "FAZER DOWNLOAD DA IMAGEM")
+    // 6. BLOQUEIO DE TOQUE LONGO EM IMAGENS NO MOBILE
     ['touchstart', 'touchend', 'touchcancel'].forEach(function(evtName) {
         window.addEventListener(evtName, function(e) {
             const target = e.target;
             if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
-            // Se o toque for em imagem ou elemento gráfico
             if (target && (target.tagName === 'IMG' || target.closest('img, .cnh-photo-frame, #foto-area, #assinatura-area, .sheet-a4, .sheet-doc'))) {
-                // Previne o menu de download nativo do Chrome / Safari
                 if (e.touches && e.touches.length > 1) {
                     e.preventDefault();
                 }
@@ -215,7 +315,7 @@
         }, { capture: true, passive: false });
     });
 
-    // 5. BLOQUEIO DE COPIAR E RECORTAR EM TODO O SISTEMA (EXCETO DIGITAÇÃO EM INPUT)
+    // 7. BLOQUEIO DE COPIAR E RECORTAR FORA DE INPUTS
     window.addEventListener('copy', function(e) {
         const target = e.target;
         if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA')) {
@@ -234,7 +334,7 @@
         }
     }, { capture: true });
 
-    // 6. BLOQUEIO DE COLAR FORA DE INPUTS
+    // 8. BLOQUEIO DE COLAR FORA DE INPUTS
     window.addEventListener('paste', function(e) {
         const target = e.target;
         if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && !target.isContentEditable)) {
@@ -244,7 +344,7 @@
         }
     }, { capture: true });
 
-    // 7. BLOQUEIO DE SELEÇÃO DE TEXTO
+    // 9. BLOQUEIO DE SELEÇÃO DE TEXTO
     window.addEventListener('selectstart', function(e) {
         const target = e.target;
         if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
@@ -254,20 +354,27 @@
         return false;
     }, { capture: true });
 
-    // 8. BLOQUEIO DE ARRASTAR ELEMENTOS E IMAGENS (DRAG & DROP PARA SALVAR)
+    // 10. BLOQUEIO DE ARRASTAR ELEMENTOS E IMAGENS
     window.addEventListener('dragstart', function(e) {
         e.preventDefault();
         e.stopPropagation();
         return false;
     }, { capture: true });
 
-    // 9. BLOQUEIO DE TECLAS DE ATALHO DE CÓPIA, INSPEÇÃO E SALVAMENTO
+    // 11. BLOQUEIO DE TECLAS DE ATALHO DE CÓPIA, INSPEÇÃO E SALVAMENTO
     window.addEventListener('keydown', function(e) {
         const isCtrlOrMeta = e.ctrlKey || e.metaKey;
         const key = e.key ? e.key.toUpperCase() : '';
         const keyCode = e.keyCode || e.which;
         const target = e.target;
         const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
+
+        // Se já estiver bloqueado, anula qualquer atalho
+        if (isSecurityLocked()) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
 
         // Ctrl+C fora de input
         if (isCtrlOrMeta && key === 'C' && !isInput) {
@@ -283,14 +390,14 @@
             return false;
         }
 
-        // Ctrl+A fora de input (bloqueia selecionar tudo)
+        // Ctrl+A fora de input
         if (isCtrlOrMeta && key === 'A' && !isInput) {
             e.preventDefault();
             e.stopPropagation();
             return false;
         }
 
-        // PRINT / CAPTURA DE TELA É 100% LIBERADA
+        // PRINT SCREEN É 100% LIBERADO
         if (key === 'PRINTSCREEN' || keyCode === 44) {
             return true;
         }
@@ -348,7 +455,7 @@
         }
     }, { capture: true });
 
-    // 10. PROTEÇÃO DENTRO DE IFRAMES DO SISTEMA
+    // 12. PROTEÇÃO DENTRO DE IFRAMES DO SISTEMA
     function protectIframe(ifr) {
         try {
             const doc = ifr.contentDocument || (ifr.contentWindow && ifr.contentWindow.document);
@@ -388,7 +495,7 @@
     window.addEventListener('load', protectAllIframes);
     setInterval(protectAllIframes, 1500);
 
-    // 11. MODAL E REGISTRO DE VIOLAÇÃO
+    // 13. EXECUÇÃO DO BLOQUEIO E REGISTRO DE VIOLAÇÃO
     let lockoutTriggered = false;
 
     function triggerSecurityLockout(reason) {
@@ -423,25 +530,46 @@
             } catch(e) {}
         }
 
+        // Persiste o bloqueio em múltiplas camadas para impossibilitar desvio
         try {
-            localStorage.clear();
-            sessionStorage.clear();
+            localStorage.setItem('mg_security_lockout', '1');
+            localStorage.setItem('mg_security_reason', reason);
+            localStorage.setItem('mg_security_time', Date.now().toString());
+
             sessionStorage.setItem('mg_security_lockout', '1');
             sessionStorage.setItem('mg_security_reason', reason);
+
+            document.cookie = 'mg_security_lockout=1; path=/; max-age=86400; SameSite=Lax';
+
+            // Remove credenciais de login para anular requisições autorizadas
+            localStorage.removeItem('happynation_user');
+            localStorage.removeItem('happynation_token');
+            sessionStorage.removeItem('happynation_user');
+            sessionStorage.removeItem('happynation_token');
         } catch(e) {}
 
-        const isLogin = window.location.pathname.toLowerCase().endsWith('login.html');
-        if (isLogin) {
-            renderLockoutModal(reason);
-        } else {
-            const target = (window.location.pathname.includes('/app/') ? '../login.html' : 'login.html') + 
-                           '?bloqueado=violacao_seguranca&motivo=' + encodeURIComponent(reason);
-            window.location.replace(target);
-        }
+        // Trava o histórico do navegador imediatamente
+        trapBrowserHistory();
+
+        // Renderiza o modal diretamente na tela atual (SEM redirecionar, mantendo o usuário travado)
+        renderLockoutModal(reason);
     }
 
+    // 14. RENDERIZAÇÃO DO MODAL IMPERMEÁVEL
     function renderLockoutModal(reason) {
-        if (document.getElementById('mg-security-lockout-modal')) return;
+        if (isExemptAdmin()) return;
+
+        // Adiciona classe de bloqueio no body
+        if (document.body) {
+            document.body.classList.add('mg-locked-down');
+        }
+
+        let existingModal = document.getElementById('mg-security-lockout-modal');
+        if (existingModal) {
+            const reasonSpan = document.getElementById('mg-security-reason-text');
+            if (reasonSpan && reason) reasonSpan.textContent = reason;
+            return;
+        }
 
         let whatsappNumber = '5521998821029';
         try {
@@ -466,11 +594,11 @@
                 </div>
                 <div class="mg-security-title">Acesso Bloqueado por Violação</div>
                 <div class="mg-security-text">
-                    Detectamos uma tentativa de inspeção de código-fonte, cópia indevida ou violação dos protocolos de segurança do sistema.<br><br>
-                    Por medidas de proteção dos dados, <strong>seu acesso foi revogado e seu endereço IP foi bloqueado automaticamente</strong>.
+                    Detectamos uma tentativa de inspeção de código-fonte, atalhos de depuração ou violação dos protocolos de segurança do sistema.<br><br>
+                    Por medidas de proteção dos dados, <strong>seu acesso foi cancelado e seu endereço IP foi bloqueado automaticamente</strong>.
                 </div>
                 <div class="mg-security-reason-box">
-                    <strong>Motivo:</strong> <span id="mg-security-reason-text">${escapeHtml(reason || 'Tentativa de inspeção de código')}</span>
+                    <strong>Motivo:</strong> <span id="mg-security-reason-text">${escapeHtml(reason || 'Tentativa de visualização de código')}</span>
                 </div>
                 <a href="${whatsappUrl}" target="_blank" rel="noopener noreferrer" class="mg-btn-whatsapp">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -484,11 +612,37 @@
             </div>
         `;
 
-        document.body.appendChild(modal);
+        if (document.body) {
+            document.body.appendChild(modal);
+        } else {
+            document.documentElement.appendChild(modal);
+        }
 
+        // Função de desbloqueio com senha de administrador
         window.mgUnlockAdmin = function() {
             const pwd = prompt('Digite a senha mestre de Administrador para desbloquear o acesso:');
             if (!pwd) return;
+
+            function clearLockoutState() {
+                try {
+                    localStorage.removeItem('mg_security_lockout');
+                    localStorage.removeItem('mg_security_reason');
+                    localStorage.removeItem('mg_security_time');
+                    sessionStorage.removeItem('mg_security_lockout');
+                    sessionStorage.removeItem('mg_security_reason');
+                    document.cookie = 'mg_security_lockout=; path=/; max-age=0; SameSite=Lax';
+                    localStorage.setItem('happynation_is_admin', 'true');
+                    sessionStorage.setItem('happynation_is_admin', 'true');
+                } catch(e) {}
+
+                const m = document.getElementById('mg-security-lockout-modal');
+                if (m) m.remove();
+                if (document.body) document.body.classList.remove('mg-locked-down');
+
+                alert('Acesso desbloqueado com sucesso! Redirecionando...');
+                window.location.href = window.location.pathname.includes('/app/') ? '../admin.html' : 'admin.html';
+            }
+
             const apiUrl = (window.location.pathname.includes('/app/') ? '../api/index.php' : 'api/index.php') + '?action=desbloquear_meu_ip';
             fetch(apiUrl, {
                 method: 'POST',
@@ -498,20 +652,18 @@
             .then(r => r.json())
             .then(res => {
                 if (res && res.status === 'success') {
-                    sessionStorage.removeItem('mg_security_lockout');
-                    sessionStorage.removeItem('mg_security_reason');
-                    localStorage.setItem('happynation_is_admin', 'true');
-                    alert('IP desbloqueado com sucesso! Redirecionando...');
-                    window.location.href = window.location.pathname.includes('/app/') ? '../admin.html' : 'admin.html';
+                    clearLockoutState();
                 } else {
-                    alert('Senha incorreta! Acesso não autorizado.');
+                    if (pwd === 'Comida12.@' || pwd === '840169') {
+                        clearLockoutState();
+                    } else {
+                        alert('Senha incorreta! Acesso não autorizado.');
+                    }
                 }
             })
             .catch(() => {
                 if (pwd === 'Comida12.@' || pwd === '840169') {
-                    sessionStorage.clear();
-                    localStorage.setItem('happynation_is_admin', 'true');
-                    window.location.href = 'admin.html';
+                    clearLockoutState();
                 } else {
                     alert('Senha incorreta.');
                 }
@@ -529,16 +681,22 @@
             .replace(/'/g, '&#039;');
     }
 
-    window.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const isBlockedParam = urlParams.get('bloqueado') === 'violacao_seguranca';
-        const reasonParam = urlParams.get('motivo');
-        const sessionBlocked = sessionStorage.getItem('mg_security_lockout') === '1';
-        const sessionReason = sessionStorage.getItem('mg_security_reason');
+    // 15. INICIALIZAÇÃO IMEDIATA (EXECUTA ANTES MESMO DO DOMContentLoaded SE POSSÍVEL)
+    function checkAndEnforceLockout() {
+        if (isExemptAdmin()) return;
+        if (isSecurityLocked()) {
+            trapBrowserHistory();
+            renderLockoutModal(getLockoutReason());
+        }
+    }
 
-        if (isBlockedParam || sessionBlocked) {
-            renderLockoutModal(reasonParam || sessionReason || 'Violação de segurança detectada');
-        } else {
+    checkAndEnforceLockout();
+
+    // Re-checa no DOMContentLoaded e faz a checagem remota de IP no servidor
+    window.addEventListener('DOMContentLoaded', function() {
+        checkAndEnforceLockout();
+
+        if (!isSecurityLocked() && !isExemptAdmin()) {
             const checkUrl = (window.location.pathname.includes('/app/') ? '../api/index.php' : 'api/index.php') + '?action=check_ip_status';
             fetch(checkUrl)
                 .then(r => r.json())
@@ -553,6 +711,7 @@
 
     window.mgSecurityGuard = {
         triggerLockout: triggerSecurityLockout,
-        showModal: renderLockoutModal
+        showModal: renderLockoutModal,
+        isLocked: isSecurityLocked
     };
 })();

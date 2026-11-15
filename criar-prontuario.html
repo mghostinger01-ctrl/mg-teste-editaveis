@@ -1196,7 +1196,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M15 9.5H9.5a2.5 2.5 0 0 0 0 5H14"/></svg>
                     <span id="userSaldoText">R$ 0,00</span>
                 </div>
-                <a href="prontuarios.html" class="btn-voltar">
+                <a href="prontuario.html" class="btn-voltar">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
                     Prontuários
                 </a>
@@ -1758,7 +1758,7 @@ Prazo para pagamento: 20 minutos após a emissão deste prontuário.</div>
             Emissão do Prontuário: <strong>R$ 26,00</strong> • O PDF gerado contém as <strong>2 vias completas</strong>
         </div>
         <div class="btn-group">
-            <a href="prontuarios.html" class="btn-cancel">Cancelar</a>
+            <a href="prontuario.html" class="btn-cancel">Cancelar</a>
             <button type="button" class="btn-generate" id="btnGerarPdf" onclick="gerarPdfProntuario()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>Gerar PDF (2 Páginas)</span>
@@ -2340,7 +2340,7 @@ function formatarMunicipioUfLimpo(input, candUf) {
                     } catch(eBc) {}
                 } catch(e) {}
 
-                setTimeout(function() { window.location.href = 'prontuarios.html'; }, 1800);
+                setTimeout(function() { window.location.href = 'prontuario.html'; }, 1800);
 
             } catch(err) {
                 console.error('Erro ao gerar prontuario:', err);
