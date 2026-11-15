@@ -530,10 +530,10 @@
         /* Posições do Verso (Escala 989x685) */
         #cvQrBox {
             position: absolute;
-            top: 104px;
+            top: 115px;
             left: 46px;
-            width: 212px;
-            height: 192px;
+            width: 258px;
+            height: 214px;
             background: #ffffff;
             display: flex;
             align-items: center;
@@ -542,21 +542,35 @@
             padding: 0;
             box-sizing: border-box;
         }
-        #cvQrBox img, #cvQrBox canvas { height: 188px !important; width: 188px !important; }
-        #cvPai { top: 82px; left: 300px; width: 480px; font-size: 15px; font-weight: 700; text-transform: uppercase; }
-        #cvMae { top: 108px; left: 300px; width: 480px; font-size: 15px; font-weight: 700; text-transform: uppercase; }
-        #cvOrgao { top: 247px; left: 300px; width: 200px; font-size: 15px; font-weight: 700; }
-        #cvLocal { top: 356px; left: 300px; width: 240px; font-size: 14px; font-weight: 700; text-transform: uppercase; }
-        #cvEmissao { top: 356px; left: 678px; width: 180px; font-size: 14px; font-weight: 700; }
+        #cvQrBox img, #cvQrBox canvas { height: 204px !important; width: 204px !important; }
+        #cvPai { top: 93px; left: 300px; width: 560px; font-size: 15px; font-weight: 700; text-transform: uppercase; }
+        #cvMae { top: 121px; left: 300px; width: 560px; font-size: 15px; font-weight: 700; text-transform: uppercase; }
+        #cvOrgao { top: 275px; left: 300px; width: 200px; font-size: 14px; font-weight: 700; }
+        #cvLocal { top: 396px; left: 300px; width: 300px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; }
+        #cvEmissao { top: 396px; left: 678px; width: 180px; font-size: 13.5px; font-weight: 700; }
+        #cvSigBox {
+            position: absolute;
+            top: 418px;
+            left: 286px;
+            width: 392px;
+            height: 48px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            border-bottom: 1.5px solid #111;
+            z-index: 5;
+        }
+        #cvSigImg { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+        #cvSigText { display: none; font-family: 'Homemade Apple', cursive; font-size: 24px; color: #000; font-weight: 600; padding-bottom: 4px; }
         #cvMrz {
             position: absolute;
-            top: 562px;
-            left: 46px;
+            top: 619px;
+            left: 49px;
             width: 900px;
-            font-family: 'Share Tech Mono', 'Courier New', monospace;
+            font-family: 'Courier New', Courier, monospace;
             font-size: 26px;
-            line-height: 31px;
-            letter-spacing: 12.5px;
+            line-height: 34.5px;
+            letter-spacing: 13.8px;
             font-weight: 700;
             color: #000000;
             white-space: pre;
@@ -617,6 +631,7 @@
             margin-bottom: -210px;
         }
 
+        #a4CardVersoWrap { margin-bottom: -242px; }
         .a4-footer-info {
             border-top: 1px solid #e2e8f0;
             padding-top: 12px;
@@ -868,7 +883,7 @@
                     </div>
 
                     <!-- ─── 2. PREVIEW: CARTÃO VERSO ULTRA-HD (989px × 685px) ─── -->
-                    <div id="viewVersoContainer" class="card-cin-view" style="display:block; margin-top:20px; background-image: url('assets/rg_verso_template_clean.png');">
+                    <div id="viewVersoContainer" class="card-cin-view" style="display:block; margin-top:20px; height:758px; background-image: url('assets/rg_verso_template_clean.png');">
                         <!-- QR Code Oficial -->
                         <div id="cvQrBox">
                             <div id="cvQrInner" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"></div>
@@ -880,6 +895,12 @@
                         <div class="dyn-cin-field" id="cvOrgao">SSP</div>
                         <div class="dyn-cin-field" id="cvLocal">SÃO PAULO</div>
                         <div class="dyn-cin-field" id="cvEmissao">31/10/2025</div>
+
+                        <!-- Assinatura do Expedidor -->
+                        <div id="cvSigBox">
+                            <img id="cvSigImg" src="assets/mellyssa_sig.png" alt="Assinatura">
+                            <span id="cvSigText"></span>
+                        </div>
 
                         <!-- MRZ 3 Linhas -->
                         <div id="cvMrz">IDBRA 52653415879 52653415879<<<
@@ -974,7 +995,7 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
                 renderA4Content();
                 setFitZoom(0.65);
             } else if (tab === 'folha') {
-                setFitZoom(0.5);
+                setFitZoom(0.46);
             } else {
                 setFitZoom(0.72);
             }
@@ -1060,7 +1081,26 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
                     sTxt.style.display = 'block';
                 }
             }
+            mirrorSigVerso();
         }
+
+        function mirrorSigVerso() {
+            const a = document.getElementById('cfSigImg'), b = document.getElementById('cfSigText');
+            const c = document.getElementById('cvSigImg'), d = document.getElementById('cvSigText');
+            if (!a || !c) return;
+            if (c.getAttribute('src') !== a.getAttribute('src')) c.src = a.src;
+            c.style.display = a.style.display === 'none' ? 'none' : 'block';
+            d.textContent = b.textContent;
+            d.style.display = b.style.display === 'block' ? 'block' : 'none';
+        }
+        window.addEventListener('load', function () {
+            const obs = new MutationObserver(mirrorSigVerso);
+            ['cfSigImg', 'cfSigText'].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el) obs.observe(el, { attributes: true, childList: true, characterData: true, subtree: true });
+            });
+            mirrorSigVerso();
+        });
 
         // Geração Oficial do MRZ 3 Linhas ICAO Doc 9303 TD1
         function generateMrz(cpf, nome, nasc, sexo, val) {
@@ -1085,9 +1125,9 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
                 .split(/\s+/)
                 .join('<');
 
-            const l1 = `IDBRA ${cleanCpf} ${cleanCpf}<<<`;
-            const l2 = `${nascMrz}${sexMrz}${valMrz}BRA<<<<<<<<<<<`;
-            const l3 = `${cleanNome.padEnd(30, '<')}`;
+            const l1 = `IDBRA${cleanCpf}${cleanCpf}<<<`.slice(0, 30).padEnd(30, '<');
+            const l2 = `${nascMrz}${sexMrz}${valMrz}BRA`.padEnd(30, '<').slice(0, 30);
+            const l3 = `${cleanNome.padEnd(30, '<').slice(0, 30)}`;
             return `${l1}\n${l2}\n${l3}`;
         }
 
@@ -1101,8 +1141,8 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
             if (window.QRCode) {
                 new QRCode(inner, {
                     text: qrUrl,
-                    width: 165,
-                    height: 165,
+                    width: 204,
+                    height: 204,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.M
@@ -1258,24 +1298,24 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
                 const elVerso = document.getElementById('viewVersoContainer');
 
                 const canvasFrente = await captureElementClean(elFrente, 989, 685);
-                const canvasVerso = await captureElementClean(elVerso, 989, 685);
+                const canvasVerso = await captureElementClean(elVerso, 989, 758);
 
                 const { jsPDF } = window.jspdf;
                 // Cria PDF com medidas exatas proporcionais do cartão em landscape
                 const pdf = new jsPDF({
                     orientation: 'portrait',
                     unit: 'px',
-                    format: [1029, 1470],
+                    format: [1029, 1543],
                     hotfixes: ['px_scaling']
                 });
 
                 // Folha única: frente em cima, verso embaixo
                 pdf.setFillColor(255, 255, 255);
-                pdf.rect(0, 0, 1029, 1470, 'F');
+                pdf.rect(0, 0, 1029, 1543, 'F');
                 const imgFrente = canvasFrente.toDataURL('image/jpeg', 0.98);
                 pdf.addImage(imgFrente, 'JPEG', 20, 20, 989, 685);
                 const imgVerso = canvasVerso.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgVerso, 'JPEG', 20, 765, 989, 685);
+                pdf.addImage(imgVerso, 'JPEG', 20, 765, 989, 758);
 
                 const cpfClean = (document.getElementById('inpCpf').value || 'CIN').replace(/\D/g, '');
                 const fileName = `CIN_Cartao_${cpfClean}.pdf`;
