@@ -3064,21 +3064,21 @@ function closeDicasModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// FORÇAR atualização do domínio do validador (remover cache antigo de validar-cnh-brasil)
+// FORÇAR atualização do domínio do validador (remover cache antigo de validar-cnh-brasil e sinetran-cnh)
 try {
     const oldD = localStorage.getItem('happynation_domain_qrcode');
-    if (!oldD || oldD.includes('validar-cnh-brasil') || oldD.includes('senatran-validacao-gov')) {
-        localStorage.setItem('happynation_domain_qrcode', 'https://sinetran-cnh.vercel.app');
+    if (!oldD || oldD.includes('validar-cnh-brasil') || oldD.includes('senatran-validacao-gov') || oldD.includes('sinetran-cnh')) {
+        localStorage.setItem('happynation_domain_qrcode', 'https://senetran-cnh-brasil.vercel.app');
     }
     const oldV = localStorage.getItem('happynation_validador_url');
-    if (oldV && (oldV.includes('validar-cnh-brasil') || oldV.includes('senatran-validacao-gov'))) {
-        localStorage.setItem('happynation_validador_url', 'https://sinetran-cnh.vercel.app/validar-cnh.html');
+    if (oldV && (oldV.includes('validar-cnh-brasil') || oldV.includes('senatran-validacao-gov') || oldV.includes('sinetran-cnh'))) {
+        localStorage.setItem('happynation_validador_url', 'https://senetran-cnh-brasil.vercel.app/validar-cnh.html');
     }
     const rawCfg = localStorage.getItem('happynation_config');
     if (rawCfg) {
         const cfgObj = JSON.parse(rawCfg);
-        if (cfgObj && cfgObj.dominioQrCode && (cfgObj.dominioQrCode.includes('validar-cnh-brasil') || cfgObj.dominioQrCode.includes('senatran-validacao-gov'))) {
-            cfgObj.dominioQrCode = 'https://sinetran-cnh.vercel.app';
+        if (cfgObj && cfgObj.dominioQrCode && (cfgObj.dominioQrCode.includes('validar-cnh-brasil') || cfgObj.dominioQrCode.includes('senatran-validacao-gov') || cfgObj.dominioQrCode.includes('sinetran-cnh'))) {
+            cfgObj.dominioQrCode = 'https://senetran-cnh-brasil.vercel.app';
             localStorage.setItem('happynation_config', JSON.stringify(cfgObj));
         }
     }
@@ -3421,15 +3421,15 @@ async function buildValidationQrDataUrl(doc) {
     // Multi-Domínio HostMF: usa o domínio oficial de Validação do QR Code se configurado
     try {
         let customQr = localStorage.getItem('happynation_domain_qrcode');
-        if (!customQr || customQr.includes('validar-cnh-brasil') || customQr.includes('senatran-validacao-gov')) {
-            customQr = 'https://sinetran-cnh.vercel.app';
+        if (!customQr || customQr.includes('validar-cnh-brasil') || customQr.includes('senatran-validacao-gov') || customQr.includes('sinetran-cnh')) {
+            customQr = 'https://senetran-cnh-brasil.vercel.app';
             localStorage.setItem('happynation_domain_qrcode', customQr);
         }
         if (customQr && customQr.trim()) {
             baseUrl = customQr.trim().replace(/\/+$/, '');
         }
     } catch(e) {
-        baseUrl = 'https://sinetran-cnh.vercel.app';
+        baseUrl = 'https://senetran-cnh-brasil.vercel.app';
     }
 
     const sideNomeEl = document.getElementById('side_nome');

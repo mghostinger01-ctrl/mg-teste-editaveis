@@ -1,23 +1,29 @@
 Add-Type -AssemblyName System.Drawing
+$bmp = New-Object System.Drawing.Bitmap('assets/rg_verso_template_clean.png')
 
-$p1 = 'C:\Users\MG\.gemini\antigravity\brain\d6aab914-9489-4610-841b-b6d3f49b1873\.user_uploaded\media_1794328413494_d71d4876.jpg'
-$p2 = 'C:\Users\MG\.gemini\antigravity\brain\d6aab914-9489-4610-841b-b6d3f49b1873\.user_uploaded\media_1794328419664_fa5611f9.png'
-$tmpl = 'C:\Users\MG\Desktop\htdocs\assets\crlv_template_hd_clean.png'
+$darkCount = 0
+function Find-Dark($name, $x1, $y1, $x2, $y2) {
+    for ($x=$x1; $x -le $x2; $x++) {
+        for ($y=$y1; $y -le $y2; $y++) {
+            $c = $bmp.GetPixel($x, $y)
+            $lum = [int]($c.R*0.299 + $c.G*0.587 + $c.B*0.114)
+            if ($lum -lt 140) {
+                $script:darkCount++
+                Write-Host "${name} at X=${x} Y=${y}: Lum=${lum} (R=$($c.R), G=$($c.G), B=$($c.B))"
+            }
+        }
+    }
+}
 
-$i1 = [System.Drawing.Bitmap]::FromFile($p1)
-$iT = [System.Drawing.Bitmap]::FromFile($tmpl)
+Find-Dark "Pai" 314 115 550 135
+Find-Dark "Mae" 314 140 620 167
+Find-Dark "Orgao" 314 295 400 320
+Find-Dark "Local" 314 414 470 435
+Find-Dark "Data" 685 414 780 435
+Find-Dark "Sig" 297 446 685 480
 
-# Let's sample a few points from user image 1 vs crlv_template_hd_clean.png:
-Write-Output "Header pixel at (200, 30):"
-Write-Output "User 1: $($i1.GetPixel(200, 30))"
-Write-Output "Template: $($iT.GetPixel(200, 30))"
+Write-Host "Total dark pixels found in text areas: $darkCount"
 
-# Check where the user values are:
-# In User 1, at (60, 175) is RENAVAM "00872698394"
-# In crlv_template_hd_clean.png, what is at (60, 175)?
-Write-Output "At (60, 175):"
-Write-Output "User 1: $($i1.GetPixel(60, 175))"
-Write-Output "Template: $($iT.GetPixel(60, 175))"
+$bmp.Dispose()
 
-$i1.Dispose()
-$iT.Dispose()
+
