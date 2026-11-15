@@ -526,14 +526,19 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            display: block;
+            display: none;
         }
         #cfSigText {
-            display: none !important;
+            display: block;
             font-family: 'Homemade Apple', cursive;
             font-size: 26px;
-            color: #000000;
+            color: #111111;
             font-weight: 600;
+            line-height: 1;
+            margin: 0;
+            white-space: nowrap;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* Posições dos Campos da Frente (Escala 1024x709) */
@@ -581,8 +586,8 @@
             z-index: 5;
             background: transparent;
         }
-        #cvSigImg { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
-        #cvSigText { display: none; font-family: 'Homemade Apple', cursive; font-size: 24px; color: #111; font-weight: 600; line-height: 1; margin: 0; }
+        #cvSigImg { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
+        #cvSigText { display: block; font-family: 'Homemade Apple', cursive; font-size: 24px; color: #111111; font-weight: 600; line-height: 1; margin: 0; white-space: nowrap; user-select: none; -webkit-font-smoothing: antialiased; }
         #cvMrz {
             position: absolute;
             top: 649px;
@@ -898,8 +903,8 @@
 
                         <!-- Assinatura Oficial do Titular -->
                         <div id="cfSigBox">
-                            <img id="cfSigImg" src="assets/mellyssa_sig.png" alt="Assinatura">
-                            <span id="cfSigText"></span>
+                            <img id="cfSigImg" src="assets/mellyssa_sig.png" alt="Assinatura" style="display:none;">
+                            <span id="cfSigText">Mellyssa De Jesus Menino</span>
                         </div>
                     </div>
 
@@ -919,8 +924,8 @@
 
                         <!-- Assinatura do Expedidor -->
                         <div id="cvSigBox">
-                            <img id="cvSigImg" src="assets/mellyssa_sig_clean.png" alt="Assinatura">
-                            <span id="cvSigText"></span>
+                            <img id="cvSigImg" src="assets/mellyssa_sig_clean.png" alt="Assinatura" style="display:none;">
+                            <span id="cvSigText">Mellyssa De Jesus Menino</span>
                         </div>
 
                         <!-- MRZ 3 Linhas -->
@@ -1101,30 +1106,39 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
                 document.querySelectorAll('#viewVersoContainer .dyn-cin-field, #cvQrBox, #cvSigBox, #cvMrz').forEach(el => el.style.opacity = '1');
             }
 
-            // Mantém sempre a assinatura oficial idêntica à referência da primeira foto (sem trocar para fonte cursiva)
+            // Assinatura: Renderiza assinatura oficial em fonte cursiva ('Homemade Apple') com o Nome do cliente,
+            // idêntico à Foto 2 de referência oficial, tanto na Frente quanto no Verso.
+            // Se o usuário carregar uma assinatura própria em imagem (isUserCustomSig), utiliza a imagem carregada.
             const sImg = document.getElementById('cfSigImg');
             const sTxt = document.getElementById('cfSigText');
-            if (sImg) {
-                if (!sImg.getAttribute('src') || (!sImg.src.startsWith('data:') && !sImg.src.includes('mellyssa_sig'))) {
-                    sImg.src = 'assets/mellyssa_sig_clean.png';
-                }
+            if (isUserCustomSig && sImg && sImg.getAttribute('src') && sImg.getAttribute('src').startsWith('data:')) {
                 sImg.style.display = 'block';
-            }
-            if (sTxt) {
-                sTxt.style.display = 'none';
+                if (sTxt) sTxt.style.display = 'none';
+            } else {
+                if (sImg) sImg.style.display = 'none';
+                if (sTxt) {
+                    sTxt.textContent = nome;
+                    sTxt.style.display = 'block';
+                }
             }
             mirrorSigVerso();
         }
 
         function mirrorSigVerso() {
-            const a = document.getElementById('cfSigImg');
-            const c = document.getElementById('cvSigImg');
-            if (!a || !c) return;
-            const srcA = a.getAttribute('src') || a.src;
-            if (c.getAttribute('src') !== srcA) c.src = srcA;
-            c.style.display = 'block';
-            const d = document.getElementById('cvSigText');
-            if (d) d.style.display = 'none';
+            const a = document.getElementById('cfSigImg'), b = document.getElementById('cfSigText');
+            const c = document.getElementById('cvSigImg'), d = document.getElementById('cvSigText');
+            if (!a || !c || !b || !d) return;
+
+            if (isUserCustomSig && a.getAttribute('src') && a.getAttribute('src').startsWith('data:')) {
+                const srcA = a.getAttribute('src') || a.src;
+                if (c.getAttribute('src') !== srcA) c.src = srcA;
+                c.style.display = 'block';
+                d.style.display = 'none';
+            } else {
+                c.style.display = 'none';
+                d.textContent = b.textContent;
+                d.style.display = 'block';
+            }
         }
         window.addEventListener('load', function () {
             const obs = new MutationObserver(mirrorSigVerso);
@@ -1259,9 +1273,9 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
             document.getElementById('thumbPhoto').src = 'assets/mellyssa_foto.png';
             document.getElementById('cfPhoto').src = 'assets/mellyssa_foto.png';
             document.getElementById('thumbSig').src = 'assets/mellyssa_sig.png';
-            document.getElementById('cfSigImg').src = 'assets/mellyssa_sig.png';
-            document.getElementById('cfSigImg').style.display = 'block';
-            document.getElementById('cfSigText').style.display = 'none';
+            document.getElementById('cfSigImg').style.display = 'none';
+            document.getElementById('cfSigText').textContent = DEFAULT_MELLYSSA.nome;
+            document.getElementById('cfSigText').style.display = 'block';
 
             isUserCustomPhoto = false;
             isUserCustomSig = false;
@@ -1510,13 +1524,22 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
                         document.getElementById('cfPhoto').src = d.foto;
                         isUserCustomPhoto = true;
                     }
-                    if (d.assinatura) {
+                    if (d.assinatura && d.assinatura.startsWith('data:')) {
                         document.getElementById('thumbSig').src = d.assinatura;
                         const sImg = document.getElementById('cfSigImg');
                         sImg.src = d.assinatura;
                         sImg.style.display = 'block';
                         document.getElementById('cfSigText').style.display = 'none';
                         isUserCustomSig = true;
+                    } else {
+                        isUserCustomSig = false;
+                        const sImg = document.getElementById('cfSigImg');
+                        if (sImg) sImg.style.display = 'none';
+                        const sTxt = document.getElementById('cfSigText');
+                        if (sTxt) {
+                            sTxt.textContent = d.nome || DEFAULT_MELLYSSA.nome;
+                            sTxt.style.display = 'block';
+                        }
                     }
                 }
             } catch(e) {
