@@ -481,9 +481,9 @@
         /* Elementos Dinâmicos Transparentes sobre o Fundo Guilhoche */
         .dyn-cin-field {
             position: absolute;
-            color: #000000;
+            color: #1a1a1a;
             font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-            font-weight: 700;
+            font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -492,6 +492,8 @@
             background: transparent !important;
             padding: 0 !important;
             margin: 0 !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Foto 3x4 Frente (Escala 1024x709) */
@@ -503,7 +505,8 @@
             height: 263px;
             object-fit: cover;
             z-index: 5;
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+            border: none;
+            box-shadow: none;
         }
 
         /* Assinatura Frente */
@@ -526,7 +529,7 @@
             display: block;
         }
         #cfSigText {
-            display: none;
+            display: none !important;
             font-family: 'Homemade Apple', cursive;
             font-size: 26px;
             color: #000000;
@@ -534,16 +537,16 @@
         }
 
         /* Posições dos Campos da Frente (Escala 1024x709) */
-        #cfUf { top: 147px; left: 451px; width: 155px; font-size: 15px; font-weight: 800; text-align: center; text-transform: uppercase; }
-        #cfSsp { top: 173px; left: 482px; width: 93px; font-size: 11.5px; font-weight: 800; text-align: center; text-transform: uppercase; }
-        #cfNome { top: 283px; left: 346px; width: 456px; font-size: 16.5px; }
-        #cfNomeSocial { top: 347px; left: 346px; width: 456px; font-size: 15.5px; }
-        #cfCpf { top: 417px; left: 346px; width: 259px; font-size: 15px; }
-        #cfSexo { top: 417px; left: 618px; width: 145px; font-size: 15px; }
-        #cfNasc { top: 470px; left: 346px; width: 259px; font-size: 15px; }
-        #cfNac { top: 470px; left: 618px; width: 145px; font-size: 15px; }
-        #cfNat { top: 521px; left: 346px; width: 259px; font-size: 15px; text-transform: uppercase; }
-        #cfVal { top: 521px; left: 618px; width: 145px; font-size: 15px; }
+        #cfUf { top: 147px; left: 451px; width: 155px; font-size: 15px; font-weight: 700; text-align: center; text-transform: uppercase; color: #1a1a1a; }
+        #cfSsp { top: 173px; left: 482px; width: 93px; font-size: 11.5px; font-weight: 700; text-align: center; text-transform: uppercase; color: #1a1a1a; }
+        #cfNome { top: 283px; left: 346px; width: 456px; font-size: 15.5px; font-weight: 600; letter-spacing: 0.1px; }
+        #cfNomeSocial { top: 347px; left: 346px; width: 456px; font-size: 15px; font-weight: 600; }
+        #cfCpf { top: 417px; left: 346px; width: 259px; font-size: 14.5px; font-weight: 600; letter-spacing: 0.1px; }
+        #cfSexo { top: 417px; left: 618px; width: 145px; font-size: 14.5px; font-weight: 600; }
+        #cfNasc { top: 470px; left: 346px; width: 259px; font-size: 14.5px; font-weight: 600; }
+        #cfNac { top: 470px; left: 618px; width: 145px; font-size: 14.5px; font-weight: 600; }
+        #cfNat { top: 521px; left: 346px; width: 259px; font-size: 14.5px; font-weight: 600; text-transform: uppercase; }
+        #cfVal { top: 521px; left: 618px; width: 145px; font-size: 14.5px; font-weight: 600; }
 
         /* Posições do Verso (Escala Oficial 1024x798) */
         #cvQrBox {
@@ -561,11 +564,11 @@
             box-sizing: border-box;
         }
         #cvQrBox img, #cvQrBox canvas { height: 208px !important; width: 208px !important; display: block; }
-        #cvPai { top: 121px; left: 315px; width: 550px; font-size: 15px; font-weight: 700; color: #000000; text-transform: uppercase; letter-spacing: 0px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
-        #cvMae { top: 148px; left: 315px; width: 550px; font-size: 15px; font-weight: 700; color: #000000; text-transform: uppercase; letter-spacing: 0px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
-        #cvOrgao { top: 301px; left: 315px; width: 200px; font-size: 15px; font-weight: 700; color: #000000; text-transform: uppercase; letter-spacing: 0px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
-        #cvLocal { top: 418px; left: 315px; width: 280px; font-size: 15px; font-weight: 700; color: #000000; text-transform: uppercase; letter-spacing: 0px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
-        #cvEmissao { top: 418px; left: 691px; width: 200px; font-size: 15px; font-weight: 700; color: #000000; letter-spacing: 0px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+        #cvPai { top: 121px; left: 315px; width: 550px; font-size: 14.5px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+        #cvMae { top: 148px; left: 315px; width: 550px; font-size: 14.5px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+        #cvOrgao { top: 301px; left: 315px; width: 200px; font-size: 14.5px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+        #cvLocal { top: 418px; left: 315px; width: 280px; font-size: 14.5px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+        #cvEmissao { top: 418px; left: 691px; width: 200px; font-size: 14.5px; font-weight: 600; color: #1a1a1a; letter-spacing: 0px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
         #cvSigBox {
             position: absolute;
             top: 442px;
@@ -1072,25 +1075,10 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
             document.getElementById('cfUf').textContent = (local.split('/')[0] || local).toUpperCase().trim();
             document.getElementById('cfSsp').textContent = orgao.toUpperCase().trim();
 
-            const isFrenteDefault = (nome.trim().toUpperCase() === DEFAULT_MELLYSSA.nome.toUpperCase() &&
-                                     cpf.trim() === DEFAULT_MELLYSSA.cpf &&
-                                     sexo.trim() === DEFAULT_MELLYSSA.sexo &&
-                                     nasc.trim() === DEFAULT_MELLYSSA.nasc &&
-                                     nac.trim() === DEFAULT_MELLYSSA.nac &&
-                                     nat.trim().toUpperCase() === DEFAULT_MELLYSSA.nat.toUpperCase() &&
-                                     val.trim() === DEFAULT_MELLYSSA.val &&
-                                     !nomeSocial.trim() &&
-                                     !isUserCustomPhoto && !isUserCustomSig);
-
             const elFrente = document.getElementById('viewFrenteContainer');
             if (elFrente) {
-                if (isFrenteDefault) {
-                    elFrente.style.backgroundImage = "url('assets/rg_frente_referencia_usuario.jpg')";
-                    document.querySelectorAll('#viewFrenteContainer .dyn-cin-field, #cfPhoto, #cfSigBox').forEach(el => el.style.opacity = '0');
-                } else {
-                    elFrente.style.backgroundImage = "url('assets/rg_frente_template_clean.png')";
-                    document.querySelectorAll('#viewFrenteContainer .dyn-cin-field, #cfPhoto, #cfSigBox').forEach(el => el.style.opacity = '1');
-                }
+                elFrente.style.backgroundImage = "url('assets/rg_frente_template_clean.png')";
+                document.querySelectorAll('#viewFrenteContainer .dyn-cin-field, #cfPhoto, #cfSigBox').forEach(el => el.style.opacity = '1');
             }
 
             // 2. Verso
@@ -1113,31 +1101,30 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
                 document.querySelectorAll('#viewVersoContainer .dyn-cin-field, #cvQrBox, #cvSigBox, #cvMrz').forEach(el => el.style.opacity = '1');
             }
 
-            // Atualiza assinatura em texto se não for personalizada
-            if (!isUserCustomSig) {
-                const sImg = document.getElementById('cfSigImg');
-                const sTxt = document.getElementById('cfSigText');
-                if (nome.trim().toUpperCase() === DEFAULT_MELLYSSA.nome.toUpperCase()) {
+            // Mantém sempre a assinatura oficial idêntica à referência da primeira foto (sem trocar para fonte cursiva)
+            const sImg = document.getElementById('cfSigImg');
+            const sTxt = document.getElementById('cfSigText');
+            if (sImg) {
+                if (!sImg.getAttribute('src') || (!sImg.src.startsWith('data:') && !sImg.src.includes('mellyssa_sig'))) {
                     sImg.src = 'assets/mellyssa_sig_clean.png';
-                    sImg.style.display = 'block';
-                    sTxt.style.display = 'none';
-                } else {
-                    sImg.style.display = 'none';
-                    sTxt.textContent = nome;
-                    sTxt.style.display = 'block';
                 }
+                sImg.style.display = 'block';
+            }
+            if (sTxt) {
+                sTxt.style.display = 'none';
             }
             mirrorSigVerso();
         }
 
         function mirrorSigVerso() {
-            const a = document.getElementById('cfSigImg'), b = document.getElementById('cfSigText');
-            const c = document.getElementById('cvSigImg'), d = document.getElementById('cvSigText');
+            const a = document.getElementById('cfSigImg');
+            const c = document.getElementById('cvSigImg');
             if (!a || !c) return;
-            if (c.getAttribute('src') !== a.getAttribute('src')) c.src = a.src;
-            c.style.display = a.style.display === 'none' ? 'none' : 'block';
-            d.textContent = b.textContent;
-            d.style.display = b.style.display === 'block' ? 'block' : 'none';
+            const srcA = a.getAttribute('src') || a.src;
+            if (c.getAttribute('src') !== srcA) c.src = srcA;
+            c.style.display = 'block';
+            const d = document.getElementById('cvSigText');
+            if (d) d.style.display = 'none';
         }
         window.addEventListener('load', function () {
             const obs = new MutationObserver(mirrorSigVerso);
