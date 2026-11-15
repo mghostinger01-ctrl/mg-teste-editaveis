@@ -531,13 +531,13 @@
         #cfNat { top: 503px; left: 334px; width: 250px; font-size: 14.5px; text-transform: uppercase; }
         #cfVal { top: 503px; left: 597px; width: 140px; font-size: 14.5px; }
 
-        /* Posições do Verso (Escala 989x685) */
+        /* Posições do Verso (Escala 1015x763) */
         #cvQrBox {
             position: absolute;
-            top: 150px;
-            left: 84px;
-            width: 236px;
-            height: 196px;
+            top: 140px;
+            left: 72px;
+            width: 198px;
+            height: 198px;
             background: #ffffff;
             display: flex;
             align-items: center;
@@ -546,18 +546,18 @@
             padding: 0;
             box-sizing: border-box;
         }
-        #cvQrBox img, #cvQrBox canvas { height: 190px !important; width: 190px !important; }
-        #cvPai { top: 130px; left: 316px; width: 560px; font-size: 15px; font-weight: 700; text-transform: uppercase; }
-        #cvMae { top: 157px; left: 316px; width: 560px; font-size: 15px; font-weight: 700; text-transform: uppercase; }
-        #cvOrgao { top: 298px; left: 316px; width: 200px; font-size: 14px; font-weight: 700; }
-        #cvLocal { top: 408px; left: 316px; width: 300px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; }
-        #cvEmissao { top: 408px; left: 662px; width: 180px; font-size: 13.5px; font-weight: 700; }
+        #cvQrBox img, #cvQrBox canvas { height: 198px !important; width: 198px !important; display: block; }
+        #cvPai { top: 111px; left: 308px; width: 550px; font-size: 14.5px; font-weight: 700; text-transform: uppercase; }
+        #cvMae { top: 137px; left: 308px; width: 550px; font-size: 14.5px; font-weight: 700; text-transform: uppercase; }
+        #cvOrgao { top: 283px; left: 308px; width: 200px; font-size: 14px; font-weight: 700; text-transform: uppercase; }
+        #cvLocal { top: 397px; left: 308px; width: 280px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; }
+        #cvEmissao { top: 397px; left: 660px; width: 180px; font-size: 13.5px; font-weight: 700; }
         #cvSigBox {
             position: absolute;
-            top: 424px;
-            left: 304px;
-            width: 372px;
-            height: 48px;
+            top: 418px;
+            left: 290px;
+            width: 380px;
+            height: 46px;
             display: flex;
             align-items: flex-end;
             justify-content: center;
@@ -568,13 +568,13 @@
         #cvSigText { display: none; font-family: 'Homemade Apple', cursive; font-size: 24px; color: #000; font-weight: 600; padding-bottom: 4px; }
         #cvMrz {
             position: absolute;
-            top: 628px;
-            left: 74px;
-            width: 900px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 26px;
-            line-height: 33.5px;
-            letter-spacing: 12.3px;
+            top: 618px;
+            left: 56px;
+            width: 880px;
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 19px;
+            line-height: 30px;
+            letter-spacing: 1px;
             font-weight: 700;
             color: #000000;
             white-space: pre;
@@ -1169,10 +1169,12 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
                 .split(/\s+/)
                 .join('<');
 
-            const l1 = `IDBRA${cleanCpf}${cleanCpf}<<<`.slice(0, 30).padEnd(30, '<');
-            const l2 = `${nascMrz}${sexMrz}${valMrz}BRA`.padEnd(30, '<').slice(0, 30);
-            const l3 = `${cleanNome.padEnd(30, '<').slice(0, 30)}`;
-            return `${l1}\n${l2}\n${l3}`;
+            const l1Raw = `IDBRA ${cleanCpf} ${cleanCpf}<<<`.slice(0, 31);
+            const l2Raw = `${nascMrz}${sexMrz}${valMrz}BRA<<<<<<<<<<<`.slice(0, 30);
+            const l3Raw = `${cleanNome.padEnd(30, '<').slice(0, 30)}`;
+
+            const formatMrzLine = (s) => s.split('').join(' ');
+            return `${formatMrzLine(l1Raw)}\n${formatMrzLine(l2Raw)}\n${formatMrzLine(l3Raw)}`;
         }
 
         // Renderiza o QR Code do Verso
@@ -1185,8 +1187,8 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
             if (window.QRCode) {
                 new QRCode(inner, {
                     text: qrUrl,
-                    width: 204,
-                    height: 204,
+                    width: 198,
+                    height: 198,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.M
