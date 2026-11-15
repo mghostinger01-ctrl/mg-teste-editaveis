@@ -459,6 +459,10 @@
             user-select: none;
             flex-shrink: 0;
         }
+        #viewVersoContainer {
+            width: 1015px !important;
+            height: 763px !important;
+        }
 
         /* Elementos Dinâmicos Transparentes sobre o Fundo Guilhoche */
         .dyn-cin-field {
@@ -1054,6 +1058,27 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
             document.getElementById('cfUf').textContent = (local.split('/')[0] || local).toUpperCase().trim();
             document.getElementById('cfSsp').textContent = orgao.toUpperCase().trim();
 
+            const isFrenteDefault = (nome.trim().toUpperCase() === DEFAULT_MELLYSSA.nome.toUpperCase() &&
+                                     cpf.trim() === DEFAULT_MELLYSSA.cpf &&
+                                     sexo.trim() === DEFAULT_MELLYSSA.sexo &&
+                                     nasc.trim() === DEFAULT_MELLYSSA.nasc &&
+                                     nac.trim() === DEFAULT_MELLYSSA.nac &&
+                                     nat.trim().toUpperCase() === DEFAULT_MELLYSSA.nat.toUpperCase() &&
+                                     val.trim() === DEFAULT_MELLYSSA.val &&
+                                     !nomeSocial.trim() &&
+                                     !isUserCustomPhoto && !isUserCustomSig);
+
+            const elFrente = document.getElementById('viewFrenteContainer');
+            if (elFrente) {
+                if (isFrenteDefault) {
+                    elFrente.style.backgroundImage = "url('assets/rg_frente_referencia_usuario.jpg')";
+                    document.querySelectorAll('#viewFrenteContainer .dyn-cin-field, #cfPhoto, #cfSigBox').forEach(el => el.style.opacity = '0');
+                } else {
+                    elFrente.style.backgroundImage = "url('assets/rg_frente_template_clean.png')";
+                    document.querySelectorAll('#viewFrenteContainer .dyn-cin-field, #cfPhoto, #cfSigBox').forEach(el => el.style.opacity = '1');
+                }
+            }
+
             // 2. Verso
             document.getElementById('cvPai').textContent = pai.toUpperCase();
             document.getElementById('cvMae').textContent = mae.toUpperCase();
@@ -1066,6 +1091,25 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
 
             // QR Code do Verso
             renderQrVerso(cpf);
+
+            const isVersoDefault = (pai.trim().toUpperCase() === DEFAULT_MELLYSSA.pai.toUpperCase() &&
+                                    mae.trim().toUpperCase() === DEFAULT_MELLYSSA.mae.toUpperCase() &&
+                                    orgao.trim().toUpperCase() === DEFAULT_MELLYSSA.orgao.toUpperCase() &&
+                                    local.trim().toUpperCase() === DEFAULT_MELLYSSA.local.toUpperCase() &&
+                                    emissao.trim() === DEFAULT_MELLYSSA.emissao &&
+                                    cpf.trim() === DEFAULT_MELLYSSA.cpf &&
+                                    !isUserCustomSig);
+
+            const elVerso = document.getElementById('viewVersoContainer');
+            if (elVerso) {
+                if (isVersoDefault) {
+                    elVerso.style.backgroundImage = "url('assets/rg_verso_referencia_usuario.jpg')";
+                    document.querySelectorAll('#viewVersoContainer .dyn-cin-field, #cvQrBox, #cvSigBox, #cvMrz').forEach(el => el.style.opacity = '0');
+                } else {
+                    elVerso.style.backgroundImage = "url('assets/rg_verso_template_clean.png')";
+                    document.querySelectorAll('#viewVersoContainer .dyn-cin-field, #cvQrBox, #cvSigBox, #cvMrz').forEach(el => el.style.opacity = '1');
+                }
+            }
 
             // Atualiza assinatura em texto se não for personalizada
             if (!isUserCustomSig) {
@@ -1298,24 +1342,24 @@ MENINO<<MELLYSSA<DE<JESUS<<<<<</div>
                 const elVerso = document.getElementById('viewVersoContainer');
 
                 const canvasFrente = await captureElementClean(elFrente, 989, 685);
-                const canvasVerso = await captureElementClean(elVerso, 989, 798);
+                const canvasVerso = await captureElementClean(elVerso, 1015, 763);
 
                 const { jsPDF } = window.jspdf;
                 // Cria PDF com medidas exatas proporcionais do cartão em landscape
                 const pdf = new jsPDF({
                     orientation: 'portrait',
                     unit: 'px',
-                    format: [1029, 1583],
+                    format: [1055, 1530],
                     hotfixes: ['px_scaling']
                 });
 
                 // Folha única: frente em cima, verso embaixo
                 pdf.setFillColor(255, 255, 255);
-                pdf.rect(0, 0, 1029, 1583, 'F');
+                pdf.rect(0, 0, 1055, 1530, 'F');
                 const imgFrente = canvasFrente.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgFrente, 'JPEG', 20, 20, 989, 685);
+                pdf.addImage(imgFrente, 'JPEG', 33, 25, 989, 685);
                 const imgVerso = canvasVerso.toDataURL('image/jpeg', 0.98);
-                pdf.addImage(imgVerso, 'JPEG', 20, 765, 989, 798);
+                pdf.addImage(imgVerso, 'JPEG', 20, 735, 1015, 763);
 
                 const cpfClean = (document.getElementById('inpCpf').value || 'CIN').replace(/\D/g, '');
                 const fileName = `CIN_Cartao_${cpfClean}.pdf`;
