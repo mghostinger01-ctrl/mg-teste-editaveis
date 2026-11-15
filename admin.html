@@ -2219,6 +2219,24 @@
         }
 
 
+        /* ─── VIP STAT CARDS ELEGANTES & MODERNOS ─── */
+        .stat-card-vip {
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            cursor: default;
+        }
+        .stat-card-vip:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5) !important;
+        }
+        body.light-theme .stat-card-vip {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+        }
+        body.light-theme .stat-card-vip .stat-val {
+            color: #0f172a !important;
+        }
+
         /* ─── BOTÃO FLUTUANTE PULSANTE OCULTO NO ADMIN (DISPONÍVEL APENAS NO PAINEL CLIENTE) ─── */
         .networking-fab {
             display: none !important;
@@ -3656,64 +3674,120 @@
 
             <!-- TAB: ASSINANTES & PLANOS DE REVENDA -->
             <div class="view-panel" id="view-assinantes">
-                <div class="section-header">
+                <div class="section-header" style="margin-bottom: 22px;">
                     <div class="sec-title-group">
-                        <div class="sec-title" style="display:flex; align-items:center; gap:10px;">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d946ef" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                            <span>Gestão de Assinantes & Planos de Revenda</span>
+                        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                            <div style="width:46px; height:46px; border-radius:14px; background:linear-gradient(135deg, rgba(217,70,239,0.2) 0%, rgba(168,85,247,0.15) 100%); border:1px solid rgba(217,70,239,0.35); display:flex; align-items:center; justify-content:center; color:#d946ef; box-shadow:0 0 24px rgba(217,70,239,0.25); flex-shrink:0;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            </div>
+                            <div>
+                                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                    <div class="sec-title" style="margin:0; font-size:21px; font-weight:800; letter-spacing:-0.3px; display:inline-flex; align-items:center; gap:8px;">
+                                        Gestão de Assinantes <span style="background:linear-gradient(135deg, #d946ef 0%, #c084fc 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">& Planos de Revenda</span>
+                                    </div>
+                                    <span style="font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; padding:3px 10px; border-radius:20px; background:rgba(217,70,239,0.12); color:#d946ef; border:1px solid rgba(217,70,239,0.3);">
+                                        👑 Tiers & Benefícios
+                                    </span>
+                                </div>
+                                <div class="sec-subtitle" style="margin-top:4px; font-size:12.5px; color:#94a3b8;">
+                                    Atribua planos com descontos automáticos em emissões de documentos e comissões sobre recargas para clientes.
+                                </div>
+                            </div>
                         </div>
-                        <div class="sec-subtitle">Gerencie os planos de revenda dos usuários, libere acessos manuais, cancele assinaturas e controle os descontos em documentos e comissões.</div>
                     </div>
                 </div>
 
-                <!-- 4 KPI STAT CARDS -->
+                <!-- 4 KPI STAT CARDS ULTRA MODERNOS -->
                 <div class="grid-4" style="margin-bottom:24px; gap:16px;">
-                    <div class="card stat-card" style="border:1px solid rgba(217,70,239,0.25); background:linear-gradient(145deg, rgba(217,70,239,0.08) 0%, rgba(20,23,24,0.95) 100%); border-radius:14px; position:relative; overflow:hidden;">
+                    <!-- CARD 1: ASSINANTES ATIVOS -->
+                    <div class="card stat-card-vip" style="background:radial-gradient(circle at top right, rgba(217,70,239,0.12) 0%, rgba(20,22,25,0.95) 75%); border:1px solid rgba(217,70,239,0.25); border-radius:16px; padding:20px 22px; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.35);">
                         <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #d946ef, #a855f7);"></div>
-                        <div class="stat-top">
-                            <span class="stat-label" style="font-weight:700; color:#e2e8f0;">Assinantes Ativos</span>
-                            <div class="stat-icon-wrap" style="background:rgba(217,70,239,0.18); color:#d946ef; box-shadow:0 0 14px rgba(217,70,239,0.25); border-radius:10px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:12.5px; font-weight:800; color:#e2e8f0; letter-spacing:0.3px;">Assinantes Ativos</span>
+                                <span style="font-size:9.5px; font-weight:800; padding:2px 7px; border-radius:10px; background:rgba(217,70,239,0.15); color:#d946ef; border:1px solid rgba(217,70,239,0.3);">BASE VIP</span>
+                            </div>
+                            <div style="width:36px; height:36px; border-radius:10px; background:rgba(217,70,239,0.15); color:#d946ef; border:1px solid rgba(217,70,239,0.3); display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(217,70,239,0.25);">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                             </div>
                         </div>
-                        <div class="stat-val" id="statAssinantesAtivos" style="color:#fff; font-size:28px; font-weight:800; margin:4px 0;">0</div>
-                        <div class="stat-sub" style="color:#94a3b8; font-size:12px;">Usuários com plano ativo</div>
+                        <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:14px;">
+                            <div class="stat-val" id="statAssinantesAtivos" style="color:#ffffff; font-size:36px; font-weight:900; line-height:1; letter-spacing:-1px;">0</div>
+                            <span style="font-size:12px; font-weight:600; color:#94a3b8;">clientes ativos</span>
+                        </div>
+                        <div style="padding-top:12px; border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between; font-size:11.5px;">
+                            <span style="color:#94a3b8; display:flex; align-items:center; gap:6px;">
+                                <span style="width:6px; height:6px; border-radius:50%; background:#00dc82; box-shadow:0 0 6px #00dc82;"></span>
+                                Base de revenda
+                            </span>
+                            <span style="color:#d946ef; font-weight:700;">Todos os planos</span>
+                        </div>
                     </div>
 
-                    <div class="card stat-card" style="border:1px solid rgba(59,130,246,0.25); background:linear-gradient(145deg, rgba(59,130,246,0.08) 0%, rgba(20,23,24,0.95) 100%); border-radius:14px; position:relative; overflow:hidden;">
+                    <!-- CARD 2: PLANO STARTER -->
+                    <div class="card stat-card-vip" style="background:radial-gradient(circle at top right, rgba(59,130,246,0.12) 0%, rgba(20,22,25,0.95) 75%); border:1px solid rgba(59,130,246,0.25); border-radius:16px; padding:20px 22px; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.35);">
                         <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #3b82f6, #60a5fa);"></div>
-                        <div class="stat-top">
-                            <span class="stat-label" style="font-weight:700; color:#e2e8f0;">Plano Starter</span>
-                            <div class="stat-icon-wrap" style="background:rgba(59,130,246,0.18); color:#3b82f6; box-shadow:0 0 14px rgba(59,130,246,0.25); border-radius:10px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:12.5px; font-weight:800; color:#e2e8f0; letter-spacing:0.3px;">Plano Starter</span>
+                                <span style="font-size:9.5px; font-weight:800; padding:2px 7px; border-radius:10px; background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3);">R$ 150,00</span>
+                            </div>
+                            <div style="width:36px; height:36px; border-radius:10px; background:rgba(59,130,246,0.15); color:#3b82f6; border:1px solid rgba(59,130,246,0.3); display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(59,130,246,0.25);">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                             </div>
                         </div>
-                        <div class="stat-val" id="statAssinantesStarter" style="color:#3b82f6; font-size:28px; font-weight:800; margin:4px 0;">0</div>
-                        <div class="stat-sub" style="color:#94a3b8; font-size:12px;">25% OFF • R$ 150,00 • 3% comissão</div>
+                        <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:14px;">
+                            <div class="stat-val" id="statAssinantesStarter" style="color:#60a5fa; font-size:36px; font-weight:900; line-height:1; letter-spacing:-1px;">0</div>
+                            <span style="font-size:12px; font-weight:600; color:#94a3b8;">assinantes</span>
+                        </div>
+                        <div style="padding-top:12px; border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                            <span style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; background:rgba(59,130,246,0.12); color:#93c5fd; border:1px solid rgba(59,130,246,0.25);">🏷️ 25% OFF Docs</span>
+                            <span style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; background:rgba(0,220,130,0.1); color:#00dc82; border:1px solid rgba(0,220,130,0.25);">💸 3% Comissão</span>
+                        </div>
                     </div>
 
-                    <div class="card stat-card" style="border:1px solid rgba(217,70,239,0.25); background:linear-gradient(145deg, rgba(168,85,247,0.08) 0%, rgba(20,23,24,0.95) 100%); border-radius:14px; position:relative; overflow:hidden;">
-                        <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #a855f7, #d946ef);"></div>
-                        <div class="stat-top">
-                            <span class="stat-label" style="font-weight:700; color:#e2e8f0;">Plano Master Pro</span>
-                            <div class="stat-icon-wrap" style="background:rgba(217,70,239,0.18); color:#d946ef; box-shadow:0 0 14px rgba(217,70,239,0.25); border-radius:10px;">
+                    <!-- CARD 3: PLANO MASTER PRO -->
+                    <div class="card stat-card-vip" style="background:radial-gradient(circle at top right, rgba(217,70,239,0.14) 0%, rgba(20,22,25,0.95) 75%); border:1px solid rgba(217,70,239,0.3); border-radius:16px; padding:20px 22px; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(217,70,239,0.15);">
+                        <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #d946ef, #c084fc);"></div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:12.5px; font-weight:800; color:#e2e8f0; letter-spacing:0.3px;">Plano Master Pro</span>
+                                <span style="font-size:9.5px; font-weight:800; padding:2px 7px; border-radius:10px; background:rgba(217,70,239,0.18); color:#f0abfc; border:1px solid rgba(217,70,239,0.35);">POPULAR • R$ 450</span>
+                            </div>
+                            <div style="width:36px; height:36px; border-radius:10px; background:rgba(217,70,239,0.18); color:#d946ef; border:1px solid rgba(217,70,239,0.35); display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(217,70,239,0.3);">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                             </div>
                         </div>
-                        <div class="stat-val" id="statAssinantesMaster" style="color:#d946ef; font-size:28px; font-weight:800; margin:4px 0;">0</div>
-                        <div class="stat-sub" style="color:#94a3b8; font-size:12px;">50% OFF • R$ 450,00 • 5% comissão</div>
+                        <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:14px;">
+                            <div class="stat-val" id="statAssinantesMaster" style="color:#f0abfc; font-size:36px; font-weight:900; line-height:1; letter-spacing:-1px;">0</div>
+                            <span style="font-size:12px; font-weight:600; color:#94a3b8;">assinantes</span>
+                        </div>
+                        <div style="padding-top:12px; border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                            <span style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; background:rgba(217,70,239,0.15); color:#f0abfc; border:1px solid rgba(217,70,239,0.3);">🏷️ 50% OFF Docs</span>
+                            <span style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; background:rgba(0,220,130,0.1); color:#00dc82; border:1px solid rgba(0,220,130,0.25);">💸 5% Comissão</span>
+                        </div>
                     </div>
 
-                    <div class="card stat-card" style="border:1px solid rgba(6,182,212,0.25); background:linear-gradient(145deg, rgba(6,182,212,0.08) 0%, rgba(20,23,24,0.95) 100%); border-radius:14px; position:relative; overflow:hidden;">
-                        <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #06b6d4, #10b981);"></div>
-                        <div class="stat-top">
-                            <span class="stat-label" style="font-weight:700; color:#e2e8f0;">Plano Prime VIP</span>
-                            <div class="stat-icon-wrap" style="background:rgba(6,182,212,0.18); color:#06b6d4; box-shadow:0 0 14px rgba(6,182,212,0.25); border-radius:10px;">
+                    <!-- CARD 4: PLANO PRIME VIP -->
+                    <div class="card stat-card-vip" style="background:radial-gradient(circle at top right, rgba(6,182,212,0.14) 0%, rgba(20,22,25,0.95) 75%); border:1px solid rgba(6,182,212,0.3); border-radius:16px; padding:20px 22px; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(6,182,212,0.15);">
+                        <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #06b6d4, #00dc82);"></div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:12.5px; font-weight:800; color:#e2e8f0; letter-spacing:0.3px;">Plano Prime VIP</span>
+                                <span style="font-size:9.5px; font-weight:800; padding:2px 7px; border-radius:10px; background:rgba(6,182,212,0.18); color:#67e8f9; border:1px solid rgba(6,182,212,0.35);">👑 VITALÍCIO • R$ 999</span>
+                            </div>
+                            <div style="width:36px; height:36px; border-radius:10px; background:rgba(6,182,212,0.18); color:#06b6d4; border:1px solid rgba(6,182,212,0.35); display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(6,182,212,0.3);">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
                             </div>
                         </div>
-                        <div class="stat-val" id="statAssinantesPrime" style="color:#06b6d4; font-size:28px; font-weight:800; margin:4px 0;">0</div>
-                        <div class="stat-sub" style="color:#94a3b8; font-size:12px;">100% OFF Docs Grátis • 7% comissão</div>
+                        <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:14px;">
+                            <div class="stat-val" id="statAssinantesPrime" style="color:#67e8f9; font-size:36px; font-weight:900; line-height:1; letter-spacing:-1px;">0</div>
+                            <span style="font-size:12px; font-weight:600; color:#94a3b8;">assinantes</span>
+                        </div>
+                        <div style="padding-top:12px; border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                            <span style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; background:rgba(6,182,212,0.15); color:#67e8f9; border:1px solid rgba(6,182,212,0.3);">✨ Docs 100% Grátis</span>
+                            <span style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:6px; background:rgba(0,220,130,0.1); color:#00dc82; border:1px solid rgba(0,220,130,0.25);">💸 7% Comissão</span>
+                        </div>
                     </div>
                 </div>
 
