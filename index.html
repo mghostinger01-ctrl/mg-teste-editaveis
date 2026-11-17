@@ -1794,6 +1794,14 @@
                             <span class="action-desc">Atestado Médico Timbrado</span>
                         </a>
 
+                        <a href="criar-receita-unimed.html" class="action-card">
+                            <div class="action-icon-box green">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>
+                            </div>
+                            <span class="action-title">Receita Unimed</span>
+                            <span class="action-desc">Receita Médica Digital Oficial</span>
+                        </a>
+
                         <a href="criar-comprovante.html" class="action-card">
                             <div class="action-icon-box green">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
@@ -2186,15 +2194,6 @@
                     const localCnhs = JSON.parse(localStorage.getItem('happynation_cnhs_' + emailNorm) || '[]');
                     if (Array.isArray(localCnhs)) localCnhs.forEach(item => addAct(item, 'CNH'));
                 }
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_cnhs_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(item => addAct(item, 'CNH'));
-                    }
-                }
-                const adminCnhs = JSON.parse(localStorage.getItem('happynation_admin_cnhs') || '[]');
-                if (Array.isArray(adminCnhs)) adminCnhs.forEach(item => addAct(item, 'CNH'));
             } catch(e) {}
 
             // 2. Carregar ATESTADOS MÉDICOS
@@ -2203,15 +2202,6 @@
                     const localAtestados = JSON.parse(localStorage.getItem('happynation_atestados_' + emailNorm) || '[]');
                     if (Array.isArray(localAtestados)) localAtestados.forEach(item => addAct(item, 'ATESTADO'));
                 }
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_atestados_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(item => addAct(item, 'ATESTADO'));
-                    }
-                }
-                const adminAtestados = JSON.parse(localStorage.getItem('happynation_admin_atestados') || '[]');
-                if (Array.isArray(adminAtestados)) adminAtestados.forEach(item => addAct(item, 'ATESTADO'));
             } catch(e) {}
 
             // 3. Carregar EXAMES TOXICOLÓGICOS
@@ -2220,95 +2210,61 @@
                     const localExames = JSON.parse(localStorage.getItem('happynation_exames_' + emailNorm) || '[]');
                     if (Array.isArray(localExames)) localExames.forEach(item => addAct(item, 'EXAME'));
                 }
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_exames_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(item => addAct(item, 'EXAME'));
-                    }
-                }
-                const adminExames = JSON.parse(localStorage.getItem('happynation_admin_exames') || '[]');
-                if (Array.isArray(adminExames)) adminExames.forEach(item => addAct(item, 'EXAME'));
             } catch(e) {}
 
             // 4. Carregar DIPLOMAS UNIVERSITÁRIOS
             try {
-                const histDips = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
-                if (Array.isArray(histDips)) histDips.forEach(item => addAct(item, 'DIPLOMA'));
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_diplomas_') && k !== 'happynation_diplomas_history') {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(item => addAct(item, 'DIPLOMA'));
-                    }
+                if (emailNorm) {
+                    const localDips = JSON.parse(localStorage.getItem('happynation_diplomas_' + emailNorm) || '[]');
+                    if (Array.isArray(localDips)) localDips.forEach(item => addAct(item, 'DIPLOMA'));
                 }
             } catch(e) {}
 
             // 5. Carregar PRONTUÁRIOS DETRAN
             try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_prontuarios_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(item => addAct(item, 'PRONTUÁRIO'));
-                    }
+                if (emailNorm) {
+                    const localPront = JSON.parse(localStorage.getItem('happynation_prontuarios_' + emailNorm) || '[]');
+                    if (Array.isArray(localPront)) localPront.forEach(item => addAct(item, 'PRONTUÁRIO'));
                 }
             } catch(e) {}
 
             // 6. Carregar ATESTADOS UNIMED
             try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_atestados_unimed_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(item => addAct(item, 'ATESTADO UNIMED'));
-                    }
+                if (emailNorm) {
+                    const localUnimed = JSON.parse(localStorage.getItem('happynation_atestados_unimed_' + emailNorm) || '[]');
+                    if (Array.isArray(localUnimed)) localUnimed.forEach(item => addAct(item, 'ATESTADO UNIMED'));
                 }
             } catch(e) {}
 
             // 7. Carregar RECEITAS UNIMED
             try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_receitas_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(item => addAct(item, 'RECEITA UNIMED'));
-                    }
+                if (emailNorm) {
+                    const localRec = JSON.parse(localStorage.getItem('happynation_receitas_' + emailNorm) || '[]');
+                    if (Array.isArray(localRec)) localRec.forEach(item => addAct(item, 'RECEITA UNIMED'));
                 }
             } catch(e) {}
 
             // 8. Carregar COMPROVANTES MERCADO PAGO
             try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_comprovantes_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(item => addAct(item, 'COMPROVANTE'));
-                    }
+                if (emailNorm) {
+                    const localComp = JSON.parse(localStorage.getItem('happynation_comprovantes_' + emailNorm) || '[]');
+                    if (Array.isArray(localComp)) localComp.forEach(item => addAct(item, 'COMPROVANTE'));
                 }
             } catch(e) {}
 
             // 9. Carregar CERTIFICADOS DE RESERVISTA
             try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_reservistas_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(item => addAct(item, 'RESERVISTA'));
-                    }
+                if (emailNorm) {
+                    const localRes = JSON.parse(localStorage.getItem('happynation_reservistas_' + emailNorm) || '[]');
+                    if (Array.isArray(localRes)) localRes.forEach(item => addAct(item, 'RESERVISTA'));
                 }
             } catch(e) {}
 
             // 10. Carregar CERTIFICADOS DE CONDUTOR (ICETRAN)
             try {
-                const histCerts = JSON.parse(localStorage.getItem('icetran_historico') || '[]');
-                if (Array.isArray(histCerts)) histCerts.forEach(item => addAct(item, 'CERTIFICADO'));
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_certificados_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(item => addAct(item, 'CERTIFICADO'));
-                    }
+                if (emailNorm) {
+                    const localCerts = JSON.parse(localStorage.getItem('happynation_certificados_' + emailNorm) || '[]');
+                    if (Array.isArray(localCerts)) localCerts.forEach(item => addAct(item, 'CERTIFICADO'));
                 }
             } catch(e) {}
 

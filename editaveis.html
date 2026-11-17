@@ -2091,6 +2091,13 @@
                     const el = document.getElementById('priceReservista');
                     if (el) el.textContent = parseFloat(resPrice).toFixed(2).replace('.', ',');
                 }
+
+                // 12. Certificado de Condutor ICETRAN
+                const icePrice = (sourceConfigs && (sourceConfigs.icetran_price || sourceConfigs.icetran)) || localStorage.getItem('happynation_icetran_price');
+                if (icePrice) {
+                    const el = document.getElementById('priceIcetran');
+                    if (el) el.textContent = parseFloat(icePrice).toFixed(2).replace('.', ',');
+                }
             } catch(e) {
                 console.warn('[Editaveis] Erro ao carregar preços:', e);
             }
@@ -2169,8 +2176,13 @@
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if (btn) btn.classList.add('active');
 
+            const admin = isUserAdmin();
             const cards = document.querySelectorAll('.doc-card');
             cards.forEach(c => {
+                if (!admin && c.classList.contains('card-crlv-em-desenvolvimento')) {
+                    c.style.display = 'none';
+                    return;
+                }
                 if (cat === 'todos') {
                     c.style.display = 'flex';
                 } else {
@@ -2186,9 +2198,14 @@
 
         // Busca em tempo real por texto
         function filterCards() {
+            const admin = isUserAdmin();
             const q = (document.getElementById('searchInp')?.value || '').toLowerCase().trim();
             const cards = document.querySelectorAll('.doc-card');
             cards.forEach(c => {
+                if (!admin && c.classList.contains('card-crlv-em-desenvolvimento')) {
+                    c.style.display = 'none';
+                    return;
+                }
                 const name = (c.getAttribute('data-name') || '').toLowerCase();
                 const title = (c.querySelector('.card-title')?.textContent || '').toLowerCase();
                 const desc = (c.querySelector('.card-desc')?.textContent || '').toLowerCase();
@@ -2381,30 +2398,30 @@
             diploma: {
                 category: 'UNINTER • ENSINO SUPERIOR & MEC',
                 title: 'Diploma Universitário Uninter',
-                accent: '#f43f5e',
+                accent: '#2563eb',
                 link: 'criar-diploma.html',
                 devLink: 'criar-diploma.html',
-                btnText: '🔧 Em Desenvolvimento',
-                isDev: true,
+                btnText: 'Emitir Diploma Agora',
+                isDev: false,
                 html: `
                     <div class="doc-modal-intro">
                         O <strong>Diploma Universitário Uninter</strong> segue as normas oficiais do Centro Universitário Internacional (UNINTER) e Ministério da Educação (MEC), contendo chave de validação criptográfica padrão ICP-Brasil, XML assinado e QR Code de verificação pública.
                     </div>
-                    <div class="doc-modal-box" style="--accent:#f43f5e;">
-                        <div class="doc-modal-box-header" style="color:#f43f5e;">
+                    <div class="doc-modal-box" style="--accent:#2563eb;">
+                        <div class="doc-modal-box-header" style="color:#2563eb;">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                             <span>Destaques Técnicos</span>
                         </div>
                         <ul class="doc-modal-list">
-                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>QR Code oficial com link direto para validação de autenticidade acadêmica</span></li>
-                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Assinatura com certificados digitais padrão ICP-Brasil e carimbo do tempo</span></li>
-                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Registro acadêmico completo com número de processo, livro e folha</span></li>
-                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Exportação em PDF de alta resolução com bordas clássicas ornamentadas</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>QR Code oficial com link direto para validação de autenticidade acadêmica</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Assinatura com certificados digitais padrão ICP-Brasil e carimbo do tempo</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Registro acadêmico completo com número de processo, livro e folha</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Exportação em PDF de alta resolução com bordas clássicas ornamentadas</span></li>
                         </ul>
                     </div>
                     <div class="doc-modal-note">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                        <span>Módulo em fase de desenvolvimento. Em breve disponível no painel.</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                        <span>Documento universitário ativo e liberado para emissão imediata.</span>
                     </div>
                 `
             },
@@ -2750,18 +2767,21 @@
             document.getElementById('docModal').classList.add('active');
         }
 
-        // Aplica privilégios de Administrador nos cards do catálogo
+        // Aplica privilégios de Administrador nos cards do catálogo ou oculta rascunhos para clientes
         function applyAdminCatalogAccess() {
-            if (!isUserAdmin()) return;
+            const admin = isUserAdmin();
+            if (!admin) {
+                // Para clientes e usuários em geral: mantém disponíveis exclusivamente os 10 modelos oficiais prontos
+                document.querySelectorAll('article.card-crlv-em-desenvolvimento').forEach(c => {
+                    c.style.display = 'none';
+                });
+                return;
+            }
 
             const devCards = [
                 { match: 'crlv', link: 'criar-crlv.html', name: 'CRLV Digital', accent: '#10b981' },
                 { match: 'cin', link: 'criar-rg.html', history: 'rg.html', name: 'RG Digital', accent: '#3b82f6' },
-                { match: 'diploma', link: 'criar-diploma.html', name: 'Diploma Uninter', accent: '#2563eb' },
-                { match: 'unimed', link: 'criar-unimed.html', name: 'Atestado Unimed', accent: '#00995D' },
                 { match: 'atpv', link: 'criar-dut.html', name: 'DUT ATPV-e', accent: '#f97316' },
-                { match: 'comprovante', link: 'criar-comprovante.html', name: 'Comprovante MP', accent: '#009ee3' },
-                { match: 'reservista', link: 'criar-reservista.html', name: 'Reservista Militar', accent: '#16a34a' },
                 { match: 'direcional', link: 'criar-certificado-direcional.html', name: 'Certificado Direcional (DETRAN-PA)', accent: '#d97706' }
             ];
 
