@@ -1851,8 +1851,8 @@ function loadUserCnhs(user) {
     renderTable();
 
     // 5. Sincronização direta com Supabase Cloud em tempo real
-    const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-    const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+    const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+    const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
     fetch(SUP_URL + '/rest/v1/cnhs?select=*', {
         headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
     })
@@ -2321,8 +2321,8 @@ async function deleteSelectedCnhs() {
     }).catch(() => {});
 
     // 4. Deleta do Supabase Cloud
-    const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-    const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+    const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+    const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
     ids.forEach(cnhId => {
         fetch(SUP_URL + '/rest/v1/cnhs?id=eq.' + encodeURIComponent(cnhId), {
             method: 'DELETE',
@@ -2439,8 +2439,8 @@ function deleteCnhRow(cnhId) {
     fetch('api/db/cnhs/' + encodeURIComponent(cnhId), { method: 'DELETE' }).catch(() => {});
 
     // Remove do Supabase Cloud
-    const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-    const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+    const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+    const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
     fetch(SUP_URL + '/rest/v1/cnhs?id=eq.' + encodeURIComponent(cnhId), {
         method: 'DELETE',
         headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }

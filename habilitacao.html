@@ -468,8 +468,8 @@
             // Sincroniza com o Supabase Cloud
             if (activeCpf) {
                 try {
-                    const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                    const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                    const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                    const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                     const supR = await fetch(`${SUP_URL}/rest/v1/cnhs?select=*`, {
                         headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
                     });
@@ -530,7 +530,7 @@
             try {
                 if (window.supabase && !window._habRealtime) {
                     window._habRealtime = true;
-                    const _sb = window.supabase.createClient('https://cbxcvvtelhpdcssgpnii.supabase.co', 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK');
+                    const _sb = window.supabase.createClient('https://bgaurmeuimrtvawworxv.supabase.co', 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ');
                     _sb.channel('hab_realtime_sync')
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'cnhs' }, () => {
                             loadActiveCnhSlides();

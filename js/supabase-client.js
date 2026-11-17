@@ -6,8 +6,8 @@
 (function () {
     'use strict';
 
-    const SUPABASE_PROJECT_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+    const SUPABASE_PROJECT_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
 
     let _instance = null;
 
@@ -334,10 +334,10 @@
             const client = getClient();
             if (!client) {
                 try {
-                    const r = await fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/indicacoes?select=*&order=created_at.desc', {
+                    const r = await fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/indicacoes?select=*&order=created_at.desc', {
                         headers: {
-                            'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                            'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK'
+                            'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ'
                         }
                     });
                     const d = await r.json();
@@ -361,7 +361,7 @@
             const client = getClient();
             if (!client) {
                 try {
-                    let url = 'https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/indicacoes?select=*';
+                    let url = 'https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/indicacoes?select=*';
                     if (indicadorId && email) {
                         url += '&or=(indicador_id.eq.' + encodeURIComponent(indicadorId) + ',indicador_email.eq.' + encodeURIComponent(email.toLowerCase()) + ')';
                     } else if (indicadorId) {
@@ -372,8 +372,8 @@
                     url += '&order=created_at.desc';
                     const r = await fetch(url, {
                         headers: {
-                            'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                            'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK'
+                            'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ'
                         }
                     });
                     const d = await r.json();
@@ -402,11 +402,11 @@
             const client = getClient();
             if (!client) {
                 try {
-                    const r = await fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/indicacoes?id=eq.' + encodeURIComponent(id), {
+                    const r = await fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/indicacoes?id=eq.' + encodeURIComponent(id), {
                         method: 'PATCH',
                         headers: {
-                            'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                            'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
+                            'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify(updateFields)
@@ -442,10 +442,10 @@
             const client = getClient();
             if (!client) {
                 try {
-                    const r = await fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/configuracoes?select=*', {
+                    const r = await fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/configuracoes?select=*', {
                         headers: {
-                            'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                            'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK'
+                            'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ'
                         }
                     });
                     const d = await r.json();
@@ -484,11 +484,11 @@
 
             if (!ok) {
                 try {
-                    const res = await fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/configuracoes', {
+                    const res = await fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/configuracoes', {
                         method: 'POST',
                         headers: {
-                            'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                            'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
+                            'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
                             'Content-Type': 'application/json',
                             'Prefer': 'resolution=merge-duplicates'
                         },

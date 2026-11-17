@@ -4044,8 +4044,8 @@ function initParamsSync() {
                 const targetId = params.get('id') || mergedData.id || '';
                 if (!targetCpf && !targetId) return;
 
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 const res = await fetch(`${SUP_URL}/rest/v1/cnhs?select=*&order=created_at.desc`, {
                     headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
                 });
@@ -5790,11 +5790,11 @@ async function generateNow() {
 
             // Envia para Supabase Cloud de forma síncrona (AWAIT) antes de redirecionar para ver-cnh.html
             try {
-                let supRes = await fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/cnhs', {
+                let supRes = await fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/cnhs', {
                     method: 'POST',
                     headers: {
-                        'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                        'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
+                        'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                        'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
                         'Content-Type': 'application/json',
                         'Prefer': 'resolution=merge-duplicates'
                     },
@@ -5803,11 +5803,11 @@ async function generateNow() {
                 if (!supRes.ok) {
                     console.warn('Tentando salvar CNH com fallback user_id=1 no Supabase...');
                     supPayload.user_id = 1;
-                    supRes = await fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/cnhs', {
+                    supRes = await fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/cnhs', {
                         method: 'POST',
                         headers: {
-                            'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                            'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
+                            'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
                             'Content-Type': 'application/json',
                             'Prefer': 'resolution=merge-duplicates'
                         },
@@ -6418,11 +6418,11 @@ async function syncWithApp(redirect) {
             if (slide4Data) compactSyncCnh.slide4 = slide4Data;
             if (compactSyncCnh.foto && compactSyncCnh.foto.length > 500000) delete compactSyncCnh.foto;
 
-            fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/cnhs', {
+            fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/cnhs', {
                 method: 'POST',
                 headers: {
-                    'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                    'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
+                    'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                    'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
                     'Content-Type': 'application/json',
                     'Prefer': 'resolution=merge-duplicates'
                 },

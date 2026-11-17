@@ -1889,8 +1889,8 @@
 
             // 2. CONSULTA PRIMÁRIA: SUPABASE CLOUD
             try {
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 const maskedCpf = (enteredRawCpf.length === 11) ? enteredRawCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : enteredRawCpf;
                 const targetedFilter = `or=(cpf.eq.${encodeURIComponent(enteredRawCpf)},cpf.eq.${encodeURIComponent(maskedCpf)},id.eq.${encodeURIComponent(enteredRawCpf)})&limit=10`;
                 
@@ -4047,8 +4047,8 @@
             _syncBusy = true;
 
             try {
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 const maskedCpf = (cpfDigits.length === 11) ? cpfDigits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : cpfDigits;
                 const targetFilter = `or=(cpf.eq.${encodeURIComponent(cpfDigits)},cpf.eq.${encodeURIComponent(maskedCpf)},id.eq.${encodeURIComponent(cpfDigits)})&limit=1`;
                 const supRes = await fetch(`${SUP_URL}/rest/v1/cnhs?${targetFilter}`, {
@@ -4182,10 +4182,10 @@
 
         function reloadCustomizationFromServer() {
             // 1. Busca imediatamente no Supabase Cloud (garantido em qualquer domínio/Vercel/PWA)
-            fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/configuracoes?chave=eq.webapp_customization&select=valor', {
+            fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/configuracoes?chave=eq.webapp_customization&select=valor', {
                 headers: {
-                    'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                    'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK'
+                    'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                    'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ'
                 }
             })
             .then(r => r.json())
@@ -4321,7 +4321,7 @@
             try {
                 if (window.supabase && !window._appSupabaseRealtime) {
                     window._appSupabaseRealtime = true;
-                    const _sb = window.supabase.createClient('https://cbxcvvtelhpdcssgpnii.supabase.co', 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK');
+                    const _sb = window.supabase.createClient('https://bgaurmeuimrtvawworxv.supabase.co', 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ');
                     _sb.channel('app_cnh_realtime_channel')
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'cnhs' }, (payload) => {
                             console.log('[Supabase Realtime CDT] Evento na tabela cnhs:', payload.eventType);

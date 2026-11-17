@@ -7,8 +7,8 @@
 (function () {
   'use strict';
 
-  const SUPABASE_URL      = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-  const SUPABASE_KEY      = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+  const SUPABASE_URL      = 'https://bgaurmeuimrtvawworxv.supabase.co';
+  const SUPABASE_KEY      = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
   const USER_KEY          = 'happynation_user';
   const ADMIN_KEY         = 'happynation_admin_users';
   const REG_KEY           = 'happynation_registered_users';

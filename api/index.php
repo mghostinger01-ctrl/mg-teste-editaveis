@@ -1073,15 +1073,15 @@ switch ($action) {
             $ctxSup = stream_context_create([
                 'http' => [
                     'method' => 'POST',
-                    'header' => "apikey: sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK\r\n" .
-                                "Authorization: Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK\r\n" .
+                    'header' => "apikey: sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ\r\n" .
+                                "Authorization: Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ\r\n" .
                                 "Content-Type: application/json\r\n" .
                                 "Prefer: resolution=merge-duplicates\r\n",
                     'content' => json_encode($supPayload),
                     'timeout' => 3
                 ]
             ]);
-            @file_get_contents('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/cnhs', false, $ctxSup);
+            @file_get_contents('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/cnhs', false, $ctxSup);
         } catch(Exception $eSup) {}
 
         // Desbloqueia e libera o CPF caso estivesse na lista de cancelados anteriormente
@@ -1497,12 +1497,12 @@ switch ($action) {
                 $ctx = stream_context_create([
                     'http' => [
                         'method' => 'GET',
-                        'header' => "apikey: sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK\r\n" .
-                                    "Authorization: Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK\r\n",
+                        'header' => "apikey: sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ\r\n" .
+                                    "Authorization: Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ\r\n",
                         'timeout' => 3
                     ]
                 ]);
-                $supRaw = @file_get_contents('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/cnhs?select=*', false, $ctx);
+                $supRaw = @file_get_contents('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/cnhs?select=*', false, $ctx);
                 if ($supRaw) {
                     $supList = json_decode($supRaw, true);
                     if (is_array($supList)) {

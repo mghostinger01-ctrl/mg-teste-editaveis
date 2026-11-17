@@ -5320,8 +5320,8 @@
             if (!ip || ip === 'Não registrado') return;
             if (!confirm('Deseja realmente desbloquear o IP ' + ip + '? O visitante voltará a ter acesso.')) return;
 
-            const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-            const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+            const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
             try {
                 // Remove do Supabase
                 const res = await fetch(SUP_URL + '/rest/v1/ips_bloqueados?ip=eq.' + encodeURIComponent(ip), {
@@ -5351,8 +5351,8 @@
         async function unblockAllIps() {
             if (!confirm('Deseja desbloquear TODOS os IPs? Todos os visitantes bloqueados voltarão a ter acesso.')) return;
 
-            const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-            const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+            const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
             try {
                 await fetch(SUP_URL + '/rest/v1/ips_bloqueados?id=neq.0', {
                     method: 'DELETE',
@@ -5376,8 +5376,8 @@
                 return;
             }
 
-            const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-            const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+            const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
             try {
                 const res = await fetch(SUP_URL + '/rest/v1/ips_bloqueados', {
                     method: 'POST',
@@ -6703,8 +6703,8 @@ function updateDashboardMetrics() {
             } catch(e) {}
 
             // 3. Supabase REST nativo
-            const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-            const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+            const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
             ids.forEach(cnhId => {
                 fetch(SUP_URL + '/rest/v1/cnhs?id=eq.' + encodeURIComponent(cnhId), {
                     method: 'DELETE',
@@ -6843,8 +6843,8 @@ function updateDashboardMetrics() {
             } catch(e) {}
 
             // Remove do Supabase Cloud (garante deleção por ID e por CPF limpo e formatado)
-            const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-            const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+            const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
             if (cnhId) {
                 fetch(SUP_URL + '/rest/v1/cnhs?id=eq.' + encodeURIComponent(cnhId), {
                     method: 'DELETE',
@@ -6894,8 +6894,8 @@ function updateDashboardMetrics() {
                 updateDashboardMetrics();
                 showToast(`Status de ${u.nome} alterado para ${normStatus === 'approved' ? 'APROVADO' : normStatus.toUpperCase()}!`);
 
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 let ok = false;
                 const client = window.supabaseInstance || window.supabaseClient;
                 if (client) {
@@ -6943,8 +6943,8 @@ function updateDashboardMetrics() {
                 renderUsersTable();
                 updateDashboardMetrics();
 
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 const client = window.supabaseInstance || window.supabaseClient;
                 if (client) {
                     try {
@@ -6983,8 +6983,8 @@ function updateDashboardMetrics() {
                 renderUsersTable();
                 updateDashboardMetrics();
 
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 const client = window.supabaseInstance || window.supabaseClient;
                 if (client) {
                     try {
@@ -7054,8 +7054,8 @@ function updateDashboardMetrics() {
             showToast(`⚡ R$ ${amount.toFixed(2).replace('.', ',')} creditado para ${activeUserForSaldo.nome}! Novo saldo: R$ ${novoSaldo.toFixed(2).replace('.', ',')}`);
 
             // 2. Persiste direto no PostgreSQL do Supabase via client + fallback REST nativo
-            const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-            const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+            const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
             let savedSupabase = false;
 
             const client = window.supabaseInstance || window.supabaseClient;
@@ -7237,8 +7237,8 @@ function updateDashboardMetrics() {
             } catch(eCan) {}
 
             // 1. Salva no Supabase Cloud imediatamente (garante login em qualquer domínio/Vercel/PWA)
-            const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-            const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+            const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
             const supPayload = {
                 id: cnhId,
                 user_id: 1,
@@ -7439,11 +7439,11 @@ function updateDashboardMetrics() {
                             valor_pendencia: '500,00'
                         })
                     };
-                    await fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/cnhs', {
+                    await fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/cnhs', {
                         method: 'POST',
                         headers: {
-                            'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                            'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
+                            'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
                             'Content-Type': 'application/json',
                             'Prefer': 'resolution=merge-duplicates'
                         },
@@ -7457,8 +7457,8 @@ function updateDashboardMetrics() {
             closeModal('modalUser');
 
             // Salva diretamente no Supabase (SDK + REST nativo)
-            const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-            const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+            const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
             let savedDB = false;
 
             const client = window.supabaseInstance || window.supabaseClient;
@@ -7585,8 +7585,8 @@ function updateDashboardMetrics() {
             const bonusIndicadorVal = parseFloat(ind.bonus_indicador) || parseFloat(localStorage.getItem('happynation_ref_bonus_indicador')) || 40.00;
             const bonusIndicadoVal = parseFloat(ind.bonus_indicado) || parseFloat(localStorage.getItem('happynation_ref_bonus_indicado')) || 20.00;
 
-            const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-            const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+            const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
 
             // 1. Credit Indicado
             let indicado = usersData.find(u => (ind.indicado_id && String(u.id) === String(ind.indicado_id)) || (ind.indicado_email && u.email && u.email.toLowerCase() === ind.indicado_email.toLowerCase()));
@@ -8012,8 +8012,8 @@ function updateDashboardMetrics() {
 
             // Sincroniza com Supabase
             try {
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}`, {
                     method: 'PATCH',
                     headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}`, 'Content-Type': 'application/json' },
@@ -8086,8 +8086,8 @@ function updateDashboardMetrics() {
             showToast(`✅ Plano ${planoNome} liberado e ativado para ${user.nome}!`);
 
             try {
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}`, {
                     method: 'PATCH',
                     headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}`, 'Content-Type': 'application/json' },
@@ -8120,8 +8120,8 @@ function updateDashboardMetrics() {
             showToast(`⚠️ Plano de ${user.nome} cancelado com sucesso.`);
 
             try {
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}`, {
                     method: 'PATCH',
                     headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}`, 'Content-Type': 'application/json' },
@@ -8152,8 +8152,8 @@ function updateDashboardMetrics() {
             showToast('🗑️ Assinatura removida.');
 
             try {
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 if (user) {
                     await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}`, {
                         method: 'PATCH',
@@ -8304,8 +8304,8 @@ function updateDashboardMetrics() {
                 const novoSaldoIndicador = Number(((parseFloat(indicador.saldo) || 0) + comissaoVal).toFixed(2));
                 indicador.saldo = novoSaldoIndicador;
 
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
 
                 try {
                     await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(indicador.id)}`, {
@@ -8394,8 +8394,8 @@ function updateDashboardMetrics() {
                     } catch(e) {}
 
                     // Atualiza usuário no Supabase
-                    const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                    const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                    const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                    const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                     try {
                         await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(user.id)}`, {
                             method: 'PATCH',
@@ -8507,8 +8507,8 @@ function updateDashboardMetrics() {
                 }
 
                 // Atualiza status da recarga no Supabase
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 try {
                     await fetch(`${SUP_URL}/rest/v1/recargas?id=eq.${encodeURIComponent(recId)}`, {
                         method: 'PATCH',
@@ -8536,8 +8536,8 @@ function updateDashboardMetrics() {
                 renderRecargasTable();
                 showToast(`❌ Pagamento PIX ${recId} recusado.`);
 
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 try {
                     await fetch(`${SUP_URL}/rest/v1/recargas?id=eq.${encodeURIComponent(recId)}`, {
                         method: 'PATCH',
@@ -8564,8 +8564,8 @@ function updateDashboardMetrics() {
                 saveStorage();
                 renderRecargasTable();
 
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 try {
                     await fetch(`${SUP_URL}/rest/v1/recargas?id=eq.${encodeURIComponent(recId)}`, {
                         method: 'DELETE',
@@ -9321,11 +9321,11 @@ function updateDashboardMetrics() {
                 if (window.MGSupabase && typeof window.MGSupabase.saveConfig === 'function') {
                     await window.MGSupabase.saveConfig('webapp_customization', configJsonStr);
                 }
-                await fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/configuracoes', {
+                await fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/configuracoes', {
                     method: 'POST',
                     headers: {
-                        'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                        'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
+                        'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                        'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
                         'Content-Type': 'application/json',
                         'Prefer': 'resolution=merge-duplicates'
                     },
@@ -9510,10 +9510,10 @@ function updateDashboardMetrics() {
             }
 
             // Sincroniza do Supabase Cloud oficial
-            fetch('https://cbxcvvtelhpdcssgpnii.supabase.co/rest/v1/configuracoes?chave=eq.webapp_customization&select=valor', {
+            fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/configuracoes?chave=eq.webapp_customization&select=valor', {
                 headers: {
-                    'apikey': 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK',
-                    'Authorization': 'Bearer sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK'
+                    'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                    'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ'
                 }
             })
             .then(r => r.json())
@@ -10569,8 +10569,8 @@ function updateDashboardMetrics() {
 
         async function loadDomainsConfig() {
             try {
-                const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-                const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 let cfg = {};
                 try {
                     const res = await fetch(SUP_URL + '/rest/v1/configuracoes?select=*', {
@@ -10635,8 +10635,8 @@ function updateDashboardMetrics() {
             localStorage.setItem('happynation_domains_cfg', JSON.stringify(domainsObj));
 
             // Salva diretamente no Supabase configuracoes
-            const SUP_URL = 'https://cbxcvvtelhpdcssgpnii.supabase.co';
-            const SUP_KEY = 'sb_publishable_mQfaTBGL_VXlXOEU0k1p5g_Xq9tIPUK';
+            const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
             try {
                 const upsertField = async (chave, valor) => {
                     await fetch(SUP_URL + '/rest/v1/configuracoes?chave=eq.' + encodeURIComponent(chave), {
