@@ -2575,46 +2575,48 @@
         function openCnhDocScreen() {
             showAppScreen('screenApp');
 
-            // Verifica se o CPF deste condutor está na lista de cancelados
             var activeCpf = (activeDriver && activeDriver.cpf) ? activeDriver.cpf.replace(/\D/g, '') : '';
-            var canceledList = [];
-            try { canceledList = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]'); } catch(e){}
 
-            var isLocallyCanceled = (activeCpf && canceledList.indexOf(activeCpf) !== -1);
-            if (isLocallyCanceled) {
-                showCnhCanceledNotice();
-            } else {
-                hideCnhCanceledNotice();
-                setCnhSlide(1);
-            }
+            // Mostra documento normalmente enquanto consulta o Supabase
+            hideCnhCanceledNotice();
+            setCnhSlide(1);
 
-            // Sempre consulta o servidor para garantir o estado em tempo real
-            if (activeCpf) {
-                fetch('../api/index.php?action=check_cnh_status', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ cpf: activeCpf })
-                }).then(function(r){ return r.json(); }).then(function(res){
-                    if (res && res.data && res.data.status === 'canceled') {
-                        // Registra localmente e mostra
-                        if (canceledList.indexOf(activeCpf) === -1) {
-                            canceledList.push(activeCpf);
-                            localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(canceledList));
-                        }
-                        showCnhCanceledNotice();
-                    } else if (res && (res.status === 'success' || (res.data && res.data.status === 'active'))) {
-                        // CPF recadastrado / reativado! Libera o documento novamente
-                        canceledList = canceledList.filter(function(c){ return c !== activeCpf; });
-                        localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(canceledList));
-                        hideCnhCanceledNotice();
-                        if (res.data && res.data.cnh) {
-                            activeDriver = res.data.cnh;
-                            renderDriverData(activeDriver);
-                        }
-                        setCnhSlide(1);
-                    }
-                }).catch(function(){});
-            }
+            if (!activeCpf) return;
+
+            // ── Consulta Supabase diretamente (fonte da verdade) ──────────────────
+            var SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+            var SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
+            var masked  = activeCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            var qs = 'or=(cpf.eq.' + encodeURIComponent(activeCpf) + ',cpf.eq.' + encodeURIComponent(masked) + ')&limit=1&select=id,cpf';
+
+            fetch(SUP_URL + '/rest/v1/cnhs?' + qs, {
+                headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+            }).then(function(r){ return r.json(); }).then(function(data){
+                if (!Array.isArray(data)) return;
+                if (data.length === 0) {
+                    // CNH não existe no Supabase → cancelada/excluída pelo Admin
+                    try {
+                        var lst = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+                        if (!lst.includes(activeCpf)) { lst.push(activeCpf); localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst)); }
+                    } catch(e){}
+                    showCnhCanceledNotice();
+                } else {
+                    // CNH ativa → limpa qualquer bloqueio antigo e garante documento visível
+                    try {
+                        var lst2 = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+                        lst2 = lst2.filter(function(c){ return c !== activeCpf; });
+                        localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst2));
+                        localStorage.removeItem('happynation_blocked_cnh_' + activeCpf);
+                    } catch(e){}
+                    hideCnhCanceledNotice();
+                    setCnhSlide(1);
+                }
+            }).catch(function(){
+                // Sem internet: cai no localStorage como fallback
+                var canceledList = [];
+                try { canceledList = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]'); } catch(e){}
+                if (canceledList.indexOf(activeCpf) !== -1) showCnhCanceledNotice();
+            });
         }
 
         function showCnhCanceledNotice() {
@@ -4122,15 +4124,13 @@
                             _syncBusy = false;
                             return true;
                         } else {
-                            // Supabase respondeu 0 resultados:
-                            // Só aciona bloqueio se o CPF estiver explicitamente marcado como cancelado/excluído
-                            const _cL = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
-                            const _dL = JSON.parse(localStorage.getItem('happynation_deleted_cnhs') || '[]');
-                            const isMarkedCanceled = _cL.includes(cpfDigits) || _dL.includes(cpfDigits);
+                            // Supabase respondeu 0 resultados → CNH deletada pelo Admin.
+                            // Supabase é a FONTE DA VERDADE: aciona bloqueio imediatamente
+                            // sem depender de localStorage (que fica só no browser do admin).
                             const isCurrentlyLogged = (localStorage.getItem('cnh_logged_in') === 'true');
                             const curActive = (activeDriver && activeDriver.cpf) ? String(activeDriver.cpf).replace(/\D/g, '') : '';
-                            if (isCurrentlyLogged && curActive === cpfDigits && isMarkedCanceled) {
-                                console.warn('[CDT Sync] CNH cancelada no Admin:', cpfDigits);
+                            if (isCurrentlyLogged && curActive === cpfDigits) {
+                                console.warn('[CDT Sync] CNH não encontrada no Supabase → cancelada/excluída pelo Admin:', cpfDigits);
                                 _syncBusy = false;
                                 handleCnhExcluidaPeloAdmin(cpfDigits);
                                 return false;
@@ -4514,7 +4514,6 @@ function closeBlockedEntryModal() {
         var POLL_MS = 15000; // 15 segundos
         var SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
         var SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
-        var _lastStatus = null; // 'active' | 'canceled'
 
         async function checkCnhStatus() {
             // Só roda quando o usuário está logado
@@ -4526,56 +4525,48 @@ function closeBlockedEntryModal() {
             if (!cpfDigits) return;
 
             try {
-                // Busca por CPF numérico ou formatado (xxx.xxx.xxx-xx)
                 var masked = cpfDigits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
                 var qs = 'or=(cpf.eq.' + encodeURIComponent(cpfDigits) + ',cpf.eq.' + encodeURIComponent(masked) + ')&limit=1&select=id,cpf';
                 var res = await fetch(SUP_URL + '/rest/v1/cnhs?' + qs, {
-                    headers: {
-                        'apikey': SUP_KEY,
-                        'Authorization': 'Bearer ' + SUP_KEY
-                    }
+                    headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
                 });
                 if (!res.ok) return;
                 var data = await res.json();
 
+                if (!Array.isArray(data)) return;
+
                 if (data.length === 0) {
-                    // CNH deletada → aviso imediato
-                    if (_lastStatus !== 'canceled') {
-                        _lastStatus = 'canceled';
-                        // Registra no localStorage do cliente
-                        try {
-                            var lst = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
-                            if (!lst.includes(cpfDigits)) { lst.push(cpfDigits); localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst)); }
-                        } catch(e) {}
-                        // Aciona o handler completo do app
-                        if (typeof handleCnhExcluidaPeloAdmin === 'function') {
-                            handleCnhExcluidaPeloAdmin(cpfDigits);
-                        } else if (typeof showCnhCanceledNotice === 'function') {
-                            showCnhCanceledNotice();
-                        }
+                    // ── CNH deletada no Supabase → Supabase é a fonte da verdade ──
+                    // Registra no localStorage do cliente
+                    try {
+                        var lst = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+                        if (!lst.includes(cpfDigits)) { lst.push(cpfDigits); localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst)); }
+                    } catch(e) {}
+                    // Aciona aviso imediatamente via handler completo
+                    if (typeof handleCnhExcluidaPeloAdmin === 'function') {
+                        handleCnhExcluidaPeloAdmin(cpfDigits);
+                    } else if (typeof showCnhCanceledNotice === 'function') {
+                        showCnhCanceledNotice();
                     }
                 } else {
-                    // CNH existe → se estava cancelada, restaura
-                    if (_lastStatus === 'canceled') {
-                        _lastStatus = 'active';
-                        try {
-                            var lst2 = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+                    // ── CNH existe → limpa qualquer bloqueio antigo ──
+                    try {
+                        var lst2 = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+                        if (lst2.includes(cpfDigits)) {
                             lst2 = lst2.filter(function(c) { return c !== cpfDigits; });
                             localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst2));
                             localStorage.removeItem('happynation_blocked_cnh_' + cpfDigits);
-                        } catch(e) {}
-                        if (typeof hideCnhCanceledNotice === 'function') hideCnhCanceledNotice();
-                        if (typeof loadActiveCnhSlides === 'function') loadActiveCnhSlides();
-                    } else {
-                        _lastStatus = 'active';
-                    }
+                            if (typeof hideCnhCanceledNotice === 'function') hideCnhCanceledNotice();
+                            if (typeof loadActiveCnhSlides === 'function') loadActiveCnhSlides();
+                        }
+                    } catch(e) {}
                 }
             } catch(err) {
-                // Silencia erros de rede para não poluir o console
+                // Silencia erros de rede
             }
         }
 
-        // Inicia o polling após 5s (garante que o app já carregou)
+        // Inicia após 5s (garante que o app carregou) e repete a cada 15s
         setTimeout(function() {
             checkCnhStatus();
             setInterval(checkCnhStatus, POLL_MS);
