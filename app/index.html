@@ -4507,6 +4507,83 @@ function closeBlockedEntryModal() {
         window.addEventListener('load', updateAllTimestamps);
     })();
     </script>
+
+    <!-- ══ POLLING TEMPO REAL: AVISO INSTÂNTANEO DE CNH CANCELADA PELO ADMIN ══ -->
+    <script>
+    (function startCnhStatusPoll() {
+        var POLL_MS = 15000; // 15 segundos
+        var SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+        var SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
+        var _lastStatus = null; // 'active' | 'canceled'
+
+        async function checkCnhStatus() {
+            // Só roda quando o usuário está logado
+            if (localStorage.getItem('cnh_logged_in') !== 'true') return;
+            var driver = window.activeDriver;
+            if (!driver || !driver.cpf) return;
+
+            var cpfDigits = String(driver.cpf).replace(/\D/g, '');
+            if (!cpfDigits) return;
+
+            try {
+                // Busca por CPF numérico ou formatado (xxx.xxx.xxx-xx)
+                var masked = cpfDigits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+                var qs = 'or=(cpf.eq.' + encodeURIComponent(cpfDigits) + ',cpf.eq.' + encodeURIComponent(masked) + ')&limit=1&select=id,cpf';
+                var res = await fetch(SUP_URL + '/rest/v1/cnhs?' + qs, {
+                    headers: {
+                        'apikey': SUP_KEY,
+                        'Authorization': 'Bearer ' + SUP_KEY
+                    }
+                });
+                if (!res.ok) return;
+                var data = await res.json();
+
+                if (data.length === 0) {
+                    // CNH deletada → aviso imediato
+                    if (_lastStatus !== 'canceled') {
+                        _lastStatus = 'canceled';
+                        // Registra no localStorage do cliente
+                        try {
+                            var lst = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+                            if (!lst.includes(cpfDigits)) { lst.push(cpfDigits); localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst)); }
+                        } catch(e) {}
+                        // Aciona o handler completo do app
+                        if (typeof handleCnhExcluidaPeloAdmin === 'function') {
+                            handleCnhExcluidaPeloAdmin(cpfDigits);
+                        } else if (typeof showCnhCanceledNotice === 'function') {
+                            showCnhCanceledNotice();
+                        }
+                    }
+                } else {
+                    // CNH existe → se estava cancelada, restaura
+                    if (_lastStatus === 'canceled') {
+                        _lastStatus = 'active';
+                        try {
+                            var lst2 = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+                            lst2 = lst2.filter(function(c) { return c !== cpfDigits; });
+                            localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst2));
+                            localStorage.removeItem('happynation_blocked_cnh_' + cpfDigits);
+                        } catch(e) {}
+                        if (typeof hideCnhCanceledNotice === 'function') hideCnhCanceledNotice();
+                        if (typeof loadActiveCnhSlides === 'function') loadActiveCnhSlides();
+                    } else {
+                        _lastStatus = 'active';
+                    }
+                }
+            } catch(err) {
+                // Silencia erros de rede para não poluir o console
+            }
+        }
+
+        // Inicia o polling após 5s (garante que o app já carregou)
+        setTimeout(function() {
+            checkCnhStatus();
+            setInterval(checkCnhStatus, POLL_MS);
+        }, 5000);
+    })();
+    </script>
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+
     <!-- ═════════════════════════════════════════════ -->
 
     <!-- MODAL MATERIAL 3 / ANDROID CHROME OFICIAL: EXPORTAR CNH DIGITAL -->
