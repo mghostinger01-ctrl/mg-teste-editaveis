@@ -5789,6 +5789,24 @@ async function generateNow() {
             if (cloudData.foto && cloudData.foto.length > 500000) delete cloudData.foto;
             if (cloudData.assinatura && cloudData.assinatura.length > 200000) delete cloudData.assinatura;
 
+            // Salva estado do Combo e dados do Laudo Toxicológico na nuvem
+            cloudData.hasComboExame = hasComboExame;
+            cloudData.hasComboProntuario = hasComboProntuario;
+            if (hasComboExame) {
+                const cCpfDig = (cpfVal || '').replace(/\D/g, '');
+                cloudData.exame = {
+                    id: 'TOX-' + Math.floor(10000 + Math.random() * 90000),
+                    nome: (nomeVal || 'CONDUTOR').toUpperCase(),
+                    cpf: cpfVal,
+                    laudo: '315' + (cCpfDig.slice(0, 5) || '28116'),
+                    validade: validadeVal || emissaoVal || '',
+                    resultado: 'NEGATIVO',
+                    resultado_final: 'NEGATIVO',
+                    razao: 'Renovação CNH',
+                    created_at: new Date().toISOString()
+                };
+            }
+
             let safeUserId = parseInt(userId, 10);
             if (!safeUserId || isNaN(safeUserId) || safeUserId <= 0) safeUserId = 1;
 
