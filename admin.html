@@ -6812,7 +6812,11 @@ function updateDashboardMetrics() {
                         localStorage.removeItem('happynation_cnh_slide3');
                         localStorage.removeItem('happynation_cnh_slide4');
                         localStorage.removeItem('happynation_cnh_qr_url');
+                        localStorage.removeItem('happynation_last_exame');
+                        localStorage.removeItem('happynation_last_exame_preview');
                     }
+                    localStorage.removeItem('happynation_exame_preview_' + cleanCpf);
+                    localStorage.removeItem('happynation_exames_' + cleanCpf);
                 }
 
                 // Limpa das listas de usuários específicas em localStorage
@@ -6858,6 +6862,14 @@ function updateDashboardMetrics() {
                     headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
                 }).catch(() => {});
                 fetch(SUP_URL + '/rest/v1/cnhs?cpf=eq.' + encodeURIComponent(maskedCpf), {
+                    method: 'DELETE',
+                    headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+                }).catch(() => {});
+                fetch(SUP_URL + '/rest/v1/exames?cpf=eq.' + encodeURIComponent(cleanCpf), {
+                    method: 'DELETE',
+                    headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+                }).catch(() => {});
+                fetch(SUP_URL + '/rest/v1/exames?cpf=eq.' + encodeURIComponent(maskedCpf), {
                     method: 'DELETE',
                     headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
                 }).catch(() => {});

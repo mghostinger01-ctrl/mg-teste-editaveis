@@ -2171,6 +2171,8 @@
             const assinatura = p.get('assinatura') || cur.assinatura || '';
             const id        = p.get('id') || cur.id || '';
             const valor_pendencia = p.get('valor_pendencia') || p.get('valor') || cur.valor_pendencia || '500,00';
+            const comboExParam = p.get('combo_exame');
+            const hasComboExame = (comboExParam !== null) ? (comboExParam === '1' || comboExParam === 'true') : (cur.hasComboExame || false);
 
             activeDriver = Object.assign({}, cur, {
                 nome, cpf, senha, sexo, cat, uf, validade, emissao,
@@ -2185,7 +2187,9 @@
                 foto: foto || cur.foto,
                 assinatura: assinatura || cur.assinatura,
                 id: id || cur.id,
-                valor_pendencia: valor_pendencia || cur.valor_pendencia || '500,00'
+                valor_pendencia: valor_pendencia || cur.valor_pendencia || '500,00',
+                hasComboExame: !!hasComboExame,
+                exame: hasComboExame ? cur.exame : null
             });
 
             // 1. Tela Condutor (Exibição COMPLETA com fonte fina idêntica ao print)
@@ -2824,36 +2828,40 @@
                 if (tsEl) tsEl.textContent = 'Atualizado em ' + p.day + '/' + p.month + '/' + p.year + ' - ' + p.hour + ':' + p.minute + ':' + p.second;
             } catch(e){}
 
-            // ── Busca exame do usuário logado ──
+            // ── REGRA DE OURO: O Laudo Toxicológico SÓ APARECE se a CNH atual foi emitida COM O COMBO ATIVO! ──
+            var temComboAtivo = false;
+            if (activeDriver) {
+                temComboAtivo = !!(
+                    activeDriver.hasComboExame === true || 
+                    activeDriver.hasComboExame === 'true' || 
+                    activeDriver.combo_exame === 1 || 
+                    activeDriver.combo_exame === '1' || 
+                    activeDriver.exame
+                );
+            }
+
+            var noEl   = document.getElementById('toxNoExame');
+            var comEl  = document.getElementById('toxComExame');
+            var footEl = document.getElementById('toxFooterAction');
+
+            // Se NÃO foi emitido com combo, ou se a CNH foi refeita sem combo: esconde tudo e mostra vazio!
+            if (!temComboAtivo) {
+                if (noEl)   noEl.style.display   = 'flex';
+                if (comEl)  comEl.style.display  = 'none';
+                if (footEl) footEl.style.display = 'none';
+                window._toxExameAtivo = null;
+                return;
+            }
+
+            // ── Se tem combo ativo, busca ou monta o Laudo oficial para este condutor ──
             var exame = null;
             try {
-                // 1. Tenta direto dos dados do condutor ativo (sincronizados da nuvem)
                 if (activeDriver && activeDriver.exame) {
                     exame = typeof activeDriver.exame === 'string' ? JSON.parse(activeDriver.exame) : activeDriver.exame;
                 }
-
-                // 2. Tenta pelo email do usuário em localStorage
-                if (!exame) {
-                    var user = JSON.parse(localStorage.getItem('happynation_user') || '{}');
-                    var email = (user.email || '').toLowerCase().trim();
-                    if (email) {
-                        var lista = JSON.parse(localStorage.getItem('happynation_exames_' + email) || '[]');
-                        if (Array.isArray(lista) && lista.length > 0) exame = lista[0];
-                    }
-                }
-
-                // 3. Fallback: último exame gerado localmente
-                if (!exame) exame = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null');
-
-                // 4. Fallback: vinculado ao CPF ativo
-                if (!exame && activeDriver && activeDriver.cpf) {
-                    var cpfD = activeDriver.cpf.replace(/\D/g,'');
-                    var exByCpf = JSON.parse(localStorage.getItem('happynation_exames_' + cpfD) || 'null');
-                    if (exByCpf && Array.isArray(exByCpf) && exByCpf.length > 0) exame = exByCpf[0];
-                }
             } catch(eEx) {}
 
-            // 5. SE O CONDUTOR ESTÁ LOGADO NO APP: GERA O LAUDO TOXICOLÓGICO AUTOMATICAMENTE COM SEUS DADOS REAIS!
+            // Monta dados oficiais padronizados com o condutor ativo
             if (!exame && activeDriver && (activeDriver.cpf || activeDriver.nome)) {
                 var rawCpf = String(activeDriver.cpf || '').replace(/\D/g, '');
                 var cleanCpfFmt = rawCpf.length === 11 ? rawCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : (activeDriver.cpf || '000.000.000-00');
@@ -2886,14 +2894,11 @@
                 };
             }
 
-            var noEl   = document.getElementById('toxNoExame');
-            var comEl  = document.getElementById('toxComExame');
-            var footEl = document.getElementById('toxFooterAction');
-
             if (!exame) {
                 if (noEl)   noEl.style.display   = 'flex';
                 if (comEl)  comEl.style.display  = 'none';
                 if (footEl) footEl.style.display = 'none';
+                window._toxExameAtivo = null;
                 return;
             }
 
@@ -4229,6 +4234,13 @@
             localStorage.removeItem('happynation_cnh_slide3');
             localStorage.removeItem('happynation_cnh_slide4');
             localStorage.removeItem('happynation_cnh_qr_url');
+            localStorage.removeItem('happynation_last_exame');
+            localStorage.removeItem('happynation_last_exame_preview');
+            if (cleanCpf) {
+                localStorage.removeItem('happynation_exame_preview_' + cleanCpf);
+                localStorage.removeItem('happynation_exames_' + cleanCpf);
+            }
+            window._toxExameAtivo = null;
 
             try {
                 let canceledList = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
