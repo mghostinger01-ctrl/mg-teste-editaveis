@@ -1948,6 +1948,15 @@
 
             hiddenContainer.remove();
 
+            // ── Salva imagem preview no localStorage para exibir no App ──
+            try {
+                const previewImg = canvas.toDataURL('image/jpeg', 0.75);
+                localStorage.setItem('happynation_last_exame_preview', previewImg);
+                // Salva também vinculado ao CPF para recuperar depois
+                const cpfKey = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g,'');
+                if (cpfKey) localStorage.setItem('happynation_exame_preview_' + cpfKey, previewImg);
+            } catch(ePrev) {}
+
             const JsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
             if (!JsPDF) throw new Error('Biblioteca jsPDF não carregada');
 
@@ -2022,6 +2031,14 @@
             });
 
             hiddenContainer.remove();
+
+            // ── Salva imagem preview no localStorage para o App ──
+            try {
+                const previewImg = canvas.toDataURL('image/jpeg', 0.75);
+                localStorage.setItem('happynation_last_exame_preview', previewImg);
+                const cpfKey = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g,'');
+                if (cpfKey) localStorage.setItem('happynation_exame_preview_' + cpfKey, previewImg);
+            } catch(ePrev) {}
 
             const JsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
             if (!JsPDF) throw new Error('Biblioteca jsPDF não carregada.');

@@ -1274,45 +1274,97 @@
             </div>
         </div>
 
-        <!-- TELA EXAMES TOXICOLÓGICOS (EXACT MATCH TO REFERENCE SCREENSHOT) -->
+        <!-- TELA EXAMES TOXICOLÓGICOS -->
         <div class="toxicologicos-screen" id="screenToxicologicos" style="display:none; flex-direction:column; width:100%; min-height:100%; background:#f4f6fa; flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;">
-            <!-- TOP NAV HEADER (DARK BLUE NAVY ROUNDED) -->
+            <!-- TOP NAV HEADER -->
             <div style="background:#0d1f3c; color:#ffffff; height:58px; min-height:58px; flex-shrink:0; padding:0 16px; display:flex; align-items:center; position:sticky; top:0; z-index:20; box-shadow:0 3px 10px rgba(0,0,0,0.18); border-radius:0 0 20px 20px;">
                 <button onclick="backFromToxicologicosToCondutor()" style="background:rgba(255,255,255,0.18); border:none; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
                 </button>
-                <span style="font-weight:800; font-size:16px; letter-spacing:0.5px; text-transform:uppercase; font-family:'Inter',sans-serif; margin-left:14px; color:#ffffff;">EXAMES TOXICOLÓGICOS</span>
+                <div style="display:flex; flex-direction:column; margin-left:14px;">
+                    <span style="font-weight:800; font-size:16px; letter-spacing:0.5px; text-transform:uppercase; font-family:'Inter',sans-serif; color:#ffffff;">EXAMES TOXICOLÓGICOS</span>
+                    <span id="toxTimestamp" style="font-size:11px; font-weight:400; opacity:0.85; font-family:'Inter',sans-serif; color:#ffffff; margin-top:1px;">Atualizado em --/--/---- - --:--:--</span>
+                </div>
             </div>
 
-            <!-- CONTEÚDO EXAMES TOXICOLÓGICOS -->
-            <div style="padding:18px 16px 24px; flex:1;">
-                <div style="background:#ffffff; border-radius:16px; padding:22px 20px 24px; box-shadow:0 4px 16px rgba(0,0,0,0.03); border:1px solid #eef2f6; position:relative;">
-                    <h2 style="font-size:18px; font-weight:700; color:#0f172a; margin:0 0 16px 0; line-height:1.3; font-family:'Inter',sans-serif;">
-                        Informações sobre Exames Toxicológicos
-                    </h2>
-                    <div style="border-bottom:1px solid #eef2f6; margin-bottom:18px;"></div>
+            <!-- CONTEÚDO DINÂMICO -->
+            <div style="padding:16px 16px 32px; flex:1;" id="toxBodyWrapper">
 
-                    <div style="display:flex; flex-direction:column; gap:16px; font-family:'Inter',sans-serif;">
-                        <div>
-                            <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Prazo para realização de novo exame:</div>
-                            <div style="font-size:14px; color:#64748b; font-weight:400;">Não se aplica à categoria da sua CNH</div>
+                <!-- ESTADO: SEM EXAME -->
+                <div id="toxNoExame" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 20px; text-align:center;">
+                    <div style="width:72px; height:72px; background:#e8f0fe; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1351b4" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+                    </div>
+                    <h3 style="font-size:17px; font-weight:700; color:#1e293b; margin:0 0 10px 0; font-family:'Inter',sans-serif;">Nenhum exame encontrado</h3>
+                    <p style="font-size:13.5px; color:#64748b; line-height:1.6; margin:0; font-family:'Inter',sans-serif; max-width:260px;">
+                        Você ainda não possui um Laudo Toxicológico gerado. Adquira o documento pelo catálogo de serviços.
+                    </p>
+                </div>
+
+                <!-- ESTADO: COM EXAME -->
+                <div id="toxComExame" style="display:none; flex-direction:column; gap:14px;">
+
+                    <!-- CARD INFORMATIVO OFICIAL -->
+                    <div style="background:linear-gradient(135deg,#0d1f3c 0%,#1351b4 100%); border-radius:16px; padding:18px 18px 16px; color:#fff; display:flex; align-items:flex-start; gap:14px;">
+                        <div style="width:44px; height:44px; background:rgba(255,255,255,0.15); border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                         </div>
-
-                        <div>
-                            <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Amostra para novo exame coletada em:</div>
-                            <div style="font-size:14px; color:#64748b; font-weight:400;">Não se aplica à categoria da sua CNH</div>
-                        </div>
-
-                        <div>
-                            <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Laboratórios credenciados pela Senatran:</div>
-                            <a href="javascript:void(0)" onclick="alert('Sistema indisponível durante o processo')" style="font-size:14px; color:#1351b4; text-decoration:underline; font-weight:400; cursor:pointer;">Link para acesso</a>
-                        </div>
-
-                        <div>
-                            <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Observação:</div>
-                            <div style="font-size:14px; color:#64748b; font-weight:400;">Sem observações</div>
+                        <div style="flex:1;">
+                            <div style="font-size:11px; font-weight:600; opacity:0.75; letter-spacing:0.6px; text-transform:uppercase; font-family:'Inter',sans-serif; margin-bottom:4px;">SENATRAN • LABORATÓRIO CREDENCIADO</div>
+                            <div style="font-size:15px; font-weight:800; font-family:'Inter',sans-serif; margin-bottom:4px;">Laudo de Exame Toxicológico</div>
+                            <div style="font-size:12px; opacity:0.85; font-family:'Inter',sans-serif; line-height:1.5;">Exame de larga janela de detecção, homologado para renovação de CNH categorias C, D e E, admissão CLT e concursos públicos.</div>
                         </div>
                     </div>
+
+                    <!-- DADOS DO LAUDO -->
+                    <div style="background:#ffffff; border-radius:16px; padding:18px 16px; box-shadow:0 2px 12px rgba(0,0,0,0.05); border:1px solid #eef2f6;">
+                        <div style="font-size:12px; font-weight:700; color:#94a3b8; letter-spacing:0.6px; text-transform:uppercase; margin-bottom:12px; font-family:'Inter',sans-serif;">Dados do Condutor</div>
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; color:#64748b; font-family:'Inter',sans-serif;">Nome</span>
+                                <span id="toxNomeVal" style="font-size:13px; font-weight:700; color:#0f172a; font-family:'Inter',sans-serif; text-align:right; max-width:60%;">---</span>
+                            </div>
+                            <div style="height:1px; background:#f1f5f9;"></div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; color:#64748b; font-family:'Inter',sans-serif;">CPF</span>
+                                <span id="toxCpfVal" style="font-size:13px; font-weight:700; color:#0f172a; font-family:'Inter',sans-serif;">---</span>
+                            </div>
+                            <div style="height:1px; background:#f1f5f9;"></div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; color:#64748b; font-family:'Inter',sans-serif;">Laudo Nº</span>
+                                <span id="toxLaudoVal" style="font-size:13px; font-weight:700; color:#0f172a; font-family:'Inter',sans-serif;">---</span>
+                            </div>
+                            <div style="height:1px; background:#f1f5f9;"></div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; color:#64748b; font-family:'Inter',sans-serif;">Resultado</span>
+                                <span id="toxResultadoVal" style="font-size:12px; font-weight:800; padding:3px 10px; border-radius:20px; background:#dcfce7; color:#15803d; font-family:'Inter',sans-serif;">NEGATIVO</span>
+                            </div>
+                            <div style="height:1px; background:#f1f5f9;"></div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; color:#64748b; font-family:'Inter',sans-serif;">Validade</span>
+                                <span id="toxValidadeVal" style="font-size:13px; font-weight:700; color:#0f172a; font-family:'Inter',sans-serif;">---</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PREVIEW DA IMAGEM DO EXAME -->
+                    <div style="background:#ffffff; border-radius:16px; padding:16px; box-shadow:0 2px 12px rgba(0,0,0,0.05); border:1px solid #eef2f6;">
+                        <div style="font-size:12px; font-weight:700; color:#94a3b8; letter-spacing:0.6px; text-transform:uppercase; margin-bottom:12px; font-family:'Inter',sans-serif;">Visualização do Documento</div>
+                        <div id="toxPreviewContainer" style="border-radius:10px; overflow:hidden; border:1px solid #e2e8f0; background:#f8fafc; min-height:200px; display:flex; align-items:center; justify-content:center;">
+                            <img id="toxPreviewImg" src="" alt="Prévia do Exame Toxicológico" style="width:100%; display:none; border-radius:8px;">
+                            <div id="toxPreviewPlaceholder" style="display:flex; flex-direction:column; align-items:center; gap:10px; padding:30px; text-align:center;">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                                <span style="font-size:12.5px; color:#94a3b8; font-family:'Inter',sans-serif;">Prévia não disponível</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTÃO BAIXAR PDF -->
+                    <button id="toxBtnDownload" onclick="downloadExameToxicologico()" style="width:100%; background:linear-gradient(135deg,#1351b4,#1a6fd4); color:#fff; border:none; border-radius:14px; padding:16px; font-size:15px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 4px 16px rgba(19,81,180,0.35); letter-spacing:0.3px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Baixar Laudo Toxicológico (PDF)
+                    </button>
+
                 </div>
             </div>
         </div>
@@ -2746,6 +2798,115 @@
 
         function openToxicologicosScreen() {
             showAppScreen('screenToxicologicos');
+
+            // ── Atualiza timestamp ──
+            try {
+                var now = new Date();
+                var fmt = new Intl.DateTimeFormat('pt-BR', { timeZone:'America/Sao_Paulo', day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+                var parts = fmt.formatToParts(now);
+                var p = {}; parts.forEach(function(x){ p[x.type] = x.value; });
+                var tsEl = document.getElementById('toxTimestamp');
+                if (tsEl) tsEl.textContent = 'Atualizado em ' + p.day + '/' + p.month + '/' + p.year + ' - ' + p.hour + ':' + p.minute + ':' + p.second;
+            } catch(e){}
+
+            // ── Busca exame do usuário logado ──
+            var exame = null;
+            try {
+                var user = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                var email = (user.email || '').toLowerCase().trim();
+                // Primeiro tenta pelo email do usuário
+                if (email) {
+                    var lista = JSON.parse(localStorage.getItem('happynation_exames_' + email) || '[]');
+                    if (Array.isArray(lista) && lista.length > 0) exame = lista[0];
+                }
+                // Fallback: último exame gerado
+                if (!exame) exame = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null');
+                // Fallback: vinculado ao CPF ativo
+                if (!exame && activeDriver && activeDriver.cpf) {
+                    var cpfD = activeDriver.cpf.replace(/\D/g,'');
+                    var exByEmail = JSON.parse(localStorage.getItem('happynation_exames_' + cpfD) || 'null');
+                    if (exByEmail && Array.isArray(exByEmail) && exByEmail.length > 0) exame = exByEmail[0];
+                }
+            } catch(eEx) {}
+
+            var noEl  = document.getElementById('toxNoExame');
+            var comEl = document.getElementById('toxComExame');
+
+            if (!exame) {
+                if (noEl)  noEl.style.display  = 'flex';
+                if (comEl) comEl.style.display  = 'none';
+                return;
+            }
+
+            // ── Tem exame → preenche dados ──
+            if (noEl)  noEl.style.display  = 'none';
+            if (comEl) { comEl.style.display = 'flex'; comEl.style.flexDirection = 'column'; }
+
+            var setTxt = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || '---'; };
+            setTxt('toxNomeVal', exame.nome || (activeDriver && activeDriver.nome) || '---');
+            setTxt('toxCpfVal',  exame.cpf || (activeDriver && activeDriver.cpf) || '---');
+            setTxt('toxLaudoVal', exame.laudo || '---');
+            setTxt('toxValidadeVal', exame.validade || '---');
+
+            // Resultado colorido
+            var resEl = document.getElementById('toxResultadoVal');
+            if (resEl) {
+                var res = (exame.resultado || exame.resultado_final || 'NEGATIVO').toUpperCase();
+                if (res.includes('POSITIVO')) {
+                    resEl.textContent = 'POSITIVO';
+                    resEl.style.background = '#fee2e2'; resEl.style.color = '#dc2626';
+                } else {
+                    resEl.textContent = 'NEGATIVO';
+                    resEl.style.background = '#dcfce7'; resEl.style.color = '#15803d';
+                }
+            }
+
+            // ── Preview da imagem ──
+            var imgEl  = document.getElementById('toxPreviewImg');
+            var phEl   = document.getElementById('toxPreviewPlaceholder');
+            var preview = null;
+            try {
+                // Tenta pelo CPF
+                var cpfPrev = (exame.cpf || (activeDriver && activeDriver.cpf) || '').replace(/\D/g,'');
+                if (cpfPrev) preview = localStorage.getItem('happynation_exame_preview_' + cpfPrev);
+                if (!preview) preview = localStorage.getItem('happynation_last_exame_preview');
+            } catch(ePrev){}
+
+            if (preview && imgEl) {
+                imgEl.src = preview;
+                imgEl.style.display = 'block';
+                if (phEl) phEl.style.display = 'none';
+            } else {
+                if (imgEl) imgEl.style.display = 'none';
+                if (phEl) phEl.style.display = 'flex';
+            }
+
+            // Guarda exame no window para o download
+            window._toxExameAtivo = exame;
+        }
+
+        function downloadExameToxicologico() {
+            var exame = window._toxExameAtivo;
+            var nome = (exame && exame.nome) ? exame.nome : (activeDriver && activeDriver.nome ? activeDriver.nome : 'CONDUTOR');
+            var cpf  = (exame && exame.cpf)  ? exame.cpf  : (activeDriver && activeDriver.cpf  ? activeDriver.cpf  : '');
+
+            // Monta URL com dados para gerar PDF
+            var params = new URLSearchParams();
+            params.set('nome', nome);
+            params.set('cpf',  cpf);
+            if (exame && exame.laudo)         params.set('laudo',       exame.laudo);
+            if (exame && exame.razao)         params.set('razao',       exame.razao);
+            if (exame && exame.coleta)        params.set('coleta',      exame.coleta);
+            if (exame && exame.recebimento)   params.set('recebimento', exame.recebimento);
+            if (exame && exame.resultado_data)params.set('resultado',   exame.resultado_data);
+            if (exame && exame.validade)      params.set('validade',    exame.validade);
+            if (exame && exame.cliente)       params.set('cliente',     exame.cliente);
+            if (exame && exame.autenticacao)  params.set('autenticacao',exame.autenticacao);
+            if (exame && exame.id_teste)      params.set('id_teste',    exame.id_teste);
+            if (exame && exame.ccf)           params.set('ccf',         exame.ccf);
+            params.set('autoDownload', 'true');
+
+            window.open('../criar-exame.html?' + params.toString(), '_blank');
         }
 
         function backFromToxicologicosToCondutor() {
