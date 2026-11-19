@@ -21,7 +21,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600&family=Alex+Brush&family=Allura&family=Caveat:wght@600;700&family=Cedarville+Cursive&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Homemade+Apple&family=La+Belle+Aurore&family=Marck+Script&family=Mr+Dafoe&family=Pinyon+Script&family=Sacramento&display=swap" rel="stylesheet">
 
     <!-- CDNs essenciais: html2canvas, jsPDF, QRCode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -409,6 +409,113 @@
             box-shadow: 0 6px 24px rgba(0, 220, 130, 0.35);
         }
 
+        /* ─── MODAL E SELETOR DE ASSINATURAS FEITAS À MÃO (SISTEMA DOS ATESTADOS) ─── */
+        .sig-selector-wrapper {
+            background: #111415;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: 14px;
+        }
+        .btn-sig-variation {
+            background: rgba(0, 220, 130, 0.12);
+            border: 1px solid rgba(0, 220, 130, 0.35);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+        .btn-sig-variation:hover {
+            background: var(--primary);
+            color: #0b0d0e;
+        }
+        .sig-styles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .sig-style-card {
+            background: #ffffff;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 6px 4px 4px 4px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            user-select: none;
+            height: 84px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .sig-style-card:hover {
+            border-color: rgba(0, 220, 130, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+        .sig-style-card.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary), 0 4px 14px rgba(0, 220, 130, 0.28);
+        }
+        .sig-card-badge {
+            position: absolute;
+            top: 4px;
+            right: 5px;
+            width: 15px;
+            height: 15px;
+            background: var(--primary);
+            color: #0b0d0e;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 9.5px;
+            font-weight: 900;
+        }
+        .sig-style-card.active .sig-card-badge {
+            display: flex;
+        }
+        .sig-preview-box {
+            width: 100%;
+            height: 48px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 1px;
+        }
+        .sig-preview-box svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .sig-style-title {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            line-height: 1.1;
+        }
+        .sig-style-sub {
+            font-family: Arial, sans-serif;
+            font-size: 8px;
+            color: #64748b;
+            text-align: center;
+            line-height: 1;
+            margin-top: 1px;
+        }
+
         /* ─── COLUNA PREVIEW (DIREITA) ─── */
         .preview-column {
             background: var(--surface);
@@ -608,11 +715,20 @@
             align-items: center;
             text-align: center;
         }
-        .cert-signature-img {
-            width: 175px;
-            height: 72px;
-            object-fit: contain;
+        .cert-signature-wrap {
+            width: 195px;
+            height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent !important;
+        }
+        .cert-signature-svg {
+            width: 100%;
+            height: 100%;
             display: block;
+            overflow: visible;
+            background: transparent !important;
         }
         .cert-sig-name {
             font-family: Arial, Helvetica, sans-serif;
@@ -631,6 +747,60 @@
             text-transform: uppercase;
             margin-top: 4px;
             line-height: 1.2;
+        }
+
+        /* ─── MARCA D'ÁGUA OFICIAL SENAI (NO CENTRO DA FOLHA) ─── */
+        .cert-official-watermark {
+            position: absolute;
+            top: 52%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            pointer-events: none;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 460px;
+            height: 220px;
+            opacity: 0.055;
+            color: #005caa;
+            user-select: none;
+        }
+        .cert-wm-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* ─── MARCA D'ÁGUA DE PRÉVIA — COBERTURA TOTAL SOBRE O DOCUMENTO ─── */
+        .cert-preview-watermark-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            overflow: hidden;
+        }
+        .cert-wm-band {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: rgba(220, 38, 38, 0.16);
+            font-family: Arial, sans-serif;
+            transform: rotate(-24deg);
+            text-transform: uppercase;
+            white-space: nowrap;
+            border-top: 2px dashed rgba(220, 38, 38, 0.22);
+            border-bottom: 2px dashed rgba(220, 38, 38, 0.22);
+            padding: 8px 36px;
+            border-radius: 8px;
+            user-select: none;
         }
 
         /* ─── QR CODE E LINK NO CANTO INFERIOR DIREITO ─── */
@@ -814,7 +984,53 @@
                 </div>
             </div>
 
-            <div class="form-group">
+            <!-- SELETOR DE ESTILOS DE ASSINATURA FEITA À MÃO (SISTEMA DOS ATESTADOS) -->
+            <div class="sig-selector-wrapper">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+                    <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                        <span>Assinatura Feita à Mão</span>
+                    </label>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <button type="button" class="btn-sig-variation" onclick="proximaVariacaoAssinatura()" title="Gerar novo traço manual com pequenas variações de caligrafia">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                            <span>Variar Traço</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SELETOR DE COR DA CANETA -->
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; background:#181c1d; padding:8px 10px; border-radius:8px; border:1px solid var(--border);">
+                    <span style="font-size:12px; font-weight:600; color:#cbd5e1;">Cor da Caneta: <strong id="lblCorCaneta" style="color:#00dc82;">Preto Tinta</strong></span>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" class="btn-cor-caneta" id="btnCorPreto" onclick="setCorCaneta('#111827', this)" title="Preto Tinta (Oficial)" style="width:22px; height:22px; border-radius:50%; background:#111827; border:2px solid #00dc82; cursor:pointer;"></button>
+                        <button type="button" class="btn-cor-caneta" id="btnCorAzul" onclick="setCorCaneta('#1040cf', this)" title="Azul Caneta" style="width:22px; height:22px; border-radius:50%; background:#1040cf; border:2px solid transparent; cursor:pointer;"></button>
+                        <button type="button" class="btn-cor-caneta" id="btnCorAzulMarinho" onclick="setCorCaneta('#002b80', this)" title="Azul Marinho" style="width:22px; height:22px; border-radius:50%; background:#002b80; border:2px solid transparent; cursor:pointer;"></button>
+                    </div>
+                </div>
+
+                <!-- GRADE COM OS ESTILOS DE ASSINATURA -->
+                <div class="sig-styles-grid" id="sigStylesGrid" style="max-height: 240px; overflow-y: auto; padding-right: 2px;">
+                    <!-- Renderizado dinamicamente via JavaScript -->
+                </div>
+            </div>
+
+            <!-- CONTROLE DE MARCA D'ÁGUA -->
+            <div class="form-group" style="margin-top:14px; background:#181c1d; padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
+                <label class="form-label" style="margin-bottom:6px;">Controle de Marca d'Água</label>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#cbd5e1; cursor:pointer;">
+                        <input type="checkbox" id="chkWatermarkOficial" checked onchange="toggleWatermarkOficial(this.checked)" style="accent-color:#00dc82;">
+                        <span>Marca d'Água Oficial SENAI (Fundo de Segurança)</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#cbd5e1; cursor:pointer;">
+                        <input type="checkbox" id="chkWatermarkPrevia" checked onchange="toggleWatermarkPrevia(this.checked)" style="accent-color:#00dc82;">
+                        <span>Marca d'Água de Prévia (desaparece ao gerar PDF)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:10px;">
                 <label class="form-label" for="inpQrUrl">Link de Validação (QR Code)</label>
                 <input type="text" id="inpQrUrl" class="form-input" value="http://www.fieb.org.br/senai/certificados" oninput="updateCertificado()">
             </div>
@@ -852,6 +1068,24 @@
                         <!-- Imagem de Fundo HD (Template com Logo FIEB/SENAI, Polígonos Geométricos e Textura) -->
                         <img src="assets/senai_template_hd.png" class="cert-bg-img" alt="Template Oficial SENAI">
 
+                        <!-- MARCA D'ÁGUA OFICIAL SENAI NO CENTRO DO PAPEL (SUBTIL E ELEGANTE) -->
+                        <div class="cert-official-watermark" id="certOfficialWatermark">
+                            <svg viewBox="0 0 460 120" class="cert-wm-svg">
+                                <g fill="currentColor">
+                                    <path d="M20 75 L38 25 L60 25 L42 75 Z M48 75 L66 25 L88 25 L70 75 Z M76 75 L94 25 L116 25 L98 75 Z" />
+                                    <text x="130" y="70" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="54" letter-spacing="4">SENAI</text>
+                                    <text x="132" y="98" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="700" font-size="16" letter-spacing="3.5">PELO FUTURO DO TRABALHO</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- MARCA D'ÁGUA DE PRÉVIA (COBERTURA TOTAL SOBRE O DOCUMENTO) -->
+                        <div class="cert-preview-watermark-overlay" id="previewWatermarkOverlay">
+                            <div class="cert-wm-band top">PRÉVIA — NÃO OFICIAL</div>
+                            <div class="cert-wm-band mid">SISTEMA FIEB • SENAI BAHIA</div>
+                            <div class="cert-wm-band btm">DOCUMENTO PENDENTE DE EMISSÃO</div>
+                        </div>
+
                         <!-- Camada de Conteúdo Dinâmico -->
                         <div class="cert-content-overlay">
 
@@ -870,9 +1104,11 @@
                                 O SENAI - SERVIÇO NACIONAL DE APRENDIZAGEM INDUSTRIAL, Departamento Regional da Bahia, certifica que <span id="prevNome">Israel Santos Cardeal</span>, portador do RG <span id="prevRg">2125673908</span> <span id="prevOrgao">SSP / BA</span> e CPF <span id="prevCpf">86717019565</span> concluiu com rendimento satisfatório o curso <span id="prevCurso">Qualificação Profissional em Programador Web</span>, realizado no período de <span id="prevDataInicio">20/11/2023</span> a <span id="prevDataFim">20/03/2024</span> com duração de <span id="prevCarga">240</span> horas.
                             </p>
 
-                            <!-- Assinatura Oficial da Diretoria -->
+                            <!-- Assinatura Oficial da Diretoria (Vetor 100% Transparente, Sem Caixa Cinza) -->
                             <div class="cert-signature-container">
-                                <img src="assets/senai_assinatura_hd.png" class="cert-signature-img" id="prevAssinaturaImg" alt="Assinatura Diretor Regional">
+                                <div class="cert-signature-wrap" id="certSignatureWrap">
+                                    <svg id="certSignatureSvg" viewBox="0 0 240 90" class="cert-signature-svg"></svg>
+                                </div>
                                 <div class="cert-sig-name" id="prevDiretorNome">Evandro Munice Mazo</div>
                                 <div class="cert-sig-cargo" id="prevDiretorCargo">DIRETOR REGIONAL DO SENAI/BA</div>
                             </div>
@@ -951,6 +1187,9 @@
             document.getElementById('prevDiretorCargo').textContent = diretorCargo;
             document.getElementById('prevQrUrl').textContent = qrUrl;
 
+            // Atualiza Assinatura Dinâmica Feita à Mão
+            renderAssinatura();
+
             // Atualiza QR Code dinamicamente
             renderQrCode(qrUrl);
         }
@@ -973,6 +1212,327 @@
             }
         }
 
+        // ─── GERADOR DE ASSINATURAS FEITAS À MÃO (SISTEMA DOS ATESTADOS) ───
+        const SIGNATURE_STYLES = [
+            { id: 0, name: "Rubrica Oficial", desc: "Monograma idêntico ao original SENAI" },
+            { id: 1, name: "Cursiva clássica", desc: "Traço natural à mão livre" },
+            { id: 2, name: "Cursiva inclinada", desc: "Inclinação suave e elegante" },
+            { id: 3, name: "Tinta forte", desc: "Caneta pesada e marcante" },
+            { id: 4, name: "Elegante", desc: "Caligrafia nobre com floreio" },
+            { id: 5, name: "Caneta fina", desc: "Ponta fina e traço rápido" },
+            { id: 6, name: "Clássica reta", desc: "Alinhamento sóbrio e formal" },
+            { id: 7, name: "Manuscrita oficial", desc: "Estilo assinatura em documento" },
+            { id: 8, name: "Caligrafia expressiva", desc: "Escrita rítmica e moderna" },
+            { id: 9, name: "Rubrica ágil", desc: "Laço superior e oscilações" },
+            { id: 10, name: "Traço com paraph", desc: "Inicial + Sobrenome e paraph" },
+            { id: 11, name: "Scribble veloz", desc: "Traço rápido e dinâmico" },
+            { id: 12, name: "Rubrica circular", desc: "Laço envolvente 360°" }
+        ];
+
+        let currentSigStyleIndex = 0;
+        let currentSigVariation = 0;
+        let currentSigColor = '#111827';
+
+        function setCorCaneta(color, btn) {
+            currentSigColor = color;
+            document.querySelectorAll('.btn-cor-caneta').forEach(b => b.style.borderColor = 'transparent');
+            if (btn) btn.style.borderColor = '#00dc82';
+
+            const lbl = document.getElementById('lblCorCaneta');
+            if (lbl) {
+                if (color === '#111827') lbl.textContent = 'Preto Tinta';
+                else if (color === '#1040cf') lbl.textContent = 'Azul Caneta';
+                else if (color === '#002b80') lbl.textContent = 'Azul Marinho';
+            }
+            renderAssinatura();
+        }
+
+        function proximaVariacaoAssinatura() {
+            currentSigVariation++;
+            renderAssinatura();
+        }
+
+        function selectSigStyle(styleId) {
+            currentSigStyleIndex = styleId;
+            renderAssinatura();
+        }
+
+        function cleanSignerName(raw) {
+            let s = (raw || 'Evandro Munice Mazo').trim();
+            const parts = s.split(/\s+/).filter(Boolean);
+            const first = parts[0] || 'Evandro';
+            const last = parts.length > 1 ? parts[parts.length - 1] : first;
+            const initialF = first.charAt(0).toUpperCase();
+            return { raw, withDr: s, nameWithoutDr: s, first, last, initialF, prefix: '' };
+        }
+
+        function hashSignerString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function generateDirectorSignature(signerName, styleId, color, variation) {
+            const doc = cleanSignerName(signerName);
+            const hash = hashSignerString(doc.raw) + (variation * 37);
+            const textToDisplay = doc.raw;
+
+            function getFontSize(base, min) {
+                if (textToDisplay.length > 25) return min;
+                if (textToDisplay.length > 18) return Math.round(base * 0.82);
+                return base;
+            }
+
+            let svg = '';
+
+            switch(styleId) {
+                case 0: { // Rubrica Oficial SENAI (Monograma do Diretor)
+                    const rot = -2 + (hash % 3);
+                    svg = `
+                        <g transform="rotate(${rot}, 120, 45)">
+                            <path d="M 62 76 C 64 60, 68 38, 78 20 C 81 16, 84 15, 87 18 C 91 22, 91 38, 86 56 C 82 72, 78 86, 94 82 C 105 79, 106 64, 108 48 C 110 38, 116 31, 122 31 C 128 31, 131 42, 132 54 C 134 66, 140 48, 146 38 C 151 32, 157 30, 163 32 C 168 34, 168 47, 164 58 C 159 72, 148 85, 168 80 C 182 76, 194 60, 204 50" 
+                                fill="none" stroke="${color}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M 50 62 Q 105 56, 160 49 T 218 40" 
+                                fill="none" stroke="${color}" stroke-width="2.7" stroke-linecap="round" />
+                            <circle cx="219" cy="40" r="1.4" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 1: { // Cursiva clássica
+                    const fSize = getFontSize(25, 19);
+                    const rot = -2 + (hash % 3);
+                    const uY = 68;
+                    svg = `
+                        <g transform="rotate(${rot}, 120, 45)">
+                            <text x="35" y="55" style="font-family:'Cedarville Cursive', cursive;" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.4">${textToDisplay}</text>
+                            <path d="M 32 ${uY} C 80 ${uY + 4}, 150 ${uY - 3}, 205 ${uY + 1} Q 215 ${uY + 2}, 225 ${uY - 2}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" />
+                            <circle cx="227" cy="${uY - 3}" r="1.4" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 2: { // Cursiva inclinada
+                    const fSize = getFontSize(30, 22);
+                    const rot = -5 + (hash % 3);
+                    const uY = 70;
+                    svg = `
+                        <g transform="rotate(${rot}, 120, 45)">
+                            <text x="36" y="52" style="font-family:'Allura', cursive;" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.8">${textToDisplay}</text>
+                            <path d="M 34 ${uY} C 75 ${uY + 3}, 135 ${uY - 4}, 185 ${uY + 2} C 198 ${uY + 4}, 210 ${uY - 2}, 222 ${uY - 5}" fill="none" stroke="${color}" stroke-width="1.9" stroke-linecap="round" />
+                            <circle cx="224" cy="${uY - 6}" r="1.5" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 3: { // Tinta forte
+                    const fSize = getFontSize(26, 20);
+                    const rot = -3 + (hash % 3);
+                    const uY = 69;
+                    svg = `
+                        <g transform="rotate(${rot}, 120, 45)">
+                            <text x="32" y="53" style="font-family:'Mr Dafoe', cursive;" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.5">${textToDisplay}</text>
+                            <path d="M 30 ${uY} C 70 ${uY + 2}, 140 ${uY - 2}, 190 ${uY + 1} Q 205 ${uY + 2}, 224 ${uY - 1}" fill="none" stroke="${color}" stroke-width="2.6" stroke-linecap="round" />
+                            <circle cx="226" cy="${uY - 2}" r="1.8" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 4: { // Elegante
+                    const fSize = getFontSize(31, 23);
+                    const rot = -4 + (hash % 3);
+                    const uY = 70;
+                    svg = `
+                        <g transform="rotate(${rot}, 120, 45)">
+                            <text x="34" y="52" style="font-family:'Great Vibes', cursive;" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.8">${textToDisplay}</text>
+                            <path d="M 32 ${uY} C 60 ${uY - 4}, 100 ${uY + 6}, 150 ${uY - 3} C 185 ${uY - 8}, 205 ${uY + 4}, 225 ${uY}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" />
+                            <circle cx="227" cy="${uY}" r="1.4" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 5: { // Caneta fina
+                    const fSize = getFontSize(25, 18);
+                    const rot = -3 + (hash % 4);
+                    const uY = 69;
+                    svg = `
+                        <g transform="rotate(${rot}, 120, 45)">
+                            <text x="32" y="54" style="font-family:'La Belle Aurore', cursive;" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.2">${textToDisplay}</text>
+                            <path d="M 30 ${uY} C 80 ${uY + 2}, 150 ${uY - 3}, 220 ${uY}" fill="none" stroke="${color}" stroke-width="1.3" stroke-linecap="round" />
+                            <circle cx="222" cy="${uY}" r="1.2" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 6: { // Clássica reta
+                    const fSize = getFontSize(25, 19);
+                    const uY = 70;
+                    svg = `
+                        <g>
+                            <text x="34" y="54" style="font-family:'Marck Script', cursive;" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.4">${textToDisplay}</text>
+                            <path d="M 32 ${uY} L 220 ${uY}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" />
+                            <path d="M 42 ${uY + 4} L 180 ${uY + 4}" fill="none" stroke="${color}" stroke-width="1.0" stroke-linecap="round" opacity="0.85" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 7: { // Manuscrita oficial
+                    const fSize = getFontSize(22, 16);
+                    const rot = -4 + (hash % 3);
+                    const uY = 69;
+                    svg = `
+                        <g transform="rotate(${rot}, 120, 45)">
+                            <text x="32" y="53" style="font-family:'Homemade Apple', cursive;" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.3">${textToDisplay}</text>
+                            <path d="M 30 ${uY} C 70 ${uY + 4}, 130 ${uY - 4}, 180 ${uY + 3} Q 200 ${uY + 5}, 224 ${uY - 4}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 8: { // Caligrafia expressiva
+                    const fSize = getFontSize(26, 19);
+                    const rot = -3 + (hash % 3);
+                    const uY = 70;
+                    svg = `
+                        <g transform="rotate(${rot}, 120, 45)">
+                            <text x="34" y="53" style="font-family:'Dancing Script', cursive;" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.6">${textToDisplay}</text>
+                            <path d="M 32 ${uY} C 75 ${uY - 3}, 130 ${uY + 5}, 175 ${uY - 2} C 190 ${uY - 5}, 208 ${uY + 2}, 225 ${uY - 2}" fill="none" stroke="${color}" stroke-width="2.1" stroke-linecap="round" />
+                            <circle cx="227" cy="${uY - 3}" r="1.5" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 9: { // Rubrica ágil
+                    const startX = 46 + (hash % 12);
+                    const startY = 56 + ((hash >> 2) % 6);
+                    const loopTopY = 22 + ((hash >> 4) % 9);
+                    const loopWidth = 36 + ((hash >> 6) % 12);
+                    const waveLen = Math.min(8, Math.max(4, doc.last.length));
+                    let wavePath = `M ${startX} ${startY} C ${startX + 2} ${loopTopY + 12}, ${startX + loopWidth * 0.4} ${loopTopY}, ${startX + loopWidth * 0.9} ${loopTopY + 2} C ${startX + loopWidth * 1.3} ${loopTopY + 2}, ${startX + loopWidth * 1.4} ${startY + 15}, ${startX + loopWidth} ${startY + 22}`;
+
+                    let currX = startX + loopWidth * 0.8;
+                    let currY = startY + 20;
+
+                    for (let w = 0; w < waveLen; w++) {
+                        const charCode = doc.last.charCodeAt(w % doc.last.length) || 100;
+                        const waveH = 10 + (charCode % 12);
+                        const stepX = 8 + (charCode % 5);
+                        const cpY1 = currY - waveH;
+                        const cpY2 = currY + waveH * 0.6;
+                        wavePath += ` Q ${currX + stepX * 0.5} ${cpY1}, ${currX + stepX} ${currY - 2} Q ${currX + stepX * 1.5} ${cpY2}, ${currX + stepX * 2} ${currY}`;
+                        currX += stepX * 2;
+                    }
+
+                    const endX = Math.min(215, currX + 22);
+                    const endY = currY - 6;
+                    wavePath += ` C ${currX + 8} ${currY + 8}, ${endX - 10} ${endY + 12}, ${endX} ${endY}`;
+                    const dotX = endX - 8;
+                    const dotY = endY - 18;
+
+                    svg = `
+                        <path d="${wavePath}" fill="none" stroke="${color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="${dotX}" cy="${dotY}" r="1.6" fill="${color}" />
+                    `;
+                    break;
+                }
+                case 10: { // Traço com paraph
+                    const shortName = `${doc.initialF}. ${doc.last}`;
+                    let fontSize = 29;
+                    if (shortName.length > 18) fontSize = 23;
+                    svg = `
+                        <g transform="rotate(-3, 115, 45)">
+                            <text x="40" y="50" style="font-family:'Alex Brush', cursive;" font-size="${fontSize}" font-weight="700" fill="${color}" letter-spacing="1">${shortName}</text>
+                            <path d="M 38 64 C 80 58, 135 60, 185 56 C 200 55, 180 70, 145 72 C 105 74, 60 72, 45 70" fill="none" stroke="${color}" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="192" cy="54" r="1.7" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 11: { // Scribble veloz
+                    const startX = 42 + (hash % 10);
+                    const peakY = 22 + ((hash >> 2) % 8);
+                    const valleyY = 78 + ((hash >> 4) % 6);
+                    const waveCount = 5 + (hash % 4);
+                    let p = `M ${startX} 62 C ${startX + 5} 40, ${startX + 18} ${peakY}, ${startX + 28} ${peakY + 6} C ${startX + 38} ${peakY + 12}, ${startX + 32} ${valleyY}, ${startX + 44} ${valleyY - 6}`;
+
+                    let cx = startX + 44;
+                    let cy = valleyY - 6;
+                    for (let i = 0; i < waveCount; i++) {
+                        const h = 8 + (i % 3) * 4;
+                        p += ` L ${cx + 8} ${cy - h} L ${cx + 16} ${cy + 2}`;
+                        cx += 16;
+                    }
+                    p += ` C ${cx + 10} ${cy - 8}, ${cx + 26} ${cy - 12}, ${Math.min(215, cx + 38)} ${cy - 6}`;
+
+                    svg = `
+                        <path d="${p}" fill="none" stroke="${color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="${startX + 26}" cy="${peakY + 2}" r="1.6" fill="${color}" />
+                    `;
+                    break;
+                }
+                case 12: { // Rubrica circular
+                    const rot = -4 + (hash % 4);
+                    svg = `
+                        <g transform="rotate(${rot}, 115, 45)">
+                            <text x="65" y="52" style="font-family:'Caveat', cursive;" font-size="28" font-weight="700" fill="${color}">${doc.first}</text>
+                            <path d="M 45 56 C 35 34, 75 18, 135 20 C 190 22, 215 46, 202 68 C 190 88, 110 92, 55 82 C 30 77, 35 64, 65 61 L 200 58" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="203" cy="58" r="1.6" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                default: {
+                    svg = `
+                        <text x="40" y="55" style="font-family:'Cedarville Cursive', cursive;" font-size="24" fill="${color}">${textToDisplay}</text>
+                    `;
+                }
+            }
+            return svg;
+        }
+
+        function renderAssinatura() {
+            const dirName = document.getElementById('inpDiretorNome')?.value || DEFAULT_DATA.diretorNome;
+            const svgEl = document.getElementById('certSignatureSvg');
+            if (svgEl) {
+                svgEl.innerHTML = generateDirectorSignature(dirName, currentSigStyleIndex, currentSigColor, currentSigVariation);
+            }
+            renderInlineCards(dirName);
+        }
+
+        function renderInlineCards(dirName) {
+            const grid = document.getElementById('sigStylesGrid');
+            if (!grid) return;
+
+            grid.innerHTML = SIGNATURE_STYLES.map((style) => {
+                const isActive = (style.id === currentSigStyleIndex);
+                const previewSvg = generateDirectorSignature(dirName, style.id, currentSigColor, currentSigVariation);
+                return `
+                    <div class="sig-style-card ${isActive ? 'active' : ''}" onclick="selectSigStyle(${style.id})" title="${style.name} - ${style.desc}">
+                        <span class="sig-card-badge">✓</span>
+                        <div class="sig-preview-box">
+                            <svg viewBox="0 0 240 90" preserveAspectRatio="xMidYMid meet">
+                                ${previewSvg}
+                            </svg>
+                        </div>
+                        <div class="sig-style-title">${style.name}</div>
+                        <div class="sig-style-sub">${style.desc}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleWatermarkOficial(show) {
+            const el = document.getElementById('certOfficialWatermark');
+            if (el) el.style.display = show ? 'flex' : 'none';
+        }
+
+        function toggleWatermarkPrevia(show) {
+            const el = document.getElementById('previewWatermarkOverlay');
+            if (el) el.style.display = show ? 'flex' : 'none';
+        }
+
         function preencherExemploOficial() {
             document.getElementById('inpNome').value = DEFAULT_DATA.nome;
             document.getElementById('inpCpf').value = DEFAULT_DATA.cpf;
@@ -985,6 +1545,9 @@
             document.getElementById('inpDiretorNome').value = DEFAULT_DATA.diretorNome;
             document.getElementById('inpDiretorCargo').value = DEFAULT_DATA.diretorCargo;
             document.getElementById('inpQrUrl').value = DEFAULT_DATA.qrUrl;
+            currentSigStyleIndex = 0;
+            currentSigVariation = 0;
+            currentSigColor = '#111827';
             updateCertificado();
         }
 
@@ -1043,6 +1606,11 @@
                 }
             } catch(e) {}
 
+            // Oculta temporariamente a marca d'água de prévia para que o PDF gerado seja 100% oficial e limpo
+            const prevWm = document.getElementById('previewWatermarkOverlay');
+            const chkPrevia = document.getElementById('chkWatermarkPrevia');
+            if (prevWm) prevWm.style.display = 'none';
+
             // Gera e baixa o PDF
             const sheet = document.getElementById('certSheet');
             if (sheet) {
@@ -1074,6 +1642,9 @@
                     alert('Erro ao exportar PDF. Tente novamente.');
                 } finally {
                     wrapper.style.transform = prevTransform;
+                    if (prevWm && chkPrevia && chkPrevia.checked) {
+                        prevWm.style.display = 'flex';
+                    }
                 }
             }
 
