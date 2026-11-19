@@ -379,52 +379,26 @@
             border-top: 1px solid var(--border);
         }
         .btn-action-primary {
-            background: var(--eb-green);
-            color: #ffffff;
+            background: #00dc82;
+            color: #062517;
             border: none;
             border-radius: 10px;
-            padding: 13px 18px;
-            font-size: 14px;
+            padding: 13px 20px;
+            font-size: 13.5px;
             font-weight: 800;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             transition: all 0.2s;
-            box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+            box-shadow: 0 4px 14px rgba(0, 220, 130, 0.25);
             width: 100%;
         }
         .btn-action-primary:hover {
-            background: var(--eb-green-hover);
+            background: #00f590;
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.45);
-        }
-        .secondary-actions-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .btn-action-secondary {
-            background: #181c1d;
-            border: 1px solid var(--border);
-            color: #e2e8f0;
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 12.5px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .btn-action-secondary:hover {
-            background: #202527;
-            border-color: #3a4144;
-            color: #fff;
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.35);
         }
 
         /* ─── COLUNA PREVIEW (DIREITA) ─── */
@@ -869,28 +843,12 @@
                 <input type="text" id="inpSisGCorp" class="form-input" value="a0000bf0d0dc00c00a00000e0" oninput="updateCR()">
             </div>
 
-            <!-- AÇÕES DE EXPORTAÇÃO -->
+            <!-- AÇÃO PRINCIPAL DE EMISSÃO -->
             <div class="form-actions">
-                <button type="button" class="btn-action-primary" id="btnSalvarCR" onclick="salvarCR()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    <span>Salvar e Emitir CR Exército (R$ 20,00)</span>
+                <button type="button" class="btn-action-primary btn-gerar" id="btnExportPdf" onclick="gerarCrPdf()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span id="btnGerarTxt">Gerar PDF — Certificado de Registro CR</span>
                 </button>
-
-                <div class="secondary-actions-row">
-                    <button type="button" class="btn-action-secondary" onclick="exportarImagemPNG()">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        <span>Baixar Imagem PNG</span>
-                    </button>
-                    <button type="button" class="btn-action-secondary" onclick="exportarPDF()">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                        <span>Baixar PDF A4</span>
-                    </button>
-                </div>
-
-                <a href="cr-exercito.html" class="btn-action-secondary" style="margin-top:4px;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
-                    <span>Ver Documentos Emitidos (Histórico)</span>
-                </a>
             </div>
         </section>
 
@@ -1083,10 +1041,12 @@
             updateCR();
         }
 
-        // ─── SALVAR CERTIFICADO DE REGISTRO ───
-        async function salvarCR() {
-            const btn = document.getElementById('btnSalvarCR');
+        // ─── GERAR PDF E SALVAR NO HISTÓRICO (PADRÃO OFICIAL) ───
+        async function gerarCrPdf() {
+            const btn = document.getElementById('btnExportPdf');
+            const txt = document.getElementById('btnGerarTxt');
             if (btn) btn.disabled = true;
+            if (txt) txt.textContent = 'Gerando PDF Oficial...';
 
             const crNum = document.getElementById('inpCrNum').value.trim() || DEFAULT_CR.crNum;
             const validade = document.getElementById('inpValidade').value.trim() || DEFAULT_CR.validade;
@@ -1115,7 +1075,7 @@
                 status: 'Ativo'
             };
 
-            // Salva no localStorage principal
+            // Salva no localStorage principal e do usuário
             try {
                 let list = JSON.parse(localStorage.getItem('cr_historico') || '[]');
                 list = list.filter(item => item.id !== id);
@@ -1140,53 +1100,14 @@
                 }
             } catch(e) {}
 
-            alert('Certificado de Registro CR salvo com sucesso no histórico!');
-            if (btn) btn.disabled = false;
-        }
-
-        // ─── EXPORTAÇÃO EM PNG DE ALTA DEFINIÇÃO (FRENTE E VERSO EMPILHADOS) ───
-        async function exportarImagemPNG() {
+            // Gera o PDF
             const cardFrente = document.getElementById('cardFrente');
             const cardVerso = document.getElementById('cardVerso');
-            if (!cardFrente || !cardVerso) return;
-
-            const wrapper = document.getElementById('docZoomWrapper');
-            const prevTransform = wrapper.style.transform;
-            wrapper.style.transform = 'scale(1)';
-
-            try {
-                // Captura Frente e Verso
-                const canvasFrente = await html2canvas(cardFrente, { scale: 2, useCORS: true, allowTaint: true });
-                const canvasVerso = await html2canvas(cardVerso, { scale: 2, useCORS: true, allowTaint: true });
-
-                // Combina Frente e Verso em imagem única vertical
-                const mergedCanvas = document.createElement('canvas');
-                mergedCanvas.width = canvasFrente.width;
-                mergedCanvas.height = canvasFrente.height + canvasVerso.height + 40;
-                const ctx = mergedCanvas.getContext('2d');
-                ctx.fillStyle = '#0f172a';
-                ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
-                ctx.drawImage(canvasFrente, 0, 0);
-                ctx.drawImage(canvasVerso, 0, canvasFrente.height + 40);
-
-                const link = document.createElement('a');
-                const nomeTitular = (document.getElementById('inpNome').value || 'cr').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-                link.download = `cr_exercito_${nomeTitular}_frente_verso.png`;
-                link.href = mergedCanvas.toDataURL('image/png');
-                link.click();
-            } catch(e) {
-                console.error('Erro ao gerar imagem:', e);
-                alert('Erro ao exportar imagem. Tente novamente.');
-            } finally {
-                wrapper.style.transform = prevTransform;
+            if (!cardFrente || !cardVerso) {
+                if (btn) btn.disabled = false;
+                if (txt) txt.textContent = 'Gerar PDF — Certificado de Registro CR';
+                return;
             }
-        }
-
-        // ─── EXPORTAÇÃO EM PDF OFICIAL A4 ───
-        async function exportarPDF() {
-            const cardFrente = document.getElementById('cardFrente');
-            const cardVerso = document.getElementById('cardVerso');
-            if (!cardFrente || !cardVerso) return;
 
             const wrapper = document.getElementById('docZoomWrapper');
             const prevTransform = wrapper.style.transform;
@@ -1199,7 +1120,6 @@
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-                // Dimensões exatas do cartão CR em mm no A4: 85.6 x 56.8 mm (ou proporção ampliada 140 x 93 mm para leitura perfeita)
                 const cardW = 140;
                 const cardH = 93;
                 const marginX = (210 - cardW) / 2;
@@ -1210,13 +1130,15 @@
                 pdf.addImage(imgFrente, 'JPEG', marginX, 35, cardW, cardH, '', 'FAST');
                 pdf.addImage(imgVerso, 'JPEG', marginX, 145, cardW, cardH, '', 'FAST');
 
-                const nomeTitular = (document.getElementById('inpNome').value || 'cr').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                const nomeTitular = (nome || 'cr').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
                 pdf.save(`cr_exercito_${nomeTitular}.pdf`);
             } catch(e) {
                 console.error('Erro ao gerar PDF:', e);
                 alert('Erro ao exportar PDF. Tente novamente.');
             } finally {
                 wrapper.style.transform = prevTransform;
+                if (btn) btn.disabled = false;
+                if (txt) txt.textContent = 'Gerar PDF — Certificado de Registro CR';
             }
         }
 
