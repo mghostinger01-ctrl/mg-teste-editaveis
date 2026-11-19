@@ -1663,6 +1663,69 @@
                 </div>
             </article>
 
+            <!-- CERTIFICADO DE CONCLUSÃO SENAI (FIEB BA) [EM DESENVOLVIMENTO / ACESSO ADMIN] -->
+            <article class="doc-card card-crlv-em-desenvolvimento" data-category="educacao" data-name="certificado senai fieb ba conclusao curso profissionalizante tecnico qualificacao programador aprendizagem industrial" onclick="handleSenaiEmBreve(event)" style="--card-accent:#005caa; --card-glow:rgba(0,92,170,0.18); --card-icon-bg:rgba(0,92,170,0.1); --card-icon-border:rgba(0,92,170,0.3); --card-pill-bg:rgba(0,92,170,0.12); --card-pill-border:rgba(0,92,170,0.3); --card-btn-bg:#005caa; --card-btn-glow:rgba(0,92,170,0.35); --card-border-hover:rgba(0,92,170,0.4);">
+                <div>
+                    <div class="card-top">
+                        <div class="card-icon-box" style="color:#005caa; background:rgba(0,92,170,0.1); border-color:rgba(0,92,170,0.25);">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                        </div>
+                        <span class="card-badge-pill" style="color:#f59e0b; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.1);">🔧 EM DESENVOLVIMENTO</span>
+                    </div>
+
+                    <div class="card-title-group">
+                        <div class="card-category-lbl">SENAI • SISTEMA FIEB</div>
+                        <h2 class="card-title">Certificado de Conclusão (SENAI BA)</h2>
+                    </div>
+
+                    <p class="card-desc">
+                        Certificado oficial de Conclusão de Curso do SENAI Bahia (Sistema FIEB) com dados do aluno, carga horária, assinatura da diretoria e QR Code validador.
+                    </p>
+
+                    <ul class="card-features">
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Layout oficial SENAI Bahia com padrão gráfico Sistema FIEB e marcas d'água</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Dados completos: Aluno, RG, Órgão Expedidor, CPF, Curso e Carga Horária</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Assinatura oficial do Diretor Regional e QR Code com link de autenticação</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Exportação ultrarrápida em PDF A4 e Imagem PNG de alta resolução</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-footer">
+                    <div class="price-row">
+                        <div class="price-info">
+                            <span class="price-sub">VALOR UNITÁRIO</span>
+                            <div class="price-main"><span class="price-currency" style="color:#005caa;">R$</span><span id="priceSenai">20,00</span></div>
+                        </div>
+                        <div class="delivery-pill" style="color:#60a5fa; background:rgba(0,92,170,0.08); border-color:rgba(0,92,170,0.25);">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <span>Em Breve</span>
+                        </div>
+                    </div>
+
+                    <div class="card-actions-group">
+                        <button type="button" class="btn-card-emitir" onclick="handleSenaiEmBreve(event)" style="background:rgba(0,92,170,0.15); color:#60a5fa; border:1px solid rgba(0,92,170,0.3); opacity:0.85;">
+                            <span>Em Breve</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+                        </button>
+                        <button type="button" class="btn-card-preview" onclick="openDocModal('senai')" title="Ver detalhes do Certificado SENAI">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </article>
+
             <!-- 6. CRLV DIGITAL / LICENCIAMENTO (EM DESENVOLVIMENTO) -->
             <article class="doc-card card-crlv-em-desenvolvimento" data-category="transito" data-name="crlv digital licenciamento veiculo renavam senatran detran placa chassi documento" onclick="handleCrlvEmBreve(event)" style="--card-accent:#10b981; --card-glow:rgba(16,185,129,0.15);">
                 <div>
@@ -2504,6 +2567,36 @@
                     </div>
                 `
             },
+            senai: {
+                category: 'SENAI • SISTEMA FIEB',
+                title: 'Certificado de Conclusão (SENAI BA)',
+                accent: '#005caa',
+                link: 'criar-certificado-senai.html',
+                devLink: 'criar-certificado-senai.html',
+                btnText: 'Em Desenvolvimento',
+                isDev: true,
+                html: `
+                    <div class="doc-modal-intro">
+                        O <strong>Certificado SENAI Bahia (Sistema FIEB)</strong> é emitido para comprovação de conclusão de cursos profissionalizantes e técnicos com reconhecimento profissional em todo o território nacional.
+                    </div>
+                    <div class="doc-modal-box" style="--accent:#005caa;">
+                        <div class="doc-modal-box-header" style="color:#005caa;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                            <span>Destaques Técnicos</span>
+                        </div>
+                        <ul class="doc-modal-list">
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Padrão gráfico oficial Sistema FIEB com geometria azul e marca d'água</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Dados do aluno, RG/Órgão, CPF, curso, período e carga horária</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Assinatura oficial do Diretor Regional e QR Code validador</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Exportação em alta definição em PDF A4 e Imagem PNG</span></li>
+                        </ul>
+                    </div>
+                    <div class="doc-modal-note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                        <span>Documento em modo restrito de desenvolvimento para administradores.</span>
+                    </div>
+                `
+            },
             reservista: {
                 category: 'MINISTÉRIO DA DEFESA • EXÉRCITO',
                 title: 'Certificado de Reservista Militar (Exército Brasileiro)',
@@ -2688,7 +2781,8 @@
             const devCards = [
                 { match: 'crlv', link: 'criar-crlv.html', name: 'CRLV Digital', accent: '#10b981' },
                 { match: 'cin', link: 'criar-rg.html', history: 'rg.html', name: 'RG Digital', accent: '#3b82f6' },
-                { match: 'atpv', link: 'criar-dut.html', name: 'DUT ATPV-e', accent: '#f97316' }
+                { match: 'atpv', link: 'criar-dut.html', name: 'DUT ATPV-e', accent: '#f97316' },
+                { match: 'senai', link: 'criar-certificado-senai.html', history: 'certificados-senai.html', name: 'Certificado SENAI (FIEB)', accent: '#005caa' }
             ];
 
             devCards.forEach(item => {
@@ -2805,6 +2899,16 @@
                 e.stopPropagation();
             }
             showToastDev('Certificado de Condutor (ICETRAN)', 'A emissão de Certificado de Condutor especializado ICETRAN está em desenvolvimento e estará disponível em breve.');
+            return false;
+        }
+
+        // Ação para o Certificado SENAI em desenvolvimento (Acesso exclusivo Admin)
+        function handleSenaiEmBreve(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            showToastDev('Certificado SENAI (Sistema FIEB)', 'A emissão do Certificado de Conclusão SENAI Bahia está em homologação técnica e disponível em modo DEV para administradores.');
             return false;
         }
 

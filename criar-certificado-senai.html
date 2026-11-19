@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+
+    <!-- Open Graph / Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MG Editáveis">
+    <meta property="og:title" content="MG Editáveis • Criar Certificado SENAI (FIEB BA)">
+    <meta property="og:description" content="Emissão e personalização de Certificado de Conclusão SENAI Bahia em tempo real.">
+    <meta property="og:image" content="https://mg-editaveis.vercel.app/og-image.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | Certificado SENAI (Sistema FIEB BA)</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- CDNs essenciais: html2canvas, jsPDF, QRCode -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="saldo-sync.js"></script>
+
+    <style>
+        :root {
+            --bg: #0c0e0f;
+            --surface: #141718;
+            --surface-card: #191c1d;
+            --surface-hover: #1f2325;
+            --surface-input: #111314;
+            --border: #232729;
+            --border-focus: #005caa;
+
+            --primary: #00dc82;
+            --primary-hover: #00c975;
+            --primary-light: rgba(0, 220, 130, 0.12);
+
+            --senai-blue: #005caa;
+            --senai-blue-hover: #0047ba;
+            --senai-blue-light: rgba(0, 92, 170, 0.15);
+            --senai-navy: #002f6c;
+
+            --text-main: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-serif: 'Cinzel', 'Playfair Display', 'Times New Roman', serif;
+            --font-mono: 'Roboto Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── SCROLLBAR ELEGANTE ─── */
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #232729; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #353b3d; }
+
+        /* ─── HEADER OFICIAL (62px) ─── */
+        .header {
+            height: 62px;
+            background: #141716;
+            border-bottom: 1px solid #242829;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+        }
+        .header-inner {
+            max-width: 1560px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #1a1e1d;
+            border: 1px solid #282d2c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .brand-icon-img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+        .brand-text {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .saldo-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 220, 130, 0.1);
+            border: 1px solid rgba(0, 220, 130, 0.25);
+            color: #00dc82;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .saldo-pill:hover {
+            background: rgba(0, 220, 130, 0.18);
+            transform: translateY(-1px);
+        }
+        .header-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: all 0.15s;
+        }
+        .header-link:hover {
+            color: #ffffff;
+            background: #1a1e1d;
+        }
+        .header-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: #1a1e1d;
+            border: 1px solid #282d2c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .header-icon:hover { color: #fff; border-color: #383e3c; }
+        .header-icon svg { width: 16px; height: 16px; }
+        .btn-voltar {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #191c1d;
+            border: 1px solid #282d2c;
+            color: #ffffff;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-voltar:hover {
+            background: #232729;
+            transform: translateY(-1px);
+        }
+        .btn-voltar svg { width: 14px; height: 14px; }
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #00dc82;
+            color: #0c0e0f;
+            font-weight: 800;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .avatar-dropdown {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background: #191c1d;
+            border: 1px solid #282d2c;
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 1001;
+        }
+        .avatar-dropdown.show { display: flex; }
+        .dropdown-header {
+            padding: 8px 12px;
+            border-bottom: 1px solid #242829;
+            margin-bottom: 4px;
+        }
+        .dropdown-name { font-size: 13px; font-weight: 700; color: #fff; }
+        .dropdown-email { font-size: 11px; color: var(--text-muted); }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .dropdown-item:hover { background: #232729; color: #fff; }
+        .dropdown-item.danger { color: #f87171; }
+        .dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+
+        /* ─── CONTAINER PRINCIPAL (GRID RESPONSIVA 1560px) ─── */
+        .main-container {
+            max-width: 1560px;
+            width: 100%;
+            margin: 80px auto 40px;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ─── COLUNA FORMULÁRIO (ESQUERDA) ─── */
+        .form-column {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .form-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .form-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .badge-senai {
+            background: var(--senai-blue-light);
+            border: 1px solid rgba(0, 92, 170, 0.35);
+            color: #60a5fa;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
+        .btn-reset-form {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-reset-form:hover {
+            color: #ffffff;
+            border-color: #3a4144;
+            background: #1c2022;
+        }
+
+        /* ─── GRUPOS DE CAMPOS DO FORMULÁRIO ─── */
+        .form-section-title {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .form-section-title svg {
+            width: 14px;
+            height: 14px;
+            color: var(--senai-blue);
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+        .form-input {
+            background: var(--surface-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #ffffff;
+            font-size: 13.5px;
+            font-family: var(--font-sans);
+            outline: none;
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            border-color: var(--senai-blue);
+            box-shadow: 0 0 0 2px rgba(0, 92, 170, 0.25);
+        }
+        .form-input::placeholder {
+            color: #55585a;
+        }
+
+        /* ─── BOTÕES DE AÇÃO ─── */
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .btn-action-primary {
+            background: var(--senai-blue);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 13px 18px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(0, 92, 170, 0.35);
+            width: 100%;
+        }
+        .btn-action-primary:hover {
+            background: var(--senai-blue-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 92, 170, 0.45);
+        }
+        .secondary-actions-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .btn-action-secondary {
+            background: #181c1d;
+            border: 1px solid var(--border);
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-action-secondary:hover {
+            background: #202527;
+            border-color: #3a4144;
+            color: #fff;
+        }
+
+        /* ─── COLUNA PREVIEW (DIREITA) ─── */
+        .preview-column {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            height: calc(100vh - 104px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 0;
+        }
+        .preview-toolbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .preview-title-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #00dc82;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00dc82;
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .zoom-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #0f1213;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2px 6px;
+        }
+        .btn-zoom {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .btn-zoom:hover { color: #fff; background: #1f2426; }
+        .zoom-val {
+            font-size: 11px;
+            font-weight: 700;
+            color: #cbd5e1;
+            min-width: 38px;
+            text-align: center;
+            font-family: var(--font-mono);
+        }
+
+        .doc-viewport {
+            width: 100%;
+            flex: 1;
+            overflow: auto;
+            background: #08090a;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .doc-zoom-wrapper {
+            transform-origin: top center;
+            transition: transform 0.15s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ─── FOLHA EM FORMATO A4 RETRATO (800 x 1131 px) ─── */
+        .cert-sheet-portrait {
+            width: 800px;
+            height: 1131px;
+            position: relative;
+            background-color: #ffffff;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
+            flex-shrink: 0;
+            overflow: hidden;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        /* Fundo com template HD oficial (contém logo FIEB/SENAI, polígonos superior-direito e inferior-esquerdo e textura) */
+        .cert-bg-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 800px;
+            height: 1131px;
+            object-fit: fill;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Conteúdo dinâmico sobreposto com tipografia idêntica à foto oficial */
+        .cert-content-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 800px;
+            height: 1131px;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+
+        /* ─── TÍTULO & LINHA COM ESTRELA CENTRAL (EXATAMENTE COMO NA FOTO) ─── */
+        .cert-title-container {
+            margin-top: 300px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .cert-main-title {
+            font-family: var(--font-serif);
+            font-size: 42px;
+            font-weight: 700;
+            color: #15294e;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            line-height: 1;
+            margin-bottom: 15px;
+        }
+        .cert-title-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 320px;
+            gap: 10px;
+        }
+        .divider-line {
+            flex: 1;
+            height: 1.5px;
+            background: #15294e;
+        }
+        .divider-star {
+            color: #15294e;
+            font-size: 13px;
+            line-height: 1;
+        }
+
+        /* ─── TEXTO PRINCIPAL (100% IDÊNTICO EM FONTE, PESO, ESPAÇAMENTOS) ─── */
+        .cert-body-paragraph {
+            margin-top: 86px;
+            padding: 0 88px;
+            font-family: Arial, Helvetica, 'Plus Jakarta Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.85;
+            color: #111827;
+            text-align: justify;
+            text-justify: inter-word;
+            box-sizing: border-box;
+        }
+
+        /* ─── BLOCO DE ASSINATURA DO DIRETOR REGIONAL ─── */
+        .cert-signature-container {
+            margin-top: 108px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .cert-signature-img {
+            width: 175px;
+            height: 72px;
+            object-fit: contain;
+            display: block;
+        }
+        .cert-sig-name {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+            margin-top: -2px;
+            line-height: 1.2;
+        }
+        .cert-sig-cargo {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            line-height: 1.2;
+        }
+
+        /* ─── QR CODE E LINK NO CANTO INFERIOR DIREITO ─── */
+        .cert-qr-container {
+            position: absolute;
+            bottom: 48px;
+            right: 76px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .cert-qr-box {
+            width: 72px;
+            height: 72px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cert-qr-box img, .cert-qr-box canvas {
+            width: 72px !important;
+            height: 72px !important;
+            display: block;
+        }
+        .cert-qr-url {
+            margin-top: 6px;
+            font-family: 'Times New Roman', Georgia, serif;
+            font-size: 11px;
+            color: #1e293b;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO PADRÃO OFICIAL MG EDITÁVEIS (62px) -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="editaveis.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <a href="recargas.html" class="saldo-pill" title="Clique para recarregar saldo">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </a>
+
+                <a href="indicacoes.html" class="header-link" title="Indique e Ganhe">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <span>Indique e Ganhe</span>
+                </a>
+
+                <div class="header-icon" onclick="showToast('Notificações')" title="Notificações">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </div>
+
+                <a href="editaveis.html" class="btn-voltar" title="Voltar ao Catálogo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    <span>Voltar</span>
+                </a>
+
+                <div class="avatar-circle" id="userHeaderAvatar" onclick="toggleAvatarDropdown(event)" title="Meu Perfil">M</div>
+
+                <div class="avatar-dropdown" id="avatarDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-name" id="dropUserName">MG Editáveis</div>
+                        <div class="dropdown-email" id="dropUserEmail">admin@mgeditaveis.com.br</div>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="perfil.html" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span>Perfil</span>
+                        </a>
+                        <a href="suporte.html" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <span>Suporte</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="login.html" class="dropdown-item danger" onclick="handleLogout(event)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            <span>Sair</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL (GRID 1560px) -->
+    <main class="main-container">
+
+        <!-- COLUNA ESQUERDA: FORMULÁRIO COMPLETO -->
+        <section class="form-column">
+            <div class="form-header">
+                <div>
+                    <h1 class="form-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                        Certificado SENAI (FIEB BA)
+                    </h1>
+                    <span style="font-size:12px; color:var(--text-muted);">Serviço Nacional de Aprendizagem Industrial • Emissão A4</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="badge-senai">OFICIAL</span>
+                    <button type="button" class="btn-reset-form" onclick="preencherExemploOficial()" title="Restaurar dados originais">Exemplo</button>
+                </div>
+            </div>
+
+            <!-- 1. DADOS DO ALUNO -->
+            <div class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>1. Dados do Aluno</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpNome">Nome Completo do Aluno</label>
+                <input type="text" id="inpNome" class="form-input" placeholder="Ex: Israel Santos Cardeal" value="Israel Santos Cardeal" oninput="updateCertificado()">
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label" for="inpCpf">CPF do Aluno</label>
+                    <input type="text" id="inpCpf" class="form-input" placeholder="Ex: 86717019565" value="86717019565" oninput="updateCertificado()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="inpRg">Número do RG</label>
+                    <input type="text" id="inpRg" class="form-input" placeholder="Ex: 2125673908" value="2125673908" oninput="updateCertificado()">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpOrgao">Órgão Emissor / UF do RG</label>
+                <input type="text" id="inpOrgao" class="form-input" placeholder="Ex: SSP / BA" value="SSP / BA" oninput="updateCertificado()">
+            </div>
+
+            <!-- 2. DADOS DO CURSO -->
+            <div class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <span>2. Dados do Curso e Período</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpCurso">Nome Completo do Curso</label>
+                <input type="text" id="inpCurso" class="form-input" placeholder="Ex: Qualificação Profissional em Programador Web" value="Qualificação Profissional em Programador Web" oninput="updateCertificado()">
+            </div>
+
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label class="form-label" for="inpDataInicio">Data Início</label>
+                    <input type="text" id="inpDataInicio" class="form-input" placeholder="DD/MM/AAAA" value="20/11/2023" oninput="updateCertificado()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="inpDataFim">Data Término</label>
+                    <input type="text" id="inpDataFim" class="form-input" placeholder="DD/MM/AAAA" value="20/03/2024" oninput="updateCertificado()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="inpCarga">Carga Horária</label>
+                    <input type="text" id="inpCarga" class="form-input" placeholder="Ex: 240" value="240" oninput="updateCertificado()">
+                </div>
+            </div>
+
+            <!-- 3. DIRETORIA & AUTENTICAÇÃO -->
+            <div class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>3. Diretoria e Validação</span>
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label" for="inpDiretorNome">Diretor Regional</label>
+                    <input type="text" id="inpDiretorNome" class="form-input" value="Evandro Munice Mazo" oninput="updateCertificado()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="inpDiretorCargo">Cargo Oficial</label>
+                    <input type="text" id="inpDiretorCargo" class="form-input" value="DIRETOR REGIONAL DO SENAI/BA" oninput="updateCertificado()">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpQrUrl">Link de Validação (QR Code)</label>
+                <input type="text" id="inpQrUrl" class="form-input" value="http://www.fieb.org.br/senai/certificados" oninput="updateCertificado()">
+            </div>
+
+            <!-- AÇÕES DE EXPORTAÇÃO -->
+            <div class="form-actions">
+                <button type="button" class="btn-action-primary" id="btnSalvarCertificado" onclick="salvarCertificado()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span>Salvar e Gerar Certificado SENAI (R$ 20,00)</span>
+                </button>
+
+                <div class="secondary-actions-row">
+                    <button type="button" class="btn-action-secondary" onclick="exportarImagemPNG()">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>Baixar Imagem PNG</span>
+                    </button>
+                    <button type="button" class="btn-action-secondary" onclick="exportarPDF()">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <span>Baixar PDF A4</span>
+                    </button>
+                </div>
+
+                <a href="certificados-senai.html" class="btn-action-secondary" style="margin-top:4px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+                    <span>Ver Certificados Emitidos (Histórico)</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- COLUNA DIREITA: PREVIEW EM TEMPO REAL -->
+        <section class="preview-column">
+            <div class="preview-toolbar">
+                <div class="preview-title-badge">
+                    <span class="pulse-dot"></span>
+                    <span>Visualização A4 Oficial (Emissão ao Vivo)</span>
+                </div>
+
+                <div class="zoom-group">
+                    <button type="button" class="btn-zoom" onclick="zoomChange(-0.05)" title="Reduzir">-</button>
+                    <span class="zoom-val" id="zoomVal">85%</span>
+                    <button type="button" class="btn-zoom" onclick="zoomChange(0.05)" title="Aumentar">+</button>
+                    <button type="button" class="btn-zoom" onclick="zoomReset()" style="font-size:10px; width:auto; padding:0 6px;" title="Ajustar">100%</button>
+                </div>
+            </div>
+
+            <div class="doc-viewport" id="docViewport">
+                <div class="doc-zoom-wrapper" id="docZoomWrapper" style="transform: scale(0.85);">
+
+                    <!-- FOLHA DO CERTIFICADO SENAI (800 x 1131 px) -->
+                    <div class="cert-sheet-portrait" id="certSheet">
+                        <!-- Imagem de Fundo HD (Template com Logo FIEB/SENAI, Polígonos Geométricos e Textura) -->
+                        <img src="assets/senai_template_hd.png" class="cert-bg-img" alt="Template Oficial SENAI">
+
+                        <!-- Camada de Conteúdo Dinâmico -->
+                        <div class="cert-content-overlay">
+
+                            <!-- Título e Divisor com Estrela -->
+                            <div class="cert-title-container">
+                                <h1 class="cert-main-title">CERTIFICADO</h1>
+                                <div class="cert-title-divider">
+                                    <span class="divider-line"></span>
+                                    <span class="divider-star">★</span>
+                                    <span class="divider-line"></span>
+                                </div>
+                            </div>
+
+                            <!-- Parágrafo de Certificação Oficial (100% Idêntico à Foto) -->
+                            <p class="cert-body-paragraph">
+                                O SENAI - SERVIÇO NACIONAL DE APRENDIZAGEM INDUSTRIAL, Departamento Regional da Bahia, certifica que <span id="prevNome">Israel Santos Cardeal</span>, portador do RG <span id="prevRg">2125673908</span> <span id="prevOrgao">SSP / BA</span> e CPF <span id="prevCpf">86717019565</span> concluiu com rendimento satisfatório o curso <span id="prevCurso">Qualificação Profissional em Programador Web</span>, realizado no período de <span id="prevDataInicio">20/11/2023</span> a <span id="prevDataFim">20/03/2024</span> com duração de <span id="prevCarga">240</span> horas.
+                            </p>
+
+                            <!-- Assinatura Oficial da Diretoria -->
+                            <div class="cert-signature-container">
+                                <img src="assets/senai_assinatura_hd.png" class="cert-signature-img" id="prevAssinaturaImg" alt="Assinatura Diretor Regional">
+                                <div class="cert-sig-name" id="prevDiretorNome">Evandro Munice Mazo</div>
+                                <div class="cert-sig-cargo" id="prevDiretorCargo">DIRETOR REGIONAL DO SENAI/BA</div>
+                            </div>
+
+                            <!-- QR Code e Link Oficial -->
+                            <div class="cert-qr-container">
+                                <div id="qrcodePreview" class="cert-qr-box"></div>
+                                <div class="cert-qr-url" id="prevQrUrl">http://www.fieb.org.br/senai/certificados</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // ─── DADOS PADRÃO DO MODELO OFICIAL ───
+        const DEFAULT_DATA = {
+            nome: 'Israel Santos Cardeal',
+            cpf: '86717019565',
+            rg: '2125673908',
+            orgao: 'SSP / BA',
+            curso: 'Qualificação Profissional em Programador Web',
+            dataInicio: '20/11/2023',
+            dataFim: '20/03/2024',
+            carga: '240',
+            diretorNome: 'Evandro Munice Mazo',
+            diretorCargo: 'DIRETOR REGIONAL DO SENAI/BA',
+            qrUrl: 'http://www.fieb.org.br/senai/certificados'
+        };
+
+        let currentZoom = 0.85;
+        let qrCodeObj = null;
+
+        // ─── CONTROLE DE ZOOM ───
+        function updateZoomUI() {
+            const wrapper = document.getElementById('docZoomWrapper');
+            const lbl = document.getElementById('zoomVal');
+            if (wrapper) wrapper.style.transform = `scale(${currentZoom})`;
+            if (lbl) lbl.textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+        function zoomChange(delta) {
+            currentZoom = Math.min(Math.max(0.4, currentZoom + delta), 1.6);
+            updateZoomUI();
+        }
+        function zoomReset() {
+            currentZoom = 1.0;
+            updateZoomUI();
+        }
+
+        // ─── ATUALIZAÇÃO EM TEMPO REAL DO CERTIFICADO ───
+        function updateCertificado() {
+            const nome = document.getElementById('inpNome').value || DEFAULT_DATA.nome;
+            const cpf = document.getElementById('inpCpf').value || DEFAULT_DATA.cpf;
+            const rg = document.getElementById('inpRg').value || DEFAULT_DATA.rg;
+            const orgao = document.getElementById('inpOrgao').value || DEFAULT_DATA.orgao;
+            const curso = document.getElementById('inpCurso').value || DEFAULT_DATA.curso;
+            const dataInicio = document.getElementById('inpDataInicio').value || DEFAULT_DATA.dataInicio;
+            const dataFim = document.getElementById('inpDataFim').value || DEFAULT_DATA.dataFim;
+            const carga = document.getElementById('inpCarga').value || DEFAULT_DATA.carga;
+            const diretorNome = document.getElementById('inpDiretorNome').value || DEFAULT_DATA.diretorNome;
+            const diretorCargo = document.getElementById('inpDiretorCargo').value || DEFAULT_DATA.diretorCargo;
+            const qrUrl = document.getElementById('inpQrUrl').value || DEFAULT_DATA.qrUrl;
+
+            document.getElementById('prevNome').textContent = nome;
+            document.getElementById('prevCpf').textContent = cpf;
+            document.getElementById('prevRg').textContent = rg;
+            document.getElementById('prevOrgao').textContent = orgao;
+            document.getElementById('prevCurso').textContent = curso;
+            document.getElementById('prevDataInicio').textContent = dataInicio;
+            document.getElementById('prevDataFim').textContent = dataFim;
+            document.getElementById('prevCarga').textContent = carga;
+            document.getElementById('prevDiretorNome').textContent = diretorNome;
+            document.getElementById('prevDiretorCargo').textContent = diretorCargo;
+            document.getElementById('prevQrUrl').textContent = qrUrl;
+
+            // Atualiza QR Code dinamicamente
+            renderQrCode(qrUrl);
+        }
+
+        function renderQrCode(url) {
+            const container = document.getElementById('qrcodePreview');
+            if (!container) return;
+            container.innerHTML = '';
+            try {
+                qrCodeObj = new QRCode(container, {
+                    text: url || 'http://www.fieb.org.br/senai/certificados',
+                    width: 72,
+                    height: 72,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch(e) {
+                console.error('Erro ao gerar QRCode:', e);
+            }
+        }
+
+        function preencherExemploOficial() {
+            document.getElementById('inpNome').value = DEFAULT_DATA.nome;
+            document.getElementById('inpCpf').value = DEFAULT_DATA.cpf;
+            document.getElementById('inpRg').value = DEFAULT_DATA.rg;
+            document.getElementById('inpOrgao').value = DEFAULT_DATA.orgao;
+            document.getElementById('inpCurso').value = DEFAULT_DATA.curso;
+            document.getElementById('inpDataInicio').value = DEFAULT_DATA.dataInicio;
+            document.getElementById('inpDataFim').value = DEFAULT_DATA.dataFim;
+            document.getElementById('inpCarga').value = DEFAULT_DATA.carga;
+            document.getElementById('inpDiretorNome').value = DEFAULT_DATA.diretorNome;
+            document.getElementById('inpDiretorCargo').value = DEFAULT_DATA.diretorCargo;
+            document.getElementById('inpQrUrl').value = DEFAULT_DATA.qrUrl;
+            updateCertificado();
+        }
+
+        // ─── SALVAR CERTIFICADO NO HISTÓRICO LOCAL E SUPABASE ───
+        async function salvarCertificado() {
+            const btn = document.getElementById('btnSalvarCertificado');
+            if (btn) btn.disabled = true;
+
+            const nome = document.getElementById('inpNome').value.trim() || DEFAULT_DATA.nome;
+            const cpf = document.getElementById('inpCpf').value.trim() || DEFAULT_DATA.cpf;
+            const rg = document.getElementById('inpRg').value.trim() || DEFAULT_DATA.rg;
+            const orgao = document.getElementById('inpOrgao').value.trim() || DEFAULT_DATA.orgao;
+            const curso = document.getElementById('inpCurso').value.trim() || DEFAULT_DATA.curso;
+            const dataInicio = document.getElementById('inpDataInicio').value.trim() || DEFAULT_DATA.dataInicio;
+            const dataFim = document.getElementById('inpDataFim').value.trim() || DEFAULT_DATA.dataFim;
+            const carga = document.getElementById('inpCarga').value.trim() || DEFAULT_DATA.carga;
+            const id = 'SENAI' + Math.floor(100000 + Math.random() * 900000);
+
+            const record = {
+                id: id,
+                nome: nome,
+                cpf: cpf,
+                rg: rg,
+                orgao: orgao,
+                curso: curso,
+                dataInicio: dataInicio,
+                dataFim: dataFim,
+                carga: carga,
+                data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                created_at: new Date().toISOString(),
+                status: 'Ativo'
+            };
+
+            // Salva no localStorage principal
+            try {
+                let list = JSON.parse(localStorage.getItem('senai_historico') || '[]');
+                list = list.filter(item => item.id !== id);
+                list.unshift(record);
+                localStorage.setItem('senai_historico', JSON.stringify(list));
+
+                let u = {};
+                try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+                const email = (u.email || 'admin@mgeditaveis.com.br').toLowerCase().trim();
+                let userList = JSON.parse(localStorage.getItem('happynation_senai_' + email) || '[]');
+                userList = userList.filter(item => item.id !== id);
+                userList.unshift(record);
+                localStorage.setItem('happynation_senai_' + email, JSON.stringify(userList));
+            } catch(e) {
+                console.error('Erro ao salvar no storage local:', e);
+            }
+
+            // Tenta salvar via Supabase se disponível
+            try {
+                if (window.sbClient) {
+                    await window.sbClient.from('certificados_senai').insert([record]);
+                }
+            } catch(e) {}
+
+            alert('Certificado SENAI gerado e salvo com sucesso no histórico!');
+            if (btn) btn.disabled = false;
+        }
+
+        // ─── EXPORTAÇÃO EM PNG DE ALTA DEFINIÇÃO ───
+        async function exportarImagemPNG() {
+            const sheet = document.getElementById('certSheet');
+            if (!sheet) return;
+
+            // Restaura zoom temporariamente para captura em proporção 1:1 exata
+            const wrapper = document.getElementById('docZoomWrapper');
+            const prevTransform = wrapper.style.transform;
+            wrapper.style.transform = 'scale(1)';
+
+            try {
+                const canvas = await html2canvas(sheet, {
+                    scale: 2, // 1600 x 2262 px
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                const link = document.createElement('a');
+                const nomeAluno = (document.getElementById('inpNome').value || 'aluno').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                link.download = `certificado_senai_${nomeAluno}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch(e) {
+                console.error('Erro ao gerar imagem:', e);
+                alert('Erro ao exportar imagem. Tente novamente.');
+            } finally {
+                wrapper.style.transform = prevTransform;
+            }
+        }
+
+        // ─── EXPORTAÇÃO EM PDF OFICIAL A4 ───
+        async function exportarPDF() {
+            const sheet = document.getElementById('certSheet');
+            if (!sheet) return;
+
+            const wrapper = document.getElementById('docZoomWrapper');
+            const prevTransform = wrapper.style.transform;
+            wrapper.style.transform = 'scale(1)';
+
+            try {
+                const canvas = await html2canvas(sheet, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                const { jsPDF } = window.jspdf;
+                // Formato A4 Retrato: 210 x 297 mm
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, '', 'FAST');
+                const nomeAluno = (document.getElementById('inpNome').value || 'aluno').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                pdf.save(`certificado_senai_${nomeAluno}.pdf`);
+            } catch(e) {
+                console.error('Erro ao gerar PDF:', e);
+                alert('Erro ao exportar PDF. Tente novamente.');
+            } finally {
+                wrapper.style.transform = prevTransform;
+            }
+        }
+
+        // ─── AVATAR E USUÁRIO ───
+        function toggleAvatarDropdown(e) {
+            if (e) e.stopPropagation();
+            const drop = document.getElementById('avatarDropdown');
+            if (drop) drop.classList.toggle('show');
+        }
+        document.addEventListener('click', (e) => {
+            const drop = document.getElementById('avatarDropdown');
+            if (drop && drop.classList.contains('show') && !e.target.closest('#avatarDropdown') && !e.target.closest('#userHeaderAvatar')) {
+                drop.classList.remove('show');
+            }
+        });
+        function handleLogout(e) {
+            if (e) e.preventDefault();
+            localStorage.removeItem('happynation_user');
+            sessionStorage.removeItem('happynation_user');
+            localStorage.removeItem('happynation_admin_auth');
+            sessionStorage.removeItem('happynation_admin_auth');
+            window.location.href = 'login.html';
+        }
+        function showToast(feature) {
+            alert(feature || 'Notificações');
+        }
+
+        function loadLoggedUser() {
+            try {
+                let user = null;
+                const userJson = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user');
+                if (userJson) user = JSON.parse(userJson);
+
+                const nameEl = document.getElementById('dropUserName');
+                const emailEl = document.getElementById('dropUserEmail');
+                const avatarEl = document.getElementById('userHeaderAvatar');
+
+                const name = user ? (user.name || user.nome || 'MG Editáveis') : 'MG Editáveis';
+                const email = user ? (user.email || 'admin@mgeditaveis.com.br') : 'admin@mgeditaveis.com.br';
+
+                if (nameEl) nameEl.textContent = name;
+                if (emailEl) emailEl.textContent = email;
+                if (avatarEl) avatarEl.textContent = name.trim().charAt(0).toUpperCase();
+
+                const saldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') 
+                    ? window.MGSaldo.get() 
+                    : (parseFloat(localStorage.getItem('happynation_saldo') || '7860.00'));
+                
+                const saldoHeader = document.getElementById('userHeaderSaldo');
+                if (saldoHeader) saldoHeader.textContent = `Saldo R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            } catch(e) {}
+        }
+
+        // ─── MODO DE EDIÇÃO (CARREGA DADOS PREVIAMENTE SALVOS) ───
+        function checkEditMode() {
+            try {
+                let record = JSON.parse(localStorage.getItem('happynation_edit_senai') || sessionStorage.getItem('happynation_edit_senai') || 'null');
+                if (!record) {
+                    const params = new URLSearchParams(window.location.search);
+                    const id = params.get('id');
+                    if (id) {
+                        const list = JSON.parse(localStorage.getItem('senai_historico') || '[]');
+                        record = list.find(x => x.id === id);
+                    }
+                }
+                if (record) {
+                    if (record.nome) document.getElementById('inpNome').value = record.nome;
+                    if (record.cpf) document.getElementById('inpCpf').value = record.cpf;
+                    if (record.rg) document.getElementById('inpRg').value = record.rg;
+                    if (record.orgao) document.getElementById('inpOrgao').value = record.orgao;
+                    if (record.curso) document.getElementById('inpCurso').value = record.curso;
+                    if (record.dataInicio) document.getElementById('inpDataInicio').value = record.dataInicio;
+                    if (record.dataFim) document.getElementById('inpDataFim').value = record.dataFim;
+                    if (record.carga) document.getElementById('inpCarga').value = record.carga;
+                    // Limpa sinalizador após carregar
+                    localStorage.removeItem('happynation_edit_senai');
+                    sessionStorage.removeItem('happynation_edit_senai');
+                }
+            } catch(e) {}
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLoggedUser();
+            checkEditMode();
+            updateCertificado();
+            updateZoomUI();
+        });
+    </script>
+</body>
+</html>
