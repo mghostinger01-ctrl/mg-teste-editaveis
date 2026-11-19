@@ -10,14 +10,14 @@
     <!-- Open Graph / Meta -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MG Editáveis">
-    <meta property="og:title" content="MG Editáveis • Criar Certificado SENAI (FIEB BA)">
-    <meta property="og:description" content="Emissão e personalização de Certificado de Conclusão SENAI Bahia em tempo real.">
+    <meta property="og:title" content="MG Editáveis • Criar Certificado SENAI (Nacional)">
+    <meta property="og:description" content="Emissão e personalização de Certificado de Conclusão SENAI com validade nacional em tempo real.">
     <meta property="og:image" content="https://mg-editaveis.vercel.app/og-image.png">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MG Editáveis | Certificado SENAI (Sistema FIEB BA)</title>
+    <title>MG Editáveis | Certificado SENAI (Nacional)</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -904,9 +904,9 @@
                 <div>
                     <h1 class="form-title">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                        Certificado SENAI (FIEB BA)
+                        Certificado SENAI (Nacional)
                     </h1>
-                    <span style="font-size:12px; color:var(--text-muted);">Serviço Nacional de Aprendizagem Industrial • Emissão A4</span>
+                    <span style="font-size:12px; color:var(--text-muted);">Serviço Nacional de Aprendizagem Industrial • Válido em Todo o Território Nacional</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span class="badge-senai">OFICIAL</span>
@@ -938,7 +938,7 @@
 
             <div class="form-group">
                 <label class="form-label" for="inpOrgao">Órgão Emissor / UF do RG</label>
-                <input type="text" id="inpOrgao" class="form-input" placeholder="Ex: SSP / BA" value="SSP / BA" oninput="updateCertificado()">
+                <input type="text" id="inpOrgao" class="form-input" placeholder="Ex: SSP" value="SSP" oninput="updateCertificado()">
             </div>
 
             <!-- 2. DADOS DO CURSO -->
@@ -980,7 +980,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="inpDiretorCargo">Cargo Oficial</label>
-                    <input type="text" id="inpDiretorCargo" class="form-input" value="DIRETOR REGIONAL DO SENAI/BA" oninput="updateCertificado()">
+                    <input type="text" id="inpDiretorCargo" class="form-input" value="DIRETOR REGIONAL DO SENAI" oninput="updateCertificado()">
                 </div>
             </div>
 
@@ -1032,7 +1032,7 @@
 
             <div class="form-group" style="margin-top:10px;">
                 <label class="form-label" for="inpQrUrl">Link de Validação (QR Code)</label>
-                <input type="text" id="inpQrUrl" class="form-input" value="http://www.fieb.org.br/senai/certificados" oninput="updateCertificado()">
+                <input type="text" id="inpQrUrl" class="form-input" value="https://senai.br/certificados" oninput="updateCertificado()">
             </div>
 
             <!-- AÇÃO PRINCIPAL DE EMISSÃO -->
@@ -1082,7 +1082,7 @@
                         <!-- MARCA D'ÁGUA DE PRÉVIA (COBERTURA TOTAL SOBRE O DOCUMENTO) -->
                         <div class="cert-preview-watermark-overlay" id="previewWatermarkOverlay">
                             <div class="cert-wm-band top">PRÉVIA — NÃO OFICIAL</div>
-                            <div class="cert-wm-band mid">SISTEMA FIEB • SENAI BAHIA</div>
+                            <div class="cert-wm-band mid">SENAI • NACIONAL</div>
                             <div class="cert-wm-band btm">DOCUMENTO PENDENTE DE EMISSÃO</div>
                         </div>
 
@@ -1101,7 +1101,7 @@
 
                             <!-- Parágrafo de Certificação Oficial (100% Idêntico à Foto) -->
                             <p class="cert-body-paragraph">
-                                O SENAI - SERVIÇO NACIONAL DE APRENDIZAGEM INDUSTRIAL, Departamento Regional da Bahia, certifica que <span id="prevNome">Israel Santos Cardeal</span>, portador do RG <span id="prevRg">2125673908</span> <span id="prevOrgao">SSP / BA</span> e CPF <span id="prevCpf">86717019565</span> concluiu com rendimento satisfatório o curso <span id="prevCurso">Qualificação Profissional em Programador Web</span>, realizado no período de <span id="prevDataInicio">20/11/2023</span> a <span id="prevDataFim">20/03/2024</span> com duração de <span id="prevCarga">240</span> horas.
+                                O SENAI - SERVIÇO NACIONAL DE APRENDIZAGEM INDUSTRIAL certifica que <span id="prevNome">Israel Santos Cardeal</span>, portador do RG <span id="prevRg">2125673908</span> <span id="prevOrgao">SSP</span> e CPF <span id="prevCpf">86717019565</span> concluiu com rendimento satisfatório o curso <span id="prevCurso">Qualificação Profissional em Programador Web</span>, realizado no período de <span id="prevDataInicio">20/11/2023</span> a <span id="prevDataFim">20/03/2024</span> com duração de <span id="prevCarga">240</span> horas.
                             </p>
 
                             <!-- Assinatura Oficial da Diretoria (Vetor 100% Transparente, Sem Caixa Cinza) -->
@@ -1110,13 +1110,13 @@
                                     <svg id="certSignatureSvg" viewBox="0 0 240 90" class="cert-signature-svg"></svg>
                                 </div>
                                 <div class="cert-sig-name" id="prevDiretorNome">Evandro Munice Mazo</div>
-                                <div class="cert-sig-cargo" id="prevDiretorCargo">DIRETOR REGIONAL DO SENAI/BA</div>
+                                <div class="cert-sig-cargo" id="prevDiretorCargo">DIRETOR REGIONAL DO SENAI</div>
                             </div>
 
                             <!-- QR Code e Link Oficial -->
                             <div class="cert-qr-container">
                                 <div id="qrcodePreview" class="cert-qr-box"></div>
-                                <div class="cert-qr-url" id="prevQrUrl">http://www.fieb.org.br/senai/certificados</div>
+                                <div class="cert-qr-url" id="prevQrUrl">https://senai.br/certificados</div>
                             </div>
                         </div>
                     </div>
@@ -1132,14 +1132,14 @@
             nome: 'Israel Santos Cardeal',
             cpf: '86717019565',
             rg: '2125673908',
-            orgao: 'SSP / BA',
+            orgao: 'SSP',
             curso: 'Qualificação Profissional em Programador Web',
             dataInicio: '20/11/2023',
             dataFim: '20/03/2024',
             carga: '240',
             diretorNome: 'Evandro Munice Mazo',
-            diretorCargo: 'DIRETOR REGIONAL DO SENAI/BA',
-            qrUrl: 'http://www.fieb.org.br/senai/certificados'
+            diretorCargo: 'DIRETOR REGIONAL DO SENAI',
+            qrUrl: 'https://senai.br/certificados'
         };
 
         let currentZoom = 0.85;
@@ -1200,7 +1200,7 @@
             container.innerHTML = '';
             try {
                 qrCodeObj = new QRCode(container, {
-                    text: url || 'http://www.fieb.org.br/senai/certificados',
+                    text: url || 'https://senai.br/certificados',
                     width: 72,
                     height: 72,
                     colorDark: '#000000',

@@ -1663,8 +1663,8 @@
                 </div>
             </article>
 
-            <!-- CERTIFICADO DE CONCLUSÃO SENAI (FIEB BA) [EM DESENVOLVIMENTO / ACESSO ADMIN] -->
-            <article class="doc-card card-crlv-em-desenvolvimento" data-category="educacao" data-name="certificado senai fieb ba conclusao curso profissionalizante tecnico qualificacao programador aprendizagem industrial" onclick="handleSenaiEmBreve(event)" style="--card-accent:#005caa; --card-glow:rgba(0,92,170,0.18); --card-icon-bg:rgba(0,92,170,0.1); --card-icon-border:rgba(0,92,170,0.3); --card-pill-bg:rgba(0,92,170,0.12); --card-pill-border:rgba(0,92,170,0.3); --card-btn-bg:#005caa; --card-btn-glow:rgba(0,92,170,0.35); --card-border-hover:rgba(0,92,170,0.4);">
+            <!-- CERTIFICADO DE CONCLUSÃO SENAI (NACIONAL) [EM DESENVOLVIMENTO / ACESSO ADMIN] -->
+            <article class="doc-card card-crlv-em-desenvolvimento" data-category="educacao" data-name="certificado senai nacional conclusao curso profissionalizante tecnico qualificacao programador aprendizagem industrial brasil" onclick="handleSenaiEmBreve(event)" style="--card-accent:#005caa; --card-glow:rgba(0,92,170,0.18); --card-icon-bg:rgba(0,92,170,0.1); --card-icon-border:rgba(0,92,170,0.3); --card-pill-bg:rgba(0,92,170,0.12); --card-pill-border:rgba(0,92,170,0.3); --card-btn-bg:#005caa; --card-btn-glow:rgba(0,92,170,0.35); --card-border-hover:rgba(0,92,170,0.4);">
                 <div>
                     <div class="card-top">
                         <div class="card-icon-box" style="color:#005caa; background:rgba(0,92,170,0.1); border-color:rgba(0,92,170,0.25);">
@@ -1674,18 +1674,18 @@
                     </div>
 
                     <div class="card-title-group">
-                        <div class="card-category-lbl">SENAI • SISTEMA FIEB</div>
-                        <h2 class="card-title">Certificado de Conclusão (SENAI BA)</h2>
+                        <div class="card-category-lbl">SENAI • NACIONAL</div>
+                        <h2 class="card-title">Certificado de Conclusão (SENAI)</h2>
                     </div>
 
                     <p class="card-desc">
-                        Certificado oficial de Conclusão de Curso do SENAI Bahia (Sistema FIEB) com dados do aluno, carga horária, assinatura da diretoria e QR Code validador.
+                        Certificado oficial de Conclusão de Curso do SENAI com dados do aluno, carga horária, assinatura da diretoria e QR Code validador, válido em todo o Brasil.
                     </p>
 
                     <ul class="card-features">
                         <li class="feature-item">
                             <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Layout oficial SENAI Bahia com padrão gráfico Sistema FIEB e marcas d'água</span>
+                            <span>Layout oficial SENAI com validade nacional e marcas d'água</span>
                         </li>
                         <li class="feature-item">
                             <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2631,8 +2631,8 @@
                 `
             },
             senai: {
-                category: 'SENAI • SISTEMA FIEB',
-                title: 'Certificado de Conclusão (SENAI BA)',
+                category: 'SENAI • NACIONAL',
+                title: 'Certificado de Conclusão (SENAI)',
                 accent: '#005caa',
                 link: 'criar-certificado-senai.html',
                 devLink: 'criar-certificado-senai.html',
@@ -2640,7 +2640,7 @@
                 isDev: true,
                 html: `
                     <div class="doc-modal-intro">
-                        O <strong>Certificado SENAI Bahia (Sistema FIEB)</strong> é emitido para comprovação de conclusão de cursos profissionalizantes e técnicos com reconhecimento profissional em todo o território nacional.
+                        O <strong>Certificado SENAI</strong> é emitido para comprovação de conclusão de cursos profissionalizantes e técnicos com reconhecimento profissional e validade em todo o território nacional.
                     </div>
                     <div class="doc-modal-box" style="--accent:#005caa;">
                         <div class="doc-modal-box-header" style="color:#005caa;">
@@ -2648,7 +2648,7 @@
                             <span>Destaques Técnicos</span>
                         </div>
                         <ul class="doc-modal-list">
-                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Padrão gráfico oficial Sistema FIEB com geometria azul e marca d'água</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Padrão gráfico oficial SENAI com validade nacional e marca d'água</span></li>
                             <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Dados do aluno, RG/Órgão, CPF, curso, período e carga horária</span></li>
                             <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Assinatura oficial do Diretor Regional e QR Code validador</span></li>
                             <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Exportação em alta definição em PDF A4 e Imagem PNG</span></li>
@@ -3002,7 +3002,7 @@
                 e.preventDefault();
                 e.stopPropagation();
             }
-            showToastDev('Certificado SENAI (Sistema FIEB)', 'A emissão do Certificado de Conclusão SENAI Bahia está em homologação técnica e disponível em modo DEV para administradores.');
+            showToastDev('Certificado SENAI (Nacional)', 'A emissão do Certificado de Conclusão SENAI está em homologação técnica e disponível em modo DEV para administradores.');
             return false;
         }
 
