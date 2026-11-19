@@ -1772,6 +1772,28 @@ function loadLoggedUser() {
 
 window.addEventListener('storage', loadLoggedUser);
 
+function parseCnhTimestamp(item) {
+    if (!item) return 0;
+    const raw = item.created_at || item.data || item.data_emissao || (item.dados && (item.dados.created_at || item.dados.data));
+    if (!raw) return 0;
+    if (typeof raw === 'number') return raw;
+    const d = new Date(raw);
+    if (!isNaN(d.getTime())) return d.getTime();
+    if (typeof raw === 'string') {
+        const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+        if (m) {
+            const day = parseInt(m[1], 10);
+            const month = parseInt(m[2], 10) - 1;
+            const year = parseInt(m[3], 10);
+            const hour = m[4] ? parseInt(m[4], 10) : 0;
+            const min = m[5] ? parseInt(m[5], 10) : 0;
+            const sec = m[6] ? parseInt(m[6], 10) : 0;
+            return new Date(year, month, day, hour, min, sec).getTime();
+        }
+    }
+    return 0;
+}
+
 function loadUserCnhs(user) {
     const email = (user && user.email) ? user.email.toLowerCase().trim() : '';
     const userId = (user && user.id) ? user.id : 1;
@@ -1847,13 +1869,13 @@ function loadUserCnhs(user) {
         if (lastCnh) addIfValid(lastCnh);
     } catch(e) {}
 
-    allCnhs = [...items];
+    allCnhs = [...items].sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
     renderTable();
 
-    // 5. Sincronização direta com Supabase Cloud em tempo real
+    // 5. Sincronização direta com Supabase Cloud em tempo real (ordenado por mais recente primeiro)
     const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
     const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
-    fetch(SUP_URL + '/rest/v1/cnhs?select=*', {
+    fetch(SUP_URL + '/rest/v1/cnhs?select=*&order=created_at.desc', {
         headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
     })
     .then(r => r.json())
@@ -1882,6 +1904,7 @@ function loadUserCnhs(user) {
             // Adiciona novas CNHs ativas se houver
             sList.forEach(addIfValid);
             allCnhs = [...items].filter(c => activeSupIds.has(String(c.id)) || activeSupCpfs.has((c.cpf||'').replace(/\D/g, '')));
+            allCnhs.sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
             renderTable();
         }
     })
@@ -2056,23 +2079,14 @@ function updateCounters() {
     let mesCount = 0;
 
     allCnhs.forEach(c => {
-        if (!c.created_at) return;
+        const ts = parseCnhTimestamp(c);
+        if (!ts) return;
         try {
-            const dt = new Date(c.created_at);
-            if (!isNaN(dt.getTime())) {
-                if (dt.getFullYear() === todayY && dt.getMonth() === todayM) {
-                    mesCount++;
-                    if (dt.getDate() === todayD) {
-                        hojeCount++;
-                    }
-                }
-            } else {
-                const parts = c.created_at.split(' ')[0].split(/[\/-]/);
-                if (parts.length === 3) {
-                    if (parseInt(parts[2]) === todayY && parseInt(parts[1]) - 1 === todayM) {
-                        mesCount++;
-                        if (parseInt(parts[0]) === todayD) hojeCount++;
-                    }
+            const dt = new Date(ts);
+            if (dt.getFullYear() === todayY && dt.getMonth() === todayM) {
+                mesCount++;
+                if (dt.getDate() === todayD) {
+                    hojeCount++;
                 }
             }
         } catch(e) {}
@@ -2110,6 +2124,9 @@ function renderTable() {
         return true;
     });
 
+    // Ordenação garantida: Mais recentes SEMPRE no topo absoluto
+    filtered.sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
+
     // Paginação
     const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
     if (currentPage > totalPages) currentPage = totalPages;
@@ -2139,7 +2156,8 @@ function renderTable() {
 
     let html = '';
     pageItems.forEach(c => {
-        const d = c.created_at ? new Date(c.created_at) : new Date();
+        const ts = parseCnhTimestamp(c);
+        const d = ts ? new Date(ts) : new Date();
         const dateFormatted = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
         html += `

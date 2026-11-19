@@ -6581,7 +6581,25 @@ function updateDashboardMetrics() {
                 return;
             }
 
-            data.forEach(c => {
+            const sortedData = [...data].sort((a, b) => {
+                const parseAdminDate = (item) => {
+                    if (!item) return 0;
+                    const raw = item.created_at || item.data;
+                    if (!raw) return 0;
+                    const d = new Date(raw);
+                    if (!isNaN(d.getTime())) return d.getTime();
+                    if (typeof raw === 'string') {
+                        const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+                        if (m) {
+                            return new Date(parseInt(m[3], 10), parseInt(m[2], 10) - 1, parseInt(m[1], 10), m[4] ? parseInt(m[4], 10) : 0, m[5] ? parseInt(m[5], 10) : 0).getTime();
+                        }
+                    }
+                    return 0;
+                };
+                return parseAdminDate(b) - parseAdminDate(a);
+            });
+
+            sortedData.forEach(c => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><input type="checkbox" class="admin-cnh-cb" value="${c.id}" data-cpf="${c.cpf || ''}" onchange="updateAdminCnhSelectCount()" style="accent-color:var(--primary); cursor:pointer;"></td>
