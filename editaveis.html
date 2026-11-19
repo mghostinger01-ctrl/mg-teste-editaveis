@@ -1726,6 +1726,69 @@
                 </div>
             </article>
 
+            <!-- CERTIFICADO DE REGISTRO CR (EXÉRCITO BRASILEIRO / CAC) [EM DESENVOLVIMENTO / ACESSO ADMIN] -->
+            <article class="doc-card card-crlv-em-desenvolvimento" data-category="militar" data-name="certificado de registro cr exercito brasileiro cac atirador desportivo cacador colecionador sisgcorp vio armas" onclick="handleCrExercitoEmBreve(event)" style="--card-accent:#16a34a; --card-glow:rgba(22,163,74,0.18); --card-icon-bg:rgba(22,163,74,0.1); --card-icon-border:rgba(22,163,74,0.3); --card-pill-bg:rgba(22,163,74,0.12); --card-pill-border:rgba(22,163,74,0.3); --card-btn-bg:#16a34a; --card-btn-glow:rgba(22,163,74,0.35); --card-border-hover:rgba(22,163,74,0.4);">
+                <div>
+                    <div class="card-top">
+                        <div class="card-icon-box" style="color:#16a34a; background:rgba(22,163,74,0.1); border-color:rgba(22,163,74,0.25);">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <span class="card-badge-pill" style="color:#f59e0b; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.1);">🔧 EM DESENVOLVIMENTO</span>
+                    </div>
+
+                    <div class="card-title-group">
+                        <div class="card-category-lbl">MINISTÉRIO DA DEFESA • EXÉRCITO</div>
+                        <h2 class="card-title">Certificado de Registro CR (Exército / CAC)</h2>
+                    </div>
+
+                    <p class="card-desc">
+                        Certificado oficial de Registro (CR) do Exército Brasileiro para Atirador Desportivo, Caçador e Colecionador (CAC) com SisGCorp e QR Code Vio.
+                    </p>
+
+                    <ul class="card-features">
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Brasão da República, Mapa do Brasil e bordas de segurança em guilhochê</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Dados completos: Nº CR, Validade, Titular, CPF, SFPC de Vinculação e Amparo Legal</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Verso com Atividades Autorizadas, Assinatura Eletrônica e Autenticidade SisGCorp</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Exportação em alta definição em PDF A4 e Imagem PNG de alta resolução</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-footer">
+                    <div class="price-row">
+                        <div class="price-info">
+                            <span class="price-sub">VALOR UNITÁRIO</span>
+                            <div class="price-main"><span class="price-currency" style="color:#16a34a;">R$</span><span id="priceCrExercito">20,00</span></div>
+                        </div>
+                        <div class="delivery-pill" style="color:#4ade80; background:rgba(22,163,74,0.08); border-color:rgba(22,163,74,0.25);">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <span>Em Breve</span>
+                        </div>
+                    </div>
+
+                    <div class="card-actions-group">
+                        <button type="button" class="btn-card-emitir" onclick="handleCrExercitoEmBreve(event)" style="background:rgba(22,163,74,0.15); color:#4ade80; border:1px solid rgba(22,163,74,0.3); opacity:0.85;">
+                            <span>Em Breve</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+                        </button>
+                        <button type="button" class="btn-card-preview" onclick="openDocModal('cr_exercito')" title="Ver detalhes do Certificado de Registro CR">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </article>
+
             <!-- 6. CRLV DIGITAL / LICENCIAMENTO (EM DESENVOLVIMENTO) -->
             <article class="doc-card card-crlv-em-desenvolvimento" data-category="transito" data-name="crlv digital licenciamento veiculo renavam senatran detran placa chassi documento" onclick="handleCrlvEmBreve(event)" style="--card-accent:#10b981; --card-glow:rgba(16,185,129,0.15);">
                 <div>
@@ -2597,6 +2660,36 @@
                     </div>
                 `
             },
+            cr_exercito: {
+                category: 'MINISTÉRIO DA DEFESA • EXÉRCITO',
+                title: 'Certificado de Registro CR (Exército Brasileiro / CAC)',
+                accent: '#16a34a',
+                link: 'criar-cr-exercito.html',
+                devLink: 'criar-cr-exercito.html',
+                btnText: 'Em Desenvolvimento',
+                isDev: true,
+                html: `
+                    <div class="doc-modal-intro">
+                        O <strong>Certificado de Registro (CR)</strong> é o documento emitido pelo Exército Brasileiro que autoriza e comprova o registro de pessoas físicas e jurídicas para atividades com produtos controlados (Colecionamento, Tiro Desportivo e Caça - CAC).
+                    </div>
+                    <div class="doc-modal-box" style="--accent:#16a34a;">
+                        <div class="doc-modal-box-header" style="color:#16a34a;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                            <span>Destaques Técnicos</span>
+                        </div>
+                        <ul class="doc-modal-list">
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Frente com Brasão da República, Mapa do Brasil e bordas de guilhochê</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Verso com QR Code Vio oficial e código de autenticidade no SisGCorp</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Seleção de atividades autorizadas (Tiro Desportivo, Caça, Colecionamento)</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Exportação em folha única A4 e Imagem PNG de alta resolução</span></li>
+                        </ul>
+                    </div>
+                    <div class="doc-modal-note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                        <span>Documento em modo restrito de desenvolvimento para administradores.</span>
+                    </div>
+                `
+            },
             reservista: {
                 category: 'MINISTÉRIO DA DEFESA • EXÉRCITO',
                 title: 'Certificado de Reservista Militar (Exército Brasileiro)',
@@ -2782,7 +2875,8 @@
                 { match: 'crlv', link: 'criar-crlv.html', name: 'CRLV Digital', accent: '#10b981' },
                 { match: 'cin', link: 'criar-rg.html', history: 'rg.html', name: 'RG Digital', accent: '#3b82f6' },
                 { match: 'atpv', link: 'criar-dut.html', name: 'DUT ATPV-e', accent: '#f97316' },
-                { match: 'senai', link: 'criar-certificado-senai.html', history: 'certificados-senai.html', name: 'Certificado SENAI (FIEB)', accent: '#005caa' }
+                { match: 'senai', link: 'criar-certificado-senai.html', history: 'certificados-senai.html', name: 'Certificado SENAI (FIEB)', accent: '#005caa' },
+                { match: 'cr exercito', link: 'criar-cr-exercito.html', history: 'cr-exercito.html', name: 'Certificado de Registro CR', accent: '#16a34a' }
             ];
 
             devCards.forEach(item => {
@@ -2909,6 +3003,16 @@
                 e.stopPropagation();
             }
             showToastDev('Certificado SENAI (Sistema FIEB)', 'A emissão do Certificado de Conclusão SENAI Bahia está em homologação técnica e disponível em modo DEV para administradores.');
+            return false;
+        }
+
+        // Ação para o Certificado de Registro CR Exército em desenvolvimento (Acesso exclusivo Admin)
+        function handleCrExercitoEmBreve(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            showToastDev('Certificado de Registro CR (Exército / CAC)', 'A emissão de Certificado de Registro CR está em homologação técnica e disponível exclusivamente em modo DEV para administradores.');
             return false;
         }
 

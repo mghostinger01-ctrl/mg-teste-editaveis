@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+
+    <!-- Open Graph / Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MG Editáveis">
+    <meta property="og:title" content="MG Editáveis • Certificados de Registro CR (Exército Brasileiro)">
+    <meta property="og:description" content="Histórico completo de Certificados de Registro CR do Exército Brasileiro emitidos em tempo real.">
+    <meta property="og:image" content="https://mg-editaveis.vercel.app/og-image.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | Certificados de Registro CR (Exército Brasileiro)</title>
+    <script src="saldo-sync.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-page: #121414;
+            --bg-header: #141716;
+            --bg-card: #191c1d;
+            --bg-card-hover: #1e2223;
+            --bg-input: #141617;
+            --border-color: #242829;
+            --border-subtle: #1e2223;
+            
+            --primary: #00dc82;
+            --primary-hover: #00c975;
+            --primary-light: rgba(0, 220, 130, 0.12);
+            --primary-border: rgba(0, 220, 130, 0.28);
+
+            --eb-green: #16a34a;
+            --eb-green-hover: #15803d;
+            --eb-green-light: rgba(22, 163, 74, 0.14);
+            --eb-green-border: rgba(22, 163, 74, 0.35);
+
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: var(--font);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: var(--bg-page); }
+        ::-webkit-scrollbar-thumb { background: #252a2c; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #353b3c; }
+
+        /* ─── CABEÇALHO OFICIAL 62px ─── */
+        .header {
+            height: 62px;
+            background: var(--bg-header);
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+        }
+        .header-inner {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            background: #1a1e1d;
+            border: 1px solid #282d2c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .brand-icon-img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+        .brand-text {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .saldo-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 220, 130, 0.1);
+            border: 1px solid rgba(0, 220, 130, 0.25);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .saldo-pill:hover {
+            background: rgba(0, 220, 130, 0.18);
+            transform: translateY(-1px);
+        }
+        .header-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s;
+        }
+        .header-link:hover { color: #ffffff; background: #1a1e1d; }
+        .header-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            background: #1a1e1d;
+            border: 1px solid #282d2c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .header-icon:hover { color: #fff; border-color: #383e3c; }
+        .header-icon svg { width: 16px; height: 16px; }
+        .btn-voltar {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 7px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-voltar:hover { background: #232729; transform: translateY(-1px); }
+        .btn-voltar svg { width: 14px; height: 14px; }
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #0c0e0f;
+            font-weight: 800;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .avatar-dropdown {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 8px;
+            min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 1001;
+        }
+        .avatar-dropdown.show { display: flex; }
+        .dropdown-header {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 4px;
+        }
+        .dropdown-name { font-size: 13px; font-weight: 700; color: #fff; }
+        .dropdown-email { font-size: 11px; color: var(--text-muted); }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .dropdown-item:hover { background: #232729; color: #fff; }
+        .dropdown-item.danger { color: #f87171; }
+        .dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+
+        /* ─── CONTAINER PRINCIPAL ─── */
+        .page-container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 78px auto 40px;
+            padding: 0 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .breadcrumb-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .breadcrumb-link { color: var(--text-secondary); text-decoration: none; }
+        .breadcrumb-link:hover { color: #fff; }
+        .breadcrumb-sep { color: #3a3f42; }
+
+        /* ─── STATS CARDS ─── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .stat-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-value {
+            font-size: 26px;
+            font-weight: 900;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+        }
+        .stat-value.green { color: var(--primary); }
+        .stat-card.action-card {
+            background: linear-gradient(135deg, rgba(22, 163, 74, 0.18) 0%, rgba(22, 163, 74, 0.05) 100%) !important;
+            border: 1px solid var(--eb-green-border) !important;
+        }
+        .btn-new-doc {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--eb-green);
+            color: #ffffff;
+            padding: 11px 18px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 800;
+            text-decoration: none;
+            margin-top: 6px;
+            box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+        .btn-new-doc:hover {
+            background: var(--eb-green-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(22, 163, 74, 0.45);
+        }
+
+        /* ─── FILTROS ─── */
+        .filters-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: flex-end;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .filter-input {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            color: #fff;
+            font-family: var(--font);
+            font-size: 12.5px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .filter-input:focus { border-color: var(--eb-green); }
+        .filter-input::placeholder { color: #55585a; }
+
+        .status-pills {
+            display: flex;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 2px;
+            gap: 2px;
+        }
+        .status-pill-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .status-pill-btn.active {
+            background: #252a2c;
+            color: #ffffff;
+            font-weight: 700;
+        }
+        .btn-clear-filters {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-clear-filters:hover { color: #fff; border-color: #383e3c; }
+
+        /* ─── TABELA ─── */
+        .table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.6);
+        }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        thead th {
+            background: #141617;
+            padding: 12px 18px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+        tbody tr { border-bottom: 1px solid var(--border-color); transition: background-color 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background-color: var(--bg-card-hover); }
+        tbody td { padding: 14px 18px; vertical-align: middle; color: var(--text-secondary); }
+        .id-cell { font-family: var(--font-mono); font-size: 12px; color: #4ade80; font-weight: 600; }
+        .name-cell { font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 10px; }
+        .name-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--eb-green-light);
+            border: 1px solid var(--eb-green-border);
+            color: #4ade80;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(0, 220, 130, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(0, 220, 130, 0.25);
+        }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        .actions-cell { display: flex; align-items: center; gap: 8px; }
+        .btn-edit-cert {
+            background: #141617;
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        .btn-edit-cert:hover {
+            background: var(--eb-green);
+            border-color: var(--eb-green);
+            color: #fff;
+        }
+        .btn-dots {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: #141617;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+        .btn-dots:hover { color: #fff; border-color: #383e3c; }
+
+        .action-dropdown {
+            position: absolute;
+            right: 0;
+            top: 34px;
+            background: #191c1d;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 6px;
+            min-width: 160px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 100;
+        }
+        .action-dropdown.show { display: flex; }
+        .dropdown-act-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .dropdown-act-item:hover { background: #24292b; color: #fff; }
+        .dropdown-act-item.danger { color: #f87171; }
+        .dropdown-act-item.danger:hover { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+
+        /* ─── PAGINAÇÃO ─── */
+        .table-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-muted);
+            background: #141617;
+        }
+        .pagination-controls { display: flex; align-items: center; gap: 8px; }
+        .btn-page {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-page:hover:not(:disabled) { background: #252a2c; border-color: #383e3c; }
+        .btn-page:disabled { opacity: 0.4; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO PADRÃO OFICIAL MG EDITÁVEIS (62px) -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="editaveis.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <a href="recargas.html" class="saldo-pill" title="Clique para recarregar saldo">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </a>
+
+                <a href="indicacoes.html" class="header-link" title="Indique e Ganhe">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <span>Indique e Ganhe</span>
+                </a>
+
+                <div class="header-icon" onclick="showToast('Notificações')" title="Notificações">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </div>
+
+                <a href="editaveis.html" class="btn-voltar" title="Voltar ao Catálogo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    <span>Voltar</span>
+                </a>
+
+                <div class="avatar-circle" id="userHeaderAvatar" onclick="toggleAvatarDropdown(event)" title="Meu Perfil">M</div>
+
+                <div class="avatar-dropdown" id="avatarDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-name" id="dropUserName">MG Editáveis</div>
+                        <div class="dropdown-email" id="dropUserEmail">admin@mgeditaveis.com.br</div>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="perfil.html" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span>Perfil</span>
+                        </a>
+                        <a href="suporte.html" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <span>Suporte</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="login.html" class="dropdown-item danger" onclick="handleLogout(event)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            <span>Sair</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTAINER DA PÁGINA -->
+    <div class="page-container">
+
+        <!-- BREADCRUMB -->
+        <div class="breadcrumb-wrap">
+            <a href="editaveis.html" class="breadcrumb-link">Catálogo</a>
+            <span class="breadcrumb-sep">/</span>
+            <span>Certificados de Registro CR (Exército Brasileiro / CAC)</span>
+        </div>
+
+        <!-- STATS GRID -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Gerados</span>
+                <span class="stat-value" id="statTotal">1</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Certificados Ativos</span>
+                <span class="stat-value green" id="statAtivos">1</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Saldo Disponível</span>
+                <span class="stat-value" id="statSaldo" style="color:var(--primary);">R$ 0,00</span>
+            </div>
+            <div class="stat-card action-card">
+                <span class="stat-label" style="color:#4ade80;">Novo Documento</span>
+                <a href="criar-cr-exercito.html" class="btn-new-doc">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>Emitir Certificado CR</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- BARRA DE FILTROS -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label class="filter-label" for="filterNome">Nome / Titular</label>
+                <input type="text" class="filter-input" id="filterNome" placeholder="Buscar por titular" oninput="applyFilters()" style="width: 180px;">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="filterCpf">CPF</label>
+                <input type="text" class="filter-input" id="filterCpf" placeholder="00000000000" oninput="applyFilters()" style="width: 150px;">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="filterData">Data</label>
+                <input type="date" class="filter-input" id="filterData" onchange="applyFilters()" style="width: 145px; color-scheme:dark;">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Status</label>
+                <div class="status-pills">
+                    <button class="status-pill-btn active" id="btnStatusTodas" onclick="setStatusFilter('Todas', this)">Todas</button>
+                    <button class="status-pill-btn" id="btnStatusAtivos" onclick="setStatusFilter('Ativo', this)">Ativos</button>
+                </div>
+            </div>
+
+            <button type="button" class="btn-clear-filters" onclick="clearFilters()">Limpar Filtros</button>
+
+            <button type="button" id="btnBulkDelete" onclick="deleteSelected()" style="display:none; align-items:center; gap:6px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#ef4444; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span>Excluir Selecionados (<span id="bulkDeleteCount">0</span>)</span>
+            </button>
+        </div>
+
+        <!-- TABELA -->
+        <div class="table-wrap">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="accent-color:var(--primary); cursor:pointer;"></th>
+                            <th>ID</th>
+                            <th>Titular</th>
+                            <th>CPF</th>
+                            <th>Nº CR</th>
+                            <th>SFPC de Vinculação</th>
+                            <th>Validade</th>
+                            <th>Data de Emissão</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblBody">
+                        <!-- Inserido dinamicamente via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- RODAPÉ DA TABELA / PAGINAÇÃO -->
+            <div class="table-footer">
+                <div id="paginationInfo">Mostrando 0 de 0 Certificados</div>
+                <div class="pagination-controls">
+                    <span id="pageCurrentInfo">Página 1 de 1</span>
+                    <button type="button" class="btn-page" id="btnPrevPage" onclick="prevPage()">Anterior</button>
+                    <button type="button" class="btn-page" id="btnNextPage" onclick="nextPage()">Próxima</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── DADOS PADRÃO (EXEMPLO DA FOTO OFICIAL) ───
+        const DEFAULT_ITEMS = [
+            {
+                id: 'CR204000163',
+                crNum: '20605204000163',
+                validade: '04/11/2031',
+                nome: 'MASTER LASER - DEMONSTRAÇÃO',
+                cpf: '37991029689',
+                rm: 'Cmdo 21ª RM',
+                amparo: 'De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9,846, de 25 Jun 2019',
+                assinante: 'SFPC - Ba Adm Cmdo op Esp',
+                localData: 'Divinopolis MG 04/11/2021',
+                sisgcorp: 'a0000bf0d0dc00c00a00000e0',
+                data: '04/11/2021',
+                created_at: '2021-11-04T10:00:00.000Z',
+                status: 'Ativo'
+            }
+        ];
+
+        let allCRs = [];
+        let filteredCRs = [];
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 10;
+        let currentFilterStatus = 'Todas';
+
+        function loadLoggedUser() {
+            try {
+                let user = null;
+                const userJson = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user');
+                if (userJson) user = JSON.parse(userJson);
+
+                const nameEl = document.getElementById('dropUserName');
+                const emailEl = document.getElementById('dropUserEmail');
+                const avatarEl = document.getElementById('userHeaderAvatar');
+
+                const name = user ? (user.name || user.nome || 'MG Editáveis') : 'MG Editáveis';
+                const email = user ? (user.email || 'admin@mgeditaveis.com.br') : 'admin@mgeditaveis.com.br';
+
+                if (nameEl) nameEl.textContent = name;
+                if (emailEl) emailEl.textContent = email;
+                if (avatarEl) avatarEl.textContent = name.trim().charAt(0).toUpperCase();
+
+                const saldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') 
+                    ? window.MGSaldo.get() 
+                    : (parseFloat(localStorage.getItem('happynation_saldo') || '7860.00'));
+                
+                const saldoHeader = document.getElementById('userHeaderSaldo');
+                if (saldoHeader) saldoHeader.textContent = `Saldo R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                
+                const statSaldo = document.getElementById('statSaldo');
+                if (statSaldo) statSaldo.textContent = `R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            } catch(e) {}
+        }
+
+        // ─── CARREGAR REGISTROS CR ───
+        function loadCRs() {
+            let items = [];
+            const seen = new Set();
+
+            function addIfValid(item) {
+                if (!item) return;
+                const id = String(item.id || item.codigo || item.crNum || Math.random());
+                if (seen.has(id)) return;
+                seen.add(id);
+
+                items.push({
+                    id: id,
+                    crNum: item.crNum || '20605204000163',
+                    validade: item.validade || '04/11/2031',
+                    nome: String(item.nome || 'TITULAR').toUpperCase(),
+                    cpf: item.cpf || '00000000000',
+                    rm: item.rm || 'Cmdo 21ª RM',
+                    amparo: item.amparo || 'De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9,846, de 25 Jun 2019',
+                    assinante: item.assinante || 'SFPC - Ba Adm Cmdo op Esp',
+                    localData: item.localData || 'Divinopolis MG 04/11/2021',
+                    sisgcorp: item.sisgcorp || 'a0000bf0d0dc00c00a00000e0',
+                    data: item.data || item.created_at || new Date().toLocaleDateString('pt-BR'),
+                    created_at: item.created_at || new Date().toISOString(),
+                    status: item.status || 'Ativo'
+                });
+            }
+
+            // 1. Carrega de cr_historico
+            try {
+                const stored = JSON.parse(localStorage.getItem('cr_historico') || '[]');
+                if (Array.isArray(stored)) stored.forEach(addIfValid);
+            } catch(e) {}
+
+            // 2. Carrega de happynation_cr_
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('happynation_cr_')) {
+                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                        if (Array.isArray(arr)) arr.forEach(addIfValid);
+                    }
+                }
+            } catch(e) {}
+
+            // 3. Fallback oficial
+            DEFAULT_ITEMS.forEach(addIfValid);
+
+            // 4. ORDENAÇÃO: AS MAIS RECENTES SEMPRE NO TOPO!
+            items.sort((a, b) => {
+                const timeA = new Date(a.created_at || a.data).getTime() || 0;
+                const timeB = new Date(b.created_at || b.data).getTime() || 0;
+                return timeB - timeA;
+            });
+
+            allCRs = [...items];
+            applyFilters();
+        }
+
+        // ─── FILTROS & BUSCA ───
+        function applyFilters() {
+            const filterNome = (document.getElementById('filterNome').value || '').toLowerCase().trim();
+            const filterCpf = (document.getElementById('filterCpf').value || '').replace(/\D/g, '');
+            const filterData = document.getElementById('filterData').value;
+
+            filteredCRs = allCRs.filter(item => {
+                if (filterNome && !item.nome.toLowerCase().includes(filterNome)) return false;
+                if (filterCpf) {
+                    const cleanItemCpf = item.cpf.replace(/\D/g, '');
+                    if (!cleanItemCpf.includes(filterCpf)) return false;
+                }
+                if (filterData) {
+                    const itemDate = item.created_at || item.data;
+                    if (!itemDate.includes(filterData)) return false;
+                }
+                if (currentFilterStatus !== 'Todas' && item.status !== currentFilterStatus) return false;
+                return true;
+            });
+
+            currentPage = 1;
+            renderTable();
+            updateStats();
+        }
+
+        function setStatusFilter(status, btn) {
+            currentFilterStatus = status;
+            document.querySelectorAll('.status-pill-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            applyFilters();
+        }
+
+        function clearFilters() {
+            document.getElementById('filterNome').value = '';
+            document.getElementById('filterCpf').value = '';
+            document.getElementById('filterData').value = '';
+            setStatusFilter('Todas', document.getElementById('btnStatusTodas'));
+        }
+
+        function updateStats() {
+            const total = allCRs.length;
+            const ativos = allCRs.filter(x => x.status === 'Ativo').length;
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statAtivos').textContent = ativos;
+        }
+
+        // ─── RENDERIZAR TABELA ───
+        function renderTable() {
+            const tbody = document.getElementById('tblBody');
+            tbody.innerHTML = '';
+
+            const total = filteredCRs.length;
+            const totalPages = Math.ceil(total / ITEMS_PER_PAGE) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pageItems = filteredCRs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+            if (pageItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:36px; color:var(--text-muted);">Nenhum Certificado de Registro CR encontrado.</td></tr>`;
+                document.getElementById('paginationInfo').textContent = 'Mostrando 0 de 0 Certificados';
+                document.getElementById('pageCurrentInfo').textContent = 'Página 0 de 0';
+                document.getElementById('btnPrevPage').disabled = true;
+                document.getElementById('btnNextPage').disabled = true;
+                return;
+            }
+
+            pageItems.forEach(item => {
+                const tr = document.createElement('tr');
+                const initial = item.nome.trim().charAt(0).toUpperCase();
+
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="row-checkbox" value="${item.id}" onchange="updateBulkDeleteUI()" style="accent-color:var(--primary); cursor:pointer;"></td>
+                    <td class="id-cell">${item.id}</td>
+                    <td>
+                        <div class="name-cell">
+                            <div class="name-avatar">${initial}</div>
+                            <span>${item.nome}</span>
+                        </div>
+                    </td>
+                    <td>${item.cpf}</td>
+                    <td style="color:#ffffff; font-weight:700; font-family:var(--font-mono);">${item.crNum}</td>
+                    <td>${item.rm}</td>
+                    <td style="color:#4ade80; font-weight:600;">${item.validade}</td>
+                    <td>${item.data}</td>
+                    <td>
+                        <span class="status-badge">
+                            <span class="status-dot"></span>
+                            <span>${item.status}</span>
+                        </span>
+                    </td>
+                    <td>
+                        <div class="actions-cell">
+                            <button type="button" class="btn-edit-cert" onclick="editarCR('${item.id}')">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                <span>Editar</span>
+                            </button>
+                            <div style="position:relative;">
+                                <button type="button" class="btn-dots" onclick="toggleRowMenu(event, this)">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                                </button>
+                                <div class="action-dropdown">
+                                    <div class="dropdown-act-item" onclick="abrirNoEditor('${item.id}')">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        <span>Abrir e Baixar</span>
+                                    </div>
+                                    <div class="dropdown-act-item danger" onclick="excluirCR('${item.id}')">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        <span>Excluir</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const end = Math.min(startIndex + ITEMS_PER_PAGE, total);
+            document.getElementById('paginationInfo').textContent = `Mostrando ${startIndex + 1} a ${end} de ${total} Certificados`;
+            document.getElementById('pageCurrentInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+            document.getElementById('btnPrevPage').disabled = (currentPage === 1);
+            document.getElementById('btnNextPage').disabled = (currentPage === totalPages);
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+        function nextPage() {
+            const totalPages = Math.ceil(filteredCRs.length / ITEMS_PER_PAGE) || 1;
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        function editarCR(id) {
+            const item = allCRs.find(x => x.id === id);
+            if (item) {
+                localStorage.setItem('happynation_edit_cr', JSON.stringify(item));
+                sessionStorage.setItem('happynation_edit_cr', JSON.stringify(item));
+            }
+            window.location.href = `criar-cr-exercito.html?id=${id}`;
+        }
+        function abrirNoEditor(id) { editarCR(id); }
+
+        function excluirCR(id) {
+            if (!confirm(`Deseja realmente excluir o Certificado de Registro (${id})?`)) return;
+
+            allCRs = allCRs.filter(x => x.id !== id);
+
+            try {
+                let hist = JSON.parse(localStorage.getItem('cr_historico') || '[]');
+                hist = hist.filter(x => x.id !== id);
+                localStorage.setItem('cr_historico', JSON.stringify(hist));
+
+                let u = {};
+                try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+                const email = (u.email || 'admin@mgeditaveis.com.br').toLowerCase().trim();
+                let userHist = JSON.parse(localStorage.getItem('happynation_cr_' + email) || '[]');
+                userHist = userHist.filter(x => x.id !== id);
+                localStorage.setItem('happynation_cr_' + email, JSON.stringify(userHist));
+            } catch(e) {}
+
+            applyFilters();
+        }
+
+        function toggleSelectAll(master) {
+            document.querySelectorAll('.row-checkbox').forEach(cb => { cb.checked = master.checked; });
+            updateBulkDeleteUI();
+        }
+        function updateBulkDeleteUI() {
+            const checked = document.querySelectorAll('.row-checkbox:checked');
+            const btn = document.getElementById('btnBulkDelete');
+            const countSpan = document.getElementById('bulkDeleteCount');
+            if (checked.length > 0) {
+                btn.style.display = 'inline-flex';
+                countSpan.textContent = checked.length;
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+        function deleteSelected() {
+            const checked = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+            if (checked.length === 0) return;
+            if (!confirm(`Deseja excluir os ${checked.length} registros selecionados?`)) return;
+
+            allCRs = allCRs.filter(x => !checked.includes(x.id));
+
+            try {
+                let hist = JSON.parse(localStorage.getItem('cr_historico') || '[]');
+                hist = hist.filter(x => !checked.includes(x.id));
+                localStorage.setItem('cr_historico', JSON.stringify(hist));
+
+                let u = {};
+                try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+                const email = (u.email || 'admin@mgeditaveis.com.br').toLowerCase().trim();
+                let userHist = JSON.parse(localStorage.getItem('happynation_cr_' + email) || '[]');
+                userHist = userHist.filter(x => !checked.includes(x.id));
+                localStorage.setItem('happynation_cr_' + email, JSON.stringify(userHist));
+            } catch(e) {}
+
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateBulkDeleteUI();
+            applyFilters();
+        }
+
+        function toggleRowMenu(e, btn) {
+            e.stopPropagation();
+            document.querySelectorAll('.action-dropdown').forEach(d => {
+                if (d !== btn.nextElementSibling) d.classList.remove('show');
+            });
+            const menu = btn.nextElementSibling;
+            if (menu) menu.classList.toggle('show');
+        }
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('show'));
+        });
+        function toggleAvatarDropdown(e) {
+            if (e) e.stopPropagation();
+            const drop = document.getElementById('avatarDropdown');
+            if (drop) drop.classList.toggle('show');
+        }
+        function handleLogout(e) {
+            if (e) e.preventDefault();
+            localStorage.removeItem('happynation_user');
+            sessionStorage.removeItem('happynation_user');
+            localStorage.removeItem('happynation_admin_auth');
+            sessionStorage.removeItem('happynation_admin_auth');
+            window.location.href = 'login.html';
+        }
+        function showToast(msg) { alert(msg || 'Notificações'); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLoggedUser();
+            loadCRs();
+        });
+    </script>
+</body>
+</html>
