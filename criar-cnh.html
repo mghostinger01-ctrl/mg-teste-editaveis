@@ -3956,7 +3956,12 @@ function initParamsSync() {
                         (cleanCpfParam ? localStorage.getItem('happynation_foto_' + cleanCpfParam) : null) ||
                         localStorage.getItem('happynation_foto_active');
 
-        if (!savedFoto && mergedData.foto && !mergedData.foto.includes('eduardo_photo.png')) {
+        // Sanitização: NUNCA usar imagem de exemplo ou slide1 como se fosse foto 3x4
+        if (savedFoto && (savedFoto.includes('eduardo_photo.png') || savedFoto.includes('cnh-slide1') || (mergedData.slide1 && savedFoto === mergedData.slide1))) {
+            savedFoto = null;
+        }
+
+        if (!savedFoto && mergedData.foto && !mergedData.foto.includes('eduardo_photo.png') && !mergedData.foto.includes('cnh-slide1') && mergedData.foto !== mergedData.slide1) {
             savedFoto = mergedData.foto;
         }
 
@@ -3968,7 +3973,7 @@ function initParamsSync() {
                     if (k && k.startsWith('happynation_cnhs_')) {
                         const l = JSON.parse(localStorage.getItem(k) || '[]');
                         const match = l.find(x => x.id === cnhId || (cleanCpfParam && (x.cpf||'').replace(/\D/g, '') === cleanCpfParam));
-                        if (match && match.foto && !match.foto.includes('eduardo_photo.png')) {
+                        if (match && match.foto && !match.foto.includes('eduardo_photo.png') && !match.foto.includes('cnh-slide1') && match.foto !== match.slide1) {
                             savedFoto = match.foto;
                             break;
                         }
@@ -4055,7 +4060,11 @@ function initParamsSync() {
                         const rec = list.find(x => (targetId && String(x.id) === String(targetId)) || (targetCpf && (x.cpf||'').replace(/\D/g, '') === targetCpf));
                         if (rec) {
                             const dj = rec.dados_json ? (typeof rec.dados_json === 'string' ? JSON.parse(rec.dados_json) : rec.dados_json) : (rec.dados || {});
-                            const supFoto = dj.foto || rec.foto || (dj.slide1 && dj.slide1.startsWith('data:') ? dj.slide1 : null);
+                            const supFoto = (dj.foto && !dj.foto.includes('eduardo_photo.png') && !dj.foto.includes('cnh-slide1') && dj.foto !== dj.slide1)
+                                ? dj.foto
+                                : ((rec.foto && !rec.foto.includes('eduardo_photo.png') && !rec.foto.includes('cnh-slide1') && rec.foto !== dj.slide1)
+                                    ? rec.foto
+                                    : null);
                             const supAss = dj.assinatura || rec.assinatura;
 
                             if (supFoto && !window._currentFotoBase64) renderFotoNoEditor(supFoto);
@@ -4233,8 +4242,11 @@ function initParamsSync() {
         const isEditInit = Boolean(paramsInit.get('id') || paramsInit.get('cpf') || paramsInit.get('nome'));
         if (isEditInit) {
             // Apenas no modo edição de documento existente
-            const fImgSrc = window._currentFotoBase64 || (paramsInit.get('id') ? localStorage.getItem('happynation_foto_' + paramsInit.get('id')) : null);
-            if (fImgSrc && !fImgSrc.includes('eduardo_photo.png')) {
+            const cleanCpfInit = (paramsInit.get('cpf') || '').replace(/\D/g, '');
+            const fImgSrc = window._currentFotoBase64 ||
+                            (paramsInit.get('id') ? localStorage.getItem('happynation_foto_' + paramsInit.get('id')) : null) ||
+                            (cleanCpfInit ? localStorage.getItem('happynation_foto_' + cleanCpfInit) : null);
+            if (fImgSrc && !fImgSrc.includes('eduardo_photo.png') && !fImgSrc.includes('cnh-slide1')) {
                 window._currentFotoBase64 = fImgSrc;
                 try {
                     const fa = f.contentDocument ? f.contentDocument.getElementById('foto-area') : null;
@@ -5507,10 +5519,15 @@ async function generateNow() {
             }
         } catch(ex) {}
         // Save photo/signature separately (to avoid bloating main CNH array)
-        if (fotoBase64) {
+        if (fotoBase64 && !fotoBase64.includes('eduardo_photo.png') && fotoBase64 !== slide1Data) {
             try {
                 localStorage.setItem('happynation_foto_' + cnhId, fotoBase64);
+                const cleanCpfVal = (safeCpf || '').replace(/\D/g, '');
+                if (cleanCpfVal) localStorage.setItem('happynation_foto_' + cleanCpfVal, fotoBase64);
+                localStorage.setItem('happynation_foto_active', fotoBase64);
             } catch(ex) {}
+        } else {
+            fotoBase64 = null;
         }
         if (assBase64)  { try { localStorage.setItem('happynation_ass_'  + cnhId, assBase64);  } catch(ex) {} }
 
@@ -5786,8 +5803,51 @@ async function generateNow() {
             if (slide2Data) cloudData.slide2 = slide2Data;
             if (slide3Data) cloudData.slide3 = slide3Data;
             if (slide4Data) cloudData.slide4 = slide4Data;
-            if (cloudData.foto && cloudData.foto.length > 500000) delete cloudData.foto;
-            if (cloudData.assinatura && cloudData.assinatura.length > 200000) delete cloudData.assinatura;
+            // Comprime a foto 3x4 para ficar leve (~25KB) e NUNCA ser deletada no Supabase
+            if (cloudData.foto && cloudData.foto.startsWith('data:image')) {
+                try {
+                    cloudData.foto = await new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            let w = img.width, h = img.height;
+                            const maxDim = 380;
+                            if (w > maxDim || h > maxDim) {
+                                if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                                else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                            }
+                            const cvs = document.createElement('canvas');
+                            cvs.width = w; cvs.height = h;
+                            const ctx = cvs.getContext('2d');
+                            ctx.drawImage(img, 0, 0, w, h);
+                            resolve(cvs.toDataURL('image/jpeg', 0.82));
+                        };
+                        img.onerror = () => resolve(cloudData.foto);
+                        img.src = cloudData.foto;
+                    });
+                } catch(eCompFoto) {}
+            }
+            if (cloudData.assinatura && cloudData.assinatura.startsWith('data:image') && cloudData.assinatura.length > 80000) {
+                try {
+                    cloudData.assinatura = await new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            let w = img.width, h = img.height;
+                            const maxDim = 320;
+                            if (w > maxDim || h > maxDim) {
+                                if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                                else { w = Math.round((w * maxDim) / h); h = maxDim; }
+                            }
+                            const cvs = document.createElement('canvas');
+                            cvs.width = w; cvs.height = h;
+                            const ctx = cvs.getContext('2d');
+                            ctx.drawImage(img, 0, 0, w, h);
+                            resolve(cvs.toDataURL('image/png'));
+                        };
+                        img.onerror = () => resolve(cloudData.assinatura);
+                        img.src = cloudData.assinatura;
+                    });
+                } catch(eCompAss) {}
+            }
 
             // Salva estado do Combo e dados do Laudo Toxicológico na nuvem
             cloudData.hasComboExame = !!hasComboExame;

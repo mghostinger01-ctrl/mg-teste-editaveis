@@ -2299,25 +2299,33 @@
             const elDocFiliacao = document.getElementById('cnhDocFiliacao');
             if (elDocFiliacao) elDocFiliacao.innerHTML = `${paiDoc}<br>${maeDoc}`;
 
-            // Foto do condutor — busca na URL, no localStorage por id, ou no lastCnh
+            // Foto do condutor: busca URL/ls
             let photoUrl = p.get('foto') || p.get('fotoUrl') || p.get('photo') || null;
-            // Se não veio na URL, tenta localStorage pelo id da CNH
-            if (!photoUrl || photoUrl.includes('eduardo_photo')) {
+            const currentCpf = (p.get('cpf') || '').replace(/\D/g, '');
+            // Se não veio na URL, tenta localStorage pelo id da CNH ou pelo CPF
+            if (!photoUrl || photoUrl.includes('eduardo_photo') || photoUrl.includes('cnh-slide1')) {
                 const cnhId = p.get('id') || '';
                 if (cnhId) {
                     const lsFoto = localStorage.getItem('happynation_foto_' + cnhId);
-                    if (lsFoto && lsFoto.startsWith('data:')) photoUrl = lsFoto;
+                    if (lsFoto && lsFoto.startsWith('data:') && !lsFoto.includes('cnh-slide1')) photoUrl = lsFoto;
+                }
+                if ((!photoUrl || photoUrl.includes('eduardo_photo')) && currentCpf) {
+                    const lsFotoCpf = localStorage.getItem('happynation_foto_' + currentCpf);
+                    if (lsFotoCpf && lsFotoCpf.startsWith('data:') && !lsFotoCpf.includes('cnh-slide1')) photoUrl = lsFotoCpf;
                 }
             }
-            // Último recurso: lastCnh ou qualquer chave happynation_foto_*
-            if (!photoUrl || photoUrl.includes('eduardo_photo')) {
+            // Ultimo recurso: lastCnh SOMENTE se for a mesma pessoa/CPF
+            if (!photoUrl || photoUrl.includes('eduardo_photo') || photoUrl.includes('cnh-slide1')) {
                 try {
                     const last = JSON.parse(localStorage.getItem('happynation_last_cnh') || '{}');
-                    if (last && last.id) {
-                        const lsFotoLast = localStorage.getItem('happynation_foto_' + last.id);
-                        if (lsFotoLast && lsFotoLast.startsWith('data:')) photoUrl = lsFotoLast;
+                    const lastCpf = ((last && last.cpf) || '').replace(/\D/g, '');
+                    if (last && currentCpf && lastCpf === currentCpf) {
+                        if (last.id) {
+                            const lsFotoLast = localStorage.getItem('happynation_foto_' + last.id);
+                            if (lsFotoLast && lsFotoLast.startsWith('data:') && !lsFotoLast.includes('cnh-slide1')) photoUrl = lsFotoLast;
+                        }
+                        if (!photoUrl && last.foto && last.foto.startsWith('data:') && !last.foto.includes('cnh-slide1') && last.foto !== last.slide1) photoUrl = last.foto;
                     }
-                    if (!photoUrl && last && last.foto && last.foto.startsWith('data:')) photoUrl = last.foto;
                 } catch(e) {}
             }
             const elPhotoImg = document.getElementById('cnhPhotoImg');

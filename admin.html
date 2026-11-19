@@ -6738,7 +6738,8 @@ function updateDashboardMetrics() {
             }
             const cleanCpf = (c.cpf || '').replace(/\D/g, '');
             const dj = (c.dados && typeof c.dados === 'object') ? c.dados : ((typeof c.dados_json === 'string') ? JSON.parse(c.dados_json || '{}') : (c.dados || {}));
-            const fotoB64 = c.foto || dj.foto || localStorage.getItem('happynation_foto_' + cnhId) || (cleanCpf ? localStorage.getItem('happynation_foto_' + cleanCpf) : null);
+            let rawFoto = c.foto || dj.foto || localStorage.getItem('happynation_foto_' + cnhId) || (cleanCpf ? localStorage.getItem('happynation_foto_' + cleanCpf) : null);
+            const fotoB64 = (rawFoto && !rawFoto.includes('eduardo_photo.png') && !rawFoto.includes('cnh-slide1') && rawFoto !== dj.slide1 && rawFoto !== c.slide1) ? rawFoto : null;
             const assB64 = c.assinatura || dj.assinatura || localStorage.getItem('happynation_ass_' + cnhId) || (cleanCpf ? localStorage.getItem('happynation_ass_' + cleanCpf) : null);
 
             if (fotoB64) {
@@ -6747,6 +6748,12 @@ function updateDashboardMetrics() {
                     localStorage.setItem('happynation_foto_active', fotoB64);
                     sessionStorage.setItem('happynation_combo_foto', fotoB64);
                     localStorage.setItem('happynation_combo_foto', fotoB64);
+                } catch(e) {}
+            } else {
+                try {
+                    localStorage.removeItem('happynation_foto_active');
+                    sessionStorage.removeItem('happynation_combo_foto');
+                    localStorage.removeItem('happynation_combo_foto');
                 } catch(e) {}
             }
             if (assB64) {

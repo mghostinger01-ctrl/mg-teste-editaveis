@@ -1229,7 +1229,7 @@
             <div class="photo-col">
                 <span class="field-sublabel">Foto</span>
                 <div class="cnh-photo-frame">
-                    <img id="cnhPhotoImg" src="assets/eduardo_photo.png" alt="Foto CNH">
+                    <img id="cnhPhotoImg" src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 125' fill='%2394a3b8'%3E%3Crect width='100' height='125' fill='%23f1f5f9'/%3E%3Ccircle cx='50' cy='45' r='20' fill='%2394a3b8'/%3E%3Cpath d='M20 105 C20 75 80 75 80 105 Z' fill='%2394a3b8'/%3E%3C/svg%3E" alt="Foto CNH">
                 </div>
                 <span class="field-sublabel" style="margin-top:10px;">Assinatura</span>
                 <div id="cnhSignatureFrame" style="display:none;width:120px;height:42px;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:#fff;margin-top:4px;">
@@ -1521,7 +1521,7 @@ function initPage() {
             cpf: params.get('cpf') || "800.758.720-65",
             cat: params.get('cat') || "AB",
             genero: params.get('genero') || params.get('sexo') || "Masculino",
-            foto: params.get('foto') || "assets/eduardo_photo.png"
+            foto: (params.get('foto') && !params.get('foto').includes('eduardo_photo.png')) ? params.get('foto') : ""
         };
     }
 
@@ -1611,24 +1611,36 @@ function initPage() {
 
     // Load photo — prefer from separate localStorage key or record
     const cnhIdForPhoto = (found && found.id) || cnhId || (new URLSearchParams(window.location.search)).get('id');
+    const cleanCpfCurrent = ((found && found.cpf) || params.get('cpf') || '').replace(/\D/g, '');
+    const DEFAULT_AVATAR_SVG = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 125' fill='%2394a3b8'%3E%3Crect width='100' height='125' fill='%23f1f5f9'/%3E%3Ccircle cx='50' cy='45' r='20' fill='%2394a3b8'/%3E%3Cpath d='M20 105 C20 75 80 75 80 105 Z' fill='%2394a3b8'/%3E%3C/svg%3E";
     let resolvedFoto = null;
     if (cnhIdForPhoto) {
         resolvedFoto = localStorage.getItem('happynation_foto_' + cnhIdForPhoto);
     }
-    if (!resolvedFoto && found && found.foto && !found.foto.includes('eduardo_photo.png')) {
+    if (!resolvedFoto && cleanCpfCurrent) {
+        resolvedFoto = localStorage.getItem('happynation_foto_' + cleanCpfCurrent);
+    }
+    if (!resolvedFoto && found && found.foto && !found.foto.includes('eduardo_photo.png') && !found.foto.includes('cnh-slide1') && found.foto !== found.slide1) {
         resolvedFoto = found.foto;
     }
     if (!resolvedFoto) {
         try {
             const last = JSON.parse(localStorage.getItem('happynation_last_cnh') || '{}');
-            if (last) {
+            const lastCpf = ((last && last.cpf) || '').replace(/\D/g, '');
+            // Só herda do last_cnh se for a MESMA pessoa/CPF
+            if (last && cleanCpfCurrent && lastCpf === cleanCpfCurrent) {
                 if (last.id) resolvedFoto = localStorage.getItem('happynation_foto_' + last.id);
-                if (!resolvedFoto && last.foto && !last.foto.includes('eduardo_photo.png')) resolvedFoto = last.foto;
+                if (!resolvedFoto && last.foto && !last.foto.includes('eduardo_photo.png') && !last.foto.includes('cnh-slide1') && last.foto !== last.slide1) {
+                    resolvedFoto = last.foto;
+                }
             }
         } catch(e) {}
     }
+    if (resolvedFoto && (resolvedFoto.includes('eduardo_photo.png') || resolvedFoto.includes('cnh-slide1') || (found && resolvedFoto === found.slide1))) {
+        resolvedFoto = null;
+    }
     const photoImg = document.getElementById('cnhPhotoImg');
-    if (photoImg) photoImg.src = resolvedFoto || 'assets/eduardo_photo.png';
+    if (photoImg) photoImg.src = resolvedFoto || DEFAULT_AVATAR_SVG;
 
     // Load signature
     let resolvedAss = null;
