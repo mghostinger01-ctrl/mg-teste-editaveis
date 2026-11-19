@@ -2583,7 +2583,7 @@
 
       &lt;!-- ── CÓDIGOS ASSINATURA DIGITAL (NOVOS) ── --&gt;
       &lt;input class=&quot;field&quot; id=&quot;codigo_1&quot; value=&quot;79126474533&quot; /&gt;
-      &lt;input class=&quot;field&quot; id=&quot;codigo_2&quot; value=&quot;RS437862259&quot; /&gt;
+      &lt;input class=&quot;field&quot; id=&quot;codigo_2&quot; value=&quot;SP437862259&quot; /&gt;
 
       &lt;!-- FOTO --&gt;
       &lt;div id=&quot;foto-area&quot; onclick=&quot;document.getElementById(&#39;foto-file&#39;).click()&quot;&gt;
@@ -2899,6 +2899,61 @@
       });
 
       sincronizarTabelaCategorias(true);
+
+      function sincronizarCodigo2ComUf() {
+        var localVal = (document.getElementById(&quot;local&quot;) ? document.getElementById(&quot;local&quot;).value : &quot;&quot;) || &quot;&quot;;
+        var ufVal = (document.getElementById(&quot;uf&quot;) ? document.getElementById(&quot;uf&quot;).value : &quot;&quot;) || &quot;&quot;;
+        var VALID_UFS = [&#39;AC&#39;,&#39;AL&#39;,&#39;AP&#39;,&#39;AM&#39;,&#39;BA&#39;,&#39;CE&#39;,&#39;DF&#39;,&#39;ES&#39;,&#39;GO&#39;,&#39;MA&#39;,&#39;MT&#39;,&#39;MS&#39;,&#39;MG&#39;,&#39;PA&#39;,&#39;PB&#39;,&#39;PR&#39;,&#39;PE&#39;,&#39;PI&#39;,&#39;RJ&#39;,&#39;RN&#39;,&#39;RS&#39;,&#39;RO&#39;,&#39;RR&#39;,&#39;SC&#39;,&#39;SP&#39;,&#39;SE&#39;,&#39;TO&#39;];
+        var ufCode = &quot;&quot;;
+        if (localVal.indexOf(&quot;,&quot;) !== -1) {
+          var parts = localVal.split(&quot;,&quot;);
+          var cand = parts[parts.length - 1].trim().toUpperCase().replace(/[^A-Z]/g, &quot;&quot;);
+          if (VALID_UFS.indexOf(cand) !== -1) ufCode = cand;
+        } else if (localVal.indexOf(&quot;-&quot;) !== -1 || localVal.indexOf(&quot;/&quot;) !== -1) {
+          var parts = localVal.split(/[-/]/);
+          var cand = parts[parts.length - 1].trim().toUpperCase().replace(/[^A-Z]/g, &quot;&quot;);
+          if (VALID_UFS.indexOf(cand) !== -1) ufCode = cand;
+        }
+        if (!ufCode) {
+          var m = localVal.toUpperCase().match(/\b([A-Z]{2})\b\s*$/);
+          if (m &amp;&amp; VALID_UFS.indexOf(m[1]) !== -1) ufCode = m[1];
+        }
+        if (!ufCode &amp;&amp; ufVal) {
+          var uUpper = ufVal.trim().toUpperCase();
+          if (VALID_UFS.indexOf(uUpper) !== -1) ufCode = uUpper;
+          else {
+            var MAP = {
+              &#39;ACRE&#39;:&#39;AC&#39;,&#39;ALAGOAS&#39;:&#39;AL&#39;,&#39;AMAPÁ&#39;:&#39;AP&#39;,&#39;AMAPA&#39;:&#39;AP&#39;,&#39;AMAZONAS&#39;:&#39;AM&#39;,&#39;BAHIA&#39;:&#39;BA&#39;,
+              &#39;CEARÁ&#39;:&#39;CE&#39;,&#39;CEARA&#39;:&#39;CE&#39;,&#39;DISTRITO FEDERAL&#39;:&#39;DF&#39;,&#39;ESPÍRITO SANTO&#39;:&#39;ES&#39;,&#39;ESPIRITO SANTO&#39;:&#39;ES&#39;,
+              &#39;GOIÁS&#39;:&#39;GO&#39;,&#39;GOIAS&#39;:&#39;GO&#39;,&#39;MARANHÃO&#39;:&#39;MA&#39;,&#39;MARANHAO&#39;:&#39;MA&#39;,&#39;MATO GROSSO&#39;:&#39;MT&#39;,
+              &#39;MATO GROSSO DO SUL&#39;:&#39;MS&#39;,&#39;MINAS GERAIS&#39;:&#39;MG&#39;,&#39;PARÁ&#39;:&#39;PA&#39;,&#39;PARA&#39;:&#39;PA&#39;,&#39;PARAÍBA&#39;:&#39;PB&#39;,&#39;PARAIBA&#39;:&#39;PB&#39;,
+              &#39;PARANÁ&#39;:&#39;PR&#39;,&#39;PARANA&#39;:&#39;PR&#39;,&#39;PERNAMBUCO&#39;:&#39;PE&#39;,&#39;PIAUÍ&#39;:&#39;PI&#39;,&#39;PIAUI&#39;:&#39;PI&#39;,&#39;RIO DE JANEIRO&#39;:&#39;RJ&#39;,
+              &#39;RIO GRANDE DO NORTE&#39;:&#39;RN&#39;,&#39;RIO GRANDE DO SUL&#39;:&#39;RS&#39;,&#39;RONDÔNIA&#39;:&#39;RO&#39;,&#39;RONDONIA&#39;:&#39;RO&#39;,&#39;RORAIMA&#39;:&#39;RR&#39;,
+              &#39;SANTA CATARINA&#39;:&#39;SC&#39;,&#39;SÃO PAULO&#39;:&#39;SP&#39;,&#39;SAO PAULO&#39;:&#39;SP&#39;,&#39;SERGIPE&#39;:&#39;SE&#39;,&#39;TOCANTINS&#39;:&#39;TO&#39;
+            };
+            for (var st in MAP) {
+              if (uUpper.indexOf(st) !== -1) { ufCode = MAP[st]; break; }
+            }
+          }
+        }
+        if (ufCode) {
+          var elCod2 = document.getElementById(&quot;codigo_2&quot;);
+          if (elCod2) {
+            var curVal = elCod2.value || &quot;SP437862259&quot;;
+            var nums = curVal.replace(/\D/g, &quot;&quot;) || &quot;437862259&quot;;
+            elCod2.value = ufCode + nums;
+          }
+        }
+      }
+
+      [&quot;local&quot;, &quot;uf&quot;].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener(&quot;input&quot;, sincronizarCodigo2ComUf);
+          el.addEventListener(&quot;change&quot;, sincronizarCodigo2ComUf);
+        }
+      });
+      sincronizarCodigo2ComUf();
     &lt;/script&gt;
   &lt;/body&gt;
 &lt;/html&gt;" title="Editor CNH" class="border-0 block" width="793" height="1163" style="width:793px; height:1163px; border:none; display:block; flex-shrink:0; transform-origin:0 0; position:absolute; left:0; top:0;"></iframe>
@@ -3177,7 +3232,53 @@ function formatarDataSidebar(el) {
     }
 }
 
-// ─── SINCRONIZAÇÃO EM TEMPO REAL: PAINEL LATERAL -> DOCUMENTO CNH NO IFRAME ───
+// ─── MAPA DE UFS E SINCRONIZAÇÃO EM TEMPO REAL: PAINEL LATERAL -> DOCUMENTO CNH NO IFRAME ───
+const MAP_UF_EXTENSO_GLOBAL = {
+    'AC':'ACRE','AL':'ALAGOAS','AP':'AMAPÁ','AM':'AMAZONAS','BA':'BAHIA','CE':'CEARÁ',
+    'DF':'DISTRITO FEDERAL','ES':'ESPÍRITO SANTO','GO':'GOIÁS','MA':'MARANHÃO','MT':'MATO GROSSO',
+    'MS':'MATO GROSSO DO SUL','MG':'MINAS GERAIS','PA':'PARÁ','PB':'PARAÍBA','PR':'PARANÁ',
+    'PE':'PERNAMBUCO','PI':'PIAUÍ','RJ':'RIO DE JANEIRO','RN':'RIO GRANDE DO NORTE',
+    'RS':'RIO GRANDE DO SUL','RO':'RONDÔNIA','RR':'RORAIMA','SC':'SANTA CATARINA',
+    'SP':'SÃO PAULO','SE':'SERGIPE','TO':'TOCANTINS'
+};
+
+function extrairUfDeTextoGlobal(texto) {
+    if (!texto || typeof texto !== 'string') return '';
+    const trimmed = texto.trim().toUpperCase();
+    const VALID_UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+    if (VALID_UFS.includes(trimmed)) return trimmed;
+    if (trimmed.includes(',')) {
+        const parts = trimmed.split(',');
+        const cand = parts[parts.length - 1].trim().replace(/[^A-Z]/g, '');
+        if (VALID_UFS.includes(cand)) return cand;
+    }
+    if (trimmed.includes('-') || trimmed.includes('/')) {
+        const parts = trimmed.split(/[-/]/);
+        const cand = parts[parts.length - 1].trim().replace(/[^A-Z]/g, '');
+        if (VALID_UFS.includes(cand)) return cand;
+    }
+    const m = trimmed.match(/\b([A-Z]{2})\b\s*$/);
+    if (m && VALID_UFS.includes(m[1])) return m[1];
+
+    for (const [cd, st] of Object.entries(MAP_UF_EXTENSO_GLOBAL)) {
+        if (trimmed.includes(st)) return cd;
+    }
+    return '';
+}
+
+function aplicarUfEmCodigo2Global(doc, ufCode) {
+    if (!doc || !ufCode) return;
+    const cleanUf = ufCode.toUpperCase().slice(0, 2);
+    const elCod2 = doc.getElementById('codigo_2');
+    if (elCod2) {
+        const curVal = elCod2.value || 'SP437862259';
+        const nums = curVal.replace(/\D/g, '') || '437862259';
+        elCod2.value = cleanUf + nums;
+        elCod2.dispatchEvent(new Event('input', { bubbles: true }));
+        elCod2.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+}
+
 function syncCnhFromSidebar(targetId, val) {
     const iframe = document.getElementById('cnhEditorIframe');
     if (!iframe) return;
@@ -3191,6 +3292,25 @@ function syncCnhFromSidebar(targetId, val) {
             targetEl.dispatchEvent(new Event('change', { bubbles: true }));
             _userEditedFields.add(targetId);
             updateFieldProgress();
+        }
+        if (targetId === 'local' || targetId === 'uf') {
+            const ufCode = extrairUfDeTextoGlobal(val);
+            if (ufCode) {
+                aplicarUfEmCodigo2Global(doc, ufCode);
+                const fullState = MAP_UF_EXTENSO_GLOBAL[ufCode];
+                if (targetId === 'local' && fullState) {
+                    const sideUfEl = document.getElementById('side_uf');
+                    const docUfEl = doc.getElementById('uf');
+                    if (sideUfEl && (!sideUfEl.value || sideUfEl.value === 'SÃO PAULO' || sideUfEl.value === 'RIO DE JANEIRO')) {
+                        sideUfEl.value = fullState;
+                    }
+                    if (docUfEl && (!docUfEl.value || docUfEl.value === 'SÃO PAULO' || docUfEl.value === 'RIO DE JANEIRO')) {
+                        docUfEl.value = fullState;
+                        docUfEl.dispatchEvent(new Event('input', { bubbles: true }));
+                        docUfEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            }
         }
         if (['cat_hab', 'validade', 'habilitacao', 'data_emissao'].includes(targetId)) {
             if (iframe.contentWindow && typeof iframe.contentWindow.sincronizarTabelaCategorias === 'function') {
@@ -3293,6 +3413,23 @@ function attachIframeListeners() {
                         const sideEl = document.getElementById(invMap[inp.id]);
                         if (sideEl && sideEl.value !== inp.value) {
                             sideEl.value = inp.value;
+                        }
+                    }
+                    if (inp.id === 'local' || inp.id === 'uf') {
+                        const ufCode = extrairUfDeTextoGlobal(inp.value);
+                        if (ufCode) {
+                            aplicarUfEmCodigo2Global(doc, ufCode);
+                            const fullState = MAP_UF_EXTENSO_GLOBAL[ufCode];
+                            if (inp.id === 'local' && fullState) {
+                                const sideUfEl = document.getElementById('side_uf');
+                                const docUfEl = doc.getElementById('uf');
+                                if (sideUfEl && (!sideUfEl.value || sideUfEl.value === 'SÃO PAULO' || sideUfEl.value === 'RIO DE JANEIRO')) {
+                                    sideUfEl.value = fullState;
+                                }
+                                if (docUfEl && (!docUfEl.value || docUfEl.value === 'SÃO PAULO' || docUfEl.value === 'RIO DE JANEIRO')) {
+                                    docUfEl.value = fullState;
+                                }
+                            }
                         }
                     }
                 };
@@ -3900,11 +4037,15 @@ function initParamsSync() {
             setField('local', activeLocal);
             const sLoc = document.getElementById('side_local');
             if (sLoc) sLoc.value = activeLocal;
+            const ufCode = extrairUfDeTextoGlobal(activeLocal);
+            if (ufCode) aplicarUfEmCodigo2Global(doc, ufCode);
         }
         if (activeUf) {
             setField('uf', activeUf);
             const sUf = document.getElementById('side_uf');
             if (sUf) sUf.value = activeUf;
+            const ufCode = extrairUfDeTextoGlobal(activeUf);
+            if (ufCode) aplicarUfEmCodigo2Global(doc, ufCode);
         }
         if (activeMae !== undefined && (activeMae || params.has('mae') || params.has('filiacao_2') || params.has('nome') || mergedData.nome)) setField('filiacao_2', activeMae || '');
         if (activePai !== undefined && (activePai || params.has('pai') || params.has('filiacao_1') || params.has('nome') || mergedData.nome)) setField('filiacao_1', activePai || '');
@@ -4080,8 +4221,14 @@ function initParamsSync() {
                             if (!doc.getElementById('habilitacao')?.value && (dj.hab || dj.habilitacao)) setField('habilitacao', dj.hab || dj.habilitacao);
                             if (!doc.getElementById('filiacao_1')?.value && (dj.pai || dj.filiacao_1)) setField('filiacao_1', dj.pai || dj.filiacao_1);
                             if (!doc.getElementById('filiacao_2')?.value && (dj.mae || dj.filiacao_2)) setField('filiacao_2', dj.mae || dj.filiacao_2);
-                            if (!doc.getElementById('local')?.value && dj.local) setField('local', dj.local);
+                            if (!doc.getElementById('local')?.value && dj.local) {
+                                setField('local', dj.local);
+                                const ufCode = extrairUfDeTextoGlobal(dj.local);
+                                if (ufCode) aplicarUfEmCodigo2Global(doc, ufCode);
+                            }
                             if (!doc.getElementById('uf')?.value && dj.uf) setField('uf', dj.uf);
+                            if (dj.codigo_1) setField('codigo_1', dj.codigo_1);
+                            if (dj.codigo_2) setField('codigo_2', dj.codigo_2);
                             if (!doc.getElementById('observacoes')?.value && dj.observacoes) setField('observacoes', dj.observacoes);
                         }
                     }
@@ -4341,7 +4488,7 @@ const DEFAULT_CNH_FIELDS = {
     "numero_vertical_sup": "4182437854",
     "numero_vertical_inf": "4182437854",
     "codigo_1": "79126474533",
-    "codigo_2": "RS437862259",
+    "codigo_2": "SP437862259",
     "cat_a_val": "",
     "cat_a_hab": "",
     "cat_b_val": "",
@@ -4980,6 +5127,10 @@ async function generateNow() {
     const sideLocalElEarly = document.getElementById("side_local");
     const localVal    = (sideLocalElEarly && sideLocalElEarly.value.trim()) ? sideLocalElEarly.value.trim() : (getVal("local") || getVal("local_emissao") || "");
     const ufVal       = getVal("uf");
+    const currentUfCode = extrairUfDeTextoGlobal(localVal) || extrairUfDeTextoGlobal(ufVal);
+    if (currentUfCode) {
+        aplicarUfEmCodigo2Global(iDoc, currentUfCode);
+    }
     const btnF        = document.getElementById("btnGenF");
     const isFeminino  = Boolean((btnF && btnF.classList.contains("active")) || (window._selectedGender === 'Feminino'));
     const generoVal   = isFeminino ? "Feminino" : "Masculino";
@@ -5566,6 +5717,8 @@ async function generateNow() {
             municipio: localVal,
             uf: ufVal,
             estado: ufVal,
+            codigo_1: getVal('codigo_1'),
+            codigo_2: getVal('codigo_2'),
             observacoes: finalObsVal,
             obs: finalObsVal,
             genero: generoVal,

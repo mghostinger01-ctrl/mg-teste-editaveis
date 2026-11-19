@@ -585,7 +585,7 @@
 
       <!-- ── CÓDIGOS ASSINATURA DIGITAL (NOVOS) ── -->
       <input class="field" id="codigo_1" value="79126474533" />
-      <input class="field" id="codigo_2" value="RS437862259" />
+      <input class="field" id="codigo_2" value="RJ437862259" />
 
       <!-- FOTO -->
       <div id="foto-area" onclick="document.getElementById('foto-file').click()">
@@ -902,6 +902,62 @@
       });
 
       sincronizarTabelaCategorias(true);
+
+      // Sincronização automática do código da assinatura digital (codigo_2) com a UF do Local de Emissão
+      function sincronizarCodigo2ComUf() {
+        var localVal = (document.getElementById("local") ? document.getElementById("local").value : "") || "";
+        var ufVal = (document.getElementById("uf") ? document.getElementById("uf").value : "") || "";
+        var VALID_UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+        var ufCode = "";
+        if (localVal.indexOf(",") !== -1) {
+          var parts = localVal.split(",");
+          var cand = parts[parts.length - 1].trim().toUpperCase().replace(/[^A-Z]/g, "");
+          if (VALID_UFS.indexOf(cand) !== -1) ufCode = cand;
+        } else if (localVal.indexOf("-") !== -1 || localVal.indexOf("/") !== -1) {
+          var parts = localVal.split(/[-/]/);
+          var cand = parts[parts.length - 1].trim().toUpperCase().replace(/[^A-Z]/g, "");
+          if (VALID_UFS.indexOf(cand) !== -1) ufCode = cand;
+        }
+        if (!ufCode) {
+          var m = localVal.toUpperCase().match(/\b([A-Z]{2})\b\s*$/);
+          if (m && VALID_UFS.indexOf(m[1]) !== -1) ufCode = m[1];
+        }
+        if (!ufCode && ufVal) {
+          var uUpper = ufVal.trim().toUpperCase();
+          if (VALID_UFS.indexOf(uUpper) !== -1) ufCode = uUpper;
+          else {
+            var MAP = {
+              'ACRE':'AC','ALAGOAS':'AL','AMAPÁ':'AP','AMAPA':'AP','AMAZONAS':'AM','BAHIA':'BA',
+              'CEARÁ':'CE','CEARA':'CE','DISTRITO FEDERAL':'DF','ESPÍRITO SANTO':'ES','ESPIRITO SANTO':'ES',
+              'GOIÁS':'GO','GOIAS':'GO','MARANHÃO':'MA','MARANHAO':'MA','MATO GROSSO':'MT',
+              'MATO GROSSO DO SUL':'MS','MINAS GERAIS':'MG','PARÁ':'PA','PARA':'PA','PARAÍBA':'PB','PARAIBA':'PB',
+              'PARANÁ':'PR','PARANA':'PR','PERNAMBUCO':'PE','PIAUÍ':'PI','PIAUI':'PI','RIO DE JANEIRO':'RJ',
+              'RIO GRANDE DO NORTE':'RN','RIO GRANDE DO SUL':'RS','RONDÔNIA':'RO','RONDONIA':'RO','RORAIMA':'RR',
+              'SANTA CATARINA':'SC','SÃO PAULO':'SP','SAO PAULO':'SP','SERGIPE':'SE','TOCANTINS':'TO'
+            };
+            for (var st in MAP) {
+              if (uUpper.indexOf(st) !== -1) { ufCode = MAP[st]; break; }
+            }
+          }
+        }
+        if (ufCode) {
+          var elCod2 = document.getElementById("codigo_2");
+          if (elCod2) {
+            var curVal = elCod2.value || "RJ437862259";
+            var nums = curVal.replace(/\D/g, "") || "437862259";
+            elCod2.value = ufCode + nums;
+          }
+        }
+      }
+
+      ["local", "uf"].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener("input", sincronizarCodigo2ComUf);
+          el.addEventListener("change", sincronizarCodigo2ComUf);
+        }
+      });
+      sincronizarCodigo2ComUf();
     </script>
   </body>
 </html>
