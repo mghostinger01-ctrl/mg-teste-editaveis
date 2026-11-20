@@ -9,22 +9,22 @@
 
     <!-- Open Graph / Compartilhamento -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="MG Editáveis | Exame Toxicológico">
-    <meta property="og:description" content="Geração e Emissão de Exame Toxicológico CONTRAN em alta resolução.">
+    <meta property="og:title" content="MG Editáveis | Exame Toxicológico Pardini">
+    <meta property="og:description" content="Geração e Emissão de Laudo Toxicológico Pardini Forense e Ocupacional em alta resolução.">
     <meta property="og:image" content="http://painel-mg-editaveis.com/og-image.png">
     
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MG Editáveis | Gerar Exame Toxicológico</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
         :root {
             --bg-color: #0b0d0e;
@@ -198,25 +198,26 @@
             cursor: pointer;
         }
 
-        /* ─── LAYOUT CHECKOUT EM 2 COLUNAS (SPLIT VIEW) ─── */
+        /* ─── LAYOUT PRINCIPAL (SPLIT VIEW) ─── */
         .checkout-container {
             max-width: 1440px;
             width: 100%;
             margin: 0 auto;
-            padding: 20px 24px 60px 24px;
+            padding: 24px;
             display: grid;
             grid-template-columns: 460px 1fr;
-            gap: 24px;
-            align-items: start;
+            gap: 28px;
+            flex: 1;
+            align-items: flex-start;
         }
 
-        @media (max-width: 1100px) {
+        @media (max-width: 1180px) {
             .checkout-container {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* ─── COLUNA ESQUERDA: FORMULÁRIO DE PREENCHIMENTO (ESTILO CHECKOUT) ─── */
+        /* ─── COLUNA ESQUERDA: FORMULÁRIO ─── */
         .form-checkout-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -224,62 +225,47 @@
             padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            position: sticky;
-            top: 84px;
-            max-height: calc(100vh - 100px);
-            overflow-y: auto;
-        }
-
-        body.light-theme .form-checkout-card {
-            background: #ffffff;
-            border-color: #e2e8f0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            gap: 18px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
         }
 
         .checkout-header {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding-bottom: 16px;
             border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
         }
 
         .checkout-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: #fff;
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        body.light-theme .checkout-title {
-            color: #0f172a;
+            gap: 10px;
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-main);
         }
 
         .checkout-desc {
             font-size: 12.5px;
             color: var(--text-muted);
+            margin-top: 4px;
         }
 
-        /* Grupos de Campos */
         .form-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
 
         .form-section-title {
-            font-size: 11.5px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--primary);
         }
 
         .form-row {
@@ -300,38 +286,60 @@
 
         .form-field label {
             font-size: 11.5px;
-            font-weight: 700;
-            color: #cbd5e1;
-        }
-
-        body.light-theme .form-field label {
-            color: #475569;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .input-box {
-            background: var(--surface-card);
+            background: #0d0f10;
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 9px 12px;
-            color: #fff;
+            color: #ffffff;
             font-size: 13px;
             outline: none;
-            transition: all 0.2s;
-            width: 100%;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
 
         body.light-theme .input-box {
-            background: #f8fafc;
-            border-color: #cbd5e1;
+            background: #ffffff;
             color: #0f172a;
+            border-color: #cbd5e1;
         }
 
         .input-box:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 220, 130, 0.15);
+            box-shadow: 0 0 0 2px var(--primary-glow);
         }
 
-        /* Status Toggles */
+        .razao-chips-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .razao-chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+        }
+
+        .razao-chip:hover, .razao-chip.active {
+            background: rgba(0, 220, 130, 0.12);
+            border-color: var(--primary);
+            color: #00dc82;
+        }
+
         .status-toggle-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -339,26 +347,25 @@
         }
 
         .status-toggle-btn {
-            background: var(--surface-card);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border);
-            color: #cbd5e1;
-            padding: 10px 12px;
+            color: var(--text-muted);
+            padding: 10px;
             border-radius: 8px;
             font-size: 12.5px;
             font-weight: 700;
             cursor: pointer;
-            text-align: center;
-            transition: all 0.15s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
+            transition: all 0.15s;
         }
 
         .status-toggle-btn.active-neg {
-            background: rgba(0, 220, 130, 0.15);
-            border-color: var(--primary);
-            color: var(--primary);
+            background: rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+            color: #10b981;
         }
 
         .status-toggle-btn.active-pos {
@@ -367,36 +374,10 @@
             color: #ef4444;
         }
 
-        /* Chips de Razão */
-        .razao-chips-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-        }
-
-        .razao-chip {
-            background: var(--surface-card);
-            border: 1px solid var(--border);
-            color: #cbd5e1;
-            padding: 8px 6px;
-            border-radius: 7px;
-            font-size: 11.5px;
-            font-weight: 700;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.15s;
-        }
-
-        .razao-chip.active, .razao-chip:hover {
-            background: rgba(0, 220, 130, 0.15);
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        /* Card Resumo / Ação Final Checkout */
+        /* ─── CARD DE AÇÃO / BOTÃO GERAR ─── */
         .checkout-actions-card {
-            background: rgba(0, 220, 130, 0.05);
-            border: 1px solid rgba(0, 220, 130, 0.2);
+            background: rgba(0, 220, 130, 0.03);
+            border: 1px solid rgba(0, 220, 130, 0.25);
             border-radius: 12px;
             padding: 16px;
             display: flex;
@@ -417,167 +398,174 @@
         }
 
         .price-value {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--primary);
+            font-size: 20px;
+            font-weight: 900;
+            color: #00dc82;
         }
 
         .btn-reset-defaults {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #94a3b8;
-            font-size: 11.5px;
-            font-weight: 700;
-            padding: 7px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(8px);
+            gap: 5px;
+            transition: all 0.15s;
         }
 
         .btn-reset-defaults:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+            color: #fff;
+            border-color: #fff;
         }
 
         .btn-action-primary {
             background: var(--primary);
-            color: #062517;
-            font-weight: 800;
-            font-size: 14px;
-            padding: 12px 20px;
-            border-radius: 10px;
+            color: #082f49;
             border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14.5px;
+            font-weight: 800;
             cursor: pointer;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 18px var(--primary-glow);
-            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-            width: 100%;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0, 220, 130, 0.35);
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .btn-action-primary:hover {
+        .btn-action-primary:hover:not(:disabled) {
             background: var(--primary-hover);
             transform: translateY(-1px);
-            box-shadow: 0 6px 22px rgba(0, 220, 130, 0.45);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.5);
         }
 
         .btn-action-primary:disabled {
-            opacity: 0.6;
+            opacity: 0.65;
             cursor: not-allowed;
-            transform: none !important;
         }
 
-        /* ─── COLUNA DIREITA: PREVIEW AO VIVO DA FOLHA DO EXAME ─── */
+        .btn-action-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: #94a3b8;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+        .btn-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* ─── COLUNA DIREITA: VISUALIZAÇÃO A4 ─── */
         .preview-column {
             display: flex;
             flex-direction: column;
             gap: 14px;
+            align-items: center;
         }
 
         .preview-top-toolbar {
+            width: 100%;
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 12px;
             padding: 10px 16px;
+            border-radius: 12px;
         }
 
         .preview-tag {
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 700;
-            color: var(--primary);
-            display: inline-flex;
+            color: #38bdf8;
+            display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        .preview-tag::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: var(--primary);
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 8px var(--primary);
+            gap: 8px;
         }
 
         .zoom-controls {
             display: flex;
             align-items: center;
-            background: #191c1d;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
+            gap: 8px;
         }
 
         .btn-zoom {
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
             color: #fff;
-            padding: 5px 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: 700;
-            font-size: 13px;
-            transition: background 0.15s;
-        }
-
-        .btn-zoom:hover {
-            background: rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         .zoom-text {
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 700;
-            padding: 0 8px;
             color: var(--text-muted);
-            min-width: 48px;
+            min-width: 44px;
             text-align: center;
         }
 
         .preview-canvas-container {
             width: 100%;
+            background: #08090a;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 30px 10px;
             display: flex;
             justify-content: center;
-            background: #000;
-            border-radius: 14px;
-            padding: 24px 0;
-            border: 1px solid var(--border);
+            align-items: flex-start;
             overflow: auto;
-            position: relative;
-        }
-
-        body.light-theme .preview-canvas-container {
-            background: #e2e8f0;
+            min-height: 820px;
         }
 
         #zoomWrapper {
-            transition: transform 0.15s ease-out;
             transform-origin: top center;
+            display: flex;
+            justify-content: center;
         }
 
-        /* ─── FOLHA A4 DO EXAME TOXICOLÓGICO (794px x 1123px - SOMENTE LEITURA / PREVIEW) ─── */
+        /* ════════════════════════════════════════════════════════════════
+           FOLHA OFICIAL A4: TOXICOLOGIA PARDINI (794px x 1123px)
+           100% IDÊNTICA AO DOCUMENTO OFICIAL
+           ════════════════════════════════════════════════════════════════ */
         .sheet-a4 {
             width: 794px;
             height: 1123px;
+            min-height: 1123px;
             max-height: 1123px;
             background: #ffffff;
             color: #000000;
-            padding: 30px 38px 20px 38px;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45);
+            padding: 24px 34px 18px 34px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
             position: relative;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 11px;
+            font-size: 10px;
             line-height: 1.25;
             display: flex;
             flex-direction: column;
@@ -585,10 +573,10 @@
             box-sizing: border-box;
             overflow: hidden;
             user-select: none;
-            pointer-events: none; /* Bloqueia qualquer clique ou foco na folha de prévia */
+            pointer-events: none;
         }
 
-        /* ─── MARCA D'ÁGUA DE PRÉVIA EM TODA A FOLHA (LABORATORIAL / TOXICOLÓGICO) ─── */
+        /* MARCA D'ÁGUA DE PRÉVIA */
         .watermark-grid-overlay {
             position: absolute;
             top: 0;
@@ -602,25 +590,23 @@
             justify-content: space-around;
             align-items: center;
             overflow: hidden;
-            padding: 15px;
+            padding: 20px;
             box-sizing: border-box;
         }
 
-        /* TEXTO GIGANTE TRANSLÚCIDO NO CENTRO */
         .watermark-giant-lab-text {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-25deg);
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 80px;
+            font-family: Arial, sans-serif;
+            font-size: 76px;
             font-weight: 900;
             letter-spacing: 6px;
-            color: rgba(0, 51, 153, 0.08);
+            color: rgba(196, 18, 48, 0.08);
             text-transform: uppercase;
             white-space: nowrap;
             pointer-events: none;
-            user-select: none;
         }
 
         .watermark-row {
@@ -633,338 +619,540 @@
             gap: 16px;
         }
 
-        .watermark-row:nth-child(even) {
-            margin-left: 80px;
-        }
-
         .watermark-item {
-            font-size: 20px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            color: #b71c1c;
-            text-transform: uppercase;
-            font-family: 'Arial Black', Arial, sans-serif;
-            white-space: nowrap;
-            user-select: none;
-            border: 2px dashed rgba(183, 28, 28, 0.4);
-            padding: 4px 12px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.5);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .watermark-lab-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0, 51, 153, 0.08);
-            border: 2px dashed rgba(0, 51, 153, 0.45);
-            color: #003399;
-            padding: 4px 12px;
-            border-radius: 6px;
             font-size: 18px;
             font-weight: 900;
             letter-spacing: 2px;
+            color: #b80f2d;
             text-transform: uppercase;
+            border: 2px dashed rgba(184, 15, 45, 0.4);
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
         }
 
-        .watermark-center-badge {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-20deg);
-            background: rgba(255, 255, 255, 0.92);
-            border: 3.5px solid rgba(183, 28, 28, 0.7);
-            border-radius: 16px;
-            padding: 22px 34px;
-            text-align: center;
-            z-index: 1000;
-            box-shadow: 0 15px 45px rgba(0,0,0,0.22);
-            pointer-events: none;
+        /* ─── 1. CABEÇALHO DO LAUDO (LOGO + CNPJ + ABNT) ─── */
+        .pardini-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .pardini-logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pardini-logo-svg {
+            width: 54px;
+            height: 54px;
+            flex-shrink: 0;
+        }
+
+        .pardini-logo-text {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            backdrop-filter: blur(2px);
+            line-height: 1;
         }
 
-        .watermark-center-title {
-            font-size: 25px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            color: #b71c1c;
-            font-family: 'Arial Black', Arial, sans-serif;
-            text-transform: uppercase;
-            line-height: 1.1;
-        }
-
-        .watermark-center-sub {
-            font-size: 12px;
-            font-weight: 800;
-            color: #0f172a;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .watermark-center-tag {
+        .pardini-txt-topo {
             font-size: 11px;
             font-weight: 700;
-            color: #0369a1;
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            padding: 3px 10px;
-            border-radius: 20px;
+            color: #6b7280;
+            letter-spacing: 2px;
+            margin-bottom: 3px;
         }
 
-        /* ─── DETALHES VISUAIS DO LAUDO PSYCHEMEDICS ─── */
-        .blue-val {
-            color: #003399 !important;
-            font-weight: bold;
-        }
-
-        .tox-top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding-bottom: 2px;
-        }
-
-        .tox-brand-left {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .tox-corp-title {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            line-height: 1;
-            color: #000000;
-            border-bottom: 3px double #000000;
-            padding-bottom: 2px;
-            display: inline-block;
-        }
-
-        .tox-corp-sub {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 8.5px;
-            letter-spacing: 4px;
-            font-weight: bold;
-            margin-top: 3px;
-            color: #000000;
-        }
-
-        .tox-brand-right {
-            font-family: 'Times New Roman', Times, serif;
+        .pardini-txt-marca {
             font-size: 27px;
-            letter-spacing: 12px;
-            font-weight: bold;
-            color: #000000;
-            padding-bottom: 4px;
+            font-weight: 900;
+            color: #c41230;
+            letter-spacing: -0.5px;
+            line-height: 0.95;
         }
 
-        .tox-contran-banner {
+        .pardini-txt-sub {
+            font-size: 11px;
+            color: #4b6b82;
+            font-style: italic;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Caixa CNPJ Central */
+        .pardini-cnpj-box {
+            position: relative;
+            border: 1px solid #000;
+            border-radius: 2px;
+            padding: 8px 16px;
             text-align: center;
-            color: #b71c1c;
-            font-size: 13.5px;
-            font-weight: bold;
-            margin: 6px 0 8px 0;
-            letter-spacing: -0.2px;
-        }
-
-        .tox-boxes-row {
             display: flex;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-
-        .tox-box {
-            flex: 1;
-            border: 1.5px solid #000000;
-            padding: 4px 6px;
-            min-height: 44px;
-        }
-
-        .tox-box-title {
-            font-size: 11px;
-            font-weight: bold;
-            color: #000000;
-            margin-bottom: 2px;
-        }
-
-        .tox-id-section {
-            border: 1.5px solid #000000;
-            margin-bottom: 6px;
-        }
-
-        .tox-section-title-bar {
-            font-size: 11px;
-            font-weight: bold;
-            color: #000000;
-            margin-bottom: 2px;
-        }
-
-        .tox-id-grid {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 6px 6px 6px;
-            align-items: center;
-        }
-
-        .tox-id-col1 {
-            width: 44%;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .tox-id-col2 {
-            width: 30%;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .tox-id-col3 {
-            width: 26%;
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
-        .tox-field-row {
+        .pardini-cnpj-tag {
+            position: absolute;
+            top: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            padding: 0 4px;
+            font-size: 7.5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #000;
+        }
+
+        .pardini-cnpj-val {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #000;
+            letter-spacing: 0.4px;
+        }
+
+        /* Selo ABNT NBR ISO/IEC 17025 CRL 1291 */
+        .pardini-acred-badge {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            font-size: 11px;
-            height: 19px;
-            white-space: nowrap;
-        }
-
-        .tox-field-label {
-            font-weight: bold;
-            color: #000000;
-            white-space: nowrap;
-            margin-right: 4px;
-        }
-
-        /* Tabela de Resultados */
-        .tox-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1.5px solid #000000;
-            margin-bottom: 6px;
-        }
-
-        .tox-table th {
-            border: 1px solid #000000;
-            padding: 3px 6px;
-            font-size: 10.5px;
-            font-weight: bold;
             text-align: center;
+            width: 76px;
         }
 
-        .tox-table td {
-            border: 1px solid #000000;
-            padding: 3px 6px;
-            vertical-align: top;
-            font-size: 10.5px;
+        .acred-top-black {
+            background: #000000;
+            color: #ffffff;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            padding: 3px 4px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            box-sizing: border-box;
         }
 
-        .drug-name-bold {
-            font-weight: bold;
-            color: #000000;
-            font-size: 11px;
+        .acred-top-black span {
+            font-size: 6.8px;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: 0.2px;
         }
 
-        .drug-metabolites {
-            font-size: 9px;
-            color: #222222;
-            line-height: 1.15;
-            margin-top: 1px;
-        }
-
-        .tox-res-final-box {
-            border: 1.5px solid #000000;
-            padding: 4px 6px;
-            margin-bottom: 6px;
-            font-size: 11.5px;
+        .acred-box-logo {
+            border: 1px solid #000;
+            border-top: none;
+            width: 100%;
+            padding: 3px 0;
             display: flex;
             align-items: center;
+            justify-content: center;
+            background: #fff;
+            box-sizing: border-box;
         }
 
-        .tox-sub-info-box {
-            border: 1.5px solid #000000;
-            padding: 4px 6px;
-            margin-bottom: 6px;
-            font-size: 10.5px;
+        .acred-crl {
+            font-size: 8px;
+            font-weight: 800;
+            color: #000;
+            margin-top: 2px;
+        }
+
+        /* ─── 2. PRIMEIRO BLOCO (DADOS DO DOADOR & SEGURANÇA) ─── */
+        .block-grid-1 {
+            border: 1.2px solid #000;
+            display: grid;
+            grid-template-columns: 54% 46%;
+            margin-bottom: 7px;
+            box-sizing: border-box;
+        }
+
+        .block-col-left {
+            border-right: 1.2px solid #000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .block-top-header-line {
+            font-size: 8.8px;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-bottom: 1.2px solid #000;
+            background: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .doador-inner-wrap {
+            padding: 5px 6px 6px 6px;
             display: flex;
             flex-direction: column;
             gap: 3px;
         }
 
-        .tox-sub-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tox-obs-title {
-            font-weight: bold;
-            font-size: 11px;
+        .doador-title {
+            font-size: 9px;
+            font-weight: 800;
+            color: #000;
             margin-bottom: 2px;
         }
 
-        .tox-obs-box {
-            border: 1.5px solid #000000;
-            padding: 4px 6px;
-            font-size: 9.5px;
-            line-height: 1.35;
-            text-align: justify;
-            margin-bottom: 8px;
-        }
-
-        .tox-obs-content {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 9.5px;
-            line-height: 1.35;
-            text-align: justify;
-            color: #000000;
-        }
-
-        .tox-footer-row {
+        .doador-row {
+            font-size: 9px;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding-top: 2px;
+            gap: 4px;
         }
 
-        .tox-footer-left {
-            font-size: 9.5px;
+        .doador-row .lbl {
+            font-weight: 700;
+            color: #000;
+        }
+
+        .doador-row .val {
+            font-weight: 700;
+            color: #000;
+        }
+
+        .doador-subcols-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-top: 3px;
+        }
+
+        .subcol-item {
+            font-size: 8.5px;
             line-height: 1.35;
         }
 
-        .tox-footer-right {
-            text-align: center;
-            width: 240px;
+        .subcol-item .lbl {
+            font-weight: 700;
+            color: #000;
         }
 
-        .sig-container {
-            height: 40px;
+        .subcol-item .val {
+            font-weight: 700;
+            color: #000;
+        }
+
+        /* Lado direito do bloco 1 (Autenticação, Barcode e QR) */
+        .block-col-right {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-top-header-line {
+            font-size: 8.5px;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-bottom: 1.2px solid #000;
+            background: #fff;
+        }
+
+        .auth-content-box {
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .auth-graphics-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .barcode-holder {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 2px;
-            position: relative;
         }
 
-        .sig-img {
-            max-height: 40px;
-            max-width: 190px;
-            object-fit: contain;
+        .barcode-holder svg {
+            width: 100%;
+            max-width: 200px;
+            height: 48px;
+        }
+
+        .qrcode-holder {
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qrcode-holder img, .qrcode-holder canvas {
+            width: 60px !important;
+            height: 60px !important;
+        }
+
+        .auth-instructions-text {
+            font-size: 7.2px;
+            color: #111;
+            line-height: 1.2;
+            margin-top: 5px;
+        }
+
+        /* ─── 3. SEGUNDO BLOCO (FCC, LAUDO, AMOSTRA, NF) ─── */
+        .block-grid-2 {
+            border: 1.2px solid #000;
+            display: grid;
+            grid-template-columns: 28% 46% 26%;
+            margin-bottom: 9px;
+            box-sizing: border-box;
+        }
+
+        .b2-col {
+            padding: 5px 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5px;
+            font-size: 8.5px;
+        }
+
+        .b2-col.center {
+            border-left: 1.2px solid #000;
+            border-right: 1.2px solid #000;
+        }
+
+        .b2-col .lbl {
+            font-weight: 700;
+            color: #000;
+        }
+
+        .b2-col .val {
+            font-weight: 700;
+            color: #000;
+        }
+
+        /* ─── 4. TÍTULO CIANO DA TABELA ─── */
+        .cyan-table-title-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5px;
+            margin-bottom: 4px;
+        }
+
+        .cyan-thick-bar {
+            height: 3px;
+            background-color: #009ebc;
+            width: 100%;
+        }
+
+        .cyan-title-heading {
+            text-align: center;
+            font-size: 11.5px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #000;
+            padding: 1.5px 0;
+        }
+
+        .cyan-thin-bar {
+            height: 1px;
+            background-color: #009ebc;
+            width: 100%;
+        }
+
+        /* ─── 5. TABELA DE ANÁLISE TOXICOLÓGICA ─── */
+        .pardini-tox-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7.8px;
+            margin-bottom: 8px;
+        }
+
+        .pardini-tox-table thead th {
+            font-size: 8px;
+            font-weight: 800;
+            color: #000;
+            padding: 2.5px 3px;
+            border-bottom: 1px solid #777;
+        }
+
+        .pardini-tox-table th.th-subst {
+            text-align: left;
+            width: 28%;
+        }
+
+        .pardini-tox-table th.th-res {
+            text-align: center;
+            width: 22%;
+        }
+
+        .pardini-tox-table th.th-obt {
+            text-align: center;
+            width: 18%;
+        }
+
+        .pardini-tox-table th.th-corte-main {
+            text-align: center;
+            width: 32%;
+        }
+
+        .pardini-tox-table th.th-corte-sub {
+            font-size: 7.2px;
+            font-weight: 700;
+            text-align: center;
+            width: 16%;
+            padding-bottom: 3px;
+        }
+
+        .pardini-tox-table tbody tr.group-head td {
+            font-weight: 800;
+            font-size: 8px;
+            color: #000;
+            padding-top: 2px;
+            padding-bottom: 1px;
+        }
+
+        .pardini-tox-table tbody tr.sub-row {
+            background-color: #ffffff;
+        }
+
+        .pardini-tox-table tbody tr.sub-row:nth-child(even) {
+            background-color: #f6f7f9;
+        }
+
+        .pardini-tox-table tbody td {
+            padding: 1px 3px;
+            color: #000;
+            font-size: 7.6px;
+            line-height: 1.25;
+        }
+
+        .pardini-tox-table tbody td.td-name {
+            text-align: left;
+            padding-left: 12px;
+            font-weight: 600;
+        }
+
+        .pardini-tox-table tbody td.td-center {
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* ─── 6. RELATÓRIO MÉDICO ─── */
+        .relatorio-medico-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .relatorio-heading {
+            font-size: 11px;
+            font-weight: 800;
+            color: #000;
+        }
+
+        .relatorio-box-destaque {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            font-size: 8.8px;
+            font-weight: 700;
+            color: #000;
+            background: #fff;
+        }
+
+        .relatorio-disclaimers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            font-size: 8px;
+            color: #111;
+            line-height: 1.3;
+        }
+
+        .data-emissao-line {
+            font-weight: 700;
+            color: #000;
+            margin-top: 1px;
+        }
+
+        /* ─── 7. RODAPÉ INSTITUCIONAL & ASSINATURA ─── */
+        .pardini-footer-grid {
+            display: grid;
+            grid-template-columns: 58% 42%;
+            gap: 14px;
+            align-items: flex-end;
+            margin-bottom: 6px;
+        }
+
+        .footer-legal-paragraph {
+            font-size: 6px;
+            color: #222;
+            line-height: 1.3;
+            text-align: justify;
+        }
+
+        .footer-sig-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .medico-sig-container {
+            width: 190px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .medico-sig-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .medico-name-txt {
+            font-size: 8.8px;
+            font-weight: 800;
+            color: #000;
+            line-height: 1.1;
+        }
+
+        .medico-doc-txt {
+            font-size: 7.8px;
+            font-weight: 600;
+            color: #000;
+            line-height: 1.1;
+        }
+
+        /* ─── 8. LINHA FINAL DO DOCUMENTO ─── */
+        .bottom-final-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            border-top: 1px solid #aaa;
+            padding-top: 4px;
+        }
+
+        .bottom-three-cols {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 7.8px;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .bottom-hash-line {
+            text-align: center;
+            font-size: 7px;
+            color: #222;
         }
 
         /* TOAST */
@@ -1031,28 +1219,28 @@
     <!-- CONTEÚDO PRINCIPAL (SPLIT VIEW CHECKOUT) -->
     <div class="checkout-container">
 
-        <!-- ════════ COLUNA ESQUERDA: FORMULÁRIO ESTILO CHECKOUT ════════ -->
+        <!-- ════════ COLUNA ESQUERDA: FORMULÁRIO ════════ -->
         <div class="form-checkout-card">
             
             <div class="checkout-header">
                 <div class="checkout-title">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    <span>Dados do Exame Toxicológico</span>
+                    <span>Exame Toxicológico — Pardini</span>
                 </div>
-                <div class="checkout-desc">Preencha os campos ao lado. O laudo oficial à direita atualiza em tempo real!</div>
+                <div class="checkout-desc">Preencha os dados do laudo. A folha oficial à direita atualiza em tempo real!</div>
             </div>
 
-            <!-- SEÇÃO 1: RESULTADO GERAL DO EXAME -->
+            <!-- SEÇÃO 1: RESULTADO GERAL -->
             <div class="form-section">
                 <div class="form-section-title">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    <span>1. Resultado do Exame</span>
+                    <span>1. Parecer do Laudo</span>
                 </div>
 
                 <div class="status-toggle-grid">
                     <button type="button" class="status-toggle-btn active-neg" id="btnToggleNeg" onclick="setResultadoGeral('Negativo')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        Negativo (Padrão)
+                        Negativo (Aprovado)
                     </button>
                     <button type="button" class="status-toggle-btn" id="btnTogglePos" onclick="setResultadoGeral('Positivo')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1061,151 +1249,224 @@
                 </div>
             </div>
 
-            <!-- SEÇÃO 2: DADOS DO CONDUTOR -->
+            <!-- SEÇÃO 2: DADOS DO DOADOR -->
             <div class="form-section">
                 <div class="form-section-title">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span>2. Identificação do Condutor</span>
+                    <span>2. Dados do Doador</span>
                 </div>
 
                 <div class="form-row single">
                     <div class="form-field">
-                        <label>Nome Completo do Condutor</label>
-                        <input type="text" class="input-box" id="inp_nome" value="JOAO ROSALINO MIRANDA SALES" oninput="syncFromCheckout()" placeholder="Ex: JOAO DA SILVA">
+                        <label>Nome Completo do Doador</label>
+                        <input type="text" class="input-box" id="inp_nome" value="Leandro Fernandes" oninput="syncFromCheckout()" placeholder="Ex: Leandro Fernandes">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
-                        <label>CPF do Condutor</label>
-                        <input type="text" class="input-box" id="inp_cpf" value="608.256.691-20" oninput="mascaraCpf(this); syncFromCheckout()" placeholder="000.000.000-00">
+                        <label>CPF do Doador</label>
+                        <input type="text" class="input-box" id="inp_cpf" value="107.413.816-30" oninput="mascaraCpf(this); syncFromCheckout()" placeholder="000.000.000-00">
                     </div>
 
                     <div class="form-field">
-                        <label>Laudo Nº</label>
-                        <input type="text" class="input-box" id="inp_laudo" value="31528116" oninput="syncFromCheckout(); updateBarcode()" placeholder="Ex: 31528116">
+                        <label>Tipo</label>
+                        <input type="text" class="input-box" id="inp_tipo" value="CLT" oninput="syncFromCheckout()" placeholder="Ex: CLT ou CNH">
                     </div>
                 </div>
 
                 <div class="form-field">
-                    <label>Razão / Finalidade do Exame</label>
+                    <label>Finalidade do Exame</label>
                     <div class="razao-chips-grid">
-                        <button type="button" class="razao-chip active" id="chipRazao1" onclick="setRazaoPreset('1ª Habilitação', this)">1ª Habilitação</button>
-                        <button type="button" class="razao-chip" id="chipRazao2" onclick="setRazaoPreset('Renovação CNH', this)">Renovação CNH</button>
-                        <button type="button" class="razao-chip" id="chipRazao3" onclick="setRazaoPreset('Admissional', this)">Admissional</button>
-                        <button type="button" class="razao-chip" id="chipRazao4" onclick="setRazaoPreset('Periódico', this)">Periódico</button>
+                        <button type="button" class="razao-chip active" id="chipRazao1" onclick="setFinalidadePreset('PERIODICO', this)">Periódico</button>
+                        <button type="button" class="razao-chip" id="chipRazao2" onclick="setFinalidadePreset('RENOVAÇÃO CNH', this)">Renovação CNH</button>
+                        <button type="button" class="razao-chip" id="chipRazao3" onclick="setFinalidadePreset('ADMISSIONAL', this)">Admissional</button>
+                        <button type="button" class="razao-chip" id="chipRazao4" onclick="setFinalidadePreset('1ª HABILITAÇÃO', this)">1ª Habilitação</button>
                     </div>
-                    <input type="text" class="input-box" id="inp_razao" value="1ª Habilitação" oninput="syncFromCheckout()" style="margin-top:6px;">
+                    <input type="text" class="input-box" id="inp_finalidade" value="PERIODICO" oninput="syncFromCheckout()" style="margin-top:6px;">
                 </div>
             </div>
 
-            <!-- SEÇÃO 3: DATAS DO EXAME -->
+            <!-- SEÇÃO 3: LAUDO, AMOSTRA E POSTO DE COLETA -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>3. Dados da Amostra & Posto</span>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Posto de Coleta (PCL)</label>
+                        <input type="text" class="input-box" id="inp_posto" value="LABCLIN LABORATORIO DE ANALISES CLINICAS LTDA - 64" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Laudo Nº</label>
+                        <input type="text" class="input-box" id="inp_laudo" value="087D9MMT700293968" oninput="syncFromCheckout(); updateBarcode()" placeholder="Ex: 087D9MMT700293968">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Código FCC</label>
+                        <input type="text" class="input-box" id="inp_fcc" value="CN305638578" oninput="syncFromCheckout()" placeholder="Ex: CN305638578">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Amostra Biológica</label>
+                        <input type="text" class="input-box" id="inp_amostra" value="Cabelos CABEÇA - 3,0 cm" oninput="syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Janela de Detecção</label>
+                        <input type="text" class="input-box" id="inp_janela" value="Aproximadamente 90 dias" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Comprimento Coletado</label>
+                        <input type="text" class="input-box" id="inp_comp_coletado" value="3,0 cm" oninput="syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Comprimento Analisado</label>
+                        <input type="text" class="input-box" id="inp_comp_analisado" value="3,0 cm" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 4: DATAS DO LAUDO -->
             <div class="form-section">
                 <div class="form-section-title">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span>3. Prazos e Datas</span>
+                    <span>4. Prazos e Datas</span>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
                         <label>Data da Coleta</label>
-                        <input type="text" class="input-box" id="inp_coleta" value="15/02/2025" oninput="mascaraData(this); syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_coleta" value="26/01/2024" oninput="mascaraData(this); syncFromCheckout()">
                     </div>
 
                     <div class="form-field">
                         <label>Data Recebimento</label>
-                        <input type="text" class="input-box" id="inp_recebimento" value="15/02/2025" oninput="mascaraData(this); syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_recebimento" value="26/01/2024" oninput="mascaraData(this); syncFromCheckout()">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
-                        <label>Data Resultado</label>
-                        <input type="text" class="input-box" id="inp_resultado" value="21/05/2026" oninput="mascaraData(this); syncFromCheckout()">
+                        <label>Análise Lab</label>
+                        <input type="text" class="input-box" id="inp_analise_lab" value="27/01/2024" oninput="mascaraData(this); syncFromCheckout()">
                     </div>
 
                     <div class="form-field">
-                        <label>Data Validade</label>
-                        <input type="text" class="input-box" id="inp_validade" value="21/08/2026" oninput="mascaraData(this); syncFromCheckout()">
+                        <label>Data Resultado</label>
+                        <input type="text" class="input-box" id="inp_resultado" value="30/01/2024" oninput="mascaraData(this); syncFromCheckout()">
                     </div>
                 </div>
 
-                <button type="button" class="status-toggle-btn" style="width:100%;" onclick="preencherDatasAutomaticas()">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Data Validade</label>
+                        <input type="text" class="input-box" id="inp_validade" value="29/04/2024" oninput="mascaraData(this); syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Emissão NF</label>
+                        <input type="text" class="input-box" id="inp_nf" value="0000/00/00" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <button type="button" class="status-toggle-btn" style="width:100%; margin-top:2px;" onclick="preencherDatasAutomaticas()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                     Sincronizar Datas com Hoje
                 </button>
             </div>
 
-            <!-- SEÇÃO 4: LABORATÓRIO E AUTENTICAÇÃO -->
+            <!-- SEÇÃO 5: SEGURANÇA E MÉDICO REVISOR -->
             <div class="form-section">
                 <div class="form-section-title">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    <span>4. Posto de Coleta & Segurança</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>5. Autenticação & Médico Revisor</span>
                 </div>
 
                 <div class="form-row">
-                    <div class="form-field">
-                        <label>Cliente / Posto Coleta</label>
-                        <input type="text" class="input-box" id="inp_cliente" value="ULTRACENTER - MS" oninput="syncFromCheckout()">
-                    </div>
-
                     <div class="form-field">
                         <label>Código Autenticação</label>
-                        <input type="text" class="input-box" id="inp_autenticacao" value="FCQHLE" oninput="syncFromCheckout()" style="text-transform:uppercase;">
+                        <input type="text" class="input-box" id="inp_autenticacao" value="815HQF" oninput="syncFromCheckout(); updateBarcode()" style="text-transform:uppercase;">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Hash Digital</label>
+                        <input type="text" class="input-box" id="inp_hash" value="406e230323742ad" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>URL Autenticação QR Code</label>
+                        <input type="text" class="input-box" id="inp_auth_url" value="exametox.com/autenticacao" oninput="syncFromCheckout(); updateQrCode()">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
-                        <label>ID do Teste</label>
-                        <input type="text" class="input-box" id="inp_id_teste" value="210490412" oninput="syncFromCheckout()">
+                        <label>Nome do Médico Revisor</label>
+                        <input type="text" class="input-box" id="inp_medico_nome" value="Thassio Z. B. Vassiliades" oninput="syncFromCheckout()">
                     </div>
 
                     <div class="form-field">
-                        <label>Código CCF</label>
-                        <input type="text" class="input-box" id="inp_ccf" value="CN0164469" oninput="syncFromCheckout()">
+                        <label>CPF do Médico</label>
+                        <input type="text" class="input-box" id="inp_medico_cpf" value="312.146.888-02" oninput="syncFromCheckout()">
                     </div>
                 </div>
 
-                <div class="form-row">
+                <div class="form-row single">
                     <div class="form-field">
-                        <label>Responsável Técnico</label>
-                        <input type="text" class="input-box" id="inp_biomedico" value="Dr. Tarcisio Maier" oninput="syncFromCheckout()">
-                    </div>
-
-                    <div class="form-field">
-                        <label>Registro CRBM</label>
-                        <input type="text" class="input-box" id="inp_crbm" value="Biomédico - CRBM/MT 2974249" oninput="syncFromCheckout()">
+                        <label>CRM do Médico</label>
+                        <input type="text" class="input-box" id="inp_medico_crm" value="CRM - SP: 173324" oninput="syncFromCheckout()">
                     </div>
                 </div>
             </div>
 
-            <!-- CARD FINAL COM VALOR E BOTÃO DE BAIXAR PDF -->
+            <!-- CARD FINAL: PREÇO E BOTÕES DE EXPORTAÇÃO -->
             <div class="checkout-actions-card">
                 <div class="checkout-price-row">
                     <div>
                         <div class="price-label">Valor da Emissão:</div>
                         <div class="price-value" id="custoExameDisplay">R$ 20,00</div>
                     </div>
-                    <button type="button" class="btn-reset-defaults" onclick="resetToDefaults()" title="Restaurar dados padrão do exame">
+                    <button type="button" class="btn-reset-defaults" onclick="resetToDefaults()" title="Restaurar dados padrão do laudo Pardini">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
                         <span>Restaurar Padrão</span>
                     </button>
                 </div>
 
-                <button class="btn-action-primary btn-gerar" id="btnGerarPdf" onclick="gerarPdfExame()">
+                <button class="btn-action-primary" id="btnGerarPdf" onclick="gerarPdfExame()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     <span id="btnGerarTxt">Gerar PDF — Exame Toxicológico</span>
+                </button>
+
+                <button type="button" class="btn-action-secondary" onclick="baixarImagemPng()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>Baixar Imagem Oficial (PNG HD)</span>
                 </button>
             </div>
 
         </div>
 
-        <!-- ════════ COLUNA DIREITA: VISUALIZAÇÃO AO VIVO (PREVIEW OFICIAL) ════════ -->
+        <!-- ════════ COLUNA DIREITA: VISUALIZAÇÃO A4 AO VIVO ════════ -->
         <div class="preview-column">
             
             <div class="preview-top-toolbar">
-                <div class="preview-tag">Visualização ao vivo do Exame Toxicológico (A4 Oficial)</div>
+                <div class="preview-tag">
+                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:4px;"></span>
+                    Visualização A4 Oficial (Pardini Forense e Ocupacional)
+                </div>
                 <div class="zoom-controls">
                     <button class="btn-zoom" onclick="changeZoom(-0.08)" title="Diminuir Zoom">−</button>
                     <span class="zoom-text" id="zoomValText">95%</span>
@@ -1216,323 +1477,347 @@
             <div class="preview-canvas-container" id="canvasContainer">
                 <div id="zoomWrapper">
                     
-                    <!-- FOLHA OFICIAL DO LAUDO TOXICOLÓGICO -->
+                    <!-- ════════ FOLHA DO LAUDO TOXICOLÓGICO PARDINI (794 x 1123 px) ════════ -->
                     <div class="sheet-a4" id="sheetDoc">
                         
-                        <!-- MARCA D'ÁGUA DE PRÉVIA EM TODA A FOLHA (LABORATORIAL / TOXICOLÓGICO) -->
+                        <!-- MARCA D'ÁGUA DE PRÉVIA (REMOVIDA AO GERAR O PDF) -->
                         <div class="watermark-grid-overlay" id="previewWatermarkOverlay">
-                            
-                            <!-- TEXTO GIGANTE TRANSLÚCIDO NO CENTRO -->
-                            <div class="watermark-giant-lab-text">PSYCHEMEDICS</div>
+                            <div class="watermark-giant-lab-text">PARDINI TOXICOLOGIA</div>
 
                             <div class="watermark-row">
                                 <span class="watermark-item">PRÉVIA</span>
-                                <span class="watermark-lab-badge">LAUDO EM ANÁLISE</span>
                                 <span class="watermark-item">NÃO VÁLIDO</span>
-                                <span class="watermark-item">SEM VALOR</span>
+                                <span class="watermark-item">SEM VALOR LEGAL</span>
                             </div>
                             <div class="watermark-row">
                                 <span class="watermark-item">DOCUMENTO BLOQUEADO</span>
-                                <span class="watermark-item">PRÉVIA</span>
-                                <span class="watermark-lab-badge">CONTRAN BLOQUEADO</span>
-                                <span class="watermark-item">BLOQUEADO</span>
-                            </div>
-                            <div class="watermark-row">
-                                <span class="watermark-lab-badge">LAUDO NÃO OFICIAL</span>
                                 <span class="watermark-item">AGUARDANDO EMISSÃO</span>
                                 <span class="watermark-item">PRÉVIA</span>
-                                <span class="watermark-item">NÃO VÁLIDO</span>
-                            </div>
-                            <div class="watermark-row">
-                                <span class="watermark-item">PRÉVIA</span>
-                                <span class="watermark-lab-badge">BLOQUEIO DE SEGURANÇA</span>
-                                <span class="watermark-item">SEM VALOR</span>
-                                <span class="watermark-item">BLOQUEADO</span>
                             </div>
                             <div class="watermark-row">
                                 <span class="watermark-item">PRÉVIA</span>
                                 <span class="watermark-item">NÃO VÁLIDO</span>
-                                <span class="watermark-lab-badge">SEM VALIDADE LEGAL</span>
-                                <span class="watermark-item">SEM VALOR</span>
+                                <span class="watermark-item">SEM VALOR LEGAL</span>
                             </div>
-
-                            <!-- SELO CENTRAL EM DESTAQUE LABORATORIAL -->
-                            <div class="watermark-center-badge">
-                                <div style="font-family:'Times New Roman', Times, serif; font-size:22px; font-weight:bold; letter-spacing:1px; color:#000;">PSYCHEMEDICS BRASIL</div>
-                                <div class="watermark-center-title">PRÉVIA LABORATORIAL</div>
-                                <div class="watermark-center-sub">Laudo oficial e código de barras liberados após emissão</div>
-                                <div class="watermark-center-tag">Segurança DENATRAN / CONTRAN</div>
+                            <div class="watermark-row">
+                                <span class="watermark-item">DOCUMENTO BLOQUEADO</span>
+                                <span class="watermark-item">AGUARDANDO EMISSÃO</span>
+                                <span class="watermark-item">PRÉVIA</span>
                             </div>
                         </div>
 
-                        <div>
-                            <!-- CABEÇALHO PSYCHEMEDICS BRASIL -->
-                            <div class="tox-top-header">
-                                <div class="tox-brand-left">
-                                    <span class="tox-corp-title">PSYCHEMEDICS</span>
-                                    <span class="tox-corp-sub">C O R P O R A T I O N</span>
-                                </div>
-                                <div class="tox-brand-right">
-                                    B R A S I L
+                        <!-- 1. CABEÇALHO (LOGO PARDINI + CNPJ + SELO ABNT) -->
+                        <div class="pardini-header-row">
+                            <div class="pardini-logo-group">
+                                <svg class="pardini-logo-svg" viewBox="0 0 100 100">
+                                    <!-- Hexágono Superior Esquerdo -->
+                                    <polygon points="35,10 65,10 80,36 65,62 35,62 20,36" fill="#c41230" stroke="#ffffff" stroke-width="2.5" />
+                                    <!-- Hexágono Inferior Direito -->
+                                    <polygon points="50,38 80,38 95,64 80,90 50,90 35,64" fill="#c41230" stroke="#ffffff" stroke-width="2.5" />
+                                    <!-- Filetes Geométricos Internos Brancos -->
+                                    <polygon points="35,18 65,18 75,36 65,54 35,54 25,36" fill="none" stroke="#ffffff" stroke-width="2.2" />
+                                    <polygon points="50,46 80,46 90,64 80,82 50,82 40,64" fill="none" stroke="#ffffff" stroke-width="2.2" />
+                                </svg>
+                                <div class="pardini-logo-text">
+                                    <div class="pardini-txt-topo">TOXICOLOGIA</div>
+                                    <div class="pardini-txt-marca">PARDINI</div>
+                                    <div class="pardini-txt-sub">Forense e Ocupacional</div>
                                 </div>
                             </div>
 
-                            <!-- SUBTÍTULO VERMELHO CONTRAN -->
-                            <div class="tox-contran-banner">
-                                Exame Toxicológico de acordo com a resolução CONTRAN
+                            <div class="pardini-cnpj-box">
+                                <span class="pardini-cnpj-tag">CNPJ</span>
+                                <span class="pardini-cnpj-val">16.695.769/0001-01</span>
                             </div>
 
-                            <!-- CAIXAS DE RELATÓRIO E AUTENTICAÇÃO -->
-                            <div class="tox-boxes-row">
-                                <div class="tox-box">
-                                    <div class="tox-box-title">RELATÓRIO CONFIDENCIAL</div>
-                                    <div style="display:flex; align-items:center;">
-                                        <span style="font-weight:bold; margin-right:4px;">CLIENTE:</span>
-                                        <span id="fld_cliente" style="font-weight:bold; font-size:11px;">ULTRACENTER - MS</span>
+                            <div class="pardini-acred-badge">
+                                <div class="acred-top-black">
+                                    <span>Ensaios</span>
+                                    <span>ABNT NBR</span>
+                                    <span>ISO/IEC 17025</span>
+                                </div>
+                                <div class="acred-box-logo">
+                                    <svg width="40" height="30" viewBox="0 0 100 80">
+                                        <!-- Símbolo da Acreditação Cgcre / Inmetro -->
+                                        <path d="M 18 42 L 82 42" stroke="#000" stroke-width="6" />
+                                        <polygon points="20,36 10,42 20,48" fill="#000" />
+                                        <polygon points="80,36 90,42 80,48" fill="#000" />
+                                        <path d="M 45 18 C 65 18, 75 30, 75 48 C 75 68, 60 74, 45 74 C 30 74, 25 64, 25 48 C 25 32, 35 18, 45 18 Z M 48 33 C 40 33, 38 40, 38 48 C 38 56, 42 61, 48 61 C 55 61, 58 55, 58 48 C 58 40, 55 33, 48 33 Z" fill="#000" />
+                                    </svg>
+                                </div>
+                                <div class="acred-crl">CRL 1291</div>
+                            </div>
+                        </div>
+
+                        <!-- 2. PRIMEIRO BLOCO (DADOS DO DOADOR & AUTENTICAÇÃO) -->
+                        <div class="block-grid-1">
+                            <div class="block-col-left">
+                                <div class="block-top-header-line" id="fld_posto_coleta">PCL: LABCLIN LABORATORIO DE ANALISES CLINICAS LTDA - 64</div>
+                                <div class="doador-inner-wrap">
+                                    <div class="doador-title">DADOS DO DOADOR</div>
+                                    <div class="doador-row">
+                                        <span class="lbl">Nome:</span>
+                                        <span class="val" id="fld_nome">Leandro Fernandes</span>
                                     </div>
-                                </div>
-                                <div class="tox-box">
-                                    <div class="tox-box-title">INFORMAÇÕES DE SEGURANÇA</div>
-                                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:9.5px;">
+                                    <div class="doador-row">
+                                        <span class="lbl">CPF:</span>
+                                        <span class="val" id="fld_cpf">107.413.816-30</span>
+                                    </div>
+                                    <div class="doador-subcols-grid">
                                         <div>
-                                            <span style="font-weight:bold;">AUTENTICAÇÃO:</span>
-                                            <span id="fld_autenticacao" style="font-weight:bold; font-size:9.5px; text-transform:uppercase;">FCQHLE</span>
+                                            <div class="subcol-item"><span class="lbl">Tipo:</span> <span class="val" id="fld_tipo">CLT</span></div>
+                                            <div class="subcol-item"><span class="lbl">Finalidade:</span> <span class="val" id="fld_finalidade">PERIODICO</span></div>
+                                            <div class="subcol-item"><span class="lbl">Coleta:</span> <span class="val" id="fld_coleta">26/01/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Recebimento:</span> <span class="val" id="fld_recebimento">26/01/2024</span></div>
                                         </div>
-                                        <span style="font-size:9px; color:#333;">Página: 1/1</span>
+                                        <div>
+                                            <div class="subcol-item"><span class="lbl">Análise Lab:</span> <span class="val" id="fld_analise_lab">27/01/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Resultado:</span> <span class="val" id="fld_resultado">30/01/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Validade:</span> <span class="val" id="fld_validade">29/04/2024</span></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- SEÇÃO IDENTIFICAÇÃO -->
-                            <div class="tox-id-section">
-                                <div class="tox-section-title-bar" style="background:#fcfcfc; padding:3px 6px; border-bottom:1px solid #000;">
-                                    Identificação
-                                </div>
-                                <div class="tox-id-grid">
-                                    <!-- Coluna 1 -->
-                                    <div class="tox-id-col1">
-                                        <div class="tox-field-row">
-                                            <span class="tox-field-label">Nome:</span>
-                                            <span id="fld_nome" class="blue-val" style="font-size:11.5px; text-transform:uppercase;">JOAO ROSALINO MIRANDA SALES</span>
+                            <div class="block-col-right">
+                                <div class="auth-top-header-line">INFORMAÇÕES DE SEGURANÇA AUTENTICAÇÃO: <span id="fld_autenticacao">815HQF</span></div>
+                                <div class="auth-content-box">
+                                    <div class="auth-graphics-row">
+                                        <div class="barcode-holder">
+                                            <svg id="barcodeSvg"></svg>
                                         </div>
-                                        <div class="tox-field-row">
-                                            <span class="tox-field-label">Laudo Nº:</span>
-                                            <span id="fld_laudo" class="blue-val">31528116</span>
-                                        </div>
-                                        <div class="tox-field-row">
-                                            <span class="tox-field-label">CNPJ:</span>
-                                            <span id="fld_cnpj" class="blue-val">08.075.074/0001-07</span>
-                                        </div>
-                                        <div class="tox-field-row">
-                                            <span class="tox-field-label">CPF:</span>
-                                            <span id="fld_cpf" class="blue-val">608.256.691-20</span>
-                                        </div>
-                                        <div class="tox-field-row">
-                                            <span class="tox-field-label">Razão:</span>
-                                            <span id="fld_razao" class="blue-val">1ª Habilitação</span>
+                                        <div class="qrcode-holder" id="qrWrapHolder">
+                                            <div id="qrcodePreview"></div>
                                         </div>
                                     </div>
-
-                                    <!-- Coluna 2 (Datas) -->
-                                    <div class="tox-id-col2">
-                                        <div class="tox-field-row"></div>
-                                        <div class="tox-field-row">
-                                            <span class="tox-field-label">Data Coleta:</span>
-                                            <span id="fld_coleta">15/02/2025</span>
-                                        </div>
-                                        <div class="tox-field-row">
-                                            <span class="tox-field-label">Data Recebimento:</span>
-                                            <span id="fld_recebimento">15/02/2025</span>
-                                        </div>
-                                        <div class="tox-field-row">
-                                            <span class="tox-field-label">Data Resultado:</span>
-                                            <span id="fld_resultado">21/05/2026</span>
-                                        </div>
-                                        <div class="tox-field-row">
-                                            <span class="tox-field-label" style="color:#cc0000;">Data Validade:</span>
-                                            <span id="fld_validade">21/08/2026</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Coluna 3 (Código de Barras) -->
-                                    <div class="tox-id-col3">
-                                        <svg id="barcodeSvg" style="max-width:180px; height:42px; display:block; margin:0 auto;"></svg>
+                                    <div class="auth-instructions-text">
+                                        Confira a autenticidade deste laudo: escaneie o QR code com o celular ou acesse <span id="fld_auth_url_display">exametox.com/autenticacao</span>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- SEÇÃO RESULTADO -->
-                            <div class="tox-section-title-bar" style="margin-top:4px;">
-                                Resultado
-                            </div>
-
-                            <table class="tox-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:30%; text-align:left;">Droga<br><span style="font-size:9px; font-weight:normal;">Metabólito</span></th>
-                                        <th style="width:20%;">Triagem Inicial</th>
-                                        <th style="width:25%;">Confirmação<br>por CG/MS</th>
-                                        <th style="width:25%;">Observações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- 1. Cocaína -->
-                                    <tr>
-                                        <td>
-                                            <div class="drug-name-bold">Cocaína</div>
-                                            <div class="drug-metabolites">Cocaína<br>Benzoilecgonina<br>Cocaetileno<br>Norcocaína</div>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-triagem-display">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-conf-display blue-val">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-obs-display" style="font-size:10px;">(Sem Observações)</span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- 2. Maconha -->
-                                    <tr>
-                                        <td>
-                                            <div class="drug-name-bold">Maconha</div>
-                                            <div class="drug-metabolites">Carboxy THC</div>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-triagem-display">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-conf-display blue-val">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-obs-display" style="font-size:10px;">(Sem Observações)</span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- 3. Anfetaminas -->
-                                    <tr>
-                                        <td>
-                                            <div class="drug-name-bold">Anfetaminas</div>
-                                            <div class="drug-metabolites">Anfetaminas<br>Mazindol<br>Femproporex<br>Anfepramona</div>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-triagem-display">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-conf-display blue-val">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-obs-display" style="font-size:10px;">(Sem Observações)</span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- 4. Metanfetaminas -->
-                                    <tr>
-                                        <td>
-                                            <div class="drug-name-bold">Metanfetaminas</div>
-                                            <div class="drug-metabolites">Metanfetaminas</div>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-triagem-display">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-conf-display blue-val">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-obs-display" style="font-size:10px;">(Sem Observações)</span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- 5. Ecstasy -->
-                                    <tr>
-                                        <td>
-                                            <div class="drug-name-bold">Ecstasy</div>
-                                            <div class="drug-metabolites">Ecstasy (MDMA)<br>Ecstasy (MDA)<br>EVE (MDE)</div>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-triagem-display">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-conf-display blue-val">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-obs-display" style="font-size:10px;">(Sem Observações)</span>
-                                        </td>
-                                    </tr>
-
-                                    <!-- 6. Opiáceos -->
-                                    <tr>
-                                        <td>
-                                            <div class="drug-name-bold">Opiáceos</div>
-                                            <div class="drug-metabolites">Codeína<br>Morfina<br>Heroína (6MAM)<br>Oxicodona<br>Hidrocodona<br>Hidromorfina</div>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-triagem-display">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-conf-display blue-val">Negativo</span>
-                                        </td>
-                                        <td style="text-align:center; vertical-align:middle;">
-                                            <span class="t-obs-display" style="font-size:10px;">(Sem Observações)</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <!-- RESULTADO FINAL BANNER -->
-                            <div class="tox-res-final-box">
-                                <span style="font-weight:bold; margin-right:6px; white-space:nowrap;">Resultado Final:</span>
-                                <span id="fld_resultado_final" class="blue-val" style="font-size:11.5px; font-weight:bold;">Negativo para todas as drogas testadas.</span>
-                            </div>
-
-                            <!-- SUB-INFO TESTE E CCF (2 LINHAS LIMPAS) -->
-                            <div class="tox-sub-info-box">
-                                <div class="tox-sub-row">
-                                    <div>
-                                        <span style="font-weight:bold;">Identificação do Teste:</span>
-                                        <span id="fld_id_teste" style="font-weight:bold;">210490412</span>
-                                    </div>
-                                    <div>
-                                        <span style="font-weight:bold;">CCF:</span>
-                                        <span id="fld_ccf" style="font-weight:bold;">CN0164469</span>
-                                    </div>
-                                </div>
-                                <div class="tox-sub-row">
-                                    <div>
-                                        <span style="font-weight:bold;">Comprimento do Pelo:</span>
-                                        <span id="fld_comprimento_pelo">2,5 cm</span>
-                                    </div>
-                                    <div>
-                                        <span style="font-weight:bold;">Janela de detecção:</span>
-                                        <span id="fld_janela_deteccao">aproximadamente 180 dias</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- OBSERVAÇÕES GERAIS -->
-                            <div class="tox-obs-title">Observações Gerais</div>
-                            <div class="tox-obs-box">
-                                <div class="tox-obs-content" id="fld_obs_gerais">Um resultado negativo significa que a droga não foi detectada em quantidades que atinjam as margens de segurança da triagem inicial. Um resultado positivo significa que a droga foi detectada em quantidades que igualem ou excedam as margens de segurança da Espectrometria de Massa. Com cadeia de custódia respeitada. Janela de detecção: Foram submetidas amostras de pelos corpóreos para análise, por isso não é possível estabelecer a janela de detecção de maneira precisa e esta pode chegar a mais de 180 dias. Análise realizada em laboratório externo.</div>
                             </div>
                         </div>
 
-                        <!-- RODAPÉ E ASSINATURA -->
-                        <div class="tox-footer-row">
-                            <div class="tox-footer-left">
-                                <strong>PSYCHEMEDICS BRASIL EXAMES TOXICOLÓGICOS LTDA</strong><br>
-                                CNPJ: 08.075.074/0001-07<br>
-                                Laboratório credenciado pelo DENATRAN<br>
-                                sac@psychemedics.com.br<br>
-                                (11) 3181-9005
+                        <!-- 3. SEGUNDO BLOCO (FCC, LAUDO, AMOSTRA BIOLÓGICA, NF) -->
+                        <div class="block-grid-2">
+                            <div class="b2-col">
+                                <div><span class="lbl">FCC:</span> <span class="val" id="fld_fcc">CN305638578</span></div>
+                                <div><span class="lbl">Laudo Nº:</span> <span class="val" id="fld_laudo">087D9MMT700293968</span></div>
+                            </div>
+                            <div class="b2-col center">
+                                <div><span class="lbl">Amostra Biológica:</span> <span class="val" id="fld_amostra">Cabelos CABEÇA - 3,0 cm</span></div>
+                                <div><span class="lbl">Comprimento Coletado:</span> <span class="val" id="fld_comp_coletado">3,0 cm</span></div>
+                                <div><span class="lbl">Comprimento Analisado:</span> <span class="val" id="fld_comp_analisado">3,0 cm</span></div>
+                                <div><span class="lbl">Janela de detecção:</span> <span class="val" id="fld_janela">Aproximadamente 90 dias</span></div>
+                            </div>
+                            <div class="b2-col">
+                                <div><span class="lbl">Emissão NF:</span> <span class="val" id="fld_nf">0000/00/00</span></div>
+                            </div>
+                        </div>
+
+                        <!-- 4. TÍTULO CIANO DA TABELA -->
+                        <div class="cyan-table-title-container">
+                            <div class="cyan-thick-bar"></div>
+                            <div class="cyan-title-heading">RESULTADO DE ANALISE TOXICOLOGICA</div>
+                            <div class="cyan-thin-bar"></div>
+                        </div>
+
+                        <!-- 5. TABELA DE RESULTADOS DAS SUBSTÂNCIAS -->
+                        <table class="pardini-tox-table">
+                            <thead>
+                                <tr>
+                                    <th class="th-subst" rowspan="2">SUBSTÂNCIA</th>
+                                    <th class="th-res" rowspan="2">RESULTADO</th>
+                                    <th class="th-obt" rowspan="2">VALOR OBTIDO</th>
+                                    <th class="th-corte-main" colspan="2">VALORES DE CORTE</th>
+                                </tr>
+                                <tr>
+                                    <th class="th-corte-sub">TRIAGEM (ng/mg)</th>
+                                    <th class="th-corte-sub">CONFIRMATÓRIO (ng/mg)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 1. ANFEPRAMONA -->
+                                <tr class="group-head"><td colspan="5">ANFEPRAMONA</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">ANFEPRAMONA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0.2</td>
+                                </tr>
+
+                                <!-- 2. ANFETAMINAS -->
+                                <tr class="group-head"><td colspan="5">ANFETAMINAS</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">ANFETAMINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0.2</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">MDA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0.2</td>
+                                </tr>
+
+                                <!-- 3. COCAÍNA -->
+                                <tr class="group-head"><td colspan="5">COCAÍNA</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">COCAÍNA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.5</td>
+                                    <td class="td-center">0.5</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">BENZOILECGONINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">.</td>
+                                    <td class="td-center">0.05</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">NORCOCAÍNA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">.</td>
+                                    <td class="td-center">0.05</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">COCAETILENO</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">.</td>
+                                    <td class="td-center">0.05</td>
+                                </tr>
+
+                                <!-- 4. FEMPROPOREX -->
+                                <tr class="group-head"><td colspan="5">FEMPROPOREX</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">FEMPROPOREX</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0.2</td>
+                                </tr>
+
+                                <!-- 5. CANABINOIDES -->
+                                <tr class="group-head"><td colspan="5">CANABINOIDES</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">THC</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.1</td>
+                                    <td class="td-center">.</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">CARBOXI THC</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">.</td>
+                                    <td class="td-center">0.0002</td>
+                                </tr>
+
+                                <!-- 6. METANFETAMINAS -->
+                                <tr class="group-head"><td colspan="5">METANFETAMINAS</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">METANFETAMINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0.2</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">MDMA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0.2</td>
+                                </tr>
+
+                                <!-- 7. MAZINDOL -->
+                                <tr class="group-head"><td colspan="5">MAZINDOL</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">MAZINDOL</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.5</td>
+                                    <td class="td-center">0.5</td>
+                                </tr>
+
+                                <!-- 8. OPIÁCEOS -->
+                                <tr class="group-head"><td colspan="5">OPIÁCEOS</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">MORFINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0.2</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">CODEÍNA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0.2</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">ACETILMORFINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0.2</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- 6. RELATÓRIO MÉDICO -->
+                        <div class="relatorio-medico-wrap">
+                            <div class="relatorio-heading">Relatório Médico</div>
+                            <div class="relatorio-box-destaque" id="fld_parecer_box">
+                                NÃO FEZ USO indevido de substâncias psicoativas de acordo com a Resolução 923, DE 28 DE MARÇO DE 2022..
+                            </div>
+                            <div class="relatorio-disclaimers-list">
+                                <p>* A indicação de uso de substâncias psicoativas é considerada sempre que a presença de substâncias e ou os metabólitos dessas são encontradas nas amostras pesquisadas acima dos limites de referência estabelecidos na legislação brasileira</p>
+                                <p>*Este parecer médico NÃO indica aptidão ou não para a função, cabendo ao Médico Revisor da empresa avaliação final.</p>
+                                <p>Este parecer médico tem validade de 60 dias a partir da data de coleta da amostra pelo doador.</p>
+                                <p class="data-emissao-line">Data de emissão do relatório médico: <span id="fld_relatorio_data">30/01/2024</span></p>
+                            </div>
+                        </div>
+
+                        <!-- 7. RODAPÉ INSTITUCIONAL & ASSINATURA -->
+                        <div class="pardini-footer-grid">
+                            <div class="footer-legal-paragraph" id="fld_legal_txt">
+                                Coleta foi realizada pelo seguinte Posto de Coleta: Labclin Laboratório de Análises Clínicas Ltda, localizado em Centro, Rua São Paulo, 409 - BELO HORIZONTE - MG. Laboratório de coleta não acreditado para a análise do exame toxicológico. Exame realizado pela Toxicologia Pardini Laboratórios S/A (CRFMG: 34.162), empresa do Grupo Hermes Pardini, localizado em Rua Professor José Vieira de Mendonça, 770, CEP: 31310-260 - Engenho Nogueira - Belo Horizonte - MG Laboratório credenciado pelo DENATRAN - email:atoxicolopiapardini.com.br - Telefone: (Sem DDD) 3003-1166 É proibida a reprodução total ou parcial.
                             </div>
 
-                            <div class="tox-footer-right">
-                                <div class="sig-container">
-                                    <img id="sigImgElement" src="assets/assinatura_toxicologico.png" alt="Assinatura" class="sig-img" onerror="this.src='apple-touch-icon.png'" />
+                            <div class="footer-sig-block">
+                                <div class="medico-sig-container">
+                                    <svg viewBox="0 0 240 80">
+                                        <!-- Assinatura Manuscrita Realista de Thassio Z. B. Vassiliades -->
+                                        <path d="M 32 58 C 38 42, 48 14, 60 10 C 66 8, 68 18, 64 34 C 58 54, 50 68, 70 64 C 82 60, 90 46, 102 30 C 112 20, 122 42, 130 55 C 136 62, 146 40, 156 34 C 166 26, 170 42, 175 58 C 180 66, 190 58, 202 50" fill="none" stroke="#000000" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M 26 48 Q 78 42, 138 38 T 212 34" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" />
+                                        <circle cx="213" cy="34" r="1.3" fill="#000000" />
+                                    </svg>
                                 </div>
-                                <div id="fld_biomedico" style="font-weight:bold; font-size:10.5px; text-align:center; width:100%;">Dr. Tarcisio Maier</div>
-                                <div id="fld_crbm" style="font-size:9.5px; text-align:center; width:100%;">Biomédico - CRBM/MT 2974249</div>
+                                <div class="medico-name-txt" id="fld_medico_nome">Thassio Z. B. Vassiliades</div>
+                                <div class="medico-doc-txt" id="fld_medico_cpf">CPF: 312.146.888-02</div>
+                                <div class="medico-doc-txt" id="fld_medico_crm">CRM - SP: 173324</div>
+                            </div>
+                        </div>
+
+                        <!-- 8. LINHA FINAL DO DOCUMENTO -->
+                        <div class="bottom-final-bar">
+                            <div class="bottom-three-cols">
+                                <span>TXP.FOR.TOX.0052/04</span>
+                                <span>www.exametoxicologico.com.br</span>
+                                <span>Pág 1 / 1</span>
+                            </div>
+                            <div class="bottom-hash-line">
+                                Este laudo foi assinado digitalmente sob o nro: <span id="fld_hash_cod">406e230323742ad</span>
                             </div>
                         </div>
 
@@ -1611,290 +1896,247 @@
         inp.value = v;
     }
 
-    // ─── GERADOR DE CÓDIGO DE BARRAS ───
-    function updateBarcode() {
-        const laudoVal = (document.getElementById('inp_laudo')?.value || '31528116').replace(/\D/g, '') || '31528116';
-        try {
-            if (typeof JsBarcode !== 'undefined') {
-                JsBarcode("#barcodeSvg", laudoVal, {
-                    format: "CODE128",
-                    width: 1.4,
-                    height: 42,
-                    displayValue: false,
-                    margin: 0,
-                    lineColor: "#000000"
-                });
-            }
-        } catch(e) {
-            console.warn('Erro ao gerar código de barras:', e);
-        }
+    // ─── CHIPS E PRESETS ───
+    function setFinalidadePreset(val, btn) {
+        document.getElementById('inp_finalidade').value = val;
+        document.querySelectorAll('.razao-chip').forEach(c => c.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        syncFromCheckout();
     }
 
-    // ─── SINCRONIZAÇÃO EM TEMPO REAL (CHECKOUT -> FOLHA AO VIVO) ───
-    let currentResultadoStatus = 'Negativo'; // Padrão sempre Negativo
-
-    function syncFromCheckout() {
-        const nome = (document.getElementById('inp_nome')?.value || '').toUpperCase();
-        const cpf = document.getElementById('inp_cpf')?.value || '';
-        const laudo = document.getElementById('inp_laudo')?.value || '';
-        const razao = document.getElementById('inp_razao')?.value || '';
-        const coleta = document.getElementById('inp_coleta')?.value || '';
-        const recebimento = document.getElementById('inp_recebimento')?.value || '';
-        const resultado = document.getElementById('inp_resultado')?.value || '';
-        const validade = document.getElementById('inp_validade')?.value || '';
-        const cliente = document.getElementById('inp_cliente')?.value || '';
-        const autenticacao = (document.getElementById('inp_autenticacao')?.value || '').toUpperCase();
-        const idTeste = document.getElementById('inp_id_teste')?.value || '';
-        const ccf = (document.getElementById('inp_ccf')?.value || '').toUpperCase();
-        const biomedico = document.getElementById('inp_biomedico')?.value || '';
-        const crbm = document.getElementById('inp_crbm')?.value || '';
-
-        // Atualiza campos estáticos na folha (preview fiel e limpo)
-        const fldNome = document.getElementById('fld_nome');
-        if (fldNome) fldNome.textContent = nome;
-
-        const fldCpf = document.getElementById('fld_cpf');
-        if (fldCpf) fldCpf.textContent = cpf;
-
-        const fldLaudo = document.getElementById('fld_laudo');
-        if (fldLaudo) fldLaudo.textContent = laudo;
-
-        const fldRazao = document.getElementById('fld_razao');
-        if (fldRazao) fldRazao.textContent = razao;
-
-        const fldColeta = document.getElementById('fld_coleta');
-        if (fldColeta) fldColeta.textContent = coleta;
-
-        const fldReceb = document.getElementById('fld_recebimento');
-        if (fldReceb) fldReceb.textContent = recebimento;
-
-        const fldRes = document.getElementById('fld_resultado');
-        if (fldRes) fldRes.textContent = resultado;
-
-        const fldVal = document.getElementById('fld_validade');
-        if (fldVal) fldVal.textContent = validade;
-
-        const fldCli = document.getElementById('fld_cliente');
-        if (fldCli) fldCli.textContent = cliente;
-
-        const fldAuth = document.getElementById('fld_autenticacao');
-        if (fldAuth) fldAuth.textContent = autenticacao;
-
-        const fldIdT = document.getElementById('fld_id_teste');
-        if (fldIdT) fldIdT.textContent = idTeste;
-
-        const fldCcf = document.getElementById('fld_ccf');
-        if (fldCcf) fldCcf.textContent = ccf;
-
-        const fldBio = document.getElementById('fld_biomedico');
-        if (fldBio) fldBio.textContent = biomedico;
-
-        const fldCrbm = document.getElementById('fld_crbm');
-        if (fldCrbm) fldCrbm.textContent = crbm;
-    }
-
-    // ─── CONTROLE FÁCIL DE NEGATIVO / POSITIVO ───
+    let currentResultadoStatus = 'Negativo';
     function setResultadoGeral(status) {
         currentResultadoStatus = status;
-        const isNeg = status === 'Negativo';
-
         const btnNeg = document.getElementById('btnToggleNeg');
         const btnPos = document.getElementById('btnTogglePos');
+        const parecerBox = document.getElementById('fld_parecer_box');
 
-        if (isNeg) {
+        if (status === 'Negativo') {
             btnNeg.className = 'status-toggle-btn active-neg';
             btnPos.className = 'status-toggle-btn';
+            if (parecerBox) {
+                parecerBox.textContent = 'NÃO FEZ USO indevido de substâncias psicoativas de acordo com a Resolução 923, DE 28 DE MARÇO DE 2022..';
+                parecerBox.style.color = '#000000';
+            }
+            document.querySelectorAll('.res-text').forEach(el => {
+                el.textContent = 'NEGATIVO';
+                el.style.color = '#000000';
+            });
         } else {
             btnNeg.className = 'status-toggle-btn';
             btnPos.className = 'status-toggle-btn active-pos';
-        }
-
-        const resFinalEl = document.getElementById('fld_resultado_final');
-        if (resFinalEl) {
-            resFinalEl.textContent = isNeg 
-                ? 'Negativo para todas as drogas testadas.' 
-                : 'Positivo para substâncias detectadas.';
-            resFinalEl.style.color = isNeg ? '#003399' : '#cc0000';
-        }
-
-        document.querySelectorAll('.t-triagem-display').forEach(el => el.textContent = status);
-        document.querySelectorAll('.t-conf-display').forEach(el => {
-            el.textContent = status;
-            el.style.color = isNeg ? '#003399' : '#cc0000';
-        });
-        document.querySelectorAll('.t-obs-display').forEach(el => {
-            el.textContent = isNeg ? '(Sem Observações)' : 'Detectado acima do limite';
-        });
-
-        showToast(`Resultado definido como: ${status}`);
-    }
-
-    // ─── PRESETS DE RAZÃO ───
-    function setRazaoPreset(razao, btn) {
-        document.querySelectorAll('.razao-chip').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-        const inp = document.getElementById('inp_razao');
-        if (inp) {
-            inp.value = razao;
-            syncFromCheckout();
+            if (parecerBox) {
+                parecerBox.textContent = 'DETECTADO o uso de substâncias psicoativas acima dos limites de corte da Resolução 923/2022.';
+                parecerBox.style.color = '#c41230';
+            }
+            document.querySelectorAll('.res-text').forEach((el, idx) => {
+                if (idx === 3) { // Cocaína
+                    el.textContent = 'POSITIVO';
+                    el.style.color = '#c41230';
+                } else {
+                    el.textContent = 'NEGATIVO';
+                    el.style.color = '#000000';
+                }
+            });
         }
     }
 
     function preencherDatasAutomaticas() {
-        const now = new Date();
-        const d = String(now.getDate()).padStart(2, '0');
-        const m = String(now.getMonth() + 1).padStart(2, '0');
-        const y = now.getFullYear();
-
-        const dataHoje = `${d}/${m}/${y}`;
-        
-        // Validade estimada (90 dias depois)
-        const dVal = new Date(now.getTime() + (90 * 24 * 60 * 60 * 1000));
-        const vd = String(dVal.getDate()).padStart(2, '0');
-        const vm = String(dVal.getMonth() + 1).padStart(2, '0');
-        const vy = dVal.getFullYear();
-        const dataValidade = `${vd}/${vm}/${vy}`;
-
-        document.getElementById('inp_coleta').value = dataHoje;
-        document.getElementById('inp_recebimento').value = dataHoje;
-        document.getElementById('inp_resultado').value = dataHoje;
-        document.getElementById('inp_validade').value = dataValidade;
-
-        syncFromCheckout();
-        showToast('Datas sincronizadas com a data atual!');
-    }
-
-    function resetToDefaults() {
-        if (confirm('Deseja restaurar todos os campos do laudo para os valores padrão originais?')) {
-            document.getElementById('inp_cliente').value = "ULTRACENTER - MS";
-            document.getElementById('inp_autenticacao').value = "FCQHLE";
-            document.getElementById('inp_nome').value = "JOAO ROSALINO MIRANDA SALES";
-            document.getElementById('inp_laudo').value = "31528116";
-            document.getElementById('inp_cpf').value = "608.256.691-20";
-            document.getElementById('inp_razao').value = "1ª Habilitação";
-            document.getElementById('inp_coleta').value = "15/02/2025";
-            document.getElementById('inp_recebimento').value = "15/02/2025";
-            document.getElementById('inp_resultado').value = "21/05/2026";
-            document.getElementById('inp_validade').value = "21/08/2026";
-            document.getElementById('inp_id_teste').value = "210490412";
-            document.getElementById('inp_ccf').value = "CN0164469";
-            document.getElementById('inp_biomedico').value = "Dr. Tarcisio Maier";
-            document.getElementById('inp_crbm').value = "Biomédico - CRBM/MT 2974249";
-            
-            document.querySelectorAll('.razao-chip').forEach(b => b.classList.remove('active'));
-            const c1 = document.getElementById('chipRazao1');
-            if (c1) c1.classList.add('active');
-
-            setResultadoGeral('Negativo');
-            syncFromCheckout();
-            updateBarcode();
-            showToast('Valores restaurados!');
-        }
-    }
-
-    // ─── SALDO E USUÁRIO ───
-    function initUser() {
-        let loggedUser = null;
-        try {
-            loggedUser = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
-        } catch(e) {}
-        const saldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
-        const saldoEl = document.getElementById('userHeaderSaldo');
-        if (saldoEl) saldoEl.textContent = `Saldo R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-        const nome = loggedUser.nome || 'M';
-        const avEl = document.getElementById('userHeaderAvatar');
-        if (avEl) avEl.textContent = nome.trim()[0].toUpperCase();
-
-        const custo = parseFloat(localStorage.getItem('happynation_exame_price')) || 20.00;
-        const cEl = document.getElementById('custoExameDisplay');
-        if (cEl) cEl.textContent = `R$ ${custo.toFixed(2).replace('.', ',')}`;
-
-        window.addEventListener('mg_prices_synced', (ev) => {
-            const p = (ev && ev.detail && ev.detail.exame_price) ? parseFloat(ev.detail.exame_price) : (parseFloat(localStorage.getItem('happynation_exame_price')) || 20.00);
-            if (cEl) cEl.textContent = 'R$ ' + p.toFixed(2).replace('.', ',');
-        });
-
-        // Puxa preço atualizado configurado pelo Admin
-        fetch('api/config').then(r => r.json()).then(res => {
-            if (res && res.data && res.data.exame_price) {
-                const svCusto = parseFloat(res.data.exame_price);
-                localStorage.setItem('happynation_exame_price', res.data.exame_price);
-                if (cEl) cEl.textContent = `R$ ${svCusto.toFixed(2).replace('.', ',')}`;
-            }
-        }).catch(() => {});
-
-        // Se houver parâmetros de URL (ex: ?nome=...&cpf=...)
-        const params = new URLSearchParams(window.location.search);
-        const examId = params.get('id');
-
-        let existingRecord = null;
-        try {
-            existingRecord = JSON.parse(localStorage.getItem('happynation_edit_exame') || sessionStorage.getItem('happynation_edit_exame') || 'null');
-        } catch(e) {}
-        if (!existingRecord && examId) {
-            try {
-                const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : '';
-                const uList = JSON.parse(localStorage.getItem('happynation_exames_' + uEmail) || '[]');
-                existingRecord = uList.find(x => x.id === examId);
-                if (!existingRecord) {
-                    const adminList = JSON.parse(localStorage.getItem('happynation_admin_exames') || '[]');
-                    existingRecord = adminList.find(x => x.id === examId);
-                }
-                if (!existingRecord) {
-                    const last = JSON.parse(localStorage.getItem('happynation_last_exame') || '{}');
-                    if (last && last.id === examId) existingRecord = last;
-                }
-            } catch(e) {}
-        }
-        if (existingRecord) {
-            const btnG = document.getElementById('btnGerarPdf');
-            if (btnG) {
-                const sp = btnG.querySelector('span') || btnG;
-                sp.textContent = 'Salvar Alterações & Baixar PDF';
-            }
-        }
-
-        const getVal = (paramName, fieldName, fallback) => {
-            if (params.get(paramName)) return params.get(paramName);
-            if (existingRecord && existingRecord[fieldName]) return existingRecord[fieldName];
-            return fallback;
+        const hoje = new Date();
+        const fmt = (d) => {
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            return `${dd}/${mm}/${yyyy}`;
         };
 
-        if (getVal('nome', 'nome', null)) document.getElementById('inp_nome').value = getVal('nome', 'nome', '');
-        if (getVal('cpf', 'cpf', null)) document.getElementById('inp_cpf').value = getVal('cpf', 'cpf', '');
-        if (getVal('laudo', 'laudo', null)) document.getElementById('inp_laudo').value = getVal('laudo', 'laudo', '');
-        if (getVal('razao', 'razao', null)) document.getElementById('inp_razao').value = getVal('razao', 'razao', '');
-        if (getVal('coleta', 'coleta', null)) document.getElementById('inp_coleta').value = getVal('coleta', 'coleta', '');
-        if (getVal('recebimento', 'recebimento', null)) document.getElementById('inp_recebimento').value = getVal('recebimento', 'recebimento', '');
-        if (getVal('resultado', 'resultado_data', null)) document.getElementById('inp_resultado').value = getVal('resultado', 'resultado_data', '');
-        if (getVal('validade', 'validade', null)) document.getElementById('inp_validade').value = getVal('validade', 'validade', '');
-        if (getVal('cliente', 'cliente', null)) document.getElementById('inp_cliente').value = getVal('cliente', 'cliente', '');
-        if (getVal('autenticacao', 'autenticacao', null)) document.getElementById('inp_autenticacao').value = getVal('autenticacao', 'autenticacao', '');
-        if (getVal('id_teste', 'id_teste', null)) document.getElementById('inp_id_teste').value = getVal('id_teste', 'id_teste', '');
-        if (getVal('ccf', 'ccf', null)) document.getElementById('inp_ccf').value = getVal('ccf', 'ccf', '');
-        if (getVal('res_texto', 'resultado_final', null)) {
-            const rt = getVal('res_texto', 'resultado_final', '');
-            if (rt.toLowerCase().includes('positivo')) {
-                setResultadoGeral('Positivo');
-            } else {
-                setResultadoGeral('Negativo');
-            }
-        }
+        const dColeta = new Date(hoje);
+        dColeta.setDate(dColeta.getDate() - 4);
+
+        const dReceb = new Date(hoje);
+        dReceb.setDate(dReceb.getDate() - 4);
+
+        const dAnalise = new Date(hoje);
+        dAnalise.setDate(dAnalise.getDate() - 3);
+
+        const dResultado = new Date(hoje);
+
+        const dValidade = new Date(hoje);
+        dValidade.setDate(dValidade.getDate() + 90);
+
+        document.getElementById('inp_coleta').value = fmt(dColeta);
+        document.getElementById('inp_recebimento').value = fmt(dReceb);
+        document.getElementById('inp_analise_lab').value = fmt(dAnalise);
+        document.getElementById('inp_resultado').value = fmt(dResultado);
+        document.getElementById('inp_validade').value = fmt(dValidade);
 
         syncFromCheckout();
-        updateBarcode();
+        showToast('Datas sincronizadas com sucesso!');
+    }
 
-        if (params.get('combo') === 'true') {
-            window._skipExameDeduct = true;
-        } else if (params.get('autoDownload') === 'true') {
-            setTimeout(() => {
-                gerarPdfExame().catch(e => console.warn('Erro autoDownload exame:', e));
-            }, 350);
+    // ─── SINCRONIZAÇÃO EM TEMPO REAL COM A FOLHA DE PREVIEW ───
+    function syncFromCheckout() {
+        const val = (id) => (document.getElementById(id)?.value || '').trim();
+
+        // Doador
+        const elNome = document.getElementById('fld_nome');
+        if (elNome) elNome.textContent = val('inp_nome') || 'Leandro Fernandes';
+
+        const elCpf = document.getElementById('fld_cpf');
+        if (elCpf) elCpf.textContent = val('inp_cpf') || '107.413.816-30';
+
+        const elTipo = document.getElementById('fld_tipo');
+        if (elTipo) elTipo.textContent = val('inp_tipo') || 'CLT';
+
+        const elFin = document.getElementById('fld_finalidade');
+        if (elFin) elFin.textContent = val('inp_finalidade') || 'PERIODICO';
+
+        // Posto e Laudo
+        const elPosto = document.getElementById('fld_posto_coleta');
+        if (elPosto) elPosto.textContent = val('inp_posto') || 'PCL: LABCLIN LABORATORIO DE ANALISES CLINICAS LTDA - 64';
+
+        const elLaudo = document.getElementById('fld_laudo');
+        if (elLaudo) elLaudo.textContent = val('inp_laudo') || '087D9MMT700293968';
+
+        const elFcc = document.getElementById('fld_fcc');
+        if (elFcc) elFcc.textContent = val('inp_fcc') || 'CN305638578';
+
+        const elAmostra = document.getElementById('fld_amostra');
+        if (elAmostra) elAmostra.textContent = val('inp_amostra') || 'Cabelos CABEÇA - 3,0 cm';
+
+        const elJanela = document.getElementById('fld_janela');
+        if (elJanela) elJanela.textContent = val('inp_janela') || 'Aproximadamente 90 dias';
+
+        const elCompCol = document.getElementById('fld_comp_coletado');
+        if (elCompCol) elCompCol.textContent = val('inp_comp_coletado') || '3,0 cm';
+
+        const elCompAna = document.getElementById('fld_comp_analisado');
+        if (elCompAna) elCompAna.textContent = val('inp_comp_analisado') || '3,0 cm';
+
+        const elNf = document.getElementById('fld_nf');
+        if (elNf) elNf.textContent = val('inp_nf') || '0000/00/00';
+
+        // Datas
+        const elColeta = document.getElementById('fld_coleta');
+        if (elColeta) elColeta.textContent = val('inp_coleta') || '26/01/2024';
+
+        const elReceb = document.getElementById('fld_recebimento');
+        if (elReceb) elReceb.textContent = val('inp_recebimento') || '26/01/2024';
+
+        const elAnalise = document.getElementById('fld_analise_lab');
+        if (elAnalise) elAnalise.textContent = val('inp_analise_lab') || '27/01/2024';
+
+        const elRes = document.getElementById('fld_resultado');
+        if (elRes) elRes.textContent = val('inp_resultado') || '30/01/2024';
+
+        const elVal = document.getElementById('fld_validade');
+        if (elVal) elVal.textContent = val('inp_validade') || '29/04/2024';
+
+        const elRelData = document.getElementById('fld_relatorio_data');
+        if (elRelData) elRelData.textContent = val('inp_resultado') || '30/01/2024';
+
+        // Autenticação e Segurança
+        const elAut = document.getElementById('fld_autenticacao');
+        if (elAut) elAut.textContent = val('inp_autenticacao') || '815HQF';
+
+        const elHash = document.getElementById('fld_hash_cod');
+        if (elHash) elHash.textContent = val('inp_hash') || '406e230323742ad';
+
+        const elAuthUrl = document.getElementById('fld_auth_url_display');
+        if (elAuthUrl) elAuthUrl.textContent = val('inp_auth_url') || 'exametox.com/autenticacao';
+
+        // Médico
+        const elMedNome = document.getElementById('fld_medico_nome');
+        if (elMedNome) elMedNome.textContent = val('inp_medico_nome') || 'Thassio Z. B. Vassiliades';
+
+        const elMedCpf = document.getElementById('fld_medico_cpf');
+        if (elMedCpf) elMedCpf.textContent = 'CPF: ' + (val('inp_medico_cpf').replace(/^CPF:\s*/i, '') || '312.146.888-02');
+
+        const elMedCrm = document.getElementById('fld_medico_crm');
+        if (elMedCrm) elMedCrm.textContent = (val('inp_medico_crm') || 'CRM - SP: 173324');
+    }
+
+    // ─── CÓDIGO DE BARRAS & QR CODE ───
+    function updateBarcode() {
+        try {
+            const raw = document.getElementById('inp_laudo')?.value || '087D9MMT700293968';
+            const clean = raw.replace(/[^A-Za-z0-9]/g, '') || '087D9MMT700293968';
+            if (typeof JsBarcode === 'function') {
+                JsBarcode('#barcodeSvg', clean, {
+                    format: 'CODE128',
+                    lineColor: '#000000',
+                    width: 1.4,
+                    height: 38,
+                    displayValue: false,
+                    margin: 2
+                });
+            }
+        } catch(e) {
+            console.warn('Erro ao atualizar Barcode:', e);
         }
     }
 
-    // ─── CLONE DE ALTA PRECISÃO PARA RENDERIZAÇÃO DO PDF LIMPO ───
+    let qrCodeInstance = null;
+    function updateQrCode() {
+        try {
+            const container = document.getElementById('qrcodePreview');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let rawUrl = (document.getElementById('inp_auth_url')?.value || 'exametox.com/autenticacao').trim();
+            if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+                rawUrl = 'https://' + rawUrl;
+            }
+
+            if (typeof QRCode === 'function') {
+                qrCodeInstance = new QRCode(container, {
+                    text: rawUrl,
+                    width: 58,
+                    height: 58,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            }
+        } catch(e) {
+            console.warn('Erro ao atualizar QR Code:', e);
+        }
+    }
+
+    // ─── RESTAURAR VALORES PADRÃO ───
+    function resetToDefaults() {
+        document.getElementById('inp_nome').value = 'Leandro Fernandes';
+        document.getElementById('inp_cpf').value = '107.413.816-30';
+        document.getElementById('inp_tipo').value = 'CLT';
+        document.getElementById('inp_finalidade').value = 'PERIODICO';
+        document.getElementById('inp_posto').value = 'LABCLIN LABORATORIO DE ANALISES CLINICAS LTDA - 64';
+        document.getElementById('inp_laudo').value = '087D9MMT700293968';
+        document.getElementById('inp_fcc').value = 'CN305638578';
+        document.getElementById('inp_amostra').value = 'Cabelos CABEÇA - 3,0 cm';
+        document.getElementById('inp_janela').value = 'Aproximadamente 90 dias';
+        document.getElementById('inp_comp_coletado').value = '3,0 cm';
+        document.getElementById('inp_comp_analisado').value = '3,0 cm';
+        document.getElementById('inp_nf').value = '0000/00/00';
+        document.getElementById('inp_coleta').value = '26/01/2024';
+        document.getElementById('inp_recebimento').value = '26/01/2024';
+        document.getElementById('inp_analise_lab').value = '27/01/2024';
+        document.getElementById('inp_resultado').value = '30/01/2024';
+        document.getElementById('inp_validade').value = '29/04/2024';
+        document.getElementById('inp_autenticacao').value = '815HQF';
+        document.getElementById('inp_hash').value = '406e230323742ad';
+        document.getElementById('inp_auth_url').value = 'exametox.com/autenticacao';
+        document.getElementById('inp_medico_nome').value = 'Thassio Z. B. Vassiliades';
+        document.getElementById('inp_medico_cpf').value = '312.146.888-02';
+        document.getElementById('inp_medico_crm').value = 'CRM - SP: 173324';
+
+        setResultadoGeral('Negativo');
+        syncFromCheckout();
+        updateBarcode();
+        updateQrCode();
+        showToast('Dados restaurados para o padrão oficial Toxicologia Pardini!');
+    }
+
+    // ─── CLONE LIMPO PARA IMPRESSÃO E PDF ───
     function buildCleanPrintClone(sheetEl) {
         const clone = sheetEl.cloneNode(true);
         clone.id = 'printCloneSheet';
@@ -1902,21 +2144,19 @@
         clone.style.minHeight = '1123px';
         clone.style.height = '1123px';
         clone.style.maxHeight = '1123px';
-        clone.style.padding = '30px 38px 20px 38px';
+        clone.style.padding = '24px 34px 18px 34px';
         clone.style.boxShadow = 'none';
         clone.style.background = '#ffffff';
         clone.style.boxSizing = 'border-box';
         clone.style.overflow = 'hidden';
 
-        // Remove a marca d'água de prévia para que o PDF gerado seja 100% oficial e limpo
+        // Remove marca d'água de prévia do laudo impresso
         const wm = clone.querySelector('#previewWatermarkOverlay');
         if (wm) wm.remove();
 
         return clone;
     }
 
-    // ─── GERAÇÃO OFICIAL DO PDF (APÓS DEBITAR SALDO) ───
-    
     // ─── MÉTODO PARA EXPORTAR BLOB DO PDF PARA O COMBO ───
     window.gerarPdfExameBlob = async function() {
         try {
@@ -1924,7 +2164,7 @@
             if (!sheet) throw new Error('Elemento sheetDoc não encontrado');
 
             const nomeCondutor = (document.getElementById('inp_nome')?.value || 'CONDUTOR').trim();
-            const filename = 'Exame_Toxicologico_' + nomeCondutor.replace(/\s+/g, '_') + '.pdf';
+            const filename = 'Laudo_Toxicologico_Pardini_' + nomeCondutor.replace(/\s+/g, '_') + '.pdf';
 
             const cleanClone = buildCleanPrintClone(sheet);
             const hiddenContainer = document.createElement('div');
@@ -1932,10 +2172,10 @@
             hiddenContainer.appendChild(cleanClone);
             document.body.appendChild(hiddenContainer);
 
-            await new Promise(r => setTimeout(r, 60));
+            await new Promise(r => setTimeout(r, 120));
 
             const canvas = await html2canvas(cleanClone, {
-                scale: 2,
+                scale: 2.5,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
@@ -1948,16 +2188,15 @@
 
             hiddenContainer.remove();
 
-            // ── Salva imagem preview no localStorage para exibir no App ──
+            // Salva preview no storage
             try {
-                const previewImg = canvas.toDataURL('image/jpeg', 0.75);
+                const previewImg = canvas.toDataURL('image/jpeg', 0.85);
                 localStorage.setItem('happynation_last_exame_preview', previewImg);
-                // Salva também vinculado ao CPF para recuperar depois
                 const cpfKey = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g,'');
                 if (cpfKey) localStorage.setItem('happynation_exame_preview_' + cpfKey, previewImg);
             } catch(ePrev) {}
 
-            const JsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+            const JsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
             if (!JsPDF) throw new Error('Biblioteca jsPDF não carregada');
 
             const pdf = new JsPDF({
@@ -1978,48 +2217,47 @@
         }
     };
 
+    // ─── GERAR E BAIXAR PDF OFICIAL ───
     async function gerarPdfExame() {
-        let loggedUser = null;
-        try {
-            loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}');
-        } catch(e) {}
-        let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
+        const btnGen = document.getElementById('btnGerarPdf');
+        const txtGen = document.getElementById('btnGerarTxt');
+        if (btnGen) btnGen.disabled = true;
+        if (txtGen) txtGen.textContent = 'Processando...';
+
         const rawCustoExame = parseFloat(localStorage.getItem('happynation_exame_price')) || 20.00;
-        const custoExame = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(rawCustoExame) : rawCustoExame;
+        const custoExame = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') 
+            ? window.MGSaldo.calcDiscount(rawCustoExame) 
+            : rawCustoExame;
+        const userSaldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') ? window.MGSaldo.get() : 0;
 
         if (!window._skipExameDeduct && custoExame > 0 && userSaldo < custoExame) {
-            alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do laudo custa R$ ${custoExame.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
+            alert(`⚠️ Saldo insuficiente! Você possui ${window.MGSaldo ? window.MGSaldo.format(userSaldo) : 'R$ 0,00'} e a emissão do laudo custa R$ ${custoExame.toFixed(2).replace('.', ',')}.\n\nRedirecionando para a página de recargas...`);
             window.location.href = 'recargas.html';
+            if (btnGen) btnGen.disabled = false;
+            if (txtGen) txtGen.textContent = 'Gerar PDF — Exame Toxicológico';
             return;
         }
 
-        const btnGen = document.getElementById('btnGerarPdf');
-        const origBtnText = btnGen.innerHTML;
-        btnGen.disabled = true;
-        btnGen.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Gerando PDF...';
-
         try {
-            const sheet = document.getElementById('sheetDoc');
-            const nomeCondutor = (document.getElementById('inp_nome').value || 'CONDUTOR').trim();
-            const filename = `Exame_Toxicologico_${nomeCondutor.replace(/\s+/g, '_')}.pdf`;
+            if (txtGen) txtGen.textContent = 'Gerando Laudo Oficial...';
 
-            // Cria o clone limpo SEM a marca d'água de prévia
+            const sheet = document.getElementById('sheetDoc');
+            if (!sheet) throw new Error('Elemento sheetDoc não encontrado');
+
+            const nomeCondutor = (document.getElementById('inp_nome')?.value || 'CONDUTOR').trim();
+            const safeNome = nomeCondutor.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const filename = `laudo_toxicologico_pardini_${safeNome}.pdf`;
+
             const cleanClone = buildCleanPrintClone(sheet);
             const hiddenContainer = document.createElement('div');
-            hiddenContainer.style.position = 'fixed';
-            hiddenContainer.style.left = '-99999px';
-            hiddenContainer.style.top = '0';
-            hiddenContainer.style.width = '794px';
-            hiddenContainer.style.height = '1123px';
-            hiddenContainer.style.background = '#ffffff';
-            hiddenContainer.style.zIndex = '-9999';
+            hiddenContainer.style.cssText = 'position:fixed; left:-99999px; top:0; width:794px; height:1123px; background:#ffffff; z-index:-9999;';
             hiddenContainer.appendChild(cleanClone);
             document.body.appendChild(hiddenContainer);
 
-            await new Promise(r => setTimeout(r, 120));
+            await new Promise(r => setTimeout(r, 150));
 
             const canvas = await html2canvas(cleanClone, {
-                scale: 2,
+                scale: 2.5,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
@@ -2032,15 +2270,15 @@
 
             hiddenContainer.remove();
 
-            // ── Salva imagem preview no localStorage para o App ──
+            // Salva preview no localStorage para uso no app/painel
             try {
-                const previewImg = canvas.toDataURL('image/jpeg', 0.75);
+                const previewImg = canvas.toDataURL('image/jpeg', 0.85);
                 localStorage.setItem('happynation_last_exame_preview', previewImg);
                 const cpfKey = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g,'');
                 if (cpfKey) localStorage.setItem('happynation_exame_preview_' + cpfKey, previewImg);
             } catch(ePrev) {}
 
-            const JsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+            const JsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
             if (!JsPDF) throw new Error('Biblioteca jsPDF não carregada.');
 
             const pdf = new JsPDF({
@@ -2053,39 +2291,41 @@
             const imgData = canvas.toDataURL('image/jpeg', 0.98);
             pdf.addImage(imgData, 'JPEG', 0, 0, 794, 1123);
 
-            pdf.save(filename);
-            showToast('✅ Laudo Toxicológico gerado! Download iniciado...');
-
-                        // Desconta o saldo do cliente no servidor e localmente (a menos que seja via combo onde já foi descontado)
-            if (!window._skipExameDeduct) {
-                const uEmailDeductRg = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : '';
-                const uIdDeductRg = (loggedUser && loggedUser.id) ? loggedUser.id : 0;
-                if (window.MGSaldo) {
-                    window.MGSaldo.update(-custoExame);
-                } else {
-                    let u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
-                    if (u && u.saldo !== undefined) {
-                        u.saldo = Math.max(0, parseFloat(u.saldo) - custoExame);
-                        localStorage.setItem('happynation_user', JSON.stringify(u));
-                    }
-                }
-                if (window.MGSync) {
-                    window.MGSync.push('happynation_user');
-                    window.MGSync.push('happynation_admin_users');
-                }
-                try {
-                    fetch('api/index.php?action=deduct_balance', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userId: uIdDeductRg, userEmail: uEmailDeductRg, amount: custoExame, tipo: 'exame' })
-                    }).catch(() => {});
-                } catch(e) {}
-            }
-            initUser();
-
-            // Grava no histórico de exames
-            let newExamRecord = null;
+            // Download oficial universal via Blob
             try {
+                const blob = pdf.output('blob');
+                const blobUrl = URL.createObjectURL(blob);
+                const dlLink = document.createElement('a');
+                dlLink.href = blobUrl;
+                dlLink.download = filename;
+                document.body.appendChild(dlLink);
+                dlLink.click();
+                setTimeout(() => { dlLink.remove(); URL.revokeObjectURL(blobUrl); }, 4000);
+            } catch (eBlob) {
+                pdf.save(filename);
+            }
+
+            showToast('✅ Laudo Toxicológico Pardini gerado! Download iniciado...');
+
+            // Remove a marca d'água da tela de prévia
+            const liveWm = document.getElementById('previewWatermarkOverlay');
+            if (liveWm) liveWm.remove();
+
+            // Desconta saldo via MGSaldo
+            if (!window._skipExameDeduct) {
+                if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
+                    window.MGSaldo.deduct(custoExame, {
+                        tipo: 'exame',
+                        descricao: String(nomeCondutor).toUpperCase(),
+                        subRotulo: 'Laudo Toxicológico Pardini'
+                    });
+                }
+            }
+
+            // Grava registro no histórico de exames
+            try {
+                let loggedUser = {};
+                try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
                 const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
                 const examesKey = 'happynation_exames_' + uEmail;
                 let exList = JSON.parse(localStorage.getItem(examesKey) || '[]');
@@ -2093,73 +2333,146 @@
                 const existingId = new URLSearchParams(window.location.search).get('id');
                 const examId = existingId || ('TOX-' + Math.floor(10000 + Math.random() * 90000));
                 
-                newExamRecord = {
+                const newExamRecord = {
                     id: examId,
                     nome: nomeCondutor,
-                    cpf: document.getElementById('inp_cpf').value,
-                    laudo: document.getElementById('inp_laudo').value,
-                    razao: document.getElementById('inp_razao').value,
-                    coleta: document.getElementById('inp_coleta').value,
-                    recebimento: document.getElementById('inp_recebimento').value,
-                    resultado_data: document.getElementById('inp_resultado').value,
-                    validade: document.getElementById('inp_validade').value,
-                    cliente: document.getElementById('inp_cliente').value,
-                    autenticacao: document.getElementById('inp_autenticacao').value,
-                    id_teste: document.getElementById('inp_id_teste').value,
-                    ccf: document.getElementById('inp_ccf').value,
+                    cpf: document.getElementById('inp_cpf')?.value || '',
+                    laudo: document.getElementById('inp_laudo')?.value || '',
+                    fcc: document.getElementById('inp_fcc')?.value || '',
+                    laboratorio: 'TOXICOLOGIA PARDINI',
+                    razao: document.getElementById('inp_finalidade')?.value || 'PERIODICO',
+                    coleta: document.getElementById('inp_coleta')?.value || '',
+                    recebimento: document.getElementById('inp_recebimento')?.value || '',
+                    resultado_data: document.getElementById('inp_resultado')?.value || '',
+                    validade: document.getElementById('inp_validade')?.value || '',
+                    status: 'Ativo',
                     resultado: currentResultadoStatus,
-                    resultado_final: document.getElementById('fld_resultado_final').textContent,
                     created_at: new Date().toISOString()
                 };
 
-                const exIdx = exList.findIndex(x => x.id === examId);
-                if (exIdx >= 0) {
-                    exList[exIdx] = Object.assign({}, exList[exIdx], newExamRecord);
-                } else {
-                    exList.unshift(newExamRecord);
-                }
+                exList = exList.filter(item => item.id !== examId);
+                exList.unshift(newExamRecord);
                 localStorage.setItem(examesKey, JSON.stringify(exList));
                 localStorage.setItem('happynation_last_exame', JSON.stringify(newExamRecord));
 
-                // Feed de atividades do usuário
-                const actKey = 'happynation_activities_' + uEmail;
-                let acts = JSON.parse(localStorage.getItem(actKey) || '[]');
-                acts.unshift({
-                    title: 'EXAME TOXICOLÓGICO - ' + nomeCondutor.toUpperCase(),
-                    time: 'agora',
-                    created_at: new Date().toISOString(),
-                    val: '+1,00'
-                });
-                localStorage.setItem(actKey, JSON.stringify(acts));
-            } catch(eHist) {}
-
-            // Redireciona para ver-exame.html
-            setTimeout(() => {
-                const targetUrl = 'ver-exame.html?id=' + encodeURIComponent(newExamRecord ? newExamRecord.id : 'TOX-1001')
-                    + '&nome=' + encodeURIComponent(nomeCondutor)
-                    + '&cpf=' + encodeURIComponent(document.getElementById('inp_cpf').value)
-                    + '&laudo=' + encodeURIComponent(document.getElementById('inp_laudo').value)
-                    + '&razao=' + encodeURIComponent(document.getElementById('inp_razao').value)
-                    + '&coleta=' + encodeURIComponent(document.getElementById('inp_coleta').value)
-                    + '&resultado=' + encodeURIComponent(document.getElementById('inp_resultado').value)
-                    + '&validade=' + encodeURIComponent(document.getElementById('inp_validade').value)
-                    + '&res_texto=' + encodeURIComponent(document.getElementById('fld_resultado_final').textContent);
-                window.location.href = targetUrl;
-            }, 1800);
-
+                // Salva também no banco Supabase em segundo plano
+                const client = window.supabaseInstance || window.supabaseClient;
+                if (client) {
+                    client.from('exames').upsert([newExamRecord]).then(() => {}).catch(() => {});
+                }
+            } catch(eHist) {
+                console.warn('Erro ao salvar no histórico:', eHist);
+            }
         } catch(err) {
-            console.error('Erro ao gerar laudo:', err);
-            alert('Erro ao gerar PDF do Exame Toxicológico: ' + (err.message || err));
+            console.error('Erro ao gerar laudo toxicológico:', err);
+            alert('Erro ao gerar laudo: ' + (err.message || 'Falha ao processar'));
         } finally {
-            btnGen.disabled = false;
-            btnGen.innerHTML = origBtnText;
+            if (btnGen) btnGen.disabled = false;
+            if (txtGen) txtGen.textContent = 'Baixar Novamente — Exame Toxicológico';
         }
     }
 
-    // ─── INICIALIZAÇÃO ───
-    window.addEventListener('load', () => {
-        initUser();
+    // ─── BAIXAR IMAGEM PNG ───
+    async function baixarImagemPng() {
+        try {
+            const sheet = document.getElementById('sheetDoc');
+            if (!sheet) return;
+
+            const cleanClone = buildCleanPrintClone(sheet);
+            const hiddenContainer = document.createElement('div');
+            hiddenContainer.style.cssText = 'position:fixed; left:-99999px; top:0; width:794px; height:1123px; background:#ffffff; z-index:-9999;';
+            hiddenContainer.appendChild(cleanClone);
+            document.body.appendChild(hiddenContainer);
+
+            await new Promise(r => setTimeout(r, 120));
+
+            const canvas = await html2canvas(cleanClone, {
+                scale: 2.5,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                width: 794,
+                height: 1123,
+                windowWidth: 794,
+                windowHeight: 1123
+            });
+
+            hiddenContainer.remove();
+
+            const nome = (document.getElementById('inp_nome')?.value.trim() || 'condutor').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const link = document.createElement('a');
+            link.download = `laudo_toxicologico_pardini_${nome}.png`;
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => link.remove(), 2000);
+            showToast('Download da imagem PNG iniciado!');
+        } catch(e) {
+            console.error('Erro ao baixar PNG:', e);
+            alert('Erro ao gerar imagem PNG.');
+        }
+    }
+
+    // ─── CARREGAMENTO INICIAL E PARÂMETROS DE URL ───
+    window.addEventListener('DOMContentLoaded', () => {
         resetZoom();
+
+        // Recupera parâmetros da URL (edição, CNH, etc)
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('nome')) document.getElementById('inp_nome').value = params.get('nome');
+        if (params.has('cpf')) document.getElementById('inp_cpf').value = params.get('cpf');
+        if (params.has('laudo')) document.getElementById('inp_laudo').value = params.get('laudo');
+        if (params.has('fcc')) document.getElementById('inp_fcc').value = params.get('fcc');
+        if (params.has('razao') || params.has('finalidade')) {
+            const fin = params.get('razao') || params.get('finalidade');
+            document.getElementById('inp_finalidade').value = fin;
+        }
+        if (params.has('coleta')) document.getElementById('inp_coleta').value = params.get('coleta');
+        if (params.has('recebimento')) document.getElementById('inp_recebimento').value = params.get('recebimento');
+        if (params.has('resultado')) document.getElementById('inp_resultado').value = params.get('resultado');
+        if (params.has('validade')) document.getElementById('inp_validade').value = params.get('validade');
+        if (params.has('posto') || params.has('cliente')) {
+            document.getElementById('inp_posto').value = params.get('posto') || params.get('cliente');
+        }
+        if (params.has('autenticacao')) document.getElementById('inp_autenticacao').value = params.get('autenticacao');
+
+        // Se veio id para editar do histórico
+        const editId = params.get('id');
+        if (editId) {
+            try {
+                let loggedUser = {};
+                try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+                const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
+                const exList = JSON.parse(localStorage.getItem('happynation_exames_' + uEmail) || '[]');
+                const found = exList.find(x => x.id === editId);
+                if (found) {
+                    if (found.nome) document.getElementById('inp_nome').value = found.nome;
+                    if (found.cpf) document.getElementById('inp_cpf').value = found.cpf;
+                    if (found.laudo) document.getElementById('inp_laudo').value = found.laudo;
+                    if (found.fcc) document.getElementById('inp_fcc').value = found.fcc;
+                    if (found.razao) document.getElementById('inp_finalidade').value = found.razao;
+                    if (found.coleta) document.getElementById('inp_coleta').value = found.coleta;
+                    if (found.recebimento) document.getElementById('inp_recebimento').value = found.recebimento;
+                    if (found.resultado_data) document.getElementById('inp_resultado').value = found.resultado_data;
+                    if (found.validade) document.getElementById('inp_validade').value = found.validade;
+                    if (found.resultado) setResultadoGeral(found.resultado);
+                }
+            } catch(e) {}
+        }
+
+        syncFromCheckout();
+        updateBarcode();
+        updateQrCode();
+
+        // Carrega saldo do usuário no header
+        try {
+            const s = (window.MGSaldo && typeof window.MGSaldo.get === 'function') 
+                ? window.MGSaldo.get() 
+                : parseFloat(localStorage.getItem('happynation_saldo') || '0.00');
+            const h = document.getElementById('userHeaderSaldo');
+            if (h) h.textContent = `Saldo R$ ${s.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        } catch(e) {}
     });
     </script>
 </body>
