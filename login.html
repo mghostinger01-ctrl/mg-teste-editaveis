@@ -915,7 +915,8 @@
                 }
 
                 // 2. Insere na tabela 'usuarios'
-                const { data: newUser, error: insertErr } = await client
+                let newUser = null;
+                let insertRes = await client
                     .from('usuarios')
                     .insert([
                         {
@@ -929,6 +930,43 @@
                         }
                     ])
                     .select();
+
+                let insertErr = insertRes.error;
+                newUser = insertRes.data;
+
+                // Fallback automático caso a sequence do PostgreSQL colida com IDs pré-existentes
+                if (insertErr && (insertErr.code === '23505' || String(insertErr.message).includes('usuarios_pkey'))) {
+                    console.warn('[Cadastro] Sequence colidiu com pkey. Calculando max(id) + 1 para auto-recuperação...');
+                    const { data: maxRows } = await client
+                        .from('usuarios')
+                        .select('id')
+                        .order('id', { ascending: false })
+                        .limit(1);
+
+                    const nextId = (maxRows && maxRows.length > 0 && maxRows[0].id) ? (parseInt(maxRows[0].id) + 1) : 50;
+                    const retryRes = await client
+                        .from('usuarios')
+                        .insert([
+                            {
+                                id: nextId,
+                                nome: nome,
+                                email: email.toLowerCase(),
+                                senha: senha,
+                                phone: phone || null,
+                                saldo: 0.00,
+                                role: 'client',
+                                status: 'pending'
+                            }
+                        ])
+                        .select();
+
+                    if (!retryRes.error) {
+                        insertErr = null;
+                        newUser = retryRes.data;
+                    } else {
+                        insertErr = retryRes.error;
+                    }
+                }
 
                 if (insertErr) {
                     console.error('Erro no Supabase:', insertErr);
