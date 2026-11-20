@@ -1722,20 +1722,17 @@ function loadLoggedUser() {
     try {
         let userStr = (localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user'));
         if (!userStr) {
-            const defaultUser = {
-                id: 1,
-                nome: 'MG Editáveis',
-                email: 'admin@mgeditaveis.com.br',
-                phone: '(21) 99882-1029',
-                saldo: (window.MGSaldo ? window.MGSaldo.get() : 0),
-                status: 'approved',
-                logged: true
-            };
-            localStorage.setItem('happynation_user', JSON.stringify(defaultUser));
-            userStr = JSON.stringify(defaultUser);
+            window.location.href = 'login.html';
+            return;
         }
 
         const user = JSON.parse(userStr);
+        if (user.role === 'client') {
+            try {
+                localStorage.removeItem('happynation_admin_auth');
+                sessionStorage.removeItem('happynation_admin_auth');
+            } catch(e) {}
+        }
         let adminUsers = [];
         try { adminUsers = JSON.parse(localStorage.getItem('happynation_admin_users') || '[]'); } catch(e){}
         let freshUser = null;
@@ -1882,7 +1879,17 @@ function loadUserCnhs(user) {
     // 4. Sincronização direta com Supabase Cloud filtrada estritamente pelo cliente logado
     const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
     const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
-    fetch(SUP_URL + '/rest/v1/cnhs?select=*&order=created_at.desc', {
+    let fetchUrl = SUP_URL + '/rest/v1/cnhs?select=*&order=created_at.desc';
+    if (!isAdmin) {
+        if (clientCtx.id && clientCtx.email) {
+            fetchUrl = `${SUP_URL}/rest/v1/cnhs?or=(user_id.eq.${encodeURIComponent(clientCtx.id)},dados_json.ilike.*${encodeURIComponent(clientCtx.email)}*)&order=created_at.desc`;
+        } else if (clientCtx.id) {
+            fetchUrl = `${SUP_URL}/rest/v1/cnhs?user_id=eq.${encodeURIComponent(clientCtx.id)}&order=created_at.desc`;
+        } else if (clientCtx.email) {
+            fetchUrl = `${SUP_URL}/rest/v1/cnhs?dados_json=ilike.*${encodeURIComponent(clientCtx.email)}*&order=created_at.desc`;
+        }
+    }
+    fetch(fetchUrl, {
         headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
     })
     .then(r => r.json())
@@ -1890,7 +1897,7 @@ function loadUserCnhs(user) {
         if (Array.isArray(sList)) {
             // Se NÃO for admin, filtra estritamente para manter APENAS CNHs do próprio cliente
             if (!isAdmin) {
-                sList = sList.filter(c => window.DocIsolationGuard.isRecordOwnedByClient(c, clientCtx));
+                sList = sList.filter(c => window.DocIsolationGuard ? window.DocIsolationGuard.isRecordOwnedByClient(c, clientCtx) : false);
             }
 
             const activeSupIds = new Set(sList.map(c => String(c.id)));

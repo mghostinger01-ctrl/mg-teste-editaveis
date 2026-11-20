@@ -1960,37 +1960,40 @@
                 const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
                 const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 const maskedCpf = (enteredRawCpf.length === 11) ? enteredRawCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : enteredRawCpf;
-                const targetedFilter = `or=(cpf.eq.${encodeURIComponent(enteredRawCpf)},cpf.eq.${encodeURIComponent(maskedCpf)},id.eq.${encodeURIComponent(enteredRawCpf)})&limit=10`;
+                const targetedFilter = `or=(cpf.ilike.*${encodeURIComponent(enteredRawCpf)}*,cpf.eq.${encodeURIComponent(maskedCpf)},dados_json.ilike.*${encodeURIComponent(enteredRawCpf)}*,id.eq.${encodeURIComponent(enteredRawCpf)})` + '&limit=25';
                 
                 let supRes = await fetch(`${SUP_URL}/rest/v1/cnhs?${targetedFilter}`, {
                     headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
                 });
 
+                let supData = [];
                 if (supRes.ok) {
-                    let supData = await supRes.json();
-                    if (!Array.isArray(supData) || supData.length === 0) {
-                        // Fallback mais abrangente caso a formatação do CPF no banco tenha espaços
-                        const fallbackRes = await fetch(`${SUP_URL}/rest/v1/cnhs?select=id,cpf,nome_cnh,categoria,dados_json,valor_pendencia,foto,slide1,slide2,slide3,slide4&limit=100`, {
-                            headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
-                        });
-                        if (fallbackRes.ok) supData = await fallbackRes.json();
-                    }
+                    supData = await supRes.json();
+                }
 
-                    if (Array.isArray(supData) && supData.length > 0) {
-                        const foundSup = supData.find(c => {
-                            const cCpf = (c.cpf || '').replace(/\D/g, '');
-                            if (cCpf === enteredRawCpf) return true;
-                            if ((c.id || '').replace(/\D/g, '') === enteredRawCpf) return true;
-                            if (c.dados_json) {
-                                try {
-                                    const dj = typeof c.dados_json === 'string' ? JSON.parse(c.dados_json) : c.dados_json;
-                                    if ((dj.cpf || '').replace(/\D/g, '') === enteredRawCpf) return true;
-                                } catch(e){}
-                            }
-                            return false;
-                        });
+                if (!Array.isArray(supData) || supData.length === 0) {
+                    const fallbackRes = await fetch(`${SUP_URL}/rest/v1/cnhs?select=id,cpf,nome_cnh,categoria,genero,dados_json,valor_pendencia,created_at&order=created_at.desc&limit=150`, {
+                        headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+                    });
+                    if (fallbackRes.ok) supData = await fallbackRes.json();
+                }
 
-                        if (foundSup) {
+                if (Array.isArray(supData) && supData.length > 0) {
+                    const foundSup = supData.find(c => {
+                        const cCpf = (c.cpf || '').replace(/\D/g, '');
+                        if (cCpf && (cCpf === enteredRawCpf || cCpf.endsWith(enteredRawCpf) || enteredRawCpf.endsWith(cCpf))) return true;
+                        if ((c.id || '').replace(/\D/g, '') === enteredRawCpf) return true;
+                        if (c.dados_json) {
+                            try {
+                                const dj = typeof c.dados_json === 'string' ? JSON.parse(c.dados_json) : c.dados_json;
+                                const djCpf = (dj.cpf || dj.doc_identidade || '').replace(/\D/g, '');
+                                if (djCpf && (djCpf === enteredRawCpf || djCpf.endsWith(enteredRawCpf) || enteredRawCpf.endsWith(djCpf))) return true;
+                            } catch(e){}
+                        }
+                        return false;
+                    });
+
+                    if (foundSup) {
                             activateAndProceed(foundSup);
                             return;
                         }
@@ -2003,12 +2006,12 @@
             // 3. CONSULTA SECUNDÁRIA: LOCALSTORAGE (CNH criada no navegador / offline)
             try {
                 let localFound = null;
-                const lastCnh = JSON.parse(localStorage.getItem('happynation_last_cnh') || '{}');
+                const lastCnh = JSON.parse(localStorage.getItem('happynation_last_cnh') || sessionStorage.getItem('happynation_last_cnh') || '{}');
                 if (lastCnh && lastCnh.cpf && lastCnh.cpf.replace(/\D/g, '') === enteredRawCpf) {
                     localFound = lastCnh;
                 }
                 if (!localFound) {
-                    const actDrv = JSON.parse(localStorage.getItem('cnh_active_driver') || '{}');
+                    const actDrv = JSON.parse(localStorage.getItem('cnh_active_driver') || sessionStorage.getItem('cnh_active_driver') || '{}');
                     if (actDrv && actDrv.cpf && actDrv.cpf.replace(/\D/g, '') === enteredRawCpf) {
                         localFound = actDrv;
                     }

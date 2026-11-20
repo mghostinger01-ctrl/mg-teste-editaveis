@@ -934,37 +934,59 @@
                 let insertErr = insertRes.error;
                 newUser = insertRes.data;
 
-                // Fallback automático caso a sequence do PostgreSQL colida com IDs pré-existentes
-                if (insertErr && (insertErr.code === '23505' || String(insertErr.message).includes('usuarios_pkey'))) {
-                    console.warn('[Cadastro] Sequence colidiu com pkey. Calculando max(id) + 1 para auto-recuperação...');
-                    const { data: maxRows } = await client
+                // Fallback automático robusto caso a sequence do PostgreSQL colida com IDs pré-existentes
+                if (insertErr) {
+                    console.warn('[Cadastro] Tentando auto-recuperação do cadastro:', insertErr);
+                    
+                    // 2a. Verifica se o usuário na verdade já foi inserido com sucesso
+                    const { data: alreadyCreated } = await client
                         .from('usuarios')
-                        .select('id')
-                        .order('id', { ascending: false })
+                        .select('*')
+                        .ilike('email', email.toLowerCase())
                         .limit(1);
 
-                    const nextId = (maxRows && maxRows.length > 0 && maxRows[0].id) ? (parseInt(maxRows[0].id) + 1) : 50;
-                    const retryRes = await client
-                        .from('usuarios')
-                        .insert([
-                            {
-                                id: nextId,
-                                nome: nome,
-                                email: email.toLowerCase(),
-                                senha: senha,
-                                phone: phone || null,
-                                saldo: 0.00,
-                                role: 'client',
-                                status: 'pending'
-                            }
-                        ])
-                        .select();
-
-                    if (!retryRes.error) {
+                    if (alreadyCreated && alreadyCreated.length > 0) {
                         insertErr = null;
-                        newUser = retryRes.data;
-                    } else {
-                        insertErr = retryRes.error;
+                        newUser = alreadyCreated;
+                    } else if (insertErr.code === '23505' || String(insertErr.message).includes('usuarios_pkey')) {
+                        // 2b. Busca os maiores IDs para encontrar um ID vago com garantia
+                        const { data: maxRows } = await client
+                            .from('usuarios')
+                            .select('id')
+                            .order('id', { ascending: false })
+                            .limit(5);
+
+                        let currentMax = 50;
+                        if (Array.isArray(maxRows) && maxRows.length > 0) {
+                            const ids = maxRows.map(r => parseInt(r.id, 10)).filter(n => !isNaN(n));
+                            if (ids.length > 0) currentMax = Math.max(...ids);
+                        }
+
+                        // Tenta até 5 IDs subsequentes
+                        for (let offset = 1; offset <= 5; offset++) {
+                            const tryId = currentMax + offset;
+                            const retryRes = await client
+                                .from('usuarios')
+                                .insert([
+                                    {
+                                        id: tryId,
+                                        nome: nome,
+                                        email: email.toLowerCase(),
+                                        senha: senha,
+                                        phone: phone || null,
+                                        saldo: 0.00,
+                                        role: 'client',
+                                        status: 'pending'
+                                    }
+                                ])
+                                .select();
+
+                            if (!retryRes.error && retryRes.data && retryRes.data.length > 0) {
+                                insertErr = null;
+                                newUser = retryRes.data;
+                                break;
+                            }
+                        }
                     }
                 }
 

@@ -5671,19 +5671,31 @@ async function generateNow() {
         } catch(ex) {}
         // Save photo/signature separately (to avoid bloating main CNH array)
         if (fotoBase64 && !fotoBase64.includes('eduardo_photo.png') && fotoBase64 !== slide1Data) {
+            const cleanCpfVal = (safeCpf || '').replace(/\D/g, '');
+            try {
+                sessionStorage.setItem('happynation_foto_' + cnhId, fotoBase64);
+                if (cleanCpfVal) sessionStorage.setItem('happynation_foto_' + cleanCpfVal, fotoBase64);
+                sessionStorage.setItem('happynation_foto_active', fotoBase64);
+                sessionStorage.setItem('happynation_combo_foto', fotoBase64);
+            } catch(ex) {}
             try {
                 localStorage.setItem('happynation_foto_' + cnhId, fotoBase64);
-                const cleanCpfVal = (safeCpf || '').replace(/\D/g, '');
                 if (cleanCpfVal) localStorage.setItem('happynation_foto_' + cleanCpfVal, fotoBase64);
                 localStorage.setItem('happynation_foto_active', fotoBase64);
+                localStorage.setItem('happynation_combo_foto', fotoBase64);
             } catch(ex) {}
         } else {
             fotoBase64 = null;
         }
         if (assBase64) {
+            const cleanCpfVal = (safeCpf || '').replace(/\D/g, '');
+            try {
+                sessionStorage.setItem('happynation_ass_' + cnhId, assBase64);
+                if (cleanCpfVal) sessionStorage.setItem('happynation_ass_' + cleanCpfVal, assBase64);
+                sessionStorage.setItem('happynation_ass_active', assBase64);
+            } catch(ex) {}
             try {
                 localStorage.setItem('happynation_ass_' + cnhId, assBase64);
-                const cleanCpfVal = (safeCpf || '').replace(/\D/g, '');
                 if (cleanCpfVal) localStorage.setItem('happynation_ass_' + cleanCpfVal, assBase64);
                 localStorage.setItem('happynation_ass_active', assBase64);
             } catch(ex) {}

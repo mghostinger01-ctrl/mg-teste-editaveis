@@ -1730,20 +1730,17 @@ function loadLoggedUser() {
     try {
         let userStr = (localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user'));
         if (!userStr) {
-            const defaultUser = {
-                id: 1,
-                nome: 'MG Editáveis',
-                email: 'admin@mgeditaveis.com.br',
-                phone: '(21) 99882-1029',
-                saldo: (window.MGSaldo ? window.MGSaldo.get() : 0),
-                status: 'approved',
-                logged: true
-            };
-            localStorage.setItem('happynation_user', JSON.stringify(defaultUser));
-            userStr = JSON.stringify(defaultUser);
+            window.location.href = 'login.html';
+            return;
         }
 
         const user = JSON.parse(userStr);
+        if (user.role === 'client') {
+            try {
+                localStorage.removeItem('happynation_admin_auth');
+                sessionStorage.removeItem('happynation_admin_auth');
+            } catch(e) {}
+        }
         let adminUsers = [];
         try { adminUsers = JSON.parse(localStorage.getItem('happynation_admin_users') || '[]'); } catch(e){}
         let freshUser = null;

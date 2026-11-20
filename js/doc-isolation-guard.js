@@ -19,16 +19,20 @@
         const id = (user && (user.id || user.user_id)) ? String(user.id) : '';
         const nome = (user && (user.nome || user.name)) ? String(user.nome).trim() : '';
         const role = (user && user.role) ? String(user.role).trim().toLowerCase() : '';
-        const isAdmin = Boolean(
-            role === 'admin' ||
-            (user && user.isAdmin === true) ||
-            email === 'admin@mgeditaveis.com.br' ||
-            email.startsWith('admin@') ||
-            localStorage.getItem('happynation_admin_auth') === 'true' ||
-            sessionStorage.getItem('happynation_admin_auth') === 'true'
-        );
+        
+        // Clientes autenticados NUNCA devem herdar permissões administrativas de sessões antigas
+        const isClient = (role === 'client');
+        let isAdmin = false;
+        if (!isClient && user) {
+            isAdmin = Boolean(
+                role === 'admin' ||
+                user.isAdmin === true ||
+                ((email === 'mg' || email === 'admin@mgeditaveis.com.br' || email.startsWith('admin@')) &&
+                 (localStorage.getItem('happynation_admin_auth') === 'true' || sessionStorage.getItem('happynation_admin_auth') === 'true'))
+            );
+        }
 
-        return { user, email, id, nome, isAdmin };
+        return { user, email, id, nome, role, isClient, isAdmin };
     }
 
     // IDs de documentos mock/demonstração conhecidos que nunca devem ser exibidos a clientes
