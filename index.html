@@ -1826,6 +1826,14 @@
                             <span class="action-desc">Certificado de Condutor Oficial</span>
                         </a>
 
+                        <a href="criar-certificado-senai.html" class="action-card">
+                            <div class="action-icon-box green">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                            </div>
+                            <span class="action-title">Certificado SENAI</span>
+                            <span class="action-desc">Conclusão de Curso (Nacional)</span>
+                        </a>
+
                         <a href="recargas.html" class="action-card">
                             <div class="action-icon-box green">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
@@ -2174,6 +2182,10 @@
                     link = 'certificados-condutor.html';
                     badgeClass = 'cnh';
                     badgeText = '+1 CERTIFICADO';
+                } else if (tipo === 'SENAI') {
+                    link = 'certificados-senai.html';
+                    badgeClass = 'cnh';
+                    badgeText = '+1 SENAI';
                 }
 
                 activities.push({
@@ -2265,6 +2277,14 @@
                 if (emailNorm) {
                     const localCerts = JSON.parse(localStorage.getItem('happynation_certificados_' + emailNorm) || '[]');
                     if (Array.isArray(localCerts)) localCerts.forEach(item => addAct(item, 'CERTIFICADO'));
+                }
+            } catch(e) {}
+
+            // 11. Carregar CERTIFICADOS SENAI
+            try {
+                if (emailNorm) {
+                    const localSenai = JSON.parse(localStorage.getItem('happynation_senai_' + emailNorm) || '[]');
+                    if (Array.isArray(localSenai)) localSenai.forEach(item => addAct(item, 'SENAI'));
                 }
             } catch(e) {}
 
