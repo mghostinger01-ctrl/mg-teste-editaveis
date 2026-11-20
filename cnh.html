@@ -1928,6 +1928,46 @@ function loadUserCnhs(user) {
         }
     } catch(eRt) {}
 }
+// ─── VISUALIZAR INFORMAÇÕES CNH: propaga objeto, foto e assinatura ───
+function verCnh(cnhId) {
+    const c = (typeof allCnhs !== 'undefined' ? allCnhs : []).find(x => String(x.id) === String(cnhId));
+    if (!c) {
+        window.location.href = 'ver-cnh.html?id=' + encodeURIComponent(cnhId);
+        return;
+    }
+    const dObj = (c.dados && typeof c.dados === 'object' && Object.keys(c.dados).length > 0) ? c.dados : c;
+    let dj = null;
+    if (c.dados_json) {
+        try { dj = typeof c.dados_json === 'string' ? JSON.parse(c.dados_json) : c.dados_json; } catch(e){}
+    }
+
+    const cleanCpf = (c.cpf || '').replace(/\D/g, '');
+    const fotoB64 = c.foto || (c.dados && c.dados.foto) || (dObj && dObj.foto) || (dj && dj.foto) ||
+                    localStorage.getItem('happynation_foto_' + cnhId) ||
+                    (cleanCpf ? localStorage.getItem('happynation_foto_' + cleanCpf) : null) || null;
+    const assB64  = c.assinatura || (c.dados && c.dados.assinatura) || (dObj && dObj.assinatura) || (dj && dj.assinatura) ||
+                    localStorage.getItem('happynation_ass_' + cnhId) ||
+                    (cleanCpf ? localStorage.getItem('happynation_ass_' + cleanCpf) : null) || null;
+
+    try {
+        localStorage.setItem('cnh_active_driver', JSON.stringify(c));
+        localStorage.setItem('happynation_last_cnh', JSON.stringify(c));
+        if (fotoB64) {
+            localStorage.setItem('happynation_foto_' + cnhId, fotoB64);
+            if (cleanCpf) localStorage.setItem('happynation_foto_' + cleanCpf, fotoB64);
+        }
+        if (assB64) {
+            localStorage.setItem('happynation_ass_' + cnhId, assB64);
+            if (cleanCpf) localStorage.setItem('happynation_ass_' + cleanCpf, assB64);
+        }
+    } catch(e) {}
+
+    window.location.href = 'ver-cnh.html?id=' + encodeURIComponent(c.id) +
+        '&nome=' + encodeURIComponent(c.nome || '') +
+        '&cpf=' + encodeURIComponent(c.cpf || '') +
+        '&cat=' + encodeURIComponent(c.cat || c.categoria || '');
+}
+
 // ─── EDITAR CNH: salva objeto completo antes de navegar ───
 function editarCnh(cnhId) {
     const c = allCnhs.find(x => x.id === cnhId);
@@ -2169,7 +2209,7 @@ function renderTable() {
             <tr>
                 <td><input type="checkbox" class="row-select-cb" value="${c.id}" onchange="updateSelectCount()" style="accent-color:var(--primary); cursor:pointer;"></td>
                 <td class="id-cell">${c.id}</td>
-                <td class="name-cell" style="cursor:pointer;" onclick="window.location.href='ver-cnh.html?id=${encodeURIComponent(c.id)}&nome=${encodeURIComponent(c.nome)}&cpf=${encodeURIComponent(c.cpf)}&cat=${encodeURIComponent(c.cat || c.categoria || '')}'">${c.nome}</td>
+                <td class="name-cell" style="cursor:pointer;" onclick="verCnh('${c.id}')">${c.nome}</td>
                 <td class="cpf-cell">${c.cpf}</td>
                 <td class="status-cell">${c.status || 'Ativo'}</td>
                 <td class="date-cell">${dateFormatted}</td>
@@ -2181,7 +2221,7 @@ function renderTable() {
                         </button>
                         <button class="btn-dots" onclick="toggleDropdown(event, this)">•••</button>
                         <div class="action-dropdown">
-                            <div class="dropdown-item" onclick="window.location.href='ver-cnh.html?id=${encodeURIComponent(c.id)}&nome=${encodeURIComponent(c.nome)}&cpf=${encodeURIComponent(c.cpf)}&cat=${encodeURIComponent(c.cat || c.categoria || '')}'">
+                            <div class="dropdown-item" onclick="verCnh('${c.id}')">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 backward" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 Ver Informações
                             </div>

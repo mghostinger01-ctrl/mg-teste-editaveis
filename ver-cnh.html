@@ -1228,12 +1228,13 @@
         <div class="cnh-data-body">
             <div class="photo-col">
                 <span class="field-sublabel">Foto</span>
-                <div class="cnh-photo-frame">
-                    <img id="cnhPhotoImg" src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 125' fill='%2394a3b8'%3E%3Crect width='100' height='125' fill='%23f1f5f9'/%3E%3Ccircle cx='50' cy='45' r='20' fill='%2394a3b8'/%3E%3Cpath d='M20 105 C20 75 80 75 80 105 Z' fill='%2394a3b8'/%3E%3C/svg%3E" alt="Foto CNH">
+                <div class="cnh-photo-frame" style="width:130px;height:165px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#13151b;display:flex;align-items:center;justify-content:center;">
+                    <img id="cnhPhotoImg" src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 125' fill='%2394a3b8'%3E%3Crect width='100' height='125' fill='%23f1f5f9'/%3E%3Ccircle cx='50' cy='45' r='20' fill='%2394a3b8'/%3E%3Cpath d='M20 105 C20 75 80 75 80 105 Z' fill='%2394a3b8'/%3E%3C/svg%3E" alt="Foto CNH" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;">
                 </div>
-                <span class="field-sublabel" style="margin-top:10px;">Assinatura</span>
-                <div id="cnhSignatureFrame" style="display:none;width:120px;height:42px;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:#fff;margin-top:4px;">
-                    <img id="cnhSignatureImg" src="" alt="Assinatura" style="display:none;width:100%;height:100%;object-fit:contain;">
+                <span class="field-sublabel" style="margin-top:12px;">Assinatura</span>
+                <div id="cnhSignatureFrame" style="width:130px;min-height:48px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#ffffff;margin-top:4px;display:flex;align-items:center;justify-content:center;padding:4px;">
+                    <img id="cnhSignatureImg" src="" alt="Assinatura" style="display:none;width:100%;height:100%;max-height:42px;object-fit:contain;">
+                    <span id="cnhSignaturePlaceholder" style="font-size:11px;color:#94a3b8;font-style:italic;">Sem assinatura</span>
                 </div>
             </div>
             <div class="info-grid-col">
@@ -1609,63 +1610,121 @@ function initPage() {
     document.getElementById('cnhCat').textContent = found.cat;
     document.getElementById('cnhGenero').textContent = found.genero;
 
-    // Load photo — prefer from separate localStorage key or record
+    // Load photo & signature — robust resolution across LocalStorage, Object Data & Supabase Cloud
     const cnhIdForPhoto = (found && found.id) || cnhId || (new URLSearchParams(window.location.search)).get('id');
     const cleanCpfCurrent = ((found && found.cpf) || params.get('cpf') || '').replace(/\D/g, '');
     const DEFAULT_AVATAR_SVG = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 125' fill='%2394a3b8'%3E%3Crect width='100' height='125' fill='%23f1f5f9'/%3E%3Ccircle cx='50' cy='45' r='20' fill='%2394a3b8'/%3E%3Cpath d='M20 105 C20 75 80 75 80 105 Z' fill='%2394a3b8'/%3E%3C/svg%3E";
+
+    function applyFotoToView(fotoSrc) {
+        if (!fotoSrc || fotoSrc.includes('eduardo_photo.png') || fotoSrc.includes('cnh-slide1')) return;
+        const photoImg = document.getElementById('cnhPhotoImg');
+        if (photoImg) {
+            photoImg.src = fotoSrc;
+            photoImg.style.objectFit = 'cover';
+        }
+        try {
+            if (cnhIdForPhoto) localStorage.setItem('happynation_foto_' + cnhIdForPhoto, fotoSrc);
+            if (cleanCpfCurrent) localStorage.setItem('happynation_foto_' + cleanCpfCurrent, fotoSrc);
+        } catch(e) {}
+    }
+
+    function applyAssinaturaToView(assSrc) {
+        if (!assSrc) return;
+        const sigFrame = document.getElementById('cnhSignatureFrame');
+        const sigImg   = document.getElementById('cnhSignatureImg');
+        const sigPlace = document.getElementById('cnhSignaturePlaceholder');
+        if (sigImg) {
+            sigImg.src = assSrc;
+            sigImg.style.display = 'block';
+        }
+        if (sigPlace) sigPlace.style.display = 'none';
+        if (sigFrame) sigFrame.style.display = 'flex';
+        try {
+            if (cnhIdForPhoto) localStorage.setItem('happynation_ass_' + cnhIdForPhoto, assSrc);
+            if (cleanCpfCurrent) localStorage.setItem('happynation_ass_' + cleanCpfCurrent, assSrc);
+        } catch(e) {}
+    }
+
     let resolvedFoto = null;
+    let resolvedAss = null;
+
+    // 1. Tenta por chaves dedicadas de ID e CPF
     if (cnhIdForPhoto) {
         resolvedFoto = localStorage.getItem('happynation_foto_' + cnhIdForPhoto);
+        resolvedAss  = localStorage.getItem('happynation_ass_'  + cnhIdForPhoto);
     }
     if (!resolvedFoto && cleanCpfCurrent) {
         resolvedFoto = localStorage.getItem('happynation_foto_' + cleanCpfCurrent);
     }
-    if (!resolvedFoto && found && found.foto && !found.foto.includes('eduardo_photo.png') && !found.foto.includes('cnh-slide1') && found.foto !== found.slide1) {
-        resolvedFoto = found.foto;
+    if (!resolvedAss && cleanCpfCurrent) {
+        resolvedAss  = localStorage.getItem('happynation_ass_'  + cleanCpfCurrent);
     }
-    if (!resolvedFoto) {
+
+    // 2. Tenta no objeto `found` direto e em `dados`
+    if (!resolvedFoto && found) {
+        resolvedFoto = found.foto || (found.dados && found.dados.foto);
+    }
+    if (!resolvedAss && found) {
+        resolvedAss = found.assinatura || (found.dados && found.dados.assinatura);
+    }
+
+    // 3. Tenta em `dados_json` do objeto `found`
+    if ((!resolvedFoto || !resolvedAss) && found && found.dados_json) {
+        try {
+            const dj = typeof found.dados_json === 'string' ? JSON.parse(found.dados_json) : found.dados_json;
+            if (!resolvedFoto && dj && dj.foto) resolvedFoto = dj.foto;
+            if (!resolvedAss && dj && dj.assinatura) resolvedAss = dj.assinatura;
+        } catch(eDj) {}
+    }
+
+    // 4. Tenta no último registro CNH gerado se for a mesma pessoa
+    if (!resolvedFoto || !resolvedAss) {
         try {
             const last = JSON.parse(localStorage.getItem('happynation_last_cnh') || '{}');
             const lastCpf = ((last && last.cpf) || '').replace(/\D/g, '');
-            // Só herda do last_cnh se for a MESMA pessoa/CPF
             if (last && cleanCpfCurrent && lastCpf === cleanCpfCurrent) {
-                if (last.id) resolvedFoto = localStorage.getItem('happynation_foto_' + last.id);
-                if (!resolvedFoto && last.foto && !last.foto.includes('eduardo_photo.png') && !last.foto.includes('cnh-slide1') && last.foto !== last.slide1) {
-                    resolvedFoto = last.foto;
-                }
+                if (!resolvedFoto) resolvedFoto = last.foto || (last.id ? localStorage.getItem('happynation_foto_' + last.id) : null);
+                if (!resolvedAss)  resolvedAss  = last.assinatura || (last.id ? localStorage.getItem('happynation_ass_' + last.id) : null);
             }
         } catch(e) {}
     }
-    if (resolvedFoto && (resolvedFoto.includes('eduardo_photo.png') || resolvedFoto.includes('cnh-slide1') || (found && resolvedFoto === found.slide1))) {
-        resolvedFoto = null;
-    }
-    const photoImg = document.getElementById('cnhPhotoImg');
-    if (photoImg) photoImg.src = resolvedFoto || DEFAULT_AVATAR_SVG;
 
-    // Load signature
-    let resolvedAss = null;
-    if (cnhIdForPhoto) {
-        resolvedAss = localStorage.getItem('happynation_ass_' + cnhIdForPhoto);
-    }
-    if (!resolvedAss && found && found.assinatura) {
-        resolvedAss = found.assinatura;
-    }
-    if (!resolvedAss) {
-        try {
-            const last = JSON.parse(localStorage.getItem('happynation_last_cnh') || '{}');
-            if (last) {
-                if (last.id) resolvedAss = localStorage.getItem('happynation_ass_' + last.id);
-                if (!resolvedAss && last.assinatura) resolvedAss = last.assinatura;
-            }
-        } catch(e) {}
-    }
-    const sigFrame = document.getElementById('cnhSignatureFrame');
-    const sigImg   = document.getElementById('cnhSignatureImg');
-    if (resolvedAss && sigImg) {
-        sigImg.src = resolvedAss;
-        sigImg.style.display = 'block';
-        if (sigFrame) sigFrame.style.display = 'block';
-    }
+    // Aplica o que já estiver em cache local
+    if (resolvedFoto) applyFotoToView(resolvedFoto);
+    if (resolvedAss)  applyAssinaturaToView(resolvedAss);
+
+    // 5. Busca imediata no Supabase Cloud para garantir 100% foto e assinatura reais
+    try {
+        const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+        const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
+        const qParts = [];
+        if (cnhIdForPhoto) qParts.push('id.eq.' + encodeURIComponent(cnhIdForPhoto));
+        if (cleanCpfCurrent) qParts.push('cpf.ilike.*' + encodeURIComponent(cleanCpfCurrent) + '*');
+        if (found && found.cpf) qParts.push('cpf.eq.' + encodeURIComponent(found.cpf));
+
+        if (qParts.length > 0) {
+            fetch(SUP_URL + '/rest/v1/cnhs?or=(' + qParts.join(',') + ')&select=*&limit=1', {
+                headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+            })
+            .then(r => r.json())
+            .then(resList => {
+                if (Array.isArray(resList) && resList.length > 0) {
+                    const supRow = resList[0];
+                    let supDj = null;
+                    if (supRow.dados_json) {
+                        try {
+                            supDj = typeof supRow.dados_json === 'string' ? JSON.parse(supRow.dados_json) : supRow.dados_json;
+                        } catch(e) {}
+                    }
+                    const supFoto = supRow.foto || (supDj && supDj.foto);
+                    const supAss  = supRow.assinatura || (supDj && supDj.assinatura);
+                    if (supFoto) applyFotoToView(supFoto);
+                    if (supAss)  applyAssinaturaToView(supAss);
+                }
+            })
+            .catch(() => {});
+        }
+    } catch(eSup) {}
 
     // Extrai dados unificados da CNH para edição, links e validação
     const dObj = (found.dados && typeof found.dados === 'object' && Object.keys(found.dados).length > 0) ? found.dados : found;

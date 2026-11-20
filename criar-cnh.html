@@ -5680,7 +5680,14 @@ async function generateNow() {
         } else {
             fotoBase64 = null;
         }
-        if (assBase64)  { try { localStorage.setItem('happynation_ass_'  + cnhId, assBase64);  } catch(ex) {} }
+        if (assBase64) {
+            try {
+                localStorage.setItem('happynation_ass_' + cnhId, assBase64);
+                const cleanCpfVal = (safeCpf || '').replace(/\D/g, '');
+                if (cleanCpfVal) localStorage.setItem('happynation_ass_' + cleanCpfVal, assBase64);
+                localStorage.setItem('happynation_ass_active', assBase64);
+            } catch(ex) {}
+        }
 
         // Salvar no localStorage para download posterior e isolado por usuário
         const inpValEl = document.getElementById('inpValorPendencia');
