@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/dev-guard.js"></script>
+
+    <!-- Open Graph / Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MG Editáveis">
+    <meta property="og:title" content="MG Editáveis • Carteira de Habilitação de Amador (CHA - Marinha do Brasil)">
+    <meta property="og:description" content="Emissão oficial de Carteira de Habilitação de Amador (CHA) da Marinha do Brasil (Arrais Amador e Motonauta) com QR Code validador.">
+    <meta property="og:image" content="https://mg-editaveis.vercel.app/og-image.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | Carteira de Habilitação de Amador (CHA - Marinha do Brasil)</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- CDNs essenciais: html2canvas, jsPDF, QRCode -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="saldo-sync.js"></script>
+
+    <style>
+        :root {
+            --bg: #0c0e0f;
+            --surface: #141718;
+            --surface-card: #191c1d;
+            --surface-hover: #1f2325;
+            --surface-input: #111314;
+            --border: #232729;
+            --border-focus: #059669;
+
+            --primary: #00dc82;
+            --primary-hover: #00c975;
+            --primary-light: rgba(0, 220, 130, 0.12);
+
+            --accent: #059669;
+            --text-main: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --danger: #ef4444;
+
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-top: 62px;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* ─── HEADER OFICIAL (62px) ─── */
+        .header {
+            height: 62px;
+            background: #141716;
+            border-bottom: 1px solid #242829;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+        }
+        .header-inner {
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--primary, #00dc82);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #062517;
+            box-shadow: 0 2px 10px rgba(0, 220, 130, 0.3);
+            border: none;
+        }
+        .brand-icon-img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+        }
+        .brand-text {
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: -0.4px;
+            color: #ffffff;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .badge-dev-admin {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: #f59e0b;
+            font-size: 11.5px;
+            font-weight: 800;
+        }
+        .saldo-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 220, 130, 0.1);
+            border: 1px solid rgba(0, 220, 130, 0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .saldo-pill:hover {
+            background: rgba(0, 220, 130, 0.18);
+            transform: translateY(-1px);
+        }
+        .header-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .header-link:hover { color: #fff; }
+        .header-icon {
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .header-icon:hover { color: #fff; }
+        .header-icon svg { width: 18px; height: 18px; }
+        .btn-voltar {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #cbd5e1;
+            background: #1b1e1f;
+            border: 1px solid #282d2c;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-voltar:hover { background: #232729; transform: translateY(-1px); }
+        .btn-voltar svg { width: 14px; height: 14px; }
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #00dc82;
+            color: #0c0e0f;
+            font-weight: 800;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .avatar-dropdown {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background: #191c1d;
+            border: 1px solid #282d2c;
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 1001;
+        }
+        .avatar-dropdown.show { display: flex; }
+        .dropdown-header {
+            padding: 8px 12px;
+            border-bottom: 1px solid #242829;
+            margin-bottom: 4px;
+        }
+        .dropdown-name { font-size: 13px; font-weight: 700; color: #fff; }
+        .dropdown-email { font-size: 11px; color: var(--text-muted); }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .dropdown-item:hover { background: #232729; color: #fff; }
+        .dropdown-item.danger { color: #f87171; }
+        .dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+
+        /* ─── CONTAINER PRINCIPAL (GRID RESPONSIVA 1600px) ─── */
+        .main-container {
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 1180px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ─── COLUNA FORMULÁRIO (ESQUERDA) ─── */
+        .form-column {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: calc(100vh - 104px);
+            overflow-y: auto;
+        }
+        .form-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+        .form-title {
+            font-size: 19px;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-subtitle {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        .form-section-title {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #10b981;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .form-section-title svg { width: 14px; height: 14px; }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: var(--surface-input);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 10px 12px;
+            color: #fff;
+            font-size: 13px;
+            transition: all 0.2s;
+            outline: none;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+        }
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .photo-upload-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--surface-card);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .photo-thumb-prev {
+            width: 48px;
+            height: 60px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid #334155;
+            background: #000;
+        }
+        .btn-upload-file {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-upload-file:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ─── CARD DE CHECKOUT E PREÇO ─── */
+        .checkout-actions-card {
+            background: #191c1d;
+            border: 1px solid #282d2c;
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .checkout-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .price-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .price-value {
+            font-size: 22px;
+            font-weight: 900;
+            color: #00dc82;
+            letter-spacing: -0.5px;
+        }
+        .btn-reset-defaults {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #282d2c;
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        .btn-reset-defaults:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        .btn-action-primary {
+            background: linear-gradient(135deg, #00dc82, #00b368);
+            color: #042517;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 20px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(0, 220, 130, 0.28);
+            width: 100%;
+        }
+        .btn-action-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.4);
+            filter: brightness(1.05);
+        }
+        .btn-action-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            color: #cbd5e1;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+
+        /* ─── COLUNA PREVIEW (DIREITA) ─── */
+        .preview-column {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            height: calc(100vh - 104px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 0;
+        }
+        .preview-toolbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .preview-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-zoom {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            color: #cbd5e1;
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-zoom:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+        .zoom-display { font-size: 12px; font-weight: 600; color: #94a3b8; min-width: 44px; text-align: center; }
+
+        .preview-viewport {
+            width: 100%;
+            overflow: auto;
+            background: #090b0c;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 520px;
+        }
+
+        /* ─── FOLHA COMPLETA DE APRESENTAÇÃO DO DOCUMENTO (1:1 COM A REFERÊNCIA) ─── */
+        .doc-zoom-wrapper {
+            transform-origin: top center;
+            transition: transform 0.2s ease-out;
+        }
+        .cha-sheet-container {
+            width: 960px;
+            background: #ffffff;
+            border-radius: 4px;
+            padding: 24px;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.55);
+            display: grid;
+            grid-template-columns: 560px 320px;
+            gap: 24px;
+            align-items: start;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* ─── CARTÕES DA ESQUERDA (FRENTE E VERSO) ─── */
+        .cha-cards-col {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 560px;
+        }
+
+        .cha-card {
+            width: 560px;
+            height: 335px;
+            background-color: #c9eed9;
+            background-image: 
+                radial-gradient(#97d5b1 1px, transparent 1px),
+                radial-gradient(#97d5b1 1px, #c9eed9 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            border: 3px solid #84caa1;
+            border-radius: 6px;
+            position: relative;
+            padding: 12px 14px;
+            box-sizing: border-box;
+            font-family: Arial, 'Plus Jakarta Sans', sans-serif;
+            color: #111111;
+            overflow: hidden;
+        }
+
+        /* Topo Frente */
+        .cha-header-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            padding-bottom: 6px;
+        }
+        .cha-brasao {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        .cha-timao-icon {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+        }
+        .cha-header-titles {
+            flex: 1;
+            text-align: center;
+            line-height: 1.15;
+        }
+        .cha-title-pt {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #111111;
+        }
+        .cha-title-en {
+            font-size: 9px;
+            font-style: italic;
+            color: #222222;
+        }
+
+        .cha-doc-title-box {
+            text-align: center;
+            margin: 6px 0 6px 0;
+        }
+        .cha-doc-title-main {
+            font-size: 12.5px;
+            font-weight: 900;
+            letter-spacing: 0.3px;
+            color: #0b1a13;
+        }
+        .cha-doc-title-sub {
+            font-size: 9.5px;
+            font-style: italic;
+            color: #222222;
+        }
+
+        /* Grid Frente */
+        .cha-frente-body {
+            display: grid;
+            grid-template-columns: 400px 120px;
+            gap: 12px;
+            margin-top: 4px;
+        }
+        .cha-fields-col {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .cha-box {
+            background: #ffffff;
+            border: 1px solid #111111;
+            padding: 2px 6px;
+            border-radius: 1px;
+            box-sizing: border-box;
+        }
+        .cha-lbl {
+            font-size: 7.5px;
+            color: #334155;
+            font-weight: 600;
+            line-height: 1.1;
+        }
+        .cha-val {
+            font-size: 11px;
+            font-weight: 800;
+            color: #000000;
+            text-transform: uppercase;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .cha-val-sub {
+            font-size: 8px;
+            font-style: italic;
+            color: #222222;
+            line-height: 1.1;
+            margin-top: 1px;
+        }
+
+        .cha-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .cha-photo-box {
+            width: 114px;
+            height: 152px;
+            border: 1px solid #111111;
+            background: #e2e8f0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .cha-photo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Verso */
+        .cha-verso-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 100%;
+        }
+        .cha-verso-footer {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding-bottom: 6px;
+        }
+
+        /* ─── PAINEL DIREITO: QR CODE ─── */
+        .cha-qr-col {
+            display: flex;
+            flex-direction: column;
+            width: 320px;
+        }
+        .cha-qr-header-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #111111;
+            margin-bottom: 6px;
+            font-family: Arial, 'Plus Jakarta Sans', sans-serif;
+        }
+        .cha-qr-box {
+            border: 2px solid #000000;
+            background: #ffffff;
+            padding: 16px 14px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .cha-qr-render-area {
+            width: 250px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cha-qr-render-area img, .cha-qr-render-area canvas {
+            width: 250px !important;
+            height: 250px !important;
+            image-rendering: pixelated;
+        }
+        .cha-qr-footer-titles {
+            margin-top: 14px;
+            text-align: center;
+            font-family: Arial, 'Plus Jakarta Sans', sans-serif;
+        }
+        .cha-qr-foot-main {
+            font-size: 11px;
+            font-weight: 800;
+            color: #000000;
+            letter-spacing: 0.2px;
+        }
+        .cha-qr-foot-sub {
+            font-size: 11px;
+            font-weight: 700;
+            color: #000000;
+            margin-top: 3px;
+        }
+        .cha-qr-foot-en {
+            font-size: 9.5px;
+            color: #222222;
+            font-style: italic;
+        }
+
+        /* ─── MARCA D'ÁGUA DE PRÉVIA (DESAPARECE AO GERAR PDF) ─── */
+        .cha-watermark-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            opacity: 0.14;
+            transform: rotate(-18deg) scale(1.1);
+            z-index: 20;
+        }
+        .wm-text-row {
+            white-space: nowrap;
+            font-size: 22px;
+            font-weight: 900;
+            color: #059669;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        /* Modal de Sucesso */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        .modal-backdrop.show { display: flex; }
+        .modal-card {
+            background: #191c1d;
+            border: 1px solid #282d2c;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .modal-icon-success {
+            width: 56px;
+            height: 56px;
+            background: rgba(0, 220, 130, 0.15);
+            border: 2px solid rgba(0, 220, 130, 0.35);
+            color: #00dc82;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        .modal-title { font-size: 18px; font-weight: 800; color: #fff; }
+        .modal-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO PADRÃO OFICIAL MG EDITÁVEIS (62px) -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="editaveis.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <span class="badge-dev-admin">👑 ACESSO ADMIN (DEV)</span>
+
+                <a href="recargas.html" class="saldo-pill" title="Clique para recarregar saldo">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </a>
+
+                <a href="indicacoes.html" class="header-link" title="Indique e Ganhe">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <span>Indique e Ganhe</span>
+                </a>
+
+                <div class="header-icon" onclick="showToast('Notificações')" title="Notificações">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </div>
+
+                <a href="editaveis.html" class="btn-voltar" title="Voltar ao Catálogo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    <span>Voltar</span>
+                </a>
+
+                <div class="avatar-circle" id="userHeaderAvatar" onclick="toggleAvatarDropdown(event)" title="Meu Perfil">M</div>
+
+                <div class="avatar-dropdown" id="avatarDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-name" id="dropUserName">MG Editáveis</div>
+                        <div class="dropdown-email" id="dropUserEmail">admin@mgeditaveis.com.br</div>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="perfil.html" class="dropdown-item">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span>Meu Perfil</span>
+                        </a>
+                        <a href="arrais.html" class="dropdown-item">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                            <span>Histórico CHA Emitidos</span>
+                        </a>
+                        <a href="javascript:void(0)" onclick="logoutUser()" class="dropdown-item danger">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            <span>Encerrar Sessão</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="main-container">
+        <!-- COLUNA ESQUERDA: FORMULÁRIO DE EDIÇÃO -->
+        <section class="form-column">
+            <div class="form-header">
+                <h1 class="form-title">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 16 12 12 8"/></svg>
+                    <span>Carteira de Habilitação de Amador (CHA)</span>
+                </h1>
+                <p class="form-subtitle">Emissão de Habilitação Náutica oficial da Marinha do Brasil (Arrais Amador / Motonauta) com QR Code validador.</p>
+            </div>
+
+            <!-- 1. DADOS DO CONDUTOR -->
+            <div class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>1. Dados do Condutor (Amador)</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpNome">Nome Completo (Name)</label>
+                <input type="text" id="inpNome" class="form-input" value="FRANCISCO FURTUOSO CAMPOS" oninput="updateCha()">
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label" for="inpDataNasc">Data de Nascimento</label>
+                    <input type="text" id="inpDataNasc" class="form-input" placeholder="DD/MM/AAAA" value="31/03/1985" oninput="updateCha()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="inpCpf">CPF (Individual Registration)</label>
+                    <input type="text" id="inpCpf" class="form-input" placeholder="000.000.000-00" value="01243921137" oninput="updateCha()">
+                </div>
+            </div>
+
+            <!-- FOTO DO CONDUTOR 3x4 -->
+            <div class="form-group">
+                <label class="form-label">Foto 3x4 do Condutor</label>
+                <div class="photo-upload-row">
+                    <img id="thumbPhoto" src="assets/foto_alyson.png" class="photo-thumb-prev" alt="Foto Condutor">
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <input type="file" id="inpPhotoFile" accept="image/*" style="display:none;" onchange="handlePhotoUpload(event)">
+                        <button type="button" class="btn-upload-file" onclick="document.getElementById('inpPhotoFile').click()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <span>Alterar Foto</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. CATEGORIA E DADOS NÁUTICOS -->
+            <div class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 20a2.4 2.4 0 0 0 2 1 2.4 2.4 0 0 0 2-1 2.4 2.4 0 0 1 2-1 2.4 2.4 0 0 1 2 1 2.4 2.4 0 0 0 2 1 2.4 2.4 0 0 0 2-1 2.4 2.4 0 0 1 2-1 2.4 2.4 0 0 1 2 1 2.4 2.4 0 0 0 2 1 2.4 2.4 0 0 0 2-1"/><path d="M4 18l1.5-10h13L20 18"/><path d="M12 2v6"/><circle cx="12" cy="5" r="2"/></svg>
+                <span>2. Categoria e Validade (Frente)</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpCategoria">Categoria (Category)</label>
+                <input type="text" id="inpCategoria" class="form-input" value="ARRAIS AMADOR E MOTONAUTA" oninput="syncCategoriaIngles(); updateCha();">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpCategoriaIngles">Subtítulo da Categoria em Inglês</label>
+                <input type="text" id="inpCategoriaIngles" class="form-input" value="(AMATEUR SKIPPER AND AMATEUR MOTOR BOAT DRIVER)" oninput="updateCha()">
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label" for="inpInscricao">Nº de Inscrição</label>
+                    <input type="text" id="inpInscricao" class="form-input" value="899Q2109653047" oninput="updateCha()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="inpDataValidade">Data de Validade</label>
+                    <input type="text" id="inpDataValidade" class="form-input" placeholder="DD/MM/AAAA" value="01/07/2035" oninput="updateCha()">
+                </div>
+            </div>
+
+            <!-- 3. LIMITES E EMISSÃO (VERSO) -->
+            <div class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>3. Limites e Emissão (Verso)</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpLimites">Limites da Navegação (Navigation Limits)</label>
+                <input type="text" id="inpLimites" class="form-input" value="INTERIOR. / INLAND WATERS." oninput="updateCha()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpRequisitos">Requisitos para conduzir a embarcação</label>
+                <input type="text" id="inpRequisitos" class="form-input" value="*************/*************" oninput="updateCha()">
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label" for="inpOrgao">Órgão de Emissão (Capitania / Agência)</label>
+                    <input type="text" id="inpOrgao" class="form-input" value="AGÊNCIA FLUVIAL DE GOIÁS" oninput="updateCha()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="inpDataEmissao">Data de Emissão</label>
+                    <input type="text" id="inpDataEmissao" class="form-input" placeholder="DD/MM/AAAA" value="01/07/2025" oninput="updateCha()">
+                </div>
+            </div>
+
+            <!-- 4. VALIDAÇÃO E QR CODE -->
+            <div class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>4. Autenticação &amp; QR Code</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpQrUrl">Link de Validação (Domínio do QR Code)</label>
+                <input type="text" id="inpQrUrl" class="form-input" value="https://sistemas.dpc.marinha.mil.br/valida/cha?inscricao=899Q2109653047" oninput="updateCha()">
+            </div>
+
+            <!-- CARD FINAL DE CHECKOUT: PREÇO E BOTÃO GERAR PDF -->
+            <div class="checkout-actions-card">
+                <div class="checkout-price-row">
+                    <div>
+                        <div class="price-label">Valor da Emissão:</div>
+                        <div class="price-value" id="custoChaDisplay">R$ 20,00</div>
+                    </div>
+                    <button type="button" class="btn-reset-defaults" onclick="resetToDefaults()" title="Restaurar dados padrão">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+                        <span>Restaurar Padrão</span>
+                    </button>
+                </div>
+
+                <button type="button" class="btn-action-primary" id="btnExportPdf" onclick="gerarChaPdf()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span id="btnGerarTxt">Gerar PDF — Habilitação Náutica CHA</span>
+                </button>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <button type="button" class="btn-action-secondary" onclick="baixarImagemPng()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>Baixar Imagem PNG</span>
+                    </button>
+                    <a href="arrais.html" class="btn-action-secondary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                        <span>Ver Emitidos</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- COLUNA DIREITA: PREVIEW EM TEMPO REAL -->
+        <section class="preview-column">
+            <div class="preview-toolbar">
+                <div class="preview-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>Visualização Oficial 1:1</span>
+                </div>
+                <div class="zoom-controls">
+                    <button type="button" class="btn-zoom" onclick="changeZoom(-0.05)" title="Diminuir Zoom">−</button>
+                    <span class="zoom-display" id="zoomVal">85%</span>
+                    <button type="button" class="btn-zoom" onclick="changeZoom(0.05)" title="Aumentar Zoom">+</button>
+                    <button type="button" class="btn-zoom" onclick="resetZoom()" title="Ajustar 100%" style="width: auto; padding: 0 8px; font-size: 11px;">100%</button>
+                </div>
+            </div>
+
+            <div class="preview-viewport">
+                <div class="doc-zoom-wrapper" id="docZoomWrapper">
+                    <!-- FOLHA DE APRESENTAÇÃO COMPLETA -->
+                    <div class="cha-sheet-container" id="chaSheetContainer">
+
+                        <!-- MARCA D'ÁGUA DE PRÉVIA -->
+                        <div class="cha-watermark-overlay" id="previewWatermarkOverlay">
+                            <div class="wm-text-row">MARINHA DO BRASIL • PRÉVIA NÃO OFICIAL</div>
+                            <div class="wm-text-row">DOCUMENTO PENDENTE DE EMISSÃO</div>
+                            <div class="wm-text-row">MARINHA DO BRASIL • PRÉVIA NÃO OFICIAL</div>
+                        </div>
+
+                        <!-- COLUNA DA ESQUERDA: FRENTE E VERSO -->
+                        <div class="cha-cards-col">
+                            
+                            <!-- 1. CARTÃO FRENTE -->
+                            <div class="cha-card" id="cardFrente">
+                                <div class="cha-header-row">
+                                    <img src="assets/brasao_republica.svg" class="cha-brasao" alt="Brasão da República">
+                                    
+                                    <!-- Timão Náutico em Verde -->
+                                    <svg class="cha-timao-icon" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="7" fill="#2d885a"/>
+                                        <circle cx="50" cy="50" r="14" fill="none" stroke="#2d885a" stroke-width="4.5"/>
+                                        <circle cx="50" cy="50" r="28" fill="none" stroke="#2d885a" stroke-width="5"/>
+                                        <line x1="50" y1="8" x2="50" y2="92" stroke="#2d885a" stroke-width="4.5" stroke-linecap="round"/>
+                                        <line x1="8" y1="50" x2="92" y2="50" stroke="#2d885a" stroke-width="4.5" stroke-linecap="round"/>
+                                        <line x1="20" y1="20" x2="80" y2="80" stroke="#2d885a" stroke-width="4.5" stroke-linecap="round"/>
+                                        <line x1="20" y1="80" x2="80" y2="20" stroke="#2d885a" stroke-width="4.5" stroke-linecap="round"/>
+                                        <circle cx="50" cy="8" r="3.5" fill="#2d885a"/>
+                                        <circle cx="50" cy="92" r="3.5" fill="#2d885a"/>
+                                        <circle cx="8" cy="50" r="3.5" fill="#2d885a"/>
+                                        <circle cx="92" cy="50" r="3.5" fill="#2d885a"/>
+                                        <circle cx="20" cy="20" r="3.5" fill="#2d885a"/>
+                                        <circle cx="80" cy="80" r="3.5" fill="#2d885a"/>
+                                        <circle cx="20" cy="80" r="3.5" fill="#2d885a"/>
+                                        <circle cx="80" cy="20" r="3.5" fill="#2d885a"/>
+                                    </svg>
+
+                                    <div class="cha-header-titles">
+                                        <div class="cha-title-pt">Republica Federativa do Brasil</div>
+                                        <div class="cha-title-en">(Federative Republic of Brazil)</div>
+                                        <div class="cha-title-pt" style="margin-top:1px;">Autoridade Marítima Brasileira</div>
+                                        <div class="cha-title-en">(Brazilian Maritime Authority)</div>
+                                        <div class="cha-title-pt" style="margin-top:1px;">Diretoria de Portos e Costas</div>
+                                        <div class="cha-title-en">(Directorate of Ports and Coasts)</div>
+                                    </div>
+                                </div>
+
+                                <div class="cha-doc-title-box">
+                                    <div class="cha-doc-title-main">CARTEIRA DE HABILITAÇÃO DE AMADOR (CHA)</div>
+                                    <div class="cha-doc-title-sub">(Non Professionals License Card)</div>
+                                </div>
+
+                                <div class="cha-frente-body">
+                                    <div class="cha-fields-col">
+                                        <!-- Nome -->
+                                        <div class="cha-box">
+                                            <div class="cha-lbl">Nome (Name)</div>
+                                            <div class="cha-val" id="prevNome">FRANCISCO FURTUOSO CAMPOS</div>
+                                        </div>
+
+                                        <!-- Nascimento e CPF -->
+                                        <div class="cha-row-2">
+                                            <div class="cha-box">
+                                                <div class="cha-lbl">Data de Nascimento (Date of Birth)</div>
+                                                <div class="cha-val" id="prevDataNasc">31/03/1985</div>
+                                            </div>
+                                            <div class="cha-box">
+                                                <div class="cha-lbl">CPF (Individual Registration)</div>
+                                                <div class="cha-val" id="prevCpf">01243921137</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Categoria -->
+                                        <div class="cha-box">
+                                            <div class="cha-lbl">Categoria (Category)</div>
+                                            <div class="cha-val" id="prevCategoria">ARRAIS AMADOR E MOTONAUTA</div>
+                                            <div class="cha-val-sub" id="prevCategoriaIngles">(AMATEUR SKIPPER AND AMATEUR MOTOR BOAT DRIVER)</div>
+                                        </div>
+
+                                        <!-- Validade e Inscrição -->
+                                        <div class="cha-row-2">
+                                            <div class="cha-box">
+                                                <div class="cha-lbl">Data de Validade (Expiration date)</div>
+                                                <div class="cha-val" id="prevDataValidade">01/07/2035</div>
+                                            </div>
+                                            <div class="cha-box">
+                                                <div class="cha-lbl">Nº de Inscrição (Registration Number)</div>
+                                                <div class="cha-val" id="prevInscricao">899Q2109653047</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Foto 3x4 -->
+                                    <div class="cha-photo-box">
+                                        <img id="prevPhoto" src="assets/foto_alyson.png" class="cha-photo-img" alt="Foto">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. CARTÃO VERSO -->
+                            <div class="cha-card" id="cardVerso">
+                                <div class="cha-verso-body">
+                                    <!-- Limites de Navegação -->
+                                    <div class="cha-box" style="min-height: 44px;">
+                                        <div class="cha-lbl">Limites da Navegação (Navigation Limits)</div>
+                                        <div class="cha-val" id="prevLimites" style="margin-top: 3px;">INTERIOR. / INLAND WATERS.</div>
+                                    </div>
+
+                                    <!-- Requisitos para Conduzir -->
+                                    <div class="cha-box" style="min-height: 44px;">
+                                        <div class="cha-lbl">Requisitos para conduzir a embarcação (Requirements to conduct the boat)</div>
+                                        <div class="cha-val" id="prevRequisitos" style="margin-top: 3px;">*************/*************</div>
+                                    </div>
+
+                                    <!-- Órgão de Emissão e Data -->
+                                    <div class="cha-row-2">
+                                        <div class="cha-box">
+                                            <div class="cha-lbl">Órgão de Emissão (Issuing Organization)</div>
+                                            <div class="cha-val" id="prevOrgao">AGÊNCIA FLUVIAL DE GOIÁS</div>
+                                        </div>
+                                        <div class="cha-box">
+                                            <div class="cha-lbl">Data de Emissão (Issue Date)</div>
+                                            <div class="cha-val" id="prevDataEmissao">01/07/2025</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Emblema Oficial da Marinha do Brasil -->
+                                    <div class="cha-verso-footer">
+                                        <svg width="78" height="78" viewBox="0 0 100 100">
+                                            <!-- Borda corda dourada -->
+                                            <circle cx="50" cy="50" r="47" fill="none" stroke="#e5b839" stroke-width="4.5" stroke-dasharray="3 1.5"/>
+                                            <circle cx="50" cy="50" r="43.5" fill="#081e36" stroke="#b89326" stroke-width="1.5"/>
+                                            <!-- Âncora Branca -->
+                                            <circle cx="50" cy="24" r="6" fill="none" stroke="#ffffff" stroke-width="3"/>
+                                            <!-- Estrela Dourada no topo -->
+                                            <polygon points="50,14 52,19 57,19 53,22 55,27 50,24 45,27 47,22 43,19 48,19" fill="#e5b839"/>
+                                            <!-- Travessão transversal -->
+                                            <rect x="32" y="32" width="36" height="4.5" rx="1.5" fill="#ffffff"/>
+                                            <circle cx="31.5" cy="34.2" r="2.5" fill="#ffffff"/>
+                                            <circle cx="68.5" cy="34.2" r="2.5" fill="#ffffff"/>
+                                            <!-- Haste vertical -->
+                                            <rect x="47.5" y="28" width="5" height="46" rx="1.5" fill="#ffffff"/>
+                                            <!-- Braços curvados inferiores -->
+                                            <path d="M 24 54 C 24 78, 76 78, 76 54 C 73 54, 70 56, 68 62 C 60 72, 40 72, 32 62 C 30 56, 27 54, 24 54 Z" fill="#ffffff"/>
+                                            <!-- Pontas da âncora -->
+                                            <polygon points="21,52 27,52 24,45" fill="#ffffff"/>
+                                            <polygon points="73,52 79,52 76,45" fill="#ffffff"/>
+                                            <circle cx="50" cy="74" r="3.5" fill="#ffffff"/>
+                                        </svg>
+                                        <div style="font-family:'Plus Jakarta Sans', Arial, sans-serif; font-weight:900; font-size:13.5px; color:#081e36; line-height:1.1; letter-spacing:0.8px; text-align:center;">
+                                            MARINHA<br>DO BRASIL
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- COLUNA DA DIREITA: PAINEL QR CODE -->
+                        <div class="cha-qr-col">
+                            <div class="cha-qr-header-title">QR Code</div>
+                            <div class="cha-qr-box" id="chaQrBoxContainer">
+                                <div class="cha-qr-render-area" id="qrcodeArea"></div>
+                                <div class="cha-qr-footer-titles">
+                                    <div class="cha-qr-foot-main">CARTEIRA DE HABILITAÇÃO DE AMADOR (CHA)</div>
+                                    <div class="cha-qr-foot-sub">Autoridade Marítima Brasileira</div>
+                                    <div class="cha-qr-foot-en">(Brazilian Maritime Authority)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL DE SUCESSO APÓS EMISSÃO -->
+    <div class="modal-backdrop" id="modalSucesso">
+        <div class="modal-card">
+            <div class="modal-icon-success">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3 class="modal-title">Habilitação Emitida com Sucesso!</h3>
+            <p class="modal-desc">
+                O arquivo oficial em <strong>PDF de Alta Definição</strong> sem marcas d'água foi gerado e baixado automaticamente. O valor de <strong>R$ 20,00</strong> foi debitado do seu saldo.
+            </p>
+            <div class="modal-actions">
+                <button type="button" class="btn-action-secondary" style="flex:1;" onclick="closeModalSucesso()">Continuar Editando</button>
+                <a href="arrais.html" class="btn-action-primary" style="flex:1;">Ver no Histórico</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados Padrão (Idênticos ao modelo enviado pelo usuário)
+        const DEFAULT_CHA = {
+            nome: 'FRANCISCO FURTUOSO CAMPOS',
+            dataNasc: '31/03/1985',
+            cpf: '01243921137',
+            categoria: 'ARRAIS AMADOR E MOTONAUTA',
+            categoriaIngles: '(AMATEUR SKIPPER AND AMATEUR MOTOR BOAT DRIVER)',
+            validade: '01/07/2035',
+            inscricao: '899Q2109653047',
+            limites: 'INTERIOR. / INLAND WATERS.',
+            requisitos: '*************/*************',
+            orgao: 'AGÊNCIA FLUVIAL DE GOIÁS',
+            emissao: '01/07/2025',
+            qrUrl: 'https://sistemas.dpc.marinha.mil.br/valida/cha?inscricao=899Q2109653047'
+        };
+
+        let currentZoom = 0.85;
+        let qrCodeObj = null;
+        let documentAlreadyEmitted = false;
+
+        // ─── ATUALIZAÇÃO DO ZOOM ───
+        function updateZoomUI() {
+            const wrapper = document.getElementById('docZoomWrapper');
+            const lbl = document.getElementById('zoomVal');
+            if (wrapper) wrapper.style.transform = `scale(${currentZoom})`;
+            if (lbl) lbl.textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+        function changeZoom(delta) {
+            currentZoom = Math.min(Math.max(0.4, currentZoom + delta), 1.6);
+            updateZoomUI();
+        }
+        function resetZoom() {
+            currentZoom = 1.0;
+            updateZoomUI();
+        }
+
+        // ─── SINCRONIZAÇÃO DA CATEGORIA COM INGLÊS ───
+        function syncCategoriaIngles() {
+            const cat = (document.getElementById('inpCategoria').value || '').trim().toUpperCase();
+            const ingEl = document.getElementById('inpCategoriaIngles');
+            if (!ingEl) return;
+
+            if (cat.includes('ARRAIS') && cat.includes('MOTONAUTA')) {
+                ingEl.value = '(AMATEUR SKIPPER AND AMATEUR MOTOR BOAT DRIVER)';
+            } else if (cat.includes('ARRAIS')) {
+                ingEl.value = '(AMATEUR SKIPPER)';
+            } else if (cat.includes('MOTONAUTA')) {
+                ingEl.value = '(AMATEUR MOTOR BOAT DRIVER)';
+            } else if (cat.includes('MESTRE')) {
+                ingEl.value = '(COASTAL MASTER)';
+            } else if (cat.includes('CAPITÃO')) {
+                ingEl.value = '(OCEAN MASTER)';
+            } else if (cat.includes('VELEIRO')) {
+                ingEl.value = '(SAILBOAT AMATEUR)';
+            }
+        }
+
+        // ─── ATUALIZAÇÃO DOS CAMPOS EM TEMPO REAL ───
+        function updateCha() {
+            const nome = document.getElementById('inpNome').value || DEFAULT_CHA.nome;
+            const dataNasc = document.getElementById('inpDataNasc').value || DEFAULT_CHA.dataNasc;
+            const cpf = document.getElementById('inpCpf').value || DEFAULT_CHA.cpf;
+            const categoria = document.getElementById('inpCategoria').value || DEFAULT_CHA.categoria;
+            const categoriaIngles = document.getElementById('inpCategoriaIngles').value || DEFAULT_CHA.categoriaIngles;
+            const validade = document.getElementById('inpDataValidade').value || DEFAULT_CHA.validade;
+            const inscricao = document.getElementById('inpInscricao').value || DEFAULT_CHA.inscricao;
+            const limites = document.getElementById('inpLimites').value || DEFAULT_CHA.limites;
+            const requisitos = document.getElementById('inpRequisitos').value || DEFAULT_CHA.requisitos;
+            const orgao = document.getElementById('inpOrgao').value || DEFAULT_CHA.orgao;
+            const emissao = document.getElementById('inpDataEmissao').value || DEFAULT_CHA.emissao;
+            const qrUrl = document.getElementById('inpQrUrl').value || DEFAULT_CHA.qrUrl;
+
+            document.getElementById('prevNome').textContent = nome;
+            document.getElementById('prevDataNasc').textContent = dataNasc;
+            document.getElementById('prevCpf').textContent = cpf;
+            document.getElementById('prevCategoria').textContent = categoria;
+            document.getElementById('prevCategoriaIngles').textContent = categoriaIngles;
+            document.getElementById('prevDataValidade').textContent = validade;
+            document.getElementById('prevInscricao').textContent = inscricao;
+
+            document.getElementById('prevLimites').textContent = limites;
+            document.getElementById('prevRequisitos').textContent = requisitos;
+            document.getElementById('prevOrgao').textContent = orgao;
+            document.getElementById('prevDataEmissao').textContent = emissao;
+
+            renderQrCode(qrUrl);
+        }
+
+        // ─── RENDERIZAR QR CODE ───
+        let lastQrUrl = '';
+        function renderQrCode(url) {
+            if (url) lastQrUrl = url;
+            const container = document.getElementById('qrcodeArea');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const targetUrl = lastQrUrl || DEFAULT_CHA.qrUrl;
+            try {
+                qrCodeObj = new QRCode(container, {
+                    text: targetUrl,
+                    width: 250,
+                    height: 250,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch(e) {
+                console.error('Erro ao renderizar QRCode:', e);
+            }
+        }
+
+        // ─── UPLOAD DA FOTO DO CONDUTOR ───
+        function handlePhotoUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const b64 = e.target.result;
+                const prev = document.getElementById('prevPhoto');
+                const thumb = document.getElementById('thumbPhoto');
+                if (prev) prev.src = b64;
+                if (thumb) thumb.src = b64;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ─── RESTAURAR PADRÃO ───
+        function resetToDefaults() {
+            document.getElementById('inpNome').value = DEFAULT_CHA.nome;
+            document.getElementById('inpDataNasc').value = DEFAULT_CHA.dataNasc;
+            document.getElementById('inpCpf').value = DEFAULT_CHA.cpf;
+            document.getElementById('inpCategoria').value = DEFAULT_CHA.categoria;
+            document.getElementById('inpCategoriaIngles').value = DEFAULT_CHA.categoriaIngles;
+            document.getElementById('inpDataValidade').value = DEFAULT_CHA.validade;
+            document.getElementById('inpInscricao').value = DEFAULT_CHA.inscricao;
+            document.getElementById('inpLimites').value = DEFAULT_CHA.limites;
+            document.getElementById('inpRequisitos').value = DEFAULT_CHA.requisitos;
+            document.getElementById('inpOrgao').value = DEFAULT_CHA.orgao;
+            document.getElementById('inpDataEmissao').value = DEFAULT_CHA.emissao;
+            document.getElementById('inpQrUrl').value = DEFAULT_CHA.qrUrl;
+
+            document.getElementById('prevPhoto').src = 'assets/foto_alyson.png';
+            document.getElementById('thumbPhoto').src = 'assets/foto_alyson.png';
+
+            updateCha();
+        }
+
+        // ─── GERAR PDF OFICIAL E DESCONTAR SALDO ───
+        async function gerarChaPdf() {
+            const btn = document.getElementById('btnExportPdf');
+            const txt = document.getElementById('btnGerarTxt');
+            const sheet = document.getElementById('chaSheetContainer');
+            const watermark = document.getElementById('previewWatermarkOverlay');
+
+            const custo = 20.00;
+            const currentSaldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') 
+                ? window.MGSaldo.get() 
+                : (parseFloat(localStorage.getItem('happynation_saldo') || '7860.00'));
+
+            if (!documentAlreadyEmitted && currentSaldo < custo) {
+                alert(`Saldo insuficiente (Saldo atual: R$ ${currentSaldo.toFixed(2).replace('.', ',')}). Necessário R$ ${custo.toFixed(2).replace('.', ',')}. Recarregue seu saldo para emitir.`);
+                return;
+            }
+
+            if (btn) btn.disabled = true;
+            if (txt) txt.textContent = 'Processando e Gerando PDF...';
+
+            // Desativa temporariamente zoom para captura em alta definição 1:1
+            const wrapper = document.getElementById('docZoomWrapper');
+            const prevTransform = wrapper.style.transform;
+            wrapper.style.transform = 'scale(1)';
+
+            // Oculta marca d'água de prévia para a emissão oficial
+            const prevWmDisplay = watermark ? watermark.style.display : '';
+            if (watermark) watermark.style.display = 'none';
+
+            try {
+                // Captura em altíssima definição (scale 2.5)
+                const canvas = await html2canvas(sheet, {
+                    scale: 2.5,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                // Debita saldo se for a primeira emissão
+                if (!documentAlreadyEmitted) {
+                    if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
+                        window.MGSaldo.deduct(custo);
+                    } else {
+                        const novoSaldo = Math.max(0, currentSaldo - custo);
+                        localStorage.setItem('happynation_saldo', novoSaldo.toFixed(2));
+                    }
+                    documentAlreadyEmitted = true;
+                    updateUserHeader();
+                }
+
+                // Salva no histórico de emitidos
+                salvarHistoricoCha();
+
+                // Gera o PDF via jsPDF em formato Paisagem ou Ajustado
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                const pdfW = pdf.internal.pageSize.getWidth();
+                const pdfH = pdf.internal.pageSize.getHeight();
+
+                // Proporção da folha
+                const imgAspect = canvas.width / canvas.height;
+                const targetW = pdfW - 20; // 10mm margem
+                const targetH = targetW / imgAspect;
+
+                const posX = 10;
+                const posY = Math.max(8, (pdfH - targetH) / 2);
+
+                pdf.addImage(imgData, 'JPEG', posX, posY, targetW, targetH, '', 'FAST');
+
+                const nomeClean = (document.getElementById('inpNome').value || 'condutor').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                pdf.save(`cha_habilitacao_marinha_${nomeClean}.pdf`);
+
+                // Exibe modal de confirmação
+                openModalSucesso();
+            } catch(e) {
+                console.error('Erro ao gerar PDF:', e);
+                alert('Ocorreu um erro ao gerar o PDF. Verifique o console ou tente novamente.');
+            } finally {
+                wrapper.style.transform = prevTransform;
+                if (watermark && !documentAlreadyEmitted) watermark.style.display = prevWmDisplay;
+                if (btn) btn.disabled = false;
+                if (txt) txt.textContent = 'Gerar PDF — Habilitação Náutica CHA';
+            }
+        }
+
+        // ─── BAIXAR IMAGEM PNG ───
+        async function baixarImagemPng() {
+            const sheet = document.getElementById('chaSheetContainer');
+            const watermark = document.getElementById('previewWatermarkOverlay');
+            const wrapper = document.getElementById('docZoomWrapper');
+            const prevTransform = wrapper.style.transform;
+            wrapper.style.transform = 'scale(1)';
+
+            const prevWmDisplay = watermark ? watermark.style.display : '';
+            if (watermark && documentAlreadyEmitted) watermark.style.display = 'none';
+
+            try {
+                const canvas = await html2canvas(sheet, {
+                    scale: 2.2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                const link = document.createElement('a');
+                const nomeClean = (document.getElementById('inpNome').value || 'condutor').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                link.download = `cha_marinha_${nomeClean}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch(e) {
+                console.error('Erro ao baixar PNG:', e);
+            } finally {
+                wrapper.style.transform = prevTransform;
+                if (watermark && !documentAlreadyEmitted) watermark.style.display = prevWmDisplay;
+            }
+        }
+
+        // ─── SALVAR NO HISTÓRICO LOCAL ───
+        function salvarHistoricoCha() {
+            try {
+                const item = {
+                    id: 'CHA' + Math.floor(100000 + Math.random() * 900000),
+                    nome: document.getElementById('inpNome').value.trim(),
+                    cpf: document.getElementById('inpCpf').value.trim(),
+                    categoria: document.getElementById('inpCategoria').value.trim(),
+                    inscricao: document.getElementById('inpInscricao').value.trim(),
+                    validade: document.getElementById('inpDataValidade').value.trim(),
+                    orgao: document.getElementById('inpOrgao').value.trim(),
+                    dataEmissao: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    status: 'Regular (Oficial)',
+                    valor: 'R$ 20,00'
+                };
+
+                let hist = JSON.parse(localStorage.getItem('happynation_arrais_history') || '[]');
+                hist.unshift(item);
+                localStorage.setItem('happynation_arrais_history', JSON.stringify(hist));
+            } catch(e) {
+                console.error('Erro ao salvar histórico local:', e);
+            }
+        }
+
+        // ─── MODAL DE SUCESSO ───
+        function openModalSucesso() {
+            const m = document.getElementById('modalSucesso');
+            if (m) m.classList.add('show');
+        }
+        function closeModalSucesso() {
+            const m = document.getElementById('modalSucesso');
+            if (m) m.classList.remove('show');
+        }
+
+        // ─── USUÁRIO E HEADER ───
+        function toggleAvatarDropdown(e) {
+            e.stopPropagation();
+            const d = document.getElementById('avatarDropdown');
+            if (d) d.classList.toggle('show');
+        }
+        document.addEventListener('click', () => {
+            const d = document.getElementById('avatarDropdown');
+            if (d) d.classList.remove('show');
+        });
+        function logoutUser() {
+            try {
+                localStorage.removeItem('happynation_token');
+                sessionStorage.clear();
+            } catch(e) {}
+            window.location.href = 'login.html';
+        }
+        function updateUserHeader() {
+            try {
+                const uStr = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user');
+                let name = 'MG Editáveis';
+                let email = 'admin@mgeditaveis.com.br';
+                if (uStr) {
+                    const u = JSON.parse(uStr);
+                    if (u.name) name = u.name;
+                    if (u.email) email = u.email;
+                }
+                const nameEl = document.getElementById('dropUserName');
+                const emailEl = document.getElementById('dropUserEmail');
+                const avatarEl = document.getElementById('userHeaderAvatar');
+                if (nameEl) nameEl.textContent = name;
+                if (emailEl) emailEl.textContent = email;
+                if (avatarEl) avatarEl.textContent = name.trim().charAt(0).toUpperCase();
+
+                const saldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') 
+                    ? window.MGSaldo.get() 
+                    : (parseFloat(localStorage.getItem('happynation_saldo') || '7860.00'));
+                
+                const saldoHeader = document.getElementById('userHeaderSaldo');
+                if (saldoHeader) saldoHeader.textContent = `Saldo R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            } catch(e) {}
+        }
+
+        // ─── INICIALIZAÇÃO ───
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUserHeader();
+            updateZoomUI();
+            updateCha();
+        });
+    </script>
+</body>
+</html>

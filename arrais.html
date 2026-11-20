@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/dev-guard.js"></script>
+
+    <!-- Open Graph / Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MG Editáveis">
+    <meta property="og:title" content="MG Editáveis • Habilitações Náuticas CHA Emitidas">
+    <meta property="og:description" content="Histórico de Carteiras de Habilitação de Amador (CHA - Marinha do Brasil) emitidas em tempo real.">
+    <meta property="og:image" content="https://mg-editaveis.vercel.app/og-image.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | Habilitações Náuticas CHA Emitidas (Marinha do Brasil)</title>
+    <script src="saldo-sync.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-page: #121414;
+            --bg-header: #141716;
+            --bg-card: #191c1d;
+            --bg-card-hover: #1e2223;
+            --bg-input: #141617;
+            --border-color: #242829;
+            --border-subtle: #1e2223;
+            
+            --primary: #00dc82;
+            --primary-hover: #00c975;
+            --primary-light: rgba(0, 220, 130, 0.12);
+            --primary-border: rgba(0, 220, 130, 0.28);
+
+            --accent: #059669;
+            --accent-hover: #047857;
+            --accent-light: rgba(5, 150, 105, 0.15);
+            --accent-border: rgba(5, 150, 105, 0.35);
+
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: var(--font);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── HEADER OFICIAL (62px) ─── */
+        .header {
+            height: 62px;
+            background: var(--bg-header);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+        }
+        .header-inner {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #062517;
+            box-shadow: 0 2px 10px rgba(0, 220, 130, 0.3);
+        }
+        .brand-icon-img { width: 22px; height: 22px; object-fit: contain; }
+        .brand-text { font-weight: 800; font-size: 18px; color: #fff; letter-spacing: -0.4px; }
+
+        .header-right { display: flex; align-items: center; gap: 14px; }
+        .badge-dev-admin {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: #f59e0b;
+            font-size: 11.5px;
+            font-weight: 800;
+        }
+        .saldo-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 220, 130, 0.1);
+            border: 1px solid rgba(0, 220, 130, 0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .saldo-pill:hover { background: rgba(0, 220, 130, 0.18); transform: translateY(-1px); }
+        .btn-voltar {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #cbd5e1;
+            background: #1b1e1f;
+            border: 1px solid #282d2c;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-voltar:hover { background: #232729; color: #fff; }
+
+        /* ─── CONTAINER PRINCIPAL ─── */
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 32px 24px;
+            flex: 1;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+        .page-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+        }
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 13.5px;
+        }
+
+        /* ─── CARDS DE ESTATÍSTICAS ─── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .stat-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+        }
+        .stat-label {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .btn-novo-doc {
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-size: 13.5px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+            margin-left: auto;
+        }
+        .btn-novo-doc:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        /* ─── TABELA DE HISTÓRICO ─── */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        .table-toolbar {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 14px;
+            flex: 1;
+            max-width: 380px;
+        }
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 13px;
+            width: 100%;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        tr:hover td {
+            background: var(--bg-card-hover);
+            color: #fff;
+        }
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            background: rgba(0, 220, 130, 0.1);
+            color: #00dc82;
+            border: 1px solid rgba(0, 220, 130, 0.25);
+        }
+        .btn-table-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .btn-table-action:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+        .empty-state {
+            padding: 48px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER OFICIAL -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="editaveis.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <span class="badge-dev-admin">👑 ACESSO ADMIN (DEV)</span>
+
+                <a href="recargas.html" class="saldo-pill" title="Clique para recarregar saldo">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </a>
+
+                <a href="editaveis.html" class="btn-voltar" title="Voltar ao Catálogo">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    <span>Voltar</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <div class="page-title-row">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 16 12 12 8"/></svg>
+                <h1 class="page-title">Habilitações Náuticas CHA Emitidas</h1>
+            </div>
+            <p class="page-subtitle">Histórico e gerenciamento de Carteiras de Habilitação de Amador (Marinha do Brasil) geradas com validação oficial.</p>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(5,150,105,0.12); color:#059669;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div>
+                    <div class="stat-value" id="statTotalEmitidos">0</div>
+                    <div class="stat-label">Habilitações Emitidas</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(0,220,130,0.12); color:#00dc82;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                </div>
+                <div>
+                    <div class="stat-value" id="statSaldoDisponivel">R$ 0,00</div>
+                    <div class="stat-label">Saldo Disponível</div>
+                </div>
+            </div>
+
+            <div class="stat-card" style="background:none; border:none; padding:0; display:flex; align-items:center;">
+                <a href="criar-arrais.html" class="btn-novo-doc" style="width:100%; justify-content:center; padding:18px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>Emitir Nova Habilitação CHA</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- TABELA -->
+        <div class="table-card">
+            <div class="table-toolbar">
+                <div class="search-box">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="inpBusca" placeholder="Buscar por Nome, CPF ou Inscrição..." oninput="filtrarTabela()">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID / Código</th>
+                            <th>Condutor / Amador</th>
+                            <th>CPF</th>
+                            <th>Categoria</th>
+                            <th>Nº Inscrição</th>
+                            <th>Status</th>
+                            <th>Data Emissão</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaBody">
+                        <!-- Preenchido via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function loadHistorico() {
+            try {
+                let hist = JSON.parse(localStorage.getItem('happynation_arrais_history') || '[]');
+                
+                // Se estiver vazio, adiciona exemplo baseado no modelo de referência
+                if (hist.length === 0) {
+                    hist = [
+                        {
+                            id: 'CHA899210',
+                            nome: 'FRANCISCO FURTUOSO CAMPOS',
+                            cpf: '01243921137',
+                            categoria: 'ARRAIS AMADOR E MOTONAUTA',
+                            inscricao: '899Q2109653047',
+                            validade: '01/07/2035',
+                            orgao: 'AGÊNCIA FLUVIAL DE GOIÁS',
+                            dataEmissao: '01/07/2025 14:30',
+                            status: 'Regular (Oficial)',
+                            valor: 'R$ 20,00'
+                        }
+                    ];
+                    localStorage.setItem('happynation_arrais_history', JSON.stringify(hist));
+                }
+
+                document.getElementById('statTotalEmitidos').textContent = hist.length;
+
+                const saldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') 
+                    ? window.MGSaldo.get() 
+                    : (parseFloat(localStorage.getItem('happynation_saldo') || '7860.00'));
+                
+                document.getElementById('statSaldoDisponivel').textContent = `R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById('userHeaderSaldo').textContent = `Saldo R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+                renderTabela(hist);
+            } catch(e) {
+                console.error('Erro ao carregar histórico:', e);
+            }
+        }
+
+        function renderTabela(lista) {
+            const tbody = document.getElementById('tabelaBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (lista.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="empty-state">Nenhum registro encontrado.</td></tr>`;
+                return;
+            }
+
+            lista.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-family:var(--font-mono); font-weight:700; color:#cbd5e1;">${item.id}</td>
+                    <td style="font-weight:700; color:#fff;">${item.nome}</td>
+                    <td style="font-family:var(--font-mono);">${item.cpf}</td>
+                    <td><span style="font-weight:600; color:#34d399;">${item.categoria}</span></td>
+                    <td style="font-family:var(--font-mono); color:#94a3b8;">${item.inscricao}</td>
+                    <td><span class="badge-status">● ${item.status || 'Regular (Oficial)'}</span></td>
+                    <td style="font-size:12px; color:#94a3b8;">${item.dataEmissao}</td>
+                    <td>
+                        <a href="criar-arrais.html" class="btn-table-action" title="Abrir no editor">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            <span>Editar</span>
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filtrarTabela() {
+            const termo = (document.getElementById('inpBusca').value || '').toLowerCase().trim();
+            const hist = JSON.parse(localStorage.getItem('happynation_arrais_history') || '[]');
+            if (!termo) {
+                renderTabela(hist);
+                return;
+            }
+            const filtrados = hist.filter(i => 
+                (i.nome && i.nome.toLowerCase().includes(termo)) ||
+                (i.cpf && i.cpf.includes(termo)) ||
+                (i.inscricao && i.inscricao.toLowerCase().includes(termo)) ||
+                (i.id && i.id.toLowerCase().includes(termo))
+            );
+            renderTabela(filtrados);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadHistorico);
+    </script>
+</body>
+</html>

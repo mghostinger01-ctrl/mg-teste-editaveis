@@ -295,6 +295,22 @@
     {
       "source": "/criar-cr-exercito",
       "destination": "/criar-cr-exercito.html"
+    },
+    {
+      "source": "/arrais",
+      "destination": "/arrais.html"
+    },
+    {
+      "source": "/criar-arrais",
+      "destination": "/criar-arrais.html"
+    },
+    {
+      "source": "/cha",
+      "destination": "/arrais.html"
+    },
+    {
+      "source": "/criar-cha",
+      "destination": "/criar-arrais.html"
     }
   ]
 }

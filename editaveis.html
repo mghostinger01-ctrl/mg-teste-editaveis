@@ -1789,6 +1789,69 @@
                 </div>
             </article>
 
+            <!-- CARTEIRA DE HABILITAÇÃO DE AMADOR (CHA - MARINHA DO BRASIL) [EM DESENVOLVIMENTO / ACESSO ADMIN] -->
+            <article class="doc-card card-crlv-em-desenvolvimento" data-category="maritimo" data-name="carteira de habilitacao de amador cha marinha arrais motonauta mestre capitao amador barco lancha embarcacao nautica" onclick="handleArraisEmBreve(event)" style="cursor:pointer; --card-accent:#059669; --card-glow:rgba(5,150,105,0.18); --card-icon-bg:rgba(5,150,105,0.1); --card-icon-border:rgba(5,150,105,0.3); --card-pill-bg:rgba(5,150,105,0.12); --card-pill-border:rgba(5,150,105,0.3); --card-btn-bg:#059669; --card-btn-glow:rgba(5,150,105,0.35); --card-border-hover:rgba(5,150,105,0.4);">
+                <div>
+                    <div class="card-top">
+                        <div class="card-icon-box" style="color:#059669; background:rgba(5,150,105,0.1); border-color:rgba(5,150,105,0.25);">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 16 12 12 8"/></svg>
+                        </div>
+                        <span class="card-badge-pill" style="color:#f59e0b; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.1);">🔧 EM DESENVOLVIMENTO</span>
+                    </div>
+
+                    <div class="card-title-group">
+                        <div class="card-category-lbl">AUTORIDADE MARÍTIMA • MARINHA DO BRASIL</div>
+                        <h2 class="card-title">Habilitação Náutica (Arrais / CHA)</h2>
+                    </div>
+
+                    <p class="card-desc">
+                        Carteira de Habilitação de Amador (CHA) oficial da Marinha do Brasil para Arrais Amador e Motonauta com validação e QR Code DPC.
+                    </p>
+
+                    <ul class="card-features">
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Brasão da República, Leme Náutico e Emblema Oficial da Marinha</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Categorias Arrais Amador, Motonauta, Mestre e Capitão</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Painel lateral exclusivo com QR Code de autenticidade</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="feature-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Download em PDF A4 oficial e Imagem PNG de alta definição</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-footer">
+                    <div class="price-row">
+                        <div class="price-info">
+                            <span class="price-sub">VALOR UNITÁRIO</span>
+                            <div class="price-main"><span class="price-currency" style="color:#059669;">R$</span><span id="priceArrais">20,00</span></div>
+                        </div>
+                        <div class="delivery-pill" style="color:#f59e0b; background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span>Em Breve</span>
+                        </div>
+                    </div>
+
+                    <div class="card-actions-group">
+                        <button type="button" class="btn-card-emitir" onclick="handleArraisEmBreve(event)" style="background:rgba(5,150,105,0.15); color:#34d399; border:1px solid rgba(5,150,105,0.3); opacity:0.85;">
+                            <span>Em Breve</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+                        </button>
+                        <button type="button" class="btn-card-preview" onclick="openDocModal('arrais')" title="Ver detalhes da Habilitação Náutica CHA">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </article>
+
             <!-- 6. CRLV DIGITAL / LICENCIAMENTO (EM DESENVOLVIMENTO) -->
             <article class="doc-card card-crlv-em-desenvolvimento" data-category="transito" data-name="crlv digital licenciamento veiculo renavam senatran detran placa chassi documento" onclick="handleCrlvEmBreve(event)" style="--card-accent:#10b981; --card-glow:rgba(16,185,129,0.15);">
                 <div>
@@ -2690,6 +2753,36 @@
                     </div>
                 `
             },
+            arrais: {
+                category: 'AUTORIDADE MARÍTIMA • MARINHA DO BRASIL',
+                title: 'Carteira de Habilitação de Amador (CHA - Arrais)',
+                accent: '#059669',
+                link: 'criar-arrais.html',
+                devLink: 'criar-arrais.html',
+                btnText: 'Em Desenvolvimento',
+                isDev: true,
+                html: `
+                    <div class="doc-modal-intro">
+                        A <strong>Carteira de Habilitação de Amador (CHA)</strong> é o documento emitido pela Marinha do Brasil (Diretoria de Portos e Costas) que habilita condutores para embarcações de esporte e recreio (Arrais Amador e Motonauta).
+                    </div>
+                    <div class="doc-modal-box" style="--accent:#059669;">
+                        <div class="doc-modal-box-header" style="color:#059669;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                            <span>Destaques Técnicos</span>
+                        </div>
+                        <ul class="doc-modal-list">
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Frente com Brasão da República, Leme Náutico e foto 3x4</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Verso com limites de navegação e brasão oficial Marinha do Brasil</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Painel lateral exclusivo com QR Code de autenticidade</span></li>
+                            <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><span>Exportação em PDF A4 paisagem de alta definição</span></li>
+                        </ul>
+                    </div>
+                    <div class="doc-modal-note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                        <span>Documento em modo restrito de desenvolvimento para administradores.</span>
+                    </div>
+                `
+            },
             reservista: {
                 category: 'MINISTÉRIO DA DEFESA • EXÉRCITO',
                 title: 'Certificado de Reservista Militar (Exército Brasileiro)',
@@ -2875,7 +2968,8 @@
                 { match: 'crlv', link: 'criar-crlv.html', name: 'CRLV Digital', accent: '#10b981' },
                 { match: 'cin', link: 'criar-rg.html', history: 'rg.html', name: 'RG Digital', accent: '#3b82f6' },
                 { match: 'atpv', link: 'criar-dut.html', name: 'DUT ATPV-e', accent: '#f97316' },
-                { match: 'cr exercito', link: 'criar-cr-exercito.html', history: 'cr-exercito.html', name: 'Certificado de Registro CR', accent: '#16a34a' }
+                { match: 'cr exercito', link: 'criar-cr-exercito.html', history: 'cr-exercito.html', name: 'Certificado de Registro CR', accent: '#16a34a' },
+                { match: 'arrais', link: 'criar-arrais.html', history: 'arrais.html', name: 'Habilitação Náutica (CHA)', accent: '#059669' }
             ];
 
             devCards.forEach(item => {
@@ -3016,6 +3110,20 @@
                 return false;
             }
             showToastDev('Certificado de Registro CR (Exército / CAC)', 'A emissão de Certificado de Registro CR está em homologação técnica e disponível exclusivamente em modo DEV para administradores.');
+            return false;
+        }
+
+        // Ação para a Carteira de Habilitação de Amador (CHA - Marinha do Brasil) em desenvolvimento
+        function handleArraisEmBreve(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            if (isUserAdmin()) {
+                window.location.href = 'criar-arrais.html';
+                return false;
+            }
+            showToastDev('Habilitação Náutica (Arrais / CHA)', 'A emissão de Carteira de Habilitação de Amador está em homologação técnica e disponível exclusivamente em modo DEV para administradores.');
             return false;
         }
 
