@@ -818,6 +818,83 @@
         .qrcode-holder img, .qrcode-holder canvas {
             width: 60px !important;
             height: 60px !important;
+            display: block;
+        }
+
+        /* ─── BLOQUEIO DO QR CODE ATÉ A GERAÇÃO DO PDF ─── */
+        #qrcodePreview.qr-locked img,
+        #qrcodePreview.qr-locked canvas {
+            filter: blur(3.5px);
+            opacity: 0.55;
+            transition: filter 0.3s, opacity 0.3s;
+        }
+
+        .qr-lock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 10;
+            pointer-events: none;
+            user-select: none;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+
+        .qr-blur-card {
+            background: #ffffff;
+            border: 1.5px solid #ef4444;
+            border-radius: 6px;
+            padding: 3px 4px;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            width: 58px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .qr-blur-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-blur-icon svg {
+            stroke: #dc2626;
+        }
+
+        .qr-blur-title {
+            font-family: Arial, sans-serif;
+            font-size: 6.5px;
+            font-weight: 800;
+            color: #dc2626;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .qr-blur-sub {
+            font-family: Arial, sans-serif;
+            font-size: 5px;
+            font-weight: 700;
+            color: #ef4444;
+            line-height: 1.05;
         }
 
         .auth-instructions-text {
@@ -1336,7 +1413,7 @@
                 <div class="form-row single">
                     <div class="form-field">
                         <label>URL Autenticação QR Code</label>
-                        <input type="text" class="input-box" id="inp_auth_url" value="exame.tox.com.br/autenticacao" oninput="syncFromCheckout(); updateQrCode()">
+                        <input type="text" class="input-box" id="inp_auth_url" value="exame-toxologico.vercel.app/autenticacao" oninput="syncFromCheckout(); updateQrCode()">
                     </div>
                 </div>
 
@@ -1486,11 +1563,23 @@
                                             <svg id="barcodeSvg"></svg>
                                         </div>
                                         <div class="qrcode-holder" id="qrWrapHolder">
-                                            <div id="qrcodePreview"></div>
+                                            <div id="qrcodePreview" class="qr-locked"></div>
+                                            <div class="qr-lock-overlay" id="qrLockOverlay">
+                                                <div class="qr-blur-card">
+                                                    <div class="qr-blur-icon">
+                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="qr-blur-title">QR CODE</div>
+                                                    <div class="qr-blur-sub">Liberado após a geração do PDF</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="auth-instructions-text">
-                                        Confira a autenticidade deste laudo: escaneie o QR code com o celular ou acesse <span class="blue-val" id="fld_auth_url_display">exame.tox.com.br/autenticacao</span>
+                                        Confira a autenticidade deste laudo: escaneie o QR code com o celular ou acesse <span class="blue-val" id="fld_auth_url_display">exame-toxologico.vercel.app/autenticacao</span>
                                     </div>
                                 </div>
                             </div>
@@ -1945,7 +2034,7 @@
         if (elHash) elHash.textContent = val('inp_hash') || '406e230323742ad';
 
         const elAuthUrl = document.getElementById('fld_auth_url_display');
-        if (elAuthUrl) elAuthUrl.textContent = val('inp_auth_url') || 'exame.tox.com.br/autenticacao';
+        if (elAuthUrl) elAuthUrl.textContent = val('inp_auth_url') || 'exame-toxologico.vercel.app/autenticacao';
 
         // Médico Responsável
         const elMedNome = document.getElementById('fld_medico_nome');
@@ -1979,26 +2068,66 @@
     }
 
     let qrCodeInstance = null;
+    window._examePdfGenerated = false;
+
+    function unlockExameQrCode() {
+        window._examePdfGenerated = true;
+        const container = document.getElementById('qrcodePreview');
+        if (container) {
+            container.classList.remove('qr-locked');
+            const imgs = container.querySelectorAll('img, canvas');
+            imgs.forEach(el => {
+                el.style.filter = 'none';
+                el.style.opacity = '1';
+            });
+        }
+        const lockOverlay = document.getElementById('qrLockOverlay');
+        if (lockOverlay) lockOverlay.style.display = 'none';
+    }
+
     function updateQrCode() {
         try {
             const container = document.getElementById('qrcodePreview');
             if (!container) return;
             container.innerHTML = '';
 
-            let rawUrl = (document.getElementById('inp_auth_url')?.value || 'exame.tox.com.br/autenticacao').trim();
+            let rawUrl = (document.getElementById('inp_auth_url')?.value || 'exame-toxologico.vercel.app/autenticacao').trim();
             if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
                 rawUrl = 'https://' + rawUrl;
             }
 
+            // Garante parâmetros de autenticação no QR code
+            const authCode = (document.getElementById('inp_autenticacao')?.value || '81540F').trim();
+            const laudoNum = (document.getElementById('inp_laudo')?.value || '087D99MT700293968').trim();
+            const cpfVal = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g, '');
+            const nomeVal = (document.getElementById('inp_nome')?.value || '').trim();
+
+            let targetUrl = rawUrl;
+            if (!targetUrl.includes('codigo=') && !targetUrl.includes('laudo=')) {
+                const sep = targetUrl.includes('?') ? '&' : '?';
+                targetUrl += `${sep}codigo=${encodeURIComponent(authCode)}&laudo=${encodeURIComponent(laudoNum)}&cpf=${encodeURIComponent(cpfVal)}&nome=${encodeURIComponent(nomeVal)}`;
+            }
+
             if (typeof QRCode === 'function') {
                 qrCodeInstance = new QRCode(container, {
-                    text: rawUrl,
+                    text: targetUrl,
                     width: 58,
                     height: 58,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.M
                 });
+            }
+
+            // Gerencia bloqueio visual na tela de prévia
+            if (!window._examePdfGenerated) {
+                container.classList.add('qr-locked');
+                const lockOverlay = document.getElementById('qrLockOverlay');
+                if (lockOverlay) lockOverlay.style.display = 'flex';
+            } else {
+                container.classList.remove('qr-locked');
+                const lockOverlay = document.getElementById('qrLockOverlay');
+                if (lockOverlay) lockOverlay.style.display = 'none';
             }
         } catch(e) {
             console.warn('Erro ao atualizar QR Code:', e);
@@ -2026,7 +2155,7 @@
         document.getElementById('inp_validade').value = '29/04/2024';
         document.getElementById('inp_autenticacao').value = '81540F';
         document.getElementById('inp_hash').value = '406e230323742ad';
-        document.getElementById('inp_auth_url').value = 'exame.tox.com.br/autenticacao';
+        document.getElementById('inp_auth_url').value = 'exame-toxologico.vercel.app/autenticacao';
         document.getElementById('inp_medico_nome').value = 'Thais de L. C. F. Martinodes';
         document.getElementById('inp_medico_crm').value = 'CRF - MG: 46.360';
         document.getElementById('inp_medico_cel').value = 'Cel.: 34 - 713334';
@@ -2055,6 +2184,22 @@
         // Remove marca d'água de prévia do laudo impresso
         const wm = clone.querySelector('#previewWatermarkOverlay');
         if (wm) wm.remove();
+
+        // Remove bloqueio e desfoque do QR Code no laudo impresso oficial
+        const qrLock = clone.querySelector('#qrLockOverlay');
+        if (qrLock) qrLock.remove();
+
+        const qrPreview = clone.querySelector('#qrcodePreview');
+        if (qrPreview) {
+            qrPreview.classList.remove('qr-locked');
+            qrPreview.style.filter = 'none';
+            qrPreview.style.opacity = '1';
+            const imgs = qrPreview.querySelectorAll('img, canvas');
+            imgs.forEach(el => {
+                el.style.filter = 'none';
+                el.style.opacity = '1';
+            });
+        }
 
         return clone;
     }
@@ -2089,6 +2234,9 @@
             });
 
             hiddenContainer.remove();
+
+            // Desbloqueia o QR Code na tela após gerar
+            unlockExameQrCode();
 
             // Salva preview no storage
             try {
@@ -2212,6 +2360,9 @@
             // Remove a marca d'água da tela de prévia
             const liveWm = document.getElementById('previewWatermarkOverlay');
             if (liveWm) liveWm.remove();
+
+            // Desbloqueia o QR Code na tela após gerar o PDF
+            unlockExameQrCode();
 
             // Desconta saldo via MGSaldo
             if (!window._skipExameDeduct) {

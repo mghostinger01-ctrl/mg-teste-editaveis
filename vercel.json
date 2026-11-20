@@ -109,9 +109,42 @@
       ],
       "destination": "/validar-certificado-senai.html",
       "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "exame-toxologico.vercel.app"
+        }
+      ],
+      "destination": "/autenticacao.html",
+      "permanent": false
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "exame-toxologico.vercel.app"
+        }
+      ],
+      "destination": "/autenticacao.html"
+    },
+    {
+      "source": "/autenticacao",
+      "destination": "/autenticacao.html"
+    },
+    {
+      "source": "/validar-exame",
+      "destination": "/autenticacao.html"
+    },
+    {
+      "source": "/validar-laudo",
+      "destination": "/autenticacao.html"
+    },
     {
       "source": "/",
       "has": [
