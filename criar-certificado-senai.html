@@ -1220,7 +1220,7 @@
                     <!-- FOLHA DO CERTIFICADO SENAI (800 x 1131 px) -->
                     <div class="cert-sheet-portrait" id="certSheet">
                         <!-- Imagem de Fundo HD (Template com Logo FIEB/SENAI, Polígonos Geométricos e Textura) -->
-                        <img src="assets/senai_template_hd.png" class="cert-bg-img" alt="Template Oficial SENAI">
+                        <img src="assets/senai_template_hd.png" class="cert-bg-img" alt="Template Oficial SENAI" crossorigin="anonymous">
 
                         <!-- MARCA D'ÁGUA OFICIAL SENAI NO CENTRO DO PAPEL (SUBTIL E ELEGANTE) -->
                         <div class="cert-official-watermark" id="certOfficialWatermark">
@@ -1827,23 +1827,24 @@
             if (btn) btn.disabled = true;
             if (txt) txt.textContent = 'Processando...';
 
-            const nome = document.getElementById('inpNome').value.trim() || DEFAULT_DATA.nome;
-            const cpf = document.getElementById('inpCpf').value.trim() || DEFAULT_DATA.cpf;
-            const rg = document.getElementById('inpRg').value.trim() || DEFAULT_DATA.rg;
-            const orgao = document.getElementById('inpOrgao').value.trim() || DEFAULT_DATA.orgao;
-            const curso = document.getElementById('inpCurso').value.trim() || DEFAULT_DATA.curso;
-            const dataInicio = document.getElementById('inpDataInicio').value.trim() || DEFAULT_DATA.dataInicio;
-            const dataFim = document.getElementById('inpDataFim').value.trim() || DEFAULT_DATA.dataFim;
-            const carga = document.getElementById('inpCarga').value.trim() || DEFAULT_DATA.carga;
+            const nome = (document.getElementById('inpNome')?.value || DEFAULT_DATA.nome).trim();
+            const cpf = (document.getElementById('inpCpf')?.value || DEFAULT_DATA.cpf).trim();
+            const rg = (document.getElementById('inpRg')?.value || DEFAULT_DATA.rg).trim();
+            const orgao = (document.getElementById('inpOrgao')?.value || DEFAULT_DATA.orgao).trim();
+            const curso = (document.getElementById('inpCurso')?.value || DEFAULT_DATA.curso).trim();
+            const dataInicio = (document.getElementById('inpDataInicio')?.value || DEFAULT_DATA.dataInicio).trim();
+            const dataFim = (document.getElementById('inpDataFim')?.value || DEFAULT_DATA.dataFim).trim();
+            const carga = (document.getElementById('inpCarga')?.value || DEFAULT_DATA.carga).trim();
             const id = 'SENAI' + Math.floor(100000 + Math.random() * 900000);
 
-            // 1. Verificação de Saldo e Dedução (R$ 20,00)
-            if (!documentAlreadyEmitted) {
+            // 1. Verificação de Saldo (R$ 20,00)
+            const wasAlreadyEmitted = documentAlreadyEmitted === true;
+            if (!wasAlreadyEmitted) {
                 const rawCusto = 20.00;
                 const custoCert = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') 
                     ? window.MGSaldo.calcDiscount(rawCusto) 
                     : rawCusto;
-                const userSaldo = (window.MGSaldo ? window.MGSaldo.get() : 0);
+                const userSaldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') ? window.MGSaldo.get() : 0;
                 if (custoCert > 0 && userSaldo < custoCert) {
                     alert(`⚠️ Saldo insuficiente!\n\nVocê possui ${window.MGSaldo ? window.MGSaldo.format(userSaldo) : 'R$ 0,00'} e a emissão do Certificado SENAI custa R$ ${custoCert.toFixed(2).replace('.', ',')}.\n\nRedirecionando para a página de recargas...`);
                     window.location.href = 'recargas.html';
@@ -1851,109 +1852,153 @@
                     if (txt) txt.textContent = 'Gerar PDF — Certificado SENAI';
                     return;
                 }
-
-                // Desconta do saldo
-                if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
-                    await window.MGSaldo.deduct(20.00, {
-                        tipo: 'certificado_senai',
-                        descricao: String(nome).toUpperCase(),
-                        subRotulo: 'SENAI Nacional'
-                    });
-                }
-                documentAlreadyEmitted = true;
             }
 
-            // 2. Remove as marcas d'água DEFINITIVAMENTE e desbloqueia o QR Code
-            documentAlreadyEmitted = true;
+            const wrapper = document.getElementById('docZoomWrapper');
+            const origTransform = wrapper ? wrapper.style.transform : '';
+            const origTransition = wrapper ? wrapper.style.transition : '';
+
+            // Referências de elementos de marca d'água e QR Code
             const prevWm = document.getElementById('previewWatermarkOverlay');
-            if (prevWm) prevWm.remove();
             const offWm = document.getElementById('certOfficialWatermark');
-            if (offWm) offWm.remove();
             const lockOv = document.getElementById('qrLockOverlay');
-            if (lockOv) lockOv.remove();
             const qrInner = document.getElementById('qrInnerWrap');
-            if (qrInner) {
-                qrInner.style.filter = 'none';
-                qrInner.style.opacity = '1';
-                qrInner.style.pointerEvents = 'auto';
-            }
 
-            if (txt) txt.textContent = 'Gerando PDF Oficial...';
-
-            const record = {
-                id: id,
-                nome: nome,
-                cpf: cpf,
-                rg: rg,
-                orgao: orgao,
-                curso: curso,
-                dataInicio: dataInicio,
-                dataFim: dataFim,
-                carga: carga,
-                data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                created_at: new Date().toISOString(),
-                status: 'Ativo'
-            };
-
-            // Salva no storage local
             try {
-                let list = JSON.parse(localStorage.getItem('senai_historico') || '[]');
-                list = list.filter(item => item.id !== id);
-                list.unshift(record);
-                localStorage.setItem('senai_historico', JSON.stringify(list));
+                if (txt) txt.textContent = 'Gerando PDF Oficial...';
 
-                let u = {};
-                try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
-                const email = (u.email || 'admin@mgeditaveis.com.br').toLowerCase().trim();
-                let userList = JSON.parse(localStorage.getItem('happynation_senai_' + email) || '[]');
-                userList = userList.filter(item => item.id !== id);
-                userList.unshift(record);
-                localStorage.setItem('happynation_senai_' + email, JSON.stringify(userList));
-            } catch(e) {}
-
-            // Salva no Supabase se disponível
-            try {
-                if (window.sbClient) {
-                    await window.sbClient.from('certificados_senai').insert([record]);
+                // Remove temporariamente zoom e transição CSS para captura 1:1 pixel-perfect
+                if (wrapper) {
+                    wrapper.style.transition = 'none';
+                    wrapper.style.transform = 'none';
                 }
-            } catch(e) {}
 
-            // Gera e baixa o PDF
-            const sheet = document.getElementById('certSheet');
-            if (sheet) {
-                const wrapper = document.getElementById('docZoomWrapper');
-                const prevTransform = wrapper.style.transform;
-                wrapper.style.transform = 'scale(1)';
+                // Oculta marcas d'água de prévia e desbloqueia o QR Code para o PDF
+                if (prevWm) prevWm.style.display = 'none';
+                if (offWm) offWm.style.display = 'none';
+                if (lockOv) lockOv.style.display = 'none';
+                if (qrInner) {
+                    qrInner.style.filter = 'none';
+                    qrInner.style.opacity = '1';
+                    qrInner.style.pointerEvents = 'auto';
+                }
 
+                // Aguarda 160ms para recalcular o DOM e os nós gráficos
+                await new Promise(r => setTimeout(r, 160));
+
+                const sheet = document.getElementById('certSheet');
+                if (!sheet) throw new Error('Folha do certificado não encontrada no DOM.');
+
+                // Renderiza folha A4 em altíssima definição (scale 2.5)
+                const canvas = await html2canvas(sheet, {
+                    scale: 2.5,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: 800,
+                    height: 1131,
+                    windowWidth: 800,
+                    windowHeight: 1131,
+                    logging: false
+                });
+
+                // Resolve construtor jsPDF com suporte universal
+                const JsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+                if (!JsPDF) throw new Error('Biblioteca jsPDF não carregada.');
+
+                const pdf = new JsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                // A4 oficial: 210mm x 297mm
+                pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, '', 'FAST');
+
+                const safeAluno = nome.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                const filename = `certificado_senai_${safeAluno}.pdf`;
+
+                // Download oficial via Blob (garante compatibilidade mobile, desktop e contorna bloqueios de popup)
                 try {
-                    const canvas = await html2canvas(sheet, {
-                        scale: 2,
-                        useCORS: true,
-                        allowTaint: true,
-                        backgroundColor: '#ffffff'
-                    });
-
-                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
-                    const { jsPDF } = window.jspdf;
-                    const pdf = new jsPDF({
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4'
-                    });
-
-                    pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, '', 'FAST');
-                    const nomeAluno = nome.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-                    pdf.save(`certificado_senai_${nomeAluno}.pdf`);
-                } catch(e) {
-                    console.error('Erro ao gerar PDF:', e);
-                    alert('Erro ao exportar PDF. Tente novamente.');
-                } finally {
-                    wrapper.style.transform = prevTransform;
+                    const blob = pdf.output('blob');
+                    const blobUrl = URL.createObjectURL(blob);
+                    const dlLink = document.createElement('a');
+                    dlLink.href = blobUrl;
+                    dlLink.download = filename;
+                    document.body.appendChild(dlLink);
+                    dlLink.click();
+                    setTimeout(() => { dlLink.remove(); URL.revokeObjectURL(blobUrl); }, 4000);
+                } catch (eBlob) {
+                    pdf.save(filename);
                 }
-            }
 
-            if (btn) btn.disabled = false;
-            if (txt) txt.textContent = 'Baixar Novamente — Certificado SENAI';
+                // 2. Remove as marcas d'água DEFINITIVAMENTE da tela após a emissão
+                documentAlreadyEmitted = true;
+                if (prevWm) prevWm.remove();
+                if (offWm) offWm.remove();
+                if (lockOv) lockOv.remove();
+
+                const record = {
+                    id: id,
+                    nome: nome,
+                    cpf: cpf,
+                    rg: rg,
+                    orgao: orgao,
+                    curso: curso,
+                    dataInicio: dataInicio,
+                    dataFim: dataFim,
+                    carga: carga,
+                    data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    created_at: new Date().toISOString(),
+                    status: 'Ativo'
+                };
+
+                // Salva no storage local
+                try {
+                    let list = JSON.parse(localStorage.getItem('senai_historico') || '[]');
+                    list = list.filter(item => item.id !== id);
+                    list.unshift(record);
+                    localStorage.setItem('senai_historico', JSON.stringify(list));
+
+                    let u = {};
+                    try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+                    const email = (u.email || 'admin@mgeditaveis.com.br').toLowerCase().trim();
+                    let userList = JSON.parse(localStorage.getItem('happynation_senai_' + email) || '[]');
+                    userList = userList.filter(item => item.id !== id);
+                    userList.unshift(record);
+                    localStorage.setItem('happynation_senai_' + email, JSON.stringify(userList));
+                } catch(e) {}
+
+                // Salva no Supabase se cliente e tabela disponíveis (sem travar)
+                try {
+                    const client = window.supabaseInstance || window.supabaseClient;
+                    if (client) {
+                        client.from('certificados_senai').insert([record]).then(() => {}).catch(() => {});
+                    }
+                } catch(e) {}
+
+                // 3. Desconta saldo (apenas na 1ª emissão do documento)
+                if (!wasAlreadyEmitted) {
+                    if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
+                        window.MGSaldo.deduct(20.00, {
+                            tipo: 'certificado_senai',
+                            descricao: String(nome).toUpperCase(),
+                            subRotulo: 'SENAI Nacional'
+                        });
+                    }
+                }
+            } catch(e) {
+                console.error('Erro ao gerar PDF do Certificado SENAI:', e);
+                alert('Erro ao exportar PDF: ' + (e.message || 'Falha ao processar').toString());
+            } finally {
+                if (wrapper) {
+                    wrapper.style.transition = origTransition;
+                    wrapper.style.transform = origTransform;
+                }
+                if (btn) btn.disabled = false;
+                if (txt) txt.textContent = 'Baixar Novamente — Certificado SENAI';
+            }
         }
 
         async function baixarPdfDireto() {
@@ -1971,25 +2016,41 @@
             const sheet = document.getElementById('certSheet');
             if (!sheet) return;
             const wrapper = document.getElementById('docZoomWrapper');
-            const prevTransform = wrapper.style.transform;
-            wrapper.style.transform = 'scale(1)';
+            const prevTransform = wrapper ? wrapper.style.transform : '';
+            const prevTransition = wrapper ? wrapper.style.transition : '';
+            if (wrapper) {
+                wrapper.style.transition = 'none';
+                wrapper.style.transform = 'none';
+            }
+            await new Promise(r => setTimeout(r, 120));
+
             try {
                 const canvas = await html2canvas(sheet, {
-                    scale: 2,
+                    scale: 2.5,
                     useCORS: true,
                     allowTaint: true,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    width: 800,
+                    height: 1131,
+                    windowWidth: 800,
+                    windowHeight: 1131,
+                    logging: false
                 });
                 const link = document.createElement('a');
-                const nome = (document.getElementById('inpNome').value.trim() || DEFAULT_DATA.nome).replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                const nome = (document.getElementById('inpNome')?.value.trim() || DEFAULT_DATA.nome).replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
                 link.download = `certificado_senai_${nome}.png`;
                 link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
                 link.click();
+                setTimeout(() => link.remove(), 2000);
             } catch(e) {
                 console.error('Erro ao baixar PNG:', e);
                 alert('Erro ao gerar imagem PNG.');
             } finally {
-                wrapper.style.transform = prevTransform;
+                if (wrapper) {
+                    wrapper.style.transition = prevTransition;
+                    wrapper.style.transform = prevTransform;
+                }
             }
         }
 
