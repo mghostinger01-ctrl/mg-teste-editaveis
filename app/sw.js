@@ -1,5 +1,5 @@
 // Service Worker Oficial para PWA CNH Digital
-const CACHE_NAME = 'cnh-digital-v2';
+const CACHE_NAME = 'cnh-digital-v3';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
