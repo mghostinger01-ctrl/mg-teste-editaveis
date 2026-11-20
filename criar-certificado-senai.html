@@ -1015,32 +1015,33 @@
                 </div>
             </div>
 
-            <!-- CONTROLE DE MARCA D'ÁGUA -->
-            <div class="form-group" style="margin-top:14px; background:#181c1d; padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
-                <label class="form-label" style="margin-bottom:6px;">Controle de Marca d'Água</label>
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#cbd5e1; cursor:pointer;">
-                        <input type="checkbox" id="chkWatermarkOficial" checked onchange="toggleWatermarkOficial(this.checked)" style="accent-color:#00dc82;">
-                        <span>Marca d'Água Oficial SENAI (Fundo de Segurança)</span>
-                    </label>
-                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#cbd5e1; cursor:pointer;">
-                        <input type="checkbox" id="chkWatermarkPrevia" checked onchange="toggleWatermarkPrevia(this.checked)" style="accent-color:#00dc82;">
-                        <span>Marca d'Água de Prévia (desaparece ao gerar PDF)</span>
-                    </label>
-                </div>
-            </div>
-
             <div class="form-group" style="margin-top:10px;">
                 <label class="form-label" for="inpQrUrl">Link de Validação (Domínio do QR Code)</label>
                 <input type="text" id="inpQrUrl" class="form-input" value="https://fieborg-br-senai.vercel.app" oninput="updateCertificado()">
             </div>
 
-            <!-- AÇÃO PRINCIPAL DE EMISSÃO -->
-            <div class="form-actions">
-                <button type="button" class="btn-action-primary btn-gerar" id="btnExportPdf" onclick="gerarCertificadoPdf()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    <span id="btnGerarTxt">Gerar PDF — Certificado SENAI</span>
+            <!-- AÇÕES DE EMISSÃO -->
+            <div class="form-actions" style="margin-top:18px; display:flex; flex-direction:column; gap:10px;">
+                <button type="button" class="btn-action-primary btn-gerar" id="btnExportPdf" onclick="gerarCertificadoPdf()" style="background:#005caa; border:none; color:#ffffff; font-weight:700; width:100%; padding:14px 20px; border-radius:10px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; font-size:15px; box-shadow:0 4px 18px rgba(0,92,170,0.35); transition:all 0.2s;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span id="btnGerarTxt">Salvar e Gerar Certificado SENAI (R$ 20,00)</span>
                 </button>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <button type="button" class="btn-action-secondary" onclick="baixarImagemPng()" style="background:#141718; border:1px solid #232729; color:#e2e8f0; padding:12px 14px; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>Baixar Imagem PNG</span>
+                    </button>
+                    <button type="button" class="btn-action-secondary" onclick="baixarPdfDireto()" style="background:#141718; border:1px solid #232729; color:#e2e8f0; padding:12px 14px; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <span>Baixar PDF A4</span>
+                    </button>
+                </div>
+
+                <a href="certificados-senai.html" style="background:#141718; border:1px solid #232729; color:#94a3b8; padding:12px 14px; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none;">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>Ver Certificados Emitidos (Histórico)</span>
+                </a>
             </div>
         </section>
 
@@ -1541,15 +1542,7 @@
             }).join('');
         }
 
-        function toggleWatermarkOficial(show) {
-            const el = document.getElementById('certOfficialWatermark');
-            if (el) el.style.display = show ? 'flex' : 'none';
-        }
-
-        function toggleWatermarkPrevia(show) {
-            const el = document.getElementById('previewWatermarkOverlay');
-            if (el) el.style.display = show ? 'flex' : 'none';
-        }
+        let documentAlreadyEmitted = false;
 
         function preencherExemploOficial() {
             document.getElementById('inpNome').value = DEFAULT_DATA.nome;
@@ -1569,12 +1562,12 @@
             updateCertificado();
         }
 
-        // ─── GERAR PDF E SALVAR NO HISTÓRICO (PADRÃO OFICIAL) ───
+        // ─── GERAR PDF, DESCONTAR SALDO E REMOVER MARCA D'ÁGUA ───
         async function gerarCertificadoPdf() {
             const btn = document.getElementById('btnExportPdf');
             const txt = document.getElementById('btnGerarTxt');
             if (btn) btn.disabled = true;
-            if (txt) txt.textContent = 'Gerando PDF Oficial...';
+            if (txt) txt.textContent = 'Processando...';
 
             const nome = document.getElementById('inpNome').value.trim() || DEFAULT_DATA.nome;
             const cpf = document.getElementById('inpCpf').value.trim() || DEFAULT_DATA.cpf;
@@ -1585,6 +1578,40 @@
             const dataFim = document.getElementById('inpDataFim').value.trim() || DEFAULT_DATA.dataFim;
             const carga = document.getElementById('inpCarga').value.trim() || DEFAULT_DATA.carga;
             const id = 'SENAI' + Math.floor(100000 + Math.random() * 900000);
+
+            // 1. Verificação de Saldo e Dedução (R$ 20,00)
+            if (!documentAlreadyEmitted) {
+                const rawCusto = 20.00;
+                const custoCert = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') 
+                    ? window.MGSaldo.calcDiscount(rawCusto) 
+                    : rawCusto;
+                const userSaldo = (window.MGSaldo ? window.MGSaldo.get() : 0);
+                if (custoCert > 0 && userSaldo < custoCert) {
+                    alert(`⚠️ Saldo insuficiente!\n\nVocê possui ${window.MGSaldo ? window.MGSaldo.format(userSaldo) : 'R$ 0,00'} e a emissão do Certificado SENAI custa R$ ${custoCert.toFixed(2).replace('.', ',')}.\n\nRedirecionando para a página de recargas...`);
+                    window.location.href = 'recargas.html';
+                    if (btn) btn.disabled = false;
+                    if (txt) txt.textContent = 'Salvar e Gerar Certificado SENAI (R$ 20,00)';
+                    return;
+                }
+
+                // Desconta do saldo
+                if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
+                    await window.MGSaldo.deduct(20.00, {
+                        tipo: 'certificado_senai',
+                        descricao: String(nome).toUpperCase(),
+                        subRotulo: 'SENAI Nacional'
+                    });
+                }
+                documentAlreadyEmitted = true;
+            }
+
+            // 2. Remove as marcas d'água DEFINITIVAMENTE da tela e do documento
+            const prevWm = document.getElementById('previewWatermarkOverlay');
+            if (prevWm) prevWm.remove();
+            const offWm = document.getElementById('certOfficialWatermark');
+            if (offWm) offWm.remove();
+
+            if (txt) txt.textContent = 'Gerando PDF Oficial...';
 
             const record = {
                 id: id,
@@ -1624,11 +1651,6 @@
                 }
             } catch(e) {}
 
-            // Oculta temporariamente a marca d'água de prévia para que o PDF gerado seja 100% oficial e limpo
-            const prevWm = document.getElementById('previewWatermarkOverlay');
-            const chkPrevia = document.getElementById('chkWatermarkPrevia');
-            if (prevWm) prevWm.style.display = 'none';
-
             // Gera e baixa o PDF
             const sheet = document.getElementById('certSheet');
             if (sheet) {
@@ -1660,14 +1682,48 @@
                     alert('Erro ao exportar PDF. Tente novamente.');
                 } finally {
                     wrapper.style.transform = prevTransform;
-                    if (prevWm && chkPrevia && chkPrevia.checked) {
-                        prevWm.style.display = 'flex';
-                    }
                 }
             }
 
             if (btn) btn.disabled = false;
-            if (txt) txt.textContent = 'Gerar PDF — Certificado SENAI';
+            if (txt) txt.textContent = 'Baixar Novamente — Certificado SENAI';
+        }
+
+        async function baixarPdfDireto() {
+            await gerarCertificadoPdf();
+        }
+
+        async function baixarImagemPng() {
+            if (!documentAlreadyEmitted) {
+                const conf = confirm("Para baixar a imagem oficial sem marca d'água, é necessário emitir o Certificado SENAI (R$ 20,00).\n\nDeseja emitir e descontar do saldo agora?");
+                if (!conf) return;
+                await gerarCertificadoPdf();
+                return;
+            }
+
+            const sheet = document.getElementById('certSheet');
+            if (!sheet) return;
+            const wrapper = document.getElementById('docZoomWrapper');
+            const prevTransform = wrapper.style.transform;
+            wrapper.style.transform = 'scale(1)';
+            try {
+                const canvas = await html2canvas(sheet, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+                const link = document.createElement('a');
+                const nome = (document.getElementById('inpNome').value.trim() || DEFAULT_DATA.nome).replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                link.download = `certificado_senai_${nome}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch(e) {
+                console.error('Erro ao baixar PNG:', e);
+                alert('Erro ao gerar imagem PNG.');
+            } finally {
+                wrapper.style.transform = prevTransform;
+            }
         }
 
         // ─── AVATAR E USUÁRIO ───
@@ -1733,6 +1789,14 @@
                     }
                 }
                 if (record) {
+                    documentAlreadyEmitted = true;
+                    const prevWm = document.getElementById('previewWatermarkOverlay');
+                    if (prevWm) prevWm.remove();
+                    const offWm = document.getElementById('certOfficialWatermark');
+                    if (offWm) offWm.remove();
+                    const txt = document.getElementById('btnGerarTxt');
+                    if (txt) txt.textContent = 'Salvar Alterações e Gerar PDF';
+
                     if (record.nome) document.getElementById('inpNome').value = record.nome;
                     if (record.cpf) document.getElementById('inpCpf').value = record.cpf;
                     if (record.rg) document.getElementById('inpRg').value = record.rg;
