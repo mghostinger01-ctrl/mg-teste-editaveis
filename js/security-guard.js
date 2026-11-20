@@ -352,110 +352,172 @@
         }
         e.preventDefault();
         return false;
-    }, { capture: true });
+    }, { capture: true, passive: false });
 
     // 10. BLOQUEIO DE ARRASTAR ELEMENTOS E IMAGENS
     window.addEventListener('dragstart', function(e) {
         e.preventDefault();
         e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
         return false;
-    }, { capture: true });
+    }, { capture: true, passive: false });
 
-    // 11. BLOQUEIO DE TECLAS DE ATALHO DE CÓPIA, INSPEÇÃO E SALVAMENTO
-    window.addEventListener('keydown', function(e) {
+    // 11. SUPABASE CLOUD & IDENTIFICAÇÃO DE IP DO CLIENTE
+    const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+    const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
+
+    let cachedClientIp = null;
+    function fetchClientIp() {
+        if (cachedClientIp && cachedClientIp !== 'desconhecido') {
+            return Promise.resolve(cachedClientIp);
+        }
+        try {
+            const st = sessionStorage.getItem('mg_client_ip') || localStorage.getItem('mg_client_ip');
+            if (st && st !== 'desconhecido') {
+                cachedClientIp = st;
+                return Promise.resolve(st);
+            }
+        } catch(e) {}
+
+        return fetch('https://api.ipify.org?format=json')
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d && d.ip) {
+                    cachedClientIp = d.ip;
+                    try {
+                        sessionStorage.setItem('mg_client_ip', d.ip);
+                        localStorage.setItem('mg_client_ip', d.ip);
+                    } catch(e) {}
+                    return d.ip;
+                }
+                return 'desconhecido';
+            })
+            .catch(function() {
+                return fetch('https://api64.ipify.org?format=json')
+                    .then(function(r) { return r.json(); })
+                    .then(function(d) {
+                        if (d && d.ip) {
+                            cachedClientIp = d.ip;
+                            try {
+                                sessionStorage.setItem('mg_client_ip', d.ip);
+                                localStorage.setItem('mg_client_ip', d.ip);
+                            } catch(e) {}
+                            return d.ip;
+                        }
+                        return 'desconhecido';
+                    })
+                    .catch(function() { return 'desconhecido'; });
+            });
+    }
+
+    // Pré-carrega o IP silenciosamente
+    fetchClientIp();
+
+    // 12. BLOQUEIO RIGOROSO DE TECLAS DE ATALHO DE CÓPIA, INSPEÇÃO E SALVAMENTO
+    function handleKeydownSecurity(e) {
         const isCtrlOrMeta = e.ctrlKey || e.metaKey;
         const key = e.key ? e.key.toUpperCase() : '';
+        const code = e.code ? e.code.toUpperCase() : '';
         const keyCode = e.keyCode || e.which;
         const target = e.target;
-        const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
+        const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
 
         // Se já estiver bloqueado, anula qualquer atalho
         if (isSecurityLocked()) {
             e.preventDefault();
             e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
             return false;
         }
 
-        // Ctrl+C fora de input
-        if (isCtrlOrMeta && key === 'C' && !isInput) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-
-        // Ctrl+V fora de input
-        if (isCtrlOrMeta && key === 'V' && !isInput) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-
-        // Ctrl+A fora de input
-        if (isCtrlOrMeta && key === 'A' && !isInput) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-
-        // PRINT SCREEN É 100% LIBERADO
+        // PrintScreen é 100% liberado para capturas normais
         if (key === 'PRINTSCREEN' || keyCode === 44) {
             return true;
         }
 
         // F12 (DevTools)
-        if (key === 'F12' || keyCode === 123) {
+        if (key === 'F12' || keyCode === 123 || code === 'F12') {
             if (isExemptAdmin()) return true;
             e.preventDefault();
             e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
             triggerSecurityLockout('Tentativa de abertura do DevTools (F12)');
             return false;
         }
 
-        // Ctrl+Shift+I / Meta+Alt+I (Inspecionar)
-        if (isCtrlOrMeta && (e.shiftKey || e.altKey) && (key === 'I' || keyCode === 73)) {
+        // Ctrl+U (Ver Código Fonte) - INTERCEPTAÇÃO E BLOQUEIO INSTANTÂNEO DE IP
+        if (isCtrlOrMeta && (key === 'U' || keyCode === 85 || code === 'KEYU')) {
             if (isExemptAdmin()) return true;
             e.preventDefault();
             e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+            triggerSecurityLockout('Tentativa de visualização do código-fonte (Ctrl+U)');
+            return false;
+        }
+
+        // Ctrl+Shift+I / Meta+Alt+I (Inspecionar Elemento)
+        if (isCtrlOrMeta && (e.shiftKey || e.altKey) && (key === 'I' || keyCode === 73 || code === 'KEYI')) {
+            if (isExemptAdmin()) return true;
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
             triggerSecurityLockout('Tentativa de inspeção de elemento (Ctrl+Shift+I)');
             return false;
         }
 
-        // Ctrl+Shift+J / Meta+Alt+J (Console)
-        if (isCtrlOrMeta && (e.shiftKey || e.altKey) && (key === 'J' || keyCode === 74)) {
+        // Ctrl+Shift+J / Meta+Alt+J (Console do Navegador)
+        if (isCtrlOrMeta && (e.shiftKey || e.altKey) && (key === 'J' || keyCode === 74 || code === 'KEYJ')) {
             if (isExemptAdmin()) return true;
             e.preventDefault();
             e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
             triggerSecurityLockout('Tentativa de abertura do console (Ctrl+Shift+J)');
             return false;
         }
 
         // Ctrl+Shift+C / Meta+Alt+C (Seletor de elementos)
-        if (isCtrlOrMeta && (e.shiftKey || e.altKey) && (key === 'C' || keyCode === 67)) {
+        if (isCtrlOrMeta && (e.shiftKey || e.altKey) && (key === 'C' || keyCode === 67 || code === 'KEYC')) {
             if (isExemptAdmin()) return true;
             e.preventDefault();
             e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
             triggerSecurityLockout('Tentativa de inspeção de código (Ctrl+Shift+C)');
             return false;
         }
 
-        // Ctrl+U / Meta+U (Ver Código Fonte)
-        if (isCtrlOrMeta && (key === 'U' || keyCode === 85)) {
-            if (isExemptAdmin()) return true;
+        // Ctrl+S / Meta+S (Salvar Página como arquivo)
+        if (isCtrlOrMeta && (key === 'S' || keyCode === 83 || code === 'KEYS')) {
             e.preventDefault();
             e.stopPropagation();
-            triggerSecurityLockout('Tentativa de visualização do código-fonte (Ctrl+U)');
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
             return false;
         }
 
-        // Ctrl+S / Meta+S (Salvar Página)
-        if (isCtrlOrMeta && (key === 'S' || keyCode === 83)) {
+        // Ctrl+P / Meta+P (Imprimir página pelo browser)
+        if (isCtrlOrMeta && (key === 'P' || keyCode === 80 || code === 'KEYP')) {
             e.preventDefault();
             e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
             return false;
         }
-    }, { capture: true });
 
-    // 12. PROTEÇÃO DENTRO DE IFRAMES DO SISTEMA
+        // Bloqueio de Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+X fora de campos de texto
+        if (isCtrlOrMeta && !isInput) {
+            if (key === 'C' || key === 'V' || key === 'A' || key === 'X' ||
+                keyCode === 67 || keyCode === 86 || keyCode === 65 || keyCode === 88) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+                return false;
+            }
+        }
+    }
+
+    // Registra listener no window e document em fase de captura
+    window.addEventListener('keydown', handleKeydownSecurity, { capture: true, passive: false });
+    document.addEventListener('keydown', handleKeydownSecurity, { capture: true, passive: false });
+
+    // 13. PROTEÇÃO DENTRO DE TODOS OS IFRAMES DO SISTEMA
     function protectIframe(ifr) {
         try {
             const doc = ifr.contentDocument || (ifr.contentWindow && ifr.contentWindow.document);
@@ -480,11 +542,15 @@
 
             ['contextmenu', 'dragstart', 'copy', 'cut', 'selectstart'].forEach(function(evName) {
                 doc.addEventListener(evName, function(e) {
+                    const tg = e.target;
+                    if (tg && (tg.tagName === 'INPUT' || tg.tagName === 'TEXTAREA' || tg.isContentEditable)) return;
                     e.preventDefault();
                     e.stopPropagation();
                     return false;
                 }, { capture: true, passive: false });
             });
+
+            doc.addEventListener('keydown', handleKeydownSecurity, { capture: true, passive: false });
         } catch(e) {}
     }
 
@@ -495,7 +561,7 @@
     window.addEventListener('load', protectAllIframes);
     setInterval(protectAllIframes, 1500);
 
-    // 13. EXECUÇÃO DO BLOQUEIO E REGISTRO DE VIOLAÇÃO
+    // 14. EXECUÇÃO DO BLOQUEIO INSTANTÂNEO & REGISTRO DE VIOLAÇÃO POR IP
     let lockoutTriggered = false;
 
     function triggerSecurityLockout(reason) {
@@ -508,29 +574,7 @@
             userEmail = user.email || '';
         } catch(e) {}
 
-        const payload = JSON.stringify({
-            motivo: reason,
-            user_email: userEmail,
-            url: window.location.href,
-            ua: navigator.userAgent
-        });
-
-        const apiUrl = (window.location.pathname.includes('/app/') ? '../api/index.php' : 'api/index.php') + '?action=registrar_violacao_ip';
-
-        if (navigator.sendBeacon) {
-            navigator.sendBeacon(apiUrl, payload);
-        } else {
-            try {
-                fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: payload,
-                    keepalive: true
-                });
-            } catch(e) {}
-        }
-
-        // Persiste o bloqueio em múltiplas camadas para impossibilitar desvio
+        // 1. Bloqueia localmente IMEDIATAMENTE (mesmo milissegundo)
         try {
             localStorage.setItem('mg_security_lockout', '1');
             localStorage.setItem('mg_security_reason', reason);
@@ -551,11 +595,43 @@
         // Trava o histórico do navegador imediatamente
         trapBrowserHistory();
 
-        // Renderiza o modal diretamente na tela atual (SEM redirecionar, mantendo o usuário travado)
+        // Renderiza o modal de bloqueio imediatamente
         renderLockoutModal(reason);
+
+        // 2. Registra o IP na tabela ips_bloqueados do Supabase Cloud em tempo real
+        fetchClientIp().then(function(clientIp) {
+            const bodyPayload = {
+                ip: clientIp || 'desconhecido',
+                motivo: reason || 'Violação de segurança',
+                user_email: userEmail,
+                data: new Date().toISOString()
+            };
+
+            fetch(SUP_URL + '/rest/v1/ips_bloqueados', {
+                method: 'POST',
+                headers: {
+                    'apikey': SUP_KEY,
+                    'Authorization': 'Bearer ' + SUP_KEY,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'resolution=merge-duplicates'
+                },
+                body: JSON.stringify(bodyPayload)
+            }).catch(function() {});
+
+            // Notifica também api PHP caso esteja em servidor LAMP/Hostinger
+            const apiUrl = (window.location.pathname.includes('/app/') ? '../api/index.php' : 'api/index.php') + '?action=registrar_violacao_ip';
+            try {
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyPayload),
+                    keepalive: true
+                }).catch(function() {});
+            } catch(e) {}
+        });
     }
 
-    // 14. RENDERIZAÇÃO DO MODAL IMPERMEÁVEL
+    // 15. RENDERIZAÇÃO DO MODAL IMPERMEÁVEL
     function renderLockoutModal(reason) {
         if (isExemptAdmin()) return;
 
@@ -594,8 +670,8 @@
                 </div>
                 <div class="mg-security-title">Acesso Bloqueado por Violação</div>
                 <div class="mg-security-text">
-                    Detectamos uma tentativa de inspeção de código-fonte, atalhos de depuração ou violação dos protocolos de segurança do sistema.<br><br>
-                    Por medidas de proteção dos dados, <strong>seu acesso foi cancelado e seu endereço IP foi bloqueado automaticamente</strong>.
+                    Detectamos uma tentativa de inspeção de código-fonte (Ctrl+U, DevTools ou atalhos) ou violação dos protocolos de proteção de dados.<br><br>
+                    Por medidas de segurança, <strong>seu acesso foi cancelado e seu endereço IP foi bloqueado automaticamente no servidor</strong>.
                 </div>
                 <div class="mg-security-reason-box">
                     <strong>Motivo:</strong> <span id="mg-security-reason-text">${escapeHtml(reason || 'Tentativa de visualização de código')}</span>
@@ -623,52 +699,38 @@
             const pwd = prompt('Digite a senha mestre de Administrador para desbloquear o acesso:');
             if (!pwd) return;
 
-            function clearLockoutState() {
-                try {
-                    localStorage.removeItem('mg_security_lockout');
-                    localStorage.removeItem('mg_security_reason');
-                    localStorage.removeItem('mg_security_time');
-                    sessionStorage.removeItem('mg_security_lockout');
-                    sessionStorage.removeItem('mg_security_reason');
-                    document.cookie = 'mg_security_lockout=; path=/; max-age=0; SameSite=Lax';
-                    localStorage.setItem('happynation_is_admin', 'true');
-                    sessionStorage.setItem('happynation_is_admin', 'true');
-                } catch(e) {}
-
-                const m = document.getElementById('mg-security-lockout-modal');
-                if (m) m.remove();
-                if (document.body) document.body.classList.remove('mg-locked-down');
-
+            if (pwd === 'Comida12.@' || pwd === '840169') {
+                fetchClientIp().then(function(ip) {
+                    if (ip && ip !== 'desconhecido') {
+                        fetch(SUP_URL + '/rest/v1/ips_bloqueados?ip=eq.' + encodeURIComponent(ip), {
+                            method: 'DELETE',
+                            headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+                        }).catch(function() {});
+                    }
+                });
+                clearLockoutStateLocally();
+                localStorage.setItem('happynation_is_admin', 'true');
+                sessionStorage.setItem('happynation_is_admin', 'true');
                 alert('Acesso desbloqueado com sucesso! Redirecionando...');
                 window.location.href = window.location.pathname.includes('/app/') ? '../admin.html' : 'admin.html';
+            } else {
+                alert('Senha incorreta! Acesso não autorizado.');
             }
-
-            const apiUrl = (window.location.pathname.includes('/app/') ? '../api/index.php' : 'api/index.php') + '?action=desbloquear_meu_ip';
-            fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ senha: pwd })
-            })
-            .then(r => r.json())
-            .then(res => {
-                if (res && res.status === 'success') {
-                    clearLockoutState();
-                } else {
-                    if (pwd === 'Comida12.@' || pwd === '840169') {
-                        clearLockoutState();
-                    } else {
-                        alert('Senha incorreta! Acesso não autorizado.');
-                    }
-                }
-            })
-            .catch(() => {
-                if (pwd === 'Comida12.@' || pwd === '840169') {
-                    clearLockoutState();
-                } else {
-                    alert('Senha incorreta.');
-                }
-            });
         };
+    }
+
+    function clearLockoutStateLocally() {
+        try {
+            localStorage.removeItem('mg_security_lockout');
+            localStorage.removeItem('mg_security_reason');
+            localStorage.removeItem('mg_security_time');
+            sessionStorage.removeItem('mg_security_lockout');
+            sessionStorage.removeItem('mg_security_reason');
+            document.cookie = 'mg_security_lockout=; path=/; max-age=0; SameSite=Lax';
+        } catch(e) {}
+        const m = document.getElementById('mg-security-lockout-modal');
+        if (m) m.remove();
+        if (document.body) document.body.classList.remove('mg-locked-down');
     }
 
     function escapeHtml(str) {
@@ -681,7 +743,31 @@
             .replace(/'/g, '&#039;');
     }
 
-    // 15. INICIALIZAÇÃO IMEDIATA (EXECUTA ANTES MESMO DO DOMContentLoaded SE POSSÍVEL)
+    // 16. CHECAGEM REMOTA NO SUPABASE CLOUD (SÓ DESBLOQUEIA QUANDO O ADMIN DESBLOQUEAR)
+    function checkRemoteIpBlock() {
+        if (isExemptAdmin()) return;
+        fetchClientIp().then(function(ip) {
+            if (!ip || ip === 'desconhecido') return;
+            fetch(SUP_URL + '/rest/v1/ips_bloqueados?ip=eq.' + encodeURIComponent(ip) + '&select=*', {
+                headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(rows) {
+                if (Array.isArray(rows) && rows.length > 0) {
+                    // IP está ativamente bloqueado na nuvem! Bloqueio total!
+                    triggerSecurityLockout(rows[0].motivo || 'Endereço IP bloqueado por violação de segurança (Administrador)');
+                } else {
+                    // IP foi liberado pelo Administrador no painel! Remove lockout local
+                    if (isSecurityLocked()) {
+                        clearLockoutStateLocally();
+                    }
+                }
+            })
+            .catch(function() {});
+        });
+    }
+
+    // 17. INICIALIZAÇÃO IMEDIATA (EXECUTA ANTES MESMO DO DOMContentLoaded SE POSSÍVEL)
     function checkAndEnforceLockout() {
         if (isExemptAdmin()) return;
         if (isSecurityLocked()) {
@@ -691,27 +777,19 @@
     }
 
     checkAndEnforceLockout();
+    checkRemoteIpBlock();
 
-    // Re-checa no DOMContentLoaded e faz a checagem remota de IP no servidor
+    // Re-checa no DOMContentLoaded e faz a checagem remota de IP no Supabase
     window.addEventListener('DOMContentLoaded', function() {
         checkAndEnforceLockout();
-
-        if (!isSecurityLocked() && !isExemptAdmin()) {
-            const checkUrl = (window.location.pathname.includes('/app/') ? '../api/index.php' : 'api/index.php') + '?action=check_ip_status';
-            fetch(checkUrl)
-                .then(r => r.json())
-                .then(data => {
-                    if (data && data.blocked) {
-                        triggerSecurityLockout(data.motivo || 'IP bloqueado por violação de segurança');
-                    }
-                })
-                .catch(() => {});
-        }
+        checkRemoteIpBlock();
     });
 
     window.mgSecurityGuard = {
         triggerLockout: triggerSecurityLockout,
         showModal: renderLockoutModal,
-        isLocked: isSecurityLocked
+        isLocked: isSecurityLocked,
+        unblockLocally: clearLockoutStateLocally,
+        checkRemote: checkRemoteIpBlock
     };
 })();
