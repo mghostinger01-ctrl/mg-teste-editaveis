@@ -6,6 +6,7 @@
     <script src="js/supabase-client.js"></script>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
 
     <!-- Open Graph / Compartilhamento de Links -->
     <meta property="og:type" content="website">
@@ -1171,9 +1172,13 @@
     function loadCertificadosData() {
         const items = [];
         const seenIds = new Set();
-        let u = {};
-        try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
-        const uEmail = (u.email || '').toLowerCase().trim();
+        const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+            email: '',
+            id: '',
+            isAdmin: false
+        };
+        const uEmail = clientCtx.email;
+        const isAdmin = clientCtx.isAdmin;
         const userSenaiKey = uEmail ? 'happynation_senai_' + uEmail : null;
         const deletedList = JSON.parse(localStorage.getItem('happynation_deleted_senai') || '[]');
 
@@ -1181,17 +1186,17 @@
             if (!item || !item.id) return;
             if (deletedList.includes(item.id)) return;
             if (seenIds.has(item.id)) return;
+
+            // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+            if (!isAdmin && window.DocIsolationGuard) {
+                if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+            }
+
             seenIds.add(item.id);
             items.push(item);
         }
 
-        // 1. Carrega do histórico geral do SENAI
-        try {
-            const hist = JSON.parse(localStorage.getItem('senai_historico') || '[]');
-            if (Array.isArray(hist)) hist.forEach(addIfValid);
-        } catch(e) {}
-
-        // 2. Carrega da chave do usuário
+        // 1. Carrega estritamente da chave do usuário logado
         if (userSenaiKey) {
             try {
                 const list = JSON.parse(localStorage.getItem(userSenaiKey) || '[]');
@@ -1199,84 +1204,32 @@
             } catch(e) {}
         }
 
-        // 3. Carrega de todas as chaves happynation_senai_*
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('happynation_senai_')) {
-                try {
-                    const list = JSON.parse(localStorage.getItem(k) || '[]');
-                    if (Array.isArray(list)) list.forEach(addIfValid);
-                } catch(e) {}
-            }
-        }
-
-        // 4. Carrega do último certificado gerado
+        // 2. Carrega do último certificado se pertencer ao próprio cliente
         try {
             const lastSenai = JSON.parse(localStorage.getItem('happynation_last_senai') || 'null');
-            if (lastSenai) addIfValid(lastSenai);
+            if (lastSenai) {
+                if (isAdmin || (window.DocIsolationGuard && window.DocIsolationGuard.isRecordOwnedByClient(lastSenai, clientCtx))) {
+                    addIfValid(lastSenai);
+                }
+            }
         } catch(e) {}
 
-        // 5. Seed realista se histórico estiver vazio (iguais à foto demonstrada)
-        if (items.length === 0 && deletedList.length === 0) {
-            const seedCertificados = [
-                {
-                    id: 'SENAI-44409',
-                    nome: 'WANDERSON DA SILVA FRANCISCO',
-                    curso: 'Qualificação Profissional em Eletricista Instalador Predial',
-                    carga: '240',
-                    cpf: '053.115.901-90',
-                    rg: '21225232',
-                    orgao: 'SSP',
-                    status: 'Regular (Oficial SENAI)',
-                    created_at: new Date(Date.now() - 3600000 * 2).toISOString()
-                },
-                {
-                    id: 'SENAI-41273',
-                    nome: 'MARIANA SOUZA SILVA',
-                    curso: 'Qualificação Profissional em Técnico de Automação',
-                    carga: '320',
-                    cpf: '382.914.508-42',
-                    rg: '18239011',
-                    orgao: 'SSP',
-                    status: 'Regular (Oficial SENAI)',
-                    created_at: new Date(Date.now() - 3600000 * 5).toISOString()
-                },
-                {
-                    id: 'SENAI-73864',
-                    nome: 'JULIANO GONÇALVES DA SILVA',
-                    curso: 'Qualificação Profissional em Mecânica Industrial',
-                    carga: '280',
-                    cpf: '048.255.856-39',
-                    rg: '14882039',
-                    orgao: 'SSP',
-                    status: 'Regular (Oficial SENAI)',
-                    created_at: new Date(Date.now() - 3600000 * 24).toISOString()
-                },
-                {
-                    id: 'SENAI-61190',
-                    nome: 'FERNANDO CEZAR DA SILVA',
-                    curso: 'Qualificação Profissional em Programador Web',
-                    carga: '240',
-                    cpf: '048.255.856-39',
-                    rg: '21225232',
-                    orgao: 'SSP',
-                    status: 'Regular (Oficial SENAI)',
-                    created_at: new Date(Date.now() - 3600000 * 48).toISOString()
-                },
-                {
-                    id: 'SENAI-86717',
-                    nome: 'ISRAEL SANTOS CARDEAL',
-                    curso: 'Qualificação Profissional em Programador Web',
-                    carga: '240',
-                    cpf: '867.170.195-65',
-                    rg: '2125673908',
-                    orgao: 'SSP',
-                    status: 'Regular (Oficial SENAI)',
-                    created_at: new Date(Date.now() - 3600000 * 72).toISOString()
+        // 3. Apenas para ADMIN: permite carregar chaves legadas e histórico geral
+        if (isAdmin) {
+            try {
+                const hist = JSON.parse(localStorage.getItem('senai_historico') || '[]');
+                if (Array.isArray(hist)) hist.forEach(addIfValid);
+            } catch(e) {}
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith('happynation_senai_') && k !== userSenaiKey) {
+                    try {
+                        const list = JSON.parse(localStorage.getItem(k) || '[]');
+                        if (Array.isArray(list)) list.forEach(addIfValid);
+                    } catch(e) {}
                 }
-            ];
-            seedCertificados.forEach(addIfValid);
-            try { localStorage.setItem('senai_historico', JSON.stringify(seedCertificados)); } catch(e){}
+            }
         }
 
         // Ordenação decrescente: Mais recentes sempre no topo!

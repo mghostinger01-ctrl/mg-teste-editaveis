@@ -28,6 +28,7 @@
     <title>MG Editáveis — Diplomas Universitários Gerados</title>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1372,7 +1373,13 @@
     window.addEventListener('storage', loadLoggedUser);
 
     function loadUserDiplomas(user) {
-        const email = (user && user.email) ? user.email.toLowerCase().trim() : '';
+        const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+            email: (user && user.email) ? user.email.toLowerCase().trim() : '',
+            id: (user && user.id) ? String(user.id) : '',
+            isAdmin: Boolean(user && user.role === 'admin')
+        };
+        const email = clientCtx.email;
+        const isAdmin = clientCtx.isAdmin;
         const userDiplomasKey = email ? ('happynation_diplomas_' + email) : '';
 
         const seenIds = new Set();
@@ -1384,8 +1391,13 @@
             if (!item) return;
             const idStr = String(item.id || item.codigo || item.protocolo || ('DIP-' + Math.floor(10000 + Math.random() * 90000)));
             if (seenIds.has(idStr) || deletedList.includes(idStr)) return;
-            seenIds.add(idStr);
 
+            // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+            if (!isAdmin && window.DocIsolationGuard) {
+                if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+            }
+
+            seenIds.add(idStr);
             items.push({
                 id: idStr,
                 nome: (item.diplomado || item.nome || item.aluno || 'FERNANDO CEZAR DA SILVA').toUpperCase(),
@@ -1399,13 +1411,7 @@
             });
         };
 
-        // 1. Carrega do histórico geral de diplomas
-        try {
-            const hist = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
-            if (Array.isArray(hist)) hist.forEach(addIfValid);
-        } catch(e) {}
-
-        // 2. Carrega da chave do usuário
+        // 1. Carrega estritamente da chave do usuário logado
         if (userDiplomasKey) {
             try {
                 const list = JSON.parse(localStorage.getItem(userDiplomasKey) || '[]');
@@ -1413,79 +1419,37 @@
             } catch(e) {}
         }
 
-        // 3. Carrega de todas as chaves happynation_diplomas_*
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('happynation_diplomas_') && k !== 'happynation_diplomas_history') {
-                try {
-                    const list = JSON.parse(localStorage.getItem(k) || '[]');
-                    if (Array.isArray(list)) list.forEach(addIfValid);
-                } catch(e) {}
-            }
-        }
-
-        // 4. Carrega de happynation_admin_diplomas
-        try {
-            const adminList = JSON.parse(localStorage.getItem('happynation_admin_diplomas') || '[]');
-            if (Array.isArray(adminList)) adminList.forEach(addIfValid);
-        } catch(e) {}
-
-        // 5. Carrega do último diploma gerado
+        // 2. Carrega do último diploma gerado se pertencer ao usuário logado
         try {
             const lastDip = JSON.parse(localStorage.getItem('happynation_last_diploma') || 'null');
-            if (lastDip) addIfValid(lastDip);
+            if (lastDip) {
+                if (isAdmin || (window.DocIsolationGuard && window.DocIsolationGuard.isRecordOwnedByClient(lastDip, clientCtx))) {
+                    addIfValid(lastDip);
+                }
+            }
         } catch(e) {}
 
-        // 6. Se ainda estiver vazio, gera registros realistas no padrão exato da plataforma
-        if (items.length === 0 && deletedList.length === 0) {
-            const seedDiplomas = [
-                {
-                    id: 'DIP-44409',
-                    nome: 'WANDERSON DA SILVA FRANCISCO',
-                    curso: 'BACHARELADO EM ADMINISTRAÇÃO',
-                    cpf: '053.115.901-90',
-                    rg: 'SP- 21225232',
-                    status: 'Regular (Oficial UNINTER)',
-                    dataExp: 'SÃO PAULO, 18 DE MARÇO DE 2027',
-                    hash: '4690.4690.307b7f437a202e7f8d6e7b8b8df7412a3cca666c1a1596a1d26b915fed3fde17',
-                    created_at: new Date(Date.now() - 3600000 * 2).toISOString()
-                },
-                {
-                    id: 'DIP-41273',
-                    nome: 'MARIANA SOUZA SILVA',
-                    curso: 'BACHARELADO EM ENFERMAGEM',
-                    cpf: '382.914.508-42',
-                    rg: 'RJ- 18239011',
-                    status: 'Regular (Oficial UNINTER)',
-                    dataExp: 'SÃO PAULO, 18 DE MARÇO DE 2027',
-                    hash: '4690.4690.307b7f437a202e7f8d6e7b8b8df7412a3cca666c1a1596a1d26b915fed3fde17',
-                    created_at: new Date(Date.now() - 3600000 * 5).toISOString()
-                },
-                {
-                    id: 'DIP-73864',
-                    nome: 'JULIANO GONÇALVES DA SILVA',
-                    curso: 'BACHARELADO EM FARMÁCIA',
-                    cpf: '048.255.856-39',
-                    rg: 'MG- 14882039',
-                    status: 'Regular (Oficial UNINTER)',
-                    dataExp: 'SÃO PAULO, 18 DE MARÇO DE 2027',
-                    hash: '4690.4690.307b7f437a202e7f8d6e7b8b8df7412a3cca666c1a1596a1d26b915fed3fde17',
-                    created_at: new Date(Date.now() - 3600000 * 24).toISOString()
-                },
-                {
-                    id: 'DIP-61190',
-                    nome: 'FERNANDO CEZAR DA SILVA',
-                    curso: 'BACHARELADO EM FARMÁCIA',
-                    cpf: '048.255.856-39',
-                    rg: 'SP- 21225232',
-                    status: 'Regular (Oficial UNINTER)',
-                    dataExp: '18 DE MARÇO DE 2027',
-                    hash: '4690.4690.307b7f437a202e7f8d6e7b8b8df7412a3cca666c1a1596a1d26b915fed3fde17',
-                    created_at: new Date(Date.now() - 3600000 * 48).toISOString()
+        // 3. Apenas para ADMIN: permite carregar registros legados e admin
+        if (isAdmin) {
+            try {
+                const hist = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
+                if (Array.isArray(hist)) hist.forEach(addIfValid);
+            } catch(e) {}
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith('happynation_diplomas_') && k !== userDiplomasKey && k !== 'happynation_diplomas_history') {
+                    try {
+                        const list = JSON.parse(localStorage.getItem(k) || '[]');
+                        if (Array.isArray(list)) list.forEach(addIfValid);
+                    } catch(e) {}
                 }
-            ];
-            seedDiplomas.forEach(addIfValid);
-            try { localStorage.setItem('happynation_diplomas_history', JSON.stringify(seedDiplomas)); } catch(e){}
+            }
+
+            try {
+                const adminList = JSON.parse(localStorage.getItem('happynation_admin_diplomas') || '[]');
+                if (Array.isArray(adminList)) adminList.forEach(addIfValid);
+            } catch(e) {}
         }
 
         allDiplomas = [...items];

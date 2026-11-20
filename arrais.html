@@ -6,6 +6,7 @@
     <script src="js/supabase-client.js"></script>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
     <script src="js/dev-guard.js"></script>
 
     <!-- Open Graph / Meta -->
@@ -442,25 +443,33 @@
     <script>
         function loadHistorico() {
             try {
-                let hist = JSON.parse(localStorage.getItem('happynation_arrais_history') || '[]');
-                
-                // Se estiver vazio, adiciona exemplo baseado no modelo de referência
-                if (hist.length === 0) {
-                    hist = [
-                        {
-                            id: 'CHA899210',
-                            nome: 'FRANCISCO FURTUOSO CAMPOS',
-                            cpf: '01243921137',
-                            categoria: 'ARRAIS AMADOR E MOTONAUTA',
-                            inscricao: '899Q2109653047',
-                            validade: '01/07/2035',
-                            orgao: 'AGÊNCIA FLUVIAL DE GOIÁS',
-                            dataEmissao: '01/07/2025 14:30',
-                            status: 'Regular (Oficial)',
-                            valor: 'R$ 20,00'
+                const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+                    email: '',
+                    id: '',
+                    isAdmin: false
+                };
+                const email = clientCtx.email;
+                const isAdmin = clientCtx.isAdmin;
+                const userKey = email ? ('happynation_arrais_history_' + email) : '';
+
+                let hist = [];
+                if (userKey) {
+                    try {
+                        hist = JSON.parse(localStorage.getItem(userKey) || '[]');
+                    } catch(e) {}
+                }
+
+                if (isAdmin) {
+                    try {
+                        const globalHist = JSON.parse(localStorage.getItem('happynation_arrais_history') || '[]');
+                        if (Array.isArray(globalHist) && globalHist.length > 0 && hist.length === 0) {
+                            hist = globalHist;
                         }
-                    ];
-                    localStorage.setItem('happynation_arrais_history', JSON.stringify(hist));
+                    } catch(e) {}
+                }
+
+                if (!isAdmin && window.DocIsolationGuard) {
+                    hist = hist.filter(item => window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx));
                 }
 
                 document.getElementById('statTotalEmitidos').textContent = hist.length;

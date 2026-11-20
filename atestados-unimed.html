@@ -28,6 +28,7 @@
     <title>MG Editáveis — Atestados Médicos Unimed Emitidos</title>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1373,7 +1374,13 @@
 
     
 function loadUserAtestadosUnimed(user) {
-    const email = (user && user.email) ? user.email.toLowerCase().trim() : '';
+    const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+        email: (user && user.email) ? user.email.toLowerCase().trim() : '',
+        id: (user && user.id) ? String(user.id) : '',
+        isAdmin: Boolean(user && user.role === 'admin')
+    };
+    const email = clientCtx.email;
+    const isAdmin = clientCtx.isAdmin;
     const userKey = email ? ('happynation_atestados_unimed_' + email) : '';
     const fallbackKey = email ? ('happynation_atestados_' + email) : '';
 
@@ -1385,6 +1392,12 @@ function loadUserAtestadosUnimed(user) {
         if (!item) return;
         const idStr = String(item.id || item.codigo || ('ATU-' + Math.floor(10000 + Math.random() * 90000)));
         if (seenIds.has(idStr) || deletedList.includes(idStr)) return;
+
+        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+        if (!isAdmin && window.DocIsolationGuard) {
+            if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        }
+
         seenIds.add(idStr);
 
         items.push({
@@ -1406,7 +1419,7 @@ function loadUserAtestadosUnimed(user) {
         } catch(e) {}
     }
 
-    // Carrega também de happynation_atestados_{email} que sejam unimed
+    // Carrega também de happynation_atestados_{email} que sejam unimed do próprio cliente
     if (fallbackKey) {
         try {
             const fbList = JSON.parse(localStorage.getItem(fallbackKey) || '[]');
@@ -1416,24 +1429,17 @@ function loadUserAtestadosUnimed(user) {
         } catch(e) {}
     }
 
-    for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('happynation_atestados_unimed_')) {
-            try {
-                const list = JSON.parse(localStorage.getItem(k) || '[]');
-                if (Array.isArray(list)) list.forEach(addIfValid);
-            } catch(e) {}
+    // Apenas para ADMIN: permite carregar chaves legadas de outros usuários
+    if (isAdmin) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('happynation_atestados_unimed_') && k !== userKey) {
+                try {
+                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                    if (Array.isArray(list)) list.forEach(addIfValid);
+                } catch(e) {}
+            }
         }
-    }
-
-    // Itens padrão demonstrativos caso ainda não tenha emitido
-    if (items.length === 0) {
-        const demo = [
-            { id: 'ATU-89214', nome: 'FERNANDO CEZAR DA SILVA', cpf: '213.523.218-19', status: 'Oficial Unimed', dias: 3, cid: 'Z00.0', created_at: new Date(Date.now() - 3600000 * 2).toISOString() },
-            { id: 'ATU-89215', nome: 'MARCOS VINICIUS PEREIRA', cpf: '342.109.876-54', status: 'Oficial Unimed', dias: 2, cid: 'J06.9', created_at: new Date(Date.now() - 3600000 * 5).toISOString() },
-            { id: 'ATU-89216', nome: 'BEATRIZ ALMEIDA ROCHA', cpf: '109.876.543-21', status: 'Oficial Unimed', dias: 5, cid: 'M54.5', created_at: new Date(Date.now() - 3600000 * 24).toISOString() }
-        ];
-        demo.forEach(addIfValid);
     }
 
     allAtestados = items;

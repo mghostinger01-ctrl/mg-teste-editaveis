@@ -30,6 +30,7 @@
     <title>MG Editáveis — CNHs Geradas</title>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1795,20 +1796,18 @@ function parseCnhTimestamp(item) {
 }
 
 function loadUserCnhs(user) {
-    const email = (user && user.email) ? user.email.toLowerCase().trim() : '';
-    const userId = (user && user.id) ? user.id : 1;
+    const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+        email: (user && user.email) ? user.email.toLowerCase().trim() : '',
+        id: (user && user.id) ? String(user.id) : '',
+        nome: (user && user.nome) ? user.nome : '',
+        isAdmin: Boolean(user && user.role === 'admin')
+    };
+    const email = clientCtx.email;
+    const isAdmin = clientCtx.isAdmin;
     const userCnhsKey = email ? ('happynation_cnhs_' + email) : '';
 
     const seenIds = new Set();
     const deletedList = JSON.parse(localStorage.getItem('happynation_deleted_cnhs') || '[]');
-
-    // Limpar mock baseline antigo caso tenha sido salvo no localStorage
-    const FAKE_BASELINE_IDS = new Set([
-        "c0921530", "01a4e744", "801c0b56", "647ff4b5", "a4dc5098",
-        "b3037d47", "fc1f5415", "ce46be5b", "cbdefe13", "13c75ce8",
-        "b9e1e3b2", "a2ab74fc", "571d83ea", "cb042216", "27da3f18",
-        "42f1d417", "4ee7bde6", "a4471e16", "ccc0af5c", "64553606"
-    ]);
 
     const items = [];
 
@@ -1817,7 +1816,11 @@ function loadUserCnhs(user) {
         const idStr = String(item.id);
         if (seenIds.has(idStr)) return;
         if (deletedList.includes(idStr)) return;
-        if (FAKE_BASELINE_IDS.has(idStr)) return;
+
+        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+        if (!isAdmin && window.DocIsolationGuard) {
+            if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        }
 
         seenIds.add(idStr);
         const parsedDados = item.dados_json ? (typeof item.dados_json === 'string' ? JSON.parse(item.dados_json) : item.dados_json) : (item.dados || item);
@@ -1838,7 +1841,7 @@ function loadUserCnhs(user) {
         }));
     };
 
-    // 1. Carrega do storage do usuário logado
+    // 1. Carrega do storage isolado do usuário logado
     if (userCnhsKey) {
         try {
             const list = JSON.parse(localStorage.getItem(userCnhsKey) || '[]');
@@ -1846,33 +1849,37 @@ function loadUserCnhs(user) {
         } catch(e) {}
     }
 
-    // 2. Carrega de todas as chaves de usuários locais (happynation_cnhs_*)
-    for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('happynation_cnhs_')) {
-            try {
-                const list = JSON.parse(localStorage.getItem(k) || '[]');
-                if (Array.isArray(list)) list.forEach(addIfValid);
-            } catch(e) {}
+    // 2. Se for ADMIN, permite carregar chaves legadas e admin_cnhs
+    if (isAdmin) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('happynation_cnhs_') && k !== userCnhsKey) {
+                try {
+                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                    if (Array.isArray(list)) list.forEach(addIfValid);
+                } catch(e) {}
+            }
         }
+        try {
+            const adminCnhs = JSON.parse(localStorage.getItem('happynation_admin_cnhs') || '[]');
+            if (Array.isArray(adminCnhs)) adminCnhs.forEach(addIfValid);
+        } catch(e) {}
     }
 
-    // 3. Carrega de happynation_admin_cnhs
-    try {
-        const adminCnhs = JSON.parse(localStorage.getItem('happynation_admin_cnhs') || '[]');
-        if (Array.isArray(adminCnhs)) adminCnhs.forEach(addIfValid);
-    } catch(e) {}
-
-    // 4. Carrega da última CNH criada
+    // 3. Carrega da última CNH criada apenas se pertencer ao usuário logado
     try {
         const lastCnh = JSON.parse(localStorage.getItem('happynation_last_cnh') || 'null');
-        if (lastCnh) addIfValid(lastCnh);
+        if (lastCnh) {
+            if (isAdmin || (window.DocIsolationGuard && window.DocIsolationGuard.isRecordOwnedByClient(lastCnh, clientCtx))) {
+                addIfValid(lastCnh);
+            }
+        }
     } catch(e) {}
 
     allCnhs = [...items].sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
     renderTable();
 
-    // 5. Sincronização direta com Supabase Cloud em tempo real (ordenado por mais recente primeiro)
+    // 4. Sincronização direta com Supabase Cloud filtrada estritamente pelo cliente logado
     const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
     const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
     fetch(SUP_URL + '/rest/v1/cnhs?select=*&order=created_at.desc', {
@@ -1881,36 +1888,34 @@ function loadUserCnhs(user) {
     .then(r => r.json())
     .then(sList => {
         if (Array.isArray(sList)) {
+            // Se NÃO for admin, filtra estritamente para manter APENAS CNHs do próprio cliente
+            if (!isAdmin) {
+                sList = sList.filter(c => window.DocIsolationGuard.isRecordOwnedByClient(c, clientCtx));
+            }
+
             const activeSupIds = new Set(sList.map(c => String(c.id)));
             const activeSupCpfs = new Set(sList.map(c => (c.cpf || '').replace(/\D/g, '')));
 
-            // Limpa do storage local do cliente quaisquer CNHs excluídas no admin
-            for (let i = 0; i < localStorage.length; i++) {
-                const k = localStorage.key(i);
-                if (k && k.startsWith('happynation_cnhs_')) {
-                    try {
-                        let uList = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(uList)) {
-                            uList = uList.filter(c => activeSupIds.has(String(c.id)) || activeSupCpfs.has((c.cpf||'').replace(/\D/g, '')));
-                            localStorage.setItem(k, JSON.stringify(uList));
-                        }
-                    } catch(eKey) {}
-                }
+            // Sincroniza apenas o storage do próprio cliente
+            if (userCnhsKey) {
+                try {
+                    let uList = JSON.parse(localStorage.getItem(userCnhsKey) || '[]');
+                    if (Array.isArray(uList)) {
+                        uList = uList.filter(c => activeSupIds.has(String(c.id)) || activeSupCpfs.has((c.cpf||'').replace(/\D/g, '')));
+                        localStorage.setItem(userCnhsKey, JSON.stringify(uList));
+                    }
+                } catch(eKey) {}
             }
 
-            // Remove da lista em tela CNHs que não constam mais no Supabase
-            allCnhs = allCnhs.filter(c => activeSupIds.has(String(c.id)) || activeSupCpfs.has((c.cpf||'').replace(/\D/g, '')));
-
-            // Adiciona novas CNHs ativas se houver
+            // Adiciona novas CNHs ativas pertencentes ao cliente
             sList.forEach(addIfValid);
-            allCnhs = [...items].filter(c => activeSupIds.has(String(c.id)) || activeSupCpfs.has((c.cpf||'').replace(/\D/g, '')));
-            allCnhs.sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
+            allCnhs = [...items].sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
             renderTable();
         }
     })
     .catch(() => {});
 
-    // 6. Supabase Realtime: se admin excluir CNH, atualiza instantaneamente a tela do cliente
+    // 5. Supabase Realtime: se houver alteração, atualiza com isolamento mantido
     try {
         if (window.supabase && !window._cnhRealtimeSubscribed) {
             window._cnhRealtimeSubscribed = true;

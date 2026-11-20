@@ -30,6 +30,7 @@
     <title>MG Editáveis — Receitas Médicas Unimed</title>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1758,7 +1759,13 @@ function loadLoggedUser() {
 window.addEventListener('storage', loadLoggedUser);
 
 function loadUserReceitas(user) {
-    const email = (user && user.email) ? user.email.toLowerCase().trim() : '';
+    const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+        email: (user && user.email) ? user.email.toLowerCase().trim() : '',
+        id: (user && user.id) ? String(user.id) : '',
+        isAdmin: Boolean(user && user.role === 'admin')
+    };
+    const email = clientCtx.email;
+    const isAdmin = clientCtx.isAdmin;
     const seenIds = new Set();
     let deletedList = [];
     try { deletedList = JSON.parse(localStorage.getItem('happynation_deleted_receitas') || '[]'); } catch(e) {}
@@ -1768,6 +1775,12 @@ function loadUserReceitas(user) {
         if (!item || typeof item !== 'object') return;
         const idStr = String(item.id || item.token || ('rec_' + Date.now()));
         if (seenIds.has(idStr) || deletedList.includes(idStr)) return;
+
+        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+        if (!isAdmin && window.DocIsolationGuard) {
+            if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        }
+
         seenIds.add(idStr);
         items.push({
             id: idStr,
@@ -1786,10 +1799,18 @@ function loadUserReceitas(user) {
             if (Array.isArray(list)) list.forEach(addIfValid);
         } catch(e) {}
     };
+
+    // 1. Carrega estritamente da chave do usuário logado
     if (email) scan('happynation_receitas_' + email);
-    for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('happynation_receitas_')) scan(k);
+
+    // 2. Apenas para ADMIN: permite carregar chaves legadas de outros usuários
+    if (isAdmin) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('happynation_receitas_') && k !== ('happynation_receitas_' + email)) {
+                scan(k);
+            }
+        }
     }
 
     items.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));

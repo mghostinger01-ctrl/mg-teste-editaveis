@@ -30,6 +30,7 @@
     <title>MG Editáveis — Exames Gerados</title>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1775,7 +1776,13 @@ function loadLoggedUser() {
 window.addEventListener('storage', loadLoggedUser);
 
 function loadUserExames(user) {
-    const email = (user && user.email) ? user.email.toLowerCase().trim() : '';
+    const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+        email: (user && user.email) ? user.email.toLowerCase().trim() : '',
+        id: (user && user.id) ? String(user.id) : '',
+        isAdmin: Boolean(user && user.role === 'admin')
+    };
+    const email = clientCtx.email;
+    const isAdmin = clientCtx.isAdmin;
     const userExamesKey = email ? ('happynation_exames_' + email) : '';
 
     const seenIds = new Set();
@@ -1789,6 +1796,11 @@ function loadUserExames(user) {
         if (seenIds.has(idStr)) return;
         if (deletedList.includes(idStr)) return;
 
+        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+        if (!isAdmin && window.DocIsolationGuard) {
+            if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        }
+
         seenIds.add(idStr);
         const resText = (item.resultado || item.resultado_final || item.resultado_texto || 'Negativo para todas as drogas testadas.');
         const isNeg = resText.toLowerCase().includes('negativo');
@@ -1796,21 +1808,21 @@ function loadUserExames(user) {
 
         items.push(Object.assign({}, item, {
             id: idStr,
-            nome: item.nome || item.nomeCondutor || 'JOAO ROSALINO MIRANDA SALES',
-            cpf: item.cpf || '608.256.691-20',
-            laudo: item.laudo || '31528116',
+            nome: item.nome || item.nomeCondutor || 'TITULAR',
+            cpf: item.cpf || '',
+            laudo: item.laudo || '',
             razao: item.razao || '1ª Habilitação',
-            coleta: item.coleta || '15/02/2025',
-            recebimento: item.recebimento || '15/02/2025',
-            resultado_data: item.resultado_data || item.data_resultado || '21/05/2026',
-            validade: item.validade || '21/08/2026',
+            coleta: item.coleta || '',
+            recebimento: item.recebimento || '',
+            resultado_data: item.resultado_data || item.data_resultado || '',
+            validade: item.validade || '',
             resultado_final: resText,
             status: statusClean,
             created_at: item.created_at || new Date().toISOString()
         }));
     };
 
-    // 1. Carrega da chave do usuário
+    // 1. Carrega estritamente da chave do usuário logado
     if (userExamesKey) {
         try {
             const list = JSON.parse(localStorage.getItem(userExamesKey) || '[]');
@@ -1818,45 +1830,32 @@ function loadUserExames(user) {
         } catch(e) {}
     }
 
-    // 2. Carrega de todas as chaves happynation_exames_*
-    for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('happynation_exames_')) {
-            try {
-                const list = JSON.parse(localStorage.getItem(k) || '[]');
-                if (Array.isArray(list)) list.forEach(addIfValid);
-            } catch(e) {}
-        }
-    }
-
-    // 3. Carrega de happynation_admin_exames
-    try {
-        const adminExames = JSON.parse(localStorage.getItem('happynation_admin_exames') || '[]');
-        if (Array.isArray(adminExames)) adminExames.forEach(addIfValid);
-    } catch(e) {}
-
-    // 4. Carrega do último exame
+    // 2. Carrega do último exame se pertencer ao próprio cliente
     try {
         const lastEx = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null');
-        if (lastEx) addIfValid(lastEx);
+        if (lastEx) {
+            if (isAdmin || (window.DocIsolationGuard && window.DocIsolationGuard.isRecordOwnedByClient(lastEx, clientCtx))) {
+                addIfValid(lastEx);
+            }
+        }
     } catch(e) {}
 
-    // Se a lista estiver vazia, adiciona o exame de referência do print para demonstração imediata
-    if (items.length === 0) {
-        items.push({
-            id: 'TOX-31528',
-            nome: 'JOAO ROSALINO MIRANDA SALES',
-            cpf: '608.256.691-20',
-            laudo: '31528116',
-            razao: '1ª Habilitação',
-            coleta: '15/02/2025',
-            recebimento: '15/02/2025',
-            resultado_data: '21/05/2026',
-            validade: '21/08/2026',
-            resultado_final: 'Negativo para todas as drogas testadas.',
-            status: 'Negativo',
-            created_at: new Date().toISOString()
-        });
+    // 3. Apenas para ADMIN: permite carregar chaves legadas e admin
+    if (isAdmin) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('happynation_exames_') && k !== userExamesKey) {
+                try {
+                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                    if (Array.isArray(list)) list.forEach(addIfValid);
+                } catch(e) {}
+            }
+        }
+
+        try {
+            const adminExames = JSON.parse(localStorage.getItem('happynation_admin_exames') || '[]');
+            if (Array.isArray(adminExames)) adminExames.forEach(addIfValid);
+        } catch(e) {}
     }
 
     allExames = [...items];

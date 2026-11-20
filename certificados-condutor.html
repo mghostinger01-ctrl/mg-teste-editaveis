@@ -6,6 +6,7 @@
     <script src="js/supabase-client.js"></script>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
 
     <!-- Open Graph / Compartilhamento de Links -->
     <meta property="og:type" content="website">
@@ -1019,11 +1020,25 @@
         function loadCertificados() {
             let items = [];
             const seen = new Set();
+            const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+                email: '',
+                id: '',
+                isAdmin: false
+            };
+            const email = clientCtx.email;
+            const isAdmin = clientCtx.isAdmin;
+            const userKey = email ? ('happynation_certificados_' + email) : '';
 
             function addIfValid(item) {
                 if (!item) return;
                 const id = String(item.id || item.codigo || item.certNumero || Math.random());
                 if (seen.has(id)) return;
+
+                // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+                if (!isAdmin && window.DocIsolationGuard) {
+                    if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+                }
+
                 seen.add(id);
 
                 items.push({
@@ -1036,25 +1051,31 @@
                 });
             }
 
-            // 1. Carrega de icetran_historico
-            try {
-                const stored = JSON.parse(localStorage.getItem('icetran_historico') || '[]');
-                if (Array.isArray(stored)) stored.forEach(addIfValid);
-            } catch(e) {}
+            // 1. Carrega estritamente da chave do usuário logado
+            if (userKey) {
+                try {
+                    const arr = JSON.parse(localStorage.getItem(userKey) || '[]');
+                    if (Array.isArray(arr)) arr.forEach(addIfValid);
+                } catch(e) {}
+            }
 
-            // 2. Carrega de happynation_certificados_
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_certificados_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(addIfValid);
+            // 2. Apenas para ADMIN: permite carregar chaves legadas e histórico geral
+            if (isAdmin) {
+                try {
+                    const stored = JSON.parse(localStorage.getItem('icetran_historico') || '[]');
+                    if (Array.isArray(stored)) stored.forEach(addIfValid);
+                } catch(e) {}
+
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith('happynation_certificados_') && k !== userKey) {
+                            const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                            if (Array.isArray(arr)) arr.forEach(addIfValid);
+                        }
                     }
-                }
-            } catch(e) {}
-
-            // 3. Fallbacks oficiais (Saulo e Ademir)
-            DEFAULT_ITEMS.forEach(addIfValid);
+                } catch(e) {}
+            }
 
             allCertificados = [...items];
             applyFilters();

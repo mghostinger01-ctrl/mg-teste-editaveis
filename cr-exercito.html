@@ -6,6 +6,7 @@
     <script src="js/supabase-client.js"></script>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
     <script src="js/dev-guard.js"></script>
 
     <!-- Open Graph / Meta -->
@@ -771,11 +772,25 @@
         function loadCRs() {
             let items = [];
             const seen = new Set();
+            const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+                email: '',
+                id: '',
+                isAdmin: false
+            };
+            const email = clientCtx.email;
+            const isAdmin = clientCtx.isAdmin;
+            const userCrKey = email ? ('happynation_cr_' + email) : '';
 
             function addIfValid(item) {
                 if (!item) return;
                 const id = String(item.id || item.codigo || item.crNum || Math.random());
                 if (seen.has(id)) return;
+
+                // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+                if (!isAdmin && window.DocIsolationGuard) {
+                    if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+                }
+
                 seen.add(id);
 
                 items.push({
@@ -795,27 +810,33 @@
                 });
             }
 
-            // 1. Carrega de cr_historico
-            try {
-                const stored = JSON.parse(localStorage.getItem('cr_historico') || '[]');
-                if (Array.isArray(stored)) stored.forEach(addIfValid);
-            } catch(e) {}
+            // 1. Carrega estritamente da chave do usuário logado
+            if (userCrKey) {
+                try {
+                    const stored = JSON.parse(localStorage.getItem(userCrKey) || '[]');
+                    if (Array.isArray(stored)) stored.forEach(addIfValid);
+                } catch(e) {}
+            }
 
-            // 2. Carrega de happynation_cr_
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_cr_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(addIfValid);
+            // 2. Apenas para ADMIN: permite carregar chaves legadas e histórico geral
+            if (isAdmin) {
+                try {
+                    const stored = JSON.parse(localStorage.getItem('cr_historico') || '[]');
+                    if (Array.isArray(stored)) stored.forEach(addIfValid);
+                } catch(e) {}
+
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith('happynation_cr_') && k !== userCrKey) {
+                            const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                            if (Array.isArray(arr)) arr.forEach(addIfValid);
+                        }
                     }
-                }
-            } catch(e) {}
+                } catch(e) {}
+            }
 
-            // 3. Fallback oficial
-            DEFAULT_ITEMS.forEach(addIfValid);
-
-            // 4. ORDENAÇÃO: AS MAIS RECENTES SEMPRE NO TOPO!
+            // 3. ORDENAÇÃO: AS MAIS RECENTES SEMPRE NO TOPO!
             items.sort((a, b) => {
                 const timeA = new Date(a.created_at || a.data).getTime() || 0;
                 const timeB = new Date(b.created_at || b.data).getTime() || 0;

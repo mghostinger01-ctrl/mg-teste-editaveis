@@ -30,6 +30,7 @@
     <title>MG Editáveis — Prontuários Gerados</title>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1766,17 +1767,29 @@ function loadLoggedUser() {
 window.addEventListener('storage', loadLoggedUser);
 
 function loadUserProntuarios(user) {
-    const email = (user && user.email) ? user.email.toLowerCase().trim() : '';
+    const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+        email: (user && user.email) ? user.email.toLowerCase().trim() : '',
+        id: (user && user.id) ? String(user.id) : '',
+        isAdmin: Boolean(user && user.role === 'admin')
+    };
+    const email = clientCtx.email;
+    const isAdmin = clientCtx.isAdmin;
     const userProntuariosKey = email ? ('happynation_prontuarios_' + email) : '';
 
     const seenIds = new Set();
-    const deletedList = JSON.parse(localStorage.getItem('happynation_deleted_rgs') || '[]');
+    const deletedList = JSON.parse(localStorage.getItem('happynation_deleted_prontuarios') || localStorage.getItem('happynation_deleted_rgs') || '[]');
     const items = [];
 
     const addIfValid = (item) => {
         if (!item) return;
-        const idStr = String(item.id || item.codigo || ('ATEST-' + Math.floor(10000 + Math.random() * 90000)));
+        const idStr = String(item.id || item.codigo || ('PRONT-' + Math.floor(10000 + Math.random() * 90000)));
         if (seenIds.has(idStr) || deletedList.includes(idStr)) return;
+
+        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+        if (!isAdmin && window.DocIsolationGuard) {
+            if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        }
+
         seenIds.add(idStr);
 
         items.push({
@@ -1791,7 +1804,7 @@ function loadUserProntuarios(user) {
         });
     };
 
-    // 1. Carrega da chave do usuário
+    // 1. Carrega estritamente da chave do usuário logado
     if (userProntuariosKey) {
         try {
             const list = JSON.parse(localStorage.getItem(userProntuariosKey) || '[]');
@@ -1799,28 +1812,33 @@ function loadUserProntuarios(user) {
         } catch(e) {}
     }
 
-    // 2. Carrega de todas as chaves happynation_prontuarios_*
-    for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('happynation_prontuarios_')) {
-            try {
-                const list = JSON.parse(localStorage.getItem(k) || '[]');
-                if (Array.isArray(list)) list.forEach(addIfValid);
-            } catch(e) {}
+    // 2. Carrega do último prontuário se pertencer ao próprio cliente
+    try {
+        const lastAt = JSON.parse(localStorage.getItem('happynation_last_prontuario') || localStorage.getItem('happynation_last_rg') || 'null');
+        if (lastAt) {
+            if (isAdmin || (window.DocIsolationGuard && window.DocIsolationGuard.isRecordOwnedByClient(lastAt, clientCtx))) {
+                addIfValid(lastAt);
+            }
         }
+    } catch(e) {}
+
+    // 3. Apenas para ADMIN: permite carregar chaves legadas e admin
+    if (isAdmin) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('happynation_prontuarios_') && k !== userProntuariosKey) {
+                try {
+                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                    if (Array.isArray(list)) list.forEach(addIfValid);
+                } catch(e) {}
+            }
+        }
+
+        try {
+            const adminProntuarios = JSON.parse(localStorage.getItem('happynation_admin_prontuarios') || localStorage.getItem('happynation_admin_rgs') || '[]');
+            if (Array.isArray(adminProntuarios)) adminProntuarios.forEach(addIfValid);
+        } catch(e) {}
     }
-
-    // 3. Carrega de happynation_admin_rgs
-    try {
-        const adminProntuarios = JSON.parse(localStorage.getItem('happynation_admin_rgs') || '[]');
-        if (Array.isArray(adminProntuarios)) adminProntuarios.forEach(addIfValid);
-    } catch(e) {}
-
-    // 4. Carrega do último rg
-    try {
-        const lastAt = JSON.parse(localStorage.getItem('happynation_last_rg') || 'null');
-        if (lastAt) addIfValid(lastAt);
-    } catch(e) {}
 
     allProntuarios = [...items];
     renderTable();

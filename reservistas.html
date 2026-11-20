@@ -30,6 +30,7 @@
     <title>MG Editáveis — Certificados de Reservista</title>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1712,7 +1713,13 @@ function loadUserAtestados(user) {
 }
 
 function loadUserReservistas(user) {
-    const email = (user && user.email) ? user.email.toLowerCase().trim() : '';
+    const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+        email: (user && user.email) ? user.email.toLowerCase().trim() : '',
+        id: (user && user.id) ? String(user.id) : '',
+        isAdmin: Boolean(user && user.role === 'admin')
+    };
+    const email = clientCtx.email;
+    const isAdmin = clientCtx.isAdmin;
     const userKey = email ? ('happynation_reservistas_' + email) : '';
 
     const seenIds = new Set();
@@ -1723,6 +1730,12 @@ function loadUserReservistas(user) {
         if (!item) return;
         const idStr = String(item.id || item.ra || ('RES-' + Math.floor(10000 + Math.random() * 90000)));
         if (seenIds.has(idStr) || deletedList.includes(idStr)) return;
+
+        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+        if (!isAdmin && window.DocIsolationGuard) {
+            if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        }
+
         seenIds.add(idStr);
 
         items.push({
@@ -1735,6 +1748,7 @@ function loadUserReservistas(user) {
         });
     };
 
+    // 1. Carrega estritamente da chave do usuário logado
     if (userKey) {
         try {
             const list = JSON.parse(localStorage.getItem(userKey) || '[]');
@@ -1742,29 +1756,32 @@ function loadUserReservistas(user) {
         } catch(e) {}
     }
 
-    for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('happynation_reservistas_')) {
-            try {
-                const list = JSON.parse(localStorage.getItem(k) || '[]');
-                if (Array.isArray(list)) list.forEach(addIfValid);
-            } catch(e) {}
+    // 2. Apenas para ADMIN: permite carregar chaves legadas e atividades
+    if (isAdmin) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('happynation_reservistas_') && k !== userKey) {
+                try {
+                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                    if (Array.isArray(list)) list.forEach(addIfValid);
+                } catch(e) {}
+            }
         }
-    }
 
-    try {
-        const acts = JSON.parse(localStorage.getItem('happynation_admin_activities') || '[]');
-        if (Array.isArray(acts)) {
-            acts.filter(a => a.tipo === 'reservista').forEach(a => {
-                addIfValid({
-                    id: 'RES-' + Math.floor(10000 + Math.random() * 90000),
-                    nome: a.descricao || 'CERTIFICADO DE RESERVISTA',
-                    ra: '53696544',
-                    created_at: a.created_at
+        try {
+            const acts = JSON.parse(localStorage.getItem('happynation_admin_activities') || '[]');
+            if (Array.isArray(acts)) {
+                acts.filter(a => a.tipo === 'reservista').forEach(a => {
+                    addIfValid({
+                        id: 'RES-' + Math.floor(10000 + Math.random() * 90000),
+                        nome: a.descricao || 'CERTIFICADO DE RESERVISTA',
+                        ra: '53696544',
+                        created_at: a.created_at
+                    });
                 });
-            });
-        }
-    } catch(e) {}
+            }
+        } catch(e) {}
+    }
 
     allReservistas = [...items];
     renderTable();

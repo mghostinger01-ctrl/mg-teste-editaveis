@@ -1522,8 +1522,14 @@
         // ─── SALVAR NO HISTÓRICO LOCAL ───
         function salvarHistoricoCha() {
             try {
+                let u = {};
+                try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+                const uEmail = (u.email || '').toLowerCase().trim();
+
                 const item = {
                     id: 'CHA' + Math.floor(100000 + Math.random() * 900000),
+                    user_email: uEmail,
+                    user_id: u.id || 1,
                     nome: document.getElementById('inpNome').value.trim(),
                     cpf: document.getElementById('inpCpf').value.trim(),
                     categoria: document.getElementById('inpCategoria').value.trim(),
@@ -1534,6 +1540,12 @@
                     status: 'Regular (Oficial)',
                     valor: 'R$ 20,00'
                 };
+
+                if (uEmail) {
+                    let userHist = JSON.parse(localStorage.getItem('happynation_arrais_history_' + uEmail) || '[]');
+                    userHist.unshift(item);
+                    localStorage.setItem('happynation_arrais_history_' + uEmail, JSON.stringify(userHist));
+                }
 
                 let hist = JSON.parse(localStorage.getItem('happynation_arrais_history') || '[]');
                 hist.unshift(item);
