@@ -866,7 +866,7 @@
             display: block;
         }
 
-        /* ─── MARCA D'ÁGUA DE PRÉVIA — COBERTURA TOTAL SOBRE O DOCUMENTO ─── */
+        /* ─── MARCA D'ÁGUA DE PRÉVIA — MÚLTIPLOS LOGOS SENAI REPETIDOS NA FOLHA ─── */
         .cert-preview-watermark-overlay {
             position: absolute;
             top: 0;
@@ -878,55 +878,104 @@
             display: flex;
             flex-direction: column;
             justify-content: space-around;
-            align-items: center;
             overflow: hidden;
+            padding: 30px 0;
         }
-        .cert-wm-band {
-            font-size: 26px;
-            font-weight: 900;
-            letter-spacing: 5px;
-            color: rgba(220, 38, 38, 0.16);
-            font-family: Arial, sans-serif;
-            transform: rotate(-24deg);
-            text-transform: uppercase;
-            white-space: nowrap;
-            border-top: 2px dashed rgba(220, 38, 38, 0.22);
-            border-bottom: 2px dashed rgba(220, 38, 38, 0.22);
-            padding: 8px 36px;
-            border-radius: 8px;
+        .cert-wm-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            transform: rotate(-22deg) scale(1.08);
+            opacity: 0.12;
             user-select: none;
+            gap: 20px;
+            white-space: nowrap;
+        }
+        .cert-wm-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #005caa;
+        }
+        .cert-wm-item svg {
+            width: 110px;
+            height: 32px;
+            fill: #005caa;
+        }
+        .cert-wm-item span {
+            font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #005caa;
+            text-transform: uppercase;
+        }
+        .cert-wm-row.text-band {
+            opacity: 0.15;
+            color: #dc2626;
+        }
+        .cert-wm-row.text-band span {
+            font-family: Arial, sans-serif;
+            font-size: 17px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #dc2626;
+            text-transform: uppercase;
         }
 
-        /* ─── QR CODE E LINK NO CANTO INFERIOR DIREITO ─── */
+        /* ─── QR CODE E LINK NO CANTO INFERIOR DIREITO (AMPLIADO, NÍTIDO E COM QUIET ZONE) ─── */
         .cert-qr-container {
             position: absolute;
-            bottom: 48px;
-            right: 76px;
+            bottom: 34px;
+            right: 60px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
+            z-index: 10;
         }
         .cert-qr-box {
-            width: 72px;
-            height: 72px;
+            width: 104px;
+            height: 104px;
             background: #ffffff;
+            padding: 5px;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            box-sizing: border-box;
         }
         .cert-qr-box img, .cert-qr-box canvas {
-            width: 72px !important;
-            height: 72px !important;
+            width: 94px !important;
+            height: 94px !important;
             display: block;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: pixelated;
         }
         .cert-qr-url {
             margin-top: 6px;
             font-family: 'Times New Roman', Georgia, serif;
-            font-size: 11px;
+            font-size: 11.5px;
             color: #1e293b;
             letter-spacing: 0.2px;
             white-space: nowrap;
+        }
+        .qr-lock-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.88);
+            border: 2px dashed #dc2626;
+            border-radius: 6px;
+            pointer-events: none;
+            z-index: 15;
+            box-sizing: border-box;
+            backdrop-filter: blur(1.5px);
         }
     </style>
 </head>
@@ -1184,11 +1233,60 @@
                             </svg>
                         </div>
 
-                        <!-- MARCA D'ÁGUA DE PRÉVIA (COBERTURA TOTAL SOBRE O DOCUMENTO) -->
+                        <!-- MARCA D'ÁGUA DE PRÉVIA — MÚLTIPLOS LOGOS SENAI REPETIDOS NA FOLHA -->
                         <div class="cert-preview-watermark-overlay" id="previewWatermarkOverlay">
-                            <div class="cert-wm-band top">PRÉVIA — NÃO OFICIAL</div>
-                            <div class="cert-wm-band mid">SENAI • NACIONAL</div>
-                            <div class="cert-wm-band btm">DOCUMENTO PENDENTE DE EMISSÃO</div>
+                            <div class="cert-wm-row text-band">
+                                <span>★ PRÉVIA NÃO OFICIAL ★</span>
+                                <span>•</span>
+                                <span>SENAI NACIONAL</span>
+                                <span>•</span>
+                                <span>PRÉVIA NÃO OFICIAL</span>
+                            </div>
+                            <div class="cert-wm-row">
+                                <div class="cert-wm-item">
+                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
+                                    <span>• NÃO OFICIAL</span>
+                                </div>
+                                <div class="cert-wm-item">
+                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
+                                    <span>• NÃO OFICIAL</span>
+                                </div>
+                            </div>
+                            <div class="cert-wm-row">
+                                <div class="cert-wm-item">
+                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
+                                    <span>• PRÉVIA</span>
+                                </div>
+                                <div class="cert-wm-item">
+                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
+                                    <span>• PRÉVIA</span>
+                                </div>
+                            </div>
+                            <div class="cert-wm-row text-band">
+                                <span>DOCUMENTO PENDENTE DE EMISSÃO</span>
+                                <span>•</span>
+                                <span>DESCONTO DO SALDO R$ 20,00</span>
+                            </div>
+                            <div class="cert-wm-row">
+                                <div class="cert-wm-item">
+                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
+                                    <span>• NÃO OFICIAL</span>
+                                </div>
+                                <div class="cert-wm-item">
+                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
+                                    <span>• NÃO OFICIAL</span>
+                                </div>
+                            </div>
+                            <div class="cert-wm-row">
+                                <div class="cert-wm-item">
+                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
+                                    <span>• PRÉVIA</span>
+                                </div>
+                                <div class="cert-wm-item">
+                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
+                                    <span>• PRÉVIA</span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Camada de Conteúdo Dinâmico -->
@@ -1317,21 +1415,59 @@
             renderQrCode(fullQrTarget);
         }
 
+        let lastQrUrl = '';
+
         function renderQrCode(url) {
+            if (url) lastQrUrl = url;
             const container = document.getElementById('qrcodePreview');
             if (!container) return;
             container.innerHTML = '';
+
+            const qrWrap = document.createElement('div');
+            qrWrap.id = 'qrInnerWrap';
+            qrWrap.style.cssText = 'width: 94px; height: 94px; display: flex; align-items: center; justify-content: center;';
+
+            const targetUrl = lastQrUrl || 'https://fieborg-br-senai.vercel.app';
+
             try {
-                qrCodeObj = new QRCode(container, {
-                    text: url || 'https://fieborg-br-senai.vercel.app',
-                    width: 72,
-                    height: 72,
+                qrCodeObj = new QRCode(qrWrap, {
+                    text: targetUrl,
+                    width: 188,
+                    height: 188,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.M
                 });
             } catch(e) {
                 console.error('Erro ao gerar QRCode:', e);
+            }
+
+            container.appendChild(qrWrap);
+
+            // Bloqueio do QR Code na prévia até emissão oficial e desconto do saldo
+            const shouldLock = !documentAlreadyEmitted;
+            if (shouldLock) {
+                qrWrap.style.filter = 'blur(4px)';
+                qrWrap.style.opacity = '0.32';
+                qrWrap.style.pointerEvents = 'none';
+
+                const lockOverlay = document.createElement('div');
+                lockOverlay.id = 'qrLockOverlay';
+                lockOverlay.className = 'qr-lock-overlay';
+                lockOverlay.innerHTML = `
+                    <div style="width:24px; height:24px; border-radius:50%; background:#fee2e2; border:1px solid #fca5a5; display:flex; align-items:center; justify-content:center; margin-bottom:2px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <span style="font-size:8px; font-weight:900; color:#dc2626; letter-spacing:0.4px; line-height:1.1; text-transform:uppercase;">QR CODE<br>BLOQUEADO</span>
+                    <span style="font-size:6px; font-weight:700; color:#991b1b; line-height:1; margin-top:2px;">Liberado ao emitir</span>
+                `;
+                container.appendChild(lockOverlay);
+            } else {
+                qrWrap.style.filter = 'none';
+                qrWrap.style.opacity = '1';
+                qrWrap.style.pointerEvents = 'auto';
+                const oldLock = document.getElementById('qrLockOverlay');
+                if (oldLock) oldLock.remove();
             }
         }
 
@@ -1727,11 +1863,20 @@
                 documentAlreadyEmitted = true;
             }
 
-            // 2. Remove as marcas d'água DEFINITIVAMENTE da tela e do documento
+            // 2. Remove as marcas d'água DEFINITIVAMENTE e desbloqueia o QR Code
+            documentAlreadyEmitted = true;
             const prevWm = document.getElementById('previewWatermarkOverlay');
             if (prevWm) prevWm.remove();
             const offWm = document.getElementById('certOfficialWatermark');
             if (offWm) offWm.remove();
+            const lockOv = document.getElementById('qrLockOverlay');
+            if (lockOv) lockOv.remove();
+            const qrInner = document.getElementById('qrInnerWrap');
+            if (qrInner) {
+                qrInner.style.filter = 'none';
+                qrInner.style.opacity = '1';
+                qrInner.style.pointerEvents = 'auto';
+            }
 
             if (txt) txt.textContent = 'Gerando PDF Oficial...';
 
@@ -1919,6 +2064,14 @@
                     if (prevWm) prevWm.remove();
                     const offWm = document.getElementById('certOfficialWatermark');
                     if (offWm) offWm.remove();
+                    const lockOv = document.getElementById('qrLockOverlay');
+                    if (lockOv) lockOv.remove();
+                    const qrInner = document.getElementById('qrInnerWrap');
+                    if (qrInner) {
+                        qrInner.style.filter = 'none';
+                        qrInner.style.opacity = '1';
+                        qrInner.style.pointerEvents = 'auto';
+                    }
                     const txt = document.getElementById('btnGerarTxt');
                     if (txt) txt.textContent = 'Salvar Alterações e Gerar PDF';
 
