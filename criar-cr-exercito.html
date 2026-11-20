@@ -58,177 +58,183 @@
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            font-family: var(--font-sans);
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text-main);
-            font-family: var(--font-sans);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
             overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
         }
 
-        ::-webkit-scrollbar { width: 7px; height: 7px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: #232729; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #353b3d; }
-
-        /* ─── HEADER OFICIAL (62px) ─── */
+        /* ─── CABEÇALHO PADRÃO MG EDITÁVEIS (62px) ─── */
         .header {
             height: 62px;
-            background: #141716;
-            border-bottom: 1px solid #242829;
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
+            background: rgba(20, 23, 24, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .header-inner {
             max-width: 1560px;
-            width: 100%;
+            height: 100%;
             margin: 0 auto;
-            padding: 0 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 0 24px;
         }
         .header-brand {
             display: inline-flex;
             align-items: center;
             gap: 10px;
             text-decoration: none;
-            flex-shrink: 0;
         }
         .brand-logo {
             width: 32px;
             height: 32px;
-            background: var(--primary, #00dc82);
-            border-radius: 9px;
+            background: var(--primary);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #062517;
-            box-shadow: 0 2px 10px rgba(0, 220, 130, 0.3);
-            border: none;
+            overflow: hidden;
+            box-shadow: 0 0 14px rgba(0, 220, 130, 0.25);
         }
         .brand-icon-img {
-            width: 22px;
-            height: 22px;
-            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .brand-text {
+            font-size: 17px;
             font-weight: 800;
-            font-size: 18px;
-            letter-spacing: -0.4px;
             color: #ffffff;
-        }
             letter-spacing: -0.3px;
         }
+
         .header-right {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
         }
         .saldo-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(0, 220, 130, 0.1);
-            border: 1px solid rgba(0, 220, 130, 0.25);
+            background: rgba(0, 220, 130, 0.08);
             color: #00dc82;
+            border: 1px solid #00dc82;
+            font-weight: 700;
+            font-size: 13px;
             padding: 6px 14px;
             border-radius: 20px;
-            font-size: 13px;
-            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
             text-decoration: none;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 220, 130, 0.15);
         }
         .saldo-pill:hover {
-            background: rgba(0, 220, 130, 0.18);
+            background: rgba(0, 220, 130, 0.16);
+            box-shadow: 0 0 16px rgba(0, 220, 130, 0.35);
             transform: translateY(-1px);
         }
         .header-link {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            color: var(--text-secondary);
-            font-size: 13px;
+            gap: 7px;
+            padding: 7px 12px;
+            border-radius: 8px;
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 12.5px;
             font-weight: 600;
             text-decoration: none;
-            padding: 6px 10px;
-            border-radius: 8px;
             transition: all 0.15s;
         }
-        .header-link:hover { color: #ffffff; background: #1a1e1d; }
+        .header-link:hover {
+            background: var(--surface-hover);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
         .header-icon {
             width: 34px;
             height: 34px;
-            border-radius: 8px;
-            background: #1a1e1d;
-            border: 1px solid #282d2c;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 8px;
+            background: var(--surface-card);
+            border: 1px solid var(--border);
             color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.15s;
         }
-        .header-icon:hover { color: #fff; border-color: #383e3c; }
-        .header-icon svg { width: 16px; height: 16px; }
+        .header-icon:hover { color: #fff; background: var(--surface-hover); }
+        .header-icon svg { width: 17px; height: 17px; }
         .btn-voltar {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: #191c1d;
-            border: 1px solid #282d2c;
-            color: #ffffff;
             padding: 7px 14px;
             border-radius: 8px;
-            font-size: 12.5px;
-            font-weight: 700;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
             text-decoration: none;
             transition: all 0.2s;
         }
-        .btn-voltar:hover { background: #232729; transform: translateY(-1px); }
+        .btn-voltar:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
         .btn-voltar svg { width: 14px; height: 14px; }
         .avatar-circle {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            background: #00dc82;
-            color: #0c0e0f;
-            font-weight: 800;
-            font-size: 13px;
+            background: var(--primary);
+            color: #042516;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 800;
+            font-size: 13.5px;
             cursor: pointer;
-            position: relative;
+            box-shadow: 0 0 10px rgba(0, 220, 130, 0.25);
+            transition: all 0.2s;
         }
+        .avatar-circle:hover { transform: scale(1.05); }
+
         .avatar-dropdown {
             position: absolute;
-            top: 48px;
-            right: 0;
-            background: #191c1d;
-            border: 1px solid #282d2c;
+            top: 56px;
+            right: 24px;
+            width: 220px;
+            background: var(--surface-card);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 8px;
-            min-width: 200px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             display: none;
             flex-direction: column;
             gap: 4px;
-            z-index: 1001;
+            z-index: 1000;
         }
         .avatar-dropdown.show { display: flex; }
         .dropdown-header {
-            padding: 8px 12px;
-            border-bottom: 1px solid #242829;
+            padding: 8px 10px 10px;
+            border-bottom: 1px solid var(--border);
             margin-bottom: 4px;
         }
         .dropdown-name { font-size: 13px; font-weight: 700; color: #fff; }
@@ -237,30 +243,34 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 12px;
-            font-size: 12.5px;
-            color: var(--text-secondary);
-            text-decoration: none;
+            padding: 8px 10px;
             border-radius: 6px;
+            color: var(--text-main);
+            font-size: 12.5px;
+            font-weight: 500;
+            text-decoration: none;
             transition: all 0.15s;
         }
-        .dropdown-item:hover { background: #232729; color: #fff; }
+        .dropdown-item:hover { background: var(--surface-hover); }
         .dropdown-item.danger { color: #f87171; }
-        .dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+        .dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.1); }
+        .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
 
-        /* ─── CONTAINER PRINCIPAL (GRID RESPONSIVA 1560px) ─── */
+        /* ─── GRID PRINCIPAL DO EDITOR ─── */
         .main-container {
             max-width: 1560px;
             width: 100%;
-            margin: 80px auto 40px;
-            padding: 0 24px;
+            margin: 0 auto;
+            padding: 20px 24px 40px;
             display: grid;
-            grid-template-columns: 460px 1fr;
+            grid-template-columns: 480px 1fr;
             gap: 24px;
-            align-items: start;
+            flex: 1;
         }
-        @media (max-width: 1200px) {
-            .main-container { grid-template-columns: 1fr; }
+        @media (max-width: 1140px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* ─── COLUNA FORMULÁRIO (ESQUERDA) ─── */
@@ -268,41 +278,43 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 24px;
+            padding: 22px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
+            height: calc(100vh - 104px);
+            overflow-y: auto;
         }
         .form-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-bottom: 16px;
+            padding-bottom: 14px;
             border-bottom: 1px solid var(--border);
         }
         .form-title {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 800;
             color: #ffffff;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .badge-eb {
             background: var(--eb-green-light);
             border: 1px solid var(--eb-green-border);
-            color: #4ade80;
-            font-size: 11px;
-            font-weight: 700;
+            color: #22c55e;
+            font-size: 10.5px;
+            font-weight: 800;
             padding: 3px 8px;
             border-radius: 6px;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
         }
         .btn-reset-form {
             background: transparent;
             border: 1px solid var(--border);
             color: var(--text-muted);
-            padding: 5px 10px;
+            padding: 4px 10px;
             border-radius: 6px;
             font-size: 11px;
             font-weight: 600;
@@ -310,70 +322,87 @@
             transition: all 0.15s;
         }
         .btn-reset-form:hover {
-            color: #ffffff;
-            border-color: #3a4144;
-            background: #1c2022;
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.2);
+            background: var(--surface-card);
         }
 
         .form-section-title {
             font-size: 12px;
             font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
             color: var(--text-secondary);
-            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
             display: flex;
             align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .form-section-title svg {
+            width: 14px;
+            height: 14px;
+            color: var(--primary);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
             gap: 6px;
         }
-        .form-section-title svg { width: 14px; height: 14px; color: var(--eb-green); }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
         .form-input {
+            width: 100%;
+            height: 42px;
             background: var(--surface-input);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 10px 14px;
+            padding: 0 12px;
             color: #ffffff;
             font-size: 13.5px;
-            font-family: var(--font-sans);
+            font-weight: 600;
             outline: none;
-            transition: all 0.2s;
+            transition: all 0.15s;
         }
         .form-input:focus {
-            border-color: var(--eb-green);
-            box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.25);
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
         }
-        .form-input::placeholder { color: #55585a; }
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
 
-        /* ─── CHECKBOXES DE ATIVIDADES ─── */
         .checkbox-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            background: var(--surface-input);
+            background: var(--surface-card);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px 14px;
+            border-radius: 10px;
+            padding: 12px;
         }
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 9px;
             font-size: 12.5px;
             font-weight: 600;
-            color: #e2e8f0;
+            color: var(--text-main);
             cursor: pointer;
+            user-select: none;
         }
-        .checkbox-item input {
-            accent-color: var(--eb-green);
-            width: 15px;
-            height: 15px;
+        .checkbox-item input[type="checkbox"] {
+            accent-color: #16a34a;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
         }
 
-        /* ─── BOTÕES DE AÇÃO ─── */
         .form-actions {
             display: flex;
             flex-direction: column;
@@ -403,6 +432,26 @@
             background: #00f590;
             transform: translateY(-1px);
             box-shadow: 0 6px 24px rgba(0, 220, 130, 0.35);
+        }
+        .btn-action-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s;
+            width: 100%;
+        }
+        .btn-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         /* ─── COLUNA PREVIEW (DIREITA) ─── */
@@ -503,184 +552,309 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 24px;
+            gap: 20px;
         }
 
-        /* ─── CARDS CR FRENTE E VERSO (600 x 398 px) ─── */
+        /* ════════════════════════════════════════════════════════════════
+           CARDS CR FRENTE E VERSO (616 x 356 px)
+           100% IDÊNTICOS AO CERTIFICADO DE REGISTRO DO EXÉRCITO (CAC)
+           ════════════════════════════════════════════════════════════════ */
         .cr-card {
-            width: 600px;
-            height: 398px;
+            width: 616px;
+            height: 356px;
+            min-width: 616px;
+            min-height: 356px;
             position: relative;
             background-color: #ffffff;
             box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
-            border-radius: 12px;
+            border-radius: 4px;
             overflow: hidden;
             box-sizing: border-box;
             user-select: none;
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        /* Fundo com template oficial (Guilloche, Brasão, Mapa, Watermark e Molduras) */
-        .cr-bg-img {
+        /* Moldura de Guilloche ornamental externa */
+        .cr-guilloche-border {
             position: absolute;
             top: 0;
             left: 0;
-            width: 600px;
-            height: 398px;
+            width: 616px;
+            height: 356px;
             object-fit: fill;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Brasão das Armas da República Federativa do Brasil no fundo */
+        .cr-brasao-bg {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -46%);
+            width: 216px;
+            height: 216px;
+            opacity: 0.82;
             z-index: 1;
             pointer-events: none;
         }
 
-        /* Camada de dados dinâmicos sobreposta */
-        .cr-content-overlay {
+        /* ─── CABEÇALHO FRENTE ─── */
+        .cr-header-frente {
             position: absolute;
-            top: 0;
+            top: 22px;
             left: 0;
-            width: 600px;
-            height: 398px;
-            z-index: 5;
-            box-sizing: border-box;
-            pointer-events: none;
+            width: 100%;
+            text-align: center;
+            color: #000000;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.15;
+            z-index: 3;
+        }
+        .cr-hdr-line1 {
+            font-size: 13.5px;
+            font-weight: 900;
+            letter-spacing: 0.3px;
+        }
+        .cr-hdr-line2 {
+            font-size: 12.5px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+        .cr-hdr-line3 {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+        .cr-hdr-line4 {
+            font-size: 14.5px;
+            font-weight: 900;
+            letter-spacing: 0.4px;
+            margin-top: 1px;
         }
 
-        /* ─── ELEMENTOS DA FRENTE DO CR ─── */
-        .frente-cr-num {
+        /* ─── N° CR E VALIDADE COM LINHAS ─── */
+        .cr-subhdr-row {
             position: absolute;
-            left: 128px;
-            top: 147px;
-            font-size: 15px;
-            font-weight: 700;
-            color: #111111;
-            letter-spacing: 0.3px;
+            top: 96px;
+            left: 28px;
+            width: 560px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-family: Arial, Helvetica, sans-serif;
+            z-index: 4;
         }
-        .frente-validade {
-            position: absolute;
-            left: 446px;
-            top: 147px;
-            font-size: 15px;
-            font-weight: 700;
-            color: #111111;
-            letter-spacing: 0.3px;
+        .cr-subhdr-left, .cr-subhdr-right {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
         }
-        .frente-nome {
+        .subhdr-lbl {
+            font-size: 12px;
+            font-weight: 900;
+            color: #000000;
+        }
+        .subhdr-val-line {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #000000;
+            border-bottom: 1.8px solid #000000;
+            padding-bottom: 1px;
+            min-width: 140px;
+            display: inline-block;
+        }
+        .cr-subhdr-right .subhdr-val-line {
+            min-width: 110px;
+            text-align: center;
+        }
+
+        /* ─── CAIXAS COM NOTCH (NOME, CPF, RM, AMPARO) ─── */
+        .cr-field-box {
+            position: relative;
+            border: 1.8px solid #000000;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.02);
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+        }
+        .box-notch-label {
             position: absolute;
-            left: 40px;
-            top: 209px;
-            font-size: 17px;
-            font-weight: 700;
-            color: #111111;
-            letter-spacing: 0.2px;
-            max-width: 520px;
+            top: -7.5px;
+            left: 12px;
+            background: #ffffff;
+            padding: 0 4px;
+            font-size: 8.5px;
+            font-weight: 800;
+            color: #000000;
+            letter-spacing: 0.3px;
+            line-height: 1;
+        }
+        .box-val {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #000000;
+            padding: 6px 10px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            width: 100%;
         }
-        .frente-cpf {
+        .box-nome {
             position: absolute;
-            left: 40px;
-            top: 269px;
-            font-size: 16px;
-            font-weight: 700;
-            color: #111111;
-            letter-spacing: 0.3px;
+            top: 130px;
+            left: 28px;
+            width: 560px;
+            height: 38px;
+            z-index: 4;
         }
-        .frente-rm {
+        .cr-field-row {
             position: absolute;
-            left: 298px;
-            top: 269px;
-            font-size: 16px;
-            font-weight: 700;
-            color: #111111;
-            letter-spacing: 0.3px;
+            top: 182px;
+            left: 28px;
+            width: 560px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            z-index: 4;
         }
-        .frente-amparo {
+        .box-cpf {
+            flex: 0 0 240px;
+            height: 38px;
+        }
+        .box-rm {
+            flex: 1;
+            height: 38px;
+        }
+        .box-amparo {
             position: absolute;
-            left: 40px;
-            top: 334px;
-            font-size: 13.5px;
+            top: 234px;
+            left: 28px;
+            width: 560px;
+            height: 38px;
+            z-index: 4;
+        }
+        .amparo-text {
+            font-size: 11px;
             font-weight: 700;
-            color: #111111;
-            letter-spacing: 0.1px;
-            width: 520px;
+            letter-spacing: -0.1px;
+        }
+
+        /* ─── LINHA DIVISÓRIA ENTRE FRENTE E VERSO ─── */
+        .card-divider-guide {
+            width: 616px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.7;
+            user-select: none;
+        }
+        .guide-line {
+            flex: 1;
+            height: 1px;
+            border-top: 1.5px dashed #64748b;
+        }
+        .guide-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         /* ─── ELEMENTOS DO VERSO DO CR ─── */
         .verso-qr-container {
             position: absolute;
-            left: 40px;
-            top: 40px;
-            width: 255px;
-            height: 255px;
+            left: 36px;
+            top: 24px;
+            width: 230px;
+            height: 230px;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: #ffffff;
+            z-index: 4;
         }
         .verso-qr-box {
-            width: 255px;
-            height: 255px;
+            width: 220px;
+            height: 220px;
             background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .verso-qr-box img, .verso-qr-box canvas {
-            width: 255px !important;
-            height: 255px !important;
+            width: 220px !important;
+            height: 220px !important;
             display: block;
         }
         .verso-qr-label {
             position: absolute;
-            left: 40px;
-            top: 304px;
-            width: 255px;
+            left: 36px;
+            top: 260px;
+            width: 230px;
             text-align: center;
-            font-size: 14px;
-            font-weight: 700;
-            color: #222222;
-        }
-        .verso-atividades {
-            position: absolute;
-            left: 320px;
-            top: 62px;
-            width: 245px;
-            font-size: 13px;
-            font-weight: 700;
-            line-height: 1.6;
-            color: #111111;
-        }
-        .verso-assinatura {
-            position: absolute;
-            left: 318px;
-            top: 208px;
-            width: 250px;
-            font-size: 13.5px;
-            font-weight: 600;
-            line-height: 1.45;
-            color: #222222;
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #000000;
+            z-index: 4;
         }
         .verso-sisgcorp {
             position: absolute;
-            bottom: 27px;
-            left: 0;
-            width: 600px;
+            left: 20px;
+            top: 280px;
+            width: 262px;
             text-align: center;
-            font-size: 13px;
+            font-size: 9px;
             font-weight: 700;
-            color: #222222;
+            color: #000000;
+            word-break: break-all;
+            z-index: 4;
         }
 
-        /* Linha divisória entre Frente e Verso */
-        .card-divider-guide {
-            width: 600px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            opacity: 0.55;
-            user-select: none;
+        .box-atividades {
+            position: absolute;
+            top: 24px;
+            left: 295px;
+            width: 290px;
+            height: 155px;
+            z-index: 4;
+            align-items: flex-start;
+            padding-top: 10px;
         }
-        .guide-line { flex: 1; height: 1px; border-bottom: 1.5px dashed #64748b; }
-        .guide-text { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+        .atividades-list {
+            padding: 8px 12px;
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #000000;
+            line-height: 1.55;
+            width: 100%;
+        }
+
+        .verso-sig-box {
+            position: absolute;
+            top: 196px;
+            left: 295px;
+            width: 290px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #000000;
+            z-index: 4;
+        }
+        .sig-title {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .sig-orgao {
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .sig-local-data {
+            font-size: 13px;
+            font-weight: 800;
+        }
     </style>
 </head>
 <body>
@@ -712,7 +886,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 </div>
 
-                <a href="editaveis.html" class="btn-voltar" title="Voltar ao Catálogo">
+                <a href="cr-exercito.html" class="btn-voltar" title="Voltar aos Registros CR">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                     <span>Voltar</span>
                 </a>
@@ -759,7 +933,7 @@
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span class="badge-eb">OFICIAL</span>
-                    <button type="button" class="btn-reset-form" onclick="preencherExemploOficial()" title="Restaurar dados originais">Exemplo</button>
+                    <button type="button" class="btn-reset-form" onclick="preencherExemploOficial()" title="Restaurar dados oficiais do modelo">Exemplo Oficial</button>
                 </div>
             </div>
 
@@ -772,11 +946,11 @@
             <div class="form-row-2">
                 <div class="form-group">
                     <label class="form-label" for="inpCrNum">Nº CR</label>
-                    <input type="text" id="inpCrNum" class="form-input" placeholder="Ex: 20605204000163" value="20605204000163" oninput="updateCR()">
+                    <input type="text" id="inpCrNum" class="form-input" placeholder="Ex: 210.021.012-52" value="210.021.012-52" oninput="updateCR()">
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="inpValidade">Validade</label>
-                    <input type="text" id="inpValidade" class="form-input" placeholder="DD/MM/AAAA" value="04/11/2031" oninput="updateCR()">
+                    <input type="text" id="inpValidade" class="form-input" placeholder="DD/MM/AAAA" value="29/12/2030" oninput="mascaraData(this); updateCR()">
                 </div>
             </div>
 
@@ -788,23 +962,23 @@
 
             <div class="form-group">
                 <label class="form-label" for="inpNome">Nome Completo</label>
-                <input type="text" id="inpNome" class="form-input" placeholder="Ex: Master Laser - Demonstração" value="Master Laser - Demonstração" oninput="updateCR()">
+                <input type="text" id="inpNome" class="form-input" placeholder="Ex: SIDINEI MENESES" value="SIDINEI MENESES" oninput="updateCR()" style="text-transform:uppercase;">
             </div>
 
             <div class="form-row-2">
                 <div class="form-group">
                     <label class="form-label" for="inpCpf">CPF do Titular</label>
-                    <input type="text" id="inpCpf" class="form-input" placeholder="Ex: 37991029689" value="37991029689" oninput="updateCR()">
+                    <input type="text" id="inpCpf" class="form-input" placeholder="000.000.000-00" value="575.678.242-72" oninput="mascaraCpf(this); updateCR()">
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="inpRm">SFPC de Vinculação (RM)</label>
-                    <input type="text" id="inpRm" class="form-input" placeholder="Ex: Cmdo 21ª RM" value="Cmdo 21ª RM" oninput="updateCR()">
+                    <input type="text" id="inpRm" class="form-input" placeholder="Ex: Cmdo 2°RM" value="Cmdo 2°RM" oninput="updateCR()">
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="inpAmparo">Amparo Legal</label>
-                <input type="text" id="inpAmparo" class="form-input" value="De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9,846, de 25 Jun 2019" oninput="updateCR()">
+                <input type="text" id="inpAmparo" class="form-input" value="De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9.846, de 25 jun 2019" oninput="updateCR()">
             </div>
 
             <!-- 3. ATIVIDADES AUTORIZADAS (VERSO) -->
@@ -816,15 +990,15 @@
             <div class="checkbox-group">
                 <label class="checkbox-item">
                     <input type="checkbox" id="chkAtiv1" checked onchange="updateCR()">
-                    <span>1 - Tiro Desportivo - Atirador Desportivo</span>
+                    <span>1- Caça</span>
                 </label>
                 <label class="checkbox-item">
                     <input type="checkbox" id="chkAtiv2" checked onchange="updateCR()">
-                    <span>2 - Caça - Caçador</span>
+                    <span>2- Colecionamento</span>
                 </label>
                 <label class="checkbox-item">
                     <input type="checkbox" id="chkAtiv3" checked onchange="updateCR()">
-                    <span>3 - Colecionamento - Colecionador</span>
+                    <span>3- Tiro Desportivo</span>
                 </label>
             </div>
 
@@ -836,24 +1010,29 @@
 
             <div class="form-group">
                 <label class="form-label" for="inpAssinante">Órgão Emissor / Assinante</label>
-                <input type="text" id="inpAssinante" class="form-input" value="SFPC - Ba Adm Cmdo op Esp" oninput="updateCR()">
+                <input type="text" id="inpAssinante" class="form-input" value="SFPC - Cmdo 2ª RM" oninput="updateCR()">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="inpLocalData">Localidade e Data de Emissão</label>
-                <input type="text" id="inpLocalData" class="form-input" value="Divinopolis MG 04/11/2021" oninput="updateCR()">
+                <input type="text" id="inpLocalData" class="form-input" value="São Paulo/SP, 29/12/2020" oninput="updateCR()">
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="inpSisGCorp">Chave de Autenticidade SisGCorp</label>
-                <input type="text" id="inpSisGCorp" class="form-input" value="a0000bf0d0dc00c00a00000e0" oninput="updateCR()">
+                <input type="text" id="inpSisGCorp" class="form-input" value="7b35c3g63483d5bcc55997168a6926b74" oninput="updateCR()">
             </div>
 
             <!-- AÇÃO PRINCIPAL DE EMISSÃO -->
             <div class="form-actions">
-                <button type="button" class="btn-action-primary btn-gerar" id="btnExportPdf" onclick="gerarCrPdf()">
+                <button type="button" class="btn-action-primary" id="btnExportPdf" onclick="gerarCrPdf()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     <span id="btnGerarTxt">Gerar PDF — Certificado de Registro CR</span>
+                </button>
+
+                <button type="button" class="btn-action-secondary" onclick="baixarImagemPng()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>Baixar Imagem Oficial (PNG HD)</span>
                 </button>
             </div>
         </section>
@@ -863,7 +1042,7 @@
             <div class="preview-toolbar">
                 <div class="preview-title-badge">
                     <span class="pulse-dot"></span>
-                    <span>Visualização Frente e Verso (Emissão ao Vivo)</span>
+                    <span>Visualização Frente e Verso (Emissão ao Vivo • CAC)</span>
                 </div>
 
                 <div class="zoom-group">
@@ -877,65 +1056,95 @@
             <div class="doc-viewport" id="docViewport">
                 <div class="doc-zoom-wrapper" id="docZoomWrapper" style="transform: scale(0.90);">
 
-                    <!-- FRENTE DO CERTIFICADO DE REGISTRO (600 x 398 px) -->
+                    <!-- ════════ FRENTE DO CERTIFICADO DE REGISTRO (616 x 356 px) ════════ -->
                     <div class="cr-card" id="cardFrente">
-                        <!-- Imagem de Fundo HD (Guilloche, Brasão da República, Mapa do Brasil e Molduras) -->
-                        <img src="assets/cr_frente_hd.png" class="cr-bg-img" alt="Template Frente CR">
+                        <!-- Moldura Guilloche Externa -->
+                        <img src="assets/cr_border_frame.png" class="cr-guilloche-border" alt="Moldura CR">
 
-                        <div class="cr-content-overlay">
-                            <!-- Nº CR e Validade -->
-                            <div class="frente-cr-num" id="prevCrNum">20605204000163</div>
-                            <div class="frente-validade" id="prevValidade">04/11/2031</div>
+                        <!-- Brasão da República Federativa do Brasil -->
+                        <img src="assets/brasao_republica.svg" class="cr-brasao-bg" alt="Brasão da República">
 
-                            <!-- Nome Completo -->
-                            <div class="frente-nome" id="prevNome">Master Laser - Demonstração</div>
+                        <!-- Cabeçalho Institucional Oficial -->
+                        <div class="cr-header-frente">
+                            <div class="cr-hdr-line1">REPÚBLICA FEDERATIVA DO BRASIL</div>
+                            <div class="cr-hdr-line2">MINISTÉRIO DA DEFESA</div>
+                            <div class="cr-hdr-line3">EXÉRCITO BRASILEIRO</div>
+                            <div class="cr-hdr-line4">CERTIFICADO DE REGISTRO</div>
+                        </div>
 
-                            <!-- CPF e SFPC de Vinculação -->
-                            <div class="frente-cpf" id="prevCpf">37991029689</div>
-                            <div class="frente-rm" id="prevRm">Cmdo 21ª RM</div>
+                        <!-- Linha de N° CR e Validade -->
+                        <div class="cr-subhdr-row">
+                            <div class="cr-subhdr-left">
+                                <span class="subhdr-lbl">N°CR</span>
+                                <span class="subhdr-val-line" id="prevCrNum">210.021.012-52</span>
+                            </div>
+                            <div class="cr-subhdr-right">
+                                <span class="subhdr-lbl">VALIDADE</span>
+                                <span class="subhdr-val-line" id="prevValidade">29/12/2030</span>
+                            </div>
+                        </div>
 
-                            <!-- Amparo Legal -->
-                            <div class="frente-amparo" id="prevAmparo">De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9,846, de 25 Jun 2019</div>
+                        <!-- Caixa 1: Nome Completo -->
+                        <div class="cr-field-box box-nome">
+                            <span class="box-notch-label">NOME COMPLETO</span>
+                            <span class="box-val" id="prevNome">SIDINEI MENESES</span>
+                        </div>
+
+                        <!-- Caixas 2 e 3: CPF e SFPC de Vinculação (RM) -->
+                        <div class="cr-field-row">
+                            <div class="cr-field-box box-cpf">
+                                <span class="box-notch-label">CPF</span>
+                                <span class="box-val" id="prevCpf">575.678.242-72</span>
+                            </div>
+                            <div class="cr-field-box box-rm">
+                                <span class="box-notch-label">SFPC DE VINCULAÇÃO (RM)</span>
+                                <span class="box-val" id="prevRm">Cmdo 2°RM</span>
+                            </div>
+                        </div>
+
+                        <!-- Caixa 4: Amparo Legal -->
+                        <div class="cr-field-box box-amparo">
+                            <span class="box-notch-label">AMPARO LEGAL</span>
+                            <span class="box-val amparo-text" id="prevAmparo">De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9.846, de 25 jun 2019</span>
                         </div>
                     </div>
 
                     <!-- GUIA DE CORTE ENTRE FRENTE E VERSO -->
                     <div class="card-divider-guide">
                         <span class="guide-line"></span>
-                        <span class="guide-text">✂ Linha de Corte / Verso</span>
+                        <span class="guide-text">✂ Linha de Corte / Dobra</span>
                         <span class="guide-line"></span>
                     </div>
 
-                    <!-- VERSO DO CERTIFICADO DE REGISTRO (600 x 398 px) -->
+                    <!-- ════════ VERSO DO CERTIFICADO DE REGISTRO (616 x 356 px) ════════ -->
                     <div class="cr-card" id="cardVerso">
-                        <!-- Imagem de Fundo HD Verso (Guilloche, Moldura de Atividades) -->
-                        <img src="assets/cr_verso_hd.png" class="cr-bg-img" alt="Template Verso CR">
+                        <!-- Moldura Guilloche Externa -->
+                        <img src="assets/cr_border_frame.png" class="cr-guilloche-border" alt="Moldura CR">
 
-                        <div class="cr-content-overlay">
-                            <!-- QR Code Vio -->
-                            <div class="verso-qr-container">
-                                <div id="qrcodeVio" class="verso-qr-box"></div>
-                            </div>
-                            <div class="verso-qr-label">QR Code Vio</div>
+                        <!-- QR Code Vio Oficial (Lado Esquerdo) -->
+                        <div class="verso-qr-container">
+                            <div id="qrcodeVio" class="verso-qr-box"></div>
+                        </div>
+                        <div class="verso-qr-label">QR Code Vio</div>
+                        <div class="verso-sisgcorp">
+                            A Autenticidade no SisGCorp <span id="prevSisGCorp">7b35c3g63483d5bcc55997168a6926b74</span>
+                        </div>
 
-                            <!-- Atividades Autorizadas -->
-                            <div class="verso-atividades" id="prevAtividades">
-                                <div>1 - Tiro Desportivo - Atirador Desportivo</div>
-                                <div>2 - Caça - Caçador</div>
-                                <div>3 - Colecionamento - Colecionador</div>
+                        <!-- Atividades Autorizadas (Lado Direito) -->
+                        <div class="cr-field-box box-atividades">
+                            <span class="box-notch-label">ATIVIDADES AUTORIZADAS</span>
+                            <div class="atividades-list" id="prevAtividades">
+                                <div>1- Caça</div>
+                                <div>2- Colecionamento</div>
+                                <div>3- Tiro Desportivo</div>
                             </div>
+                        </div>
 
-                            <!-- Assinatura Eletrônica -->
-                            <div class="verso-assinatura">
-                                <div>Documento Assinado Eletrônicamente por:</div>
-                                <div id="prevAssinante" style="margin-top:2px; font-weight:700;">SFPC - Ba Adm Cmdo op Esp</div>
-                                <div id="prevLocalData" style="margin-top:2px;">Divinopolis MG 04/11/2021</div>
-                            </div>
-
-                            <!-- SisGCorp Hash -->
-                            <div class="verso-sisgcorp">
-                                A Autenticidade no SisGCorp <span id="prevSisGCorp">a0000bf0d0dc00c00a00000e0</span>
-                            </div>
+                        <!-- Bloco de Assinatura Eletrônica -->
+                        <div class="verso-sig-box">
+                            <div class="sig-title">Documento Assinado Eletrônico por:</div>
+                            <div class="sig-orgao" id="prevAssinante">SFPC - Cmdo 2ª RM</div>
+                            <div class="sig-local-data" id="prevLocalData">São Paulo/SP, 29/12/2020</div>
                         </div>
                     </div>
 
@@ -945,17 +1154,17 @@
     </main>
 
     <script>
-        // ─── DADOS PADRÃO OFICIAIS ───
+        // ─── DADOS PADRÃO OFICIAIS (CONFORME MODELO EXÉRCITO BRASILEIRO / CAC) ───
         const DEFAULT_CR = {
-            crNum: '20605204000163',
-            validade: '04/11/2031',
-            nome: 'Master Laser - Demonstração',
-            cpf: '37991029689',
-            rm: 'Cmdo 21ª RM',
-            amparo: 'De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9,846, de 25 Jun 2019',
-            assinante: 'SFPC - Ba Adm Cmdo op Esp',
-            localData: 'Divinopolis MG 04/11/2021',
-            sisgcorp: 'a0000bf0d0dc00c00a00000e0'
+            crNum: '210.021.012-52',
+            validade: '29/12/2030',
+            nome: 'SIDINEI MENESES',
+            cpf: '575.678.242-72',
+            rm: 'Cmdo 2°RM',
+            amparo: 'De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9.846, de 25 jun 2019',
+            assinante: 'SFPC - Cmdo 2ª RM',
+            localData: 'São Paulo/SP, 29/12/2020',
+            sisgcorp: '7b35c3g63483d5bcc55997168a6926b74'
         };
 
         let currentZoom = 0.90;
@@ -977,11 +1186,27 @@
             updateZoomUI();
         }
 
+        // ─── MÁSCARAS DE INPUT ───
+        function mascaraCpf(inp) {
+            let v = inp.value.replace(/\D/g, '').slice(0, 11);
+            if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+            else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+            else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+            inp.value = v;
+        }
+
+        function mascaraData(inp) {
+            let v = inp.value.replace(/\D/g, '').slice(0, 8);
+            if (v.length > 4) v = v.replace(/(\d{2})(\d{2})(\d{1,4})/, '$1/$2/$3');
+            else if (v.length > 2) v = v.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+            inp.value = v;
+        }
+
         // ─── ATUALIZAÇÃO EM TEMPO REAL ───
         function updateCR() {
             const crNum = document.getElementById('inpCrNum').value || DEFAULT_CR.crNum;
             const validade = document.getElementById('inpValidade').value || DEFAULT_CR.validade;
-            const nome = document.getElementById('inpNome').value || DEFAULT_CR.nome;
+            const nome = (document.getElementById('inpNome').value || DEFAULT_CR.nome).toUpperCase();
             const cpf = document.getElementById('inpCpf').value || DEFAULT_CR.cpf;
             const rm = document.getElementById('inpRm').value || DEFAULT_CR.rm;
             const amparo = document.getElementById('inpAmparo').value || DEFAULT_CR.amparo;
@@ -1002,9 +1227,9 @@
             // Atividades
             const ativContainer = document.getElementById('prevAtividades');
             let htmlAtiv = '';
-            if (document.getElementById('chkAtiv1').checked) htmlAtiv += '<div>1 - Tiro Desportivo - Atirador Desportivo</div>';
-            if (document.getElementById('chkAtiv2').checked) htmlAtiv += '<div>2 - Caça - Caçador</div>';
-            if (document.getElementById('chkAtiv3').checked) htmlAtiv += '<div>3 - Colecionamento - Colecionador</div>';
+            if (document.getElementById('chkAtiv1').checked) htmlAtiv += '<div>1- Caça</div>';
+            if (document.getElementById('chkAtiv2').checked) htmlAtiv += '<div>2- Colecionamento</div>';
+            if (document.getElementById('chkAtiv3').checked) htmlAtiv += '<div>3- Tiro Desportivo</div>';
             if (!htmlAtiv) htmlAtiv = '<div style="color:#666;">Nenhuma atividade selecionada</div>';
             ativContainer.innerHTML = htmlAtiv;
 
@@ -1018,14 +1243,16 @@
             container.innerHTML = '';
             const payload = `CR:${crNum}|CPF:${cpf}|SISGCORP:${sisgcorp}|VIO:EB_CAC_AUTENTICADO`;
             try {
-                qrCodeObj = new QRCode(container, {
-                    text: payload,
-                    width: 255,
-                    height: 255,
-                    colorDark: '#000000',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.M
-                });
+                if (typeof QRCode === 'function') {
+                    qrCodeObj = new QRCode(container, {
+                        text: payload,
+                        width: 220,
+                        height: 220,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                }
             } catch(e) {
                 console.error('Erro ao gerar QR Code Vio:', e);
             }
@@ -1047,7 +1274,7 @@
             updateCR();
         }
 
-        // ─── GERAR PDF E SALVAR NO HISTÓRICO (PADRÃO OFICIAL) ───
+        // ─── GERAR E BAIXAR PDF OFICIAL A4 ───
         async function gerarCrPdf() {
             const btn = document.getElementById('btnExportPdf');
             const txt = document.getElementById('btnGerarTxt');
@@ -1056,7 +1283,7 @@
 
             const crNum = document.getElementById('inpCrNum').value.trim() || DEFAULT_CR.crNum;
             const validade = document.getElementById('inpValidade').value.trim() || DEFAULT_CR.validade;
-            const nome = document.getElementById('inpNome').value.trim() || DEFAULT_CR.nome;
+            const nome = (document.getElementById('inpNome').value.trim() || DEFAULT_CR.nome).toUpperCase();
             const cpf = document.getElementById('inpCpf').value.trim() || DEFAULT_CR.cpf;
             const rm = document.getElementById('inpRm').value.trim() || DEFAULT_CR.rm;
             const amparo = document.getElementById('inpAmparo').value.trim() || DEFAULT_CR.amparo;
@@ -1115,36 +1342,104 @@
                 return;
             }
 
-            const wrapper = document.getElementById('docZoomWrapper');
-            const prevTransform = wrapper.style.transform;
-            wrapper.style.transform = 'scale(1)';
-
             try {
-                const canvasFrente = await html2canvas(cardFrente, { scale: 2, useCORS: true, allowTaint: true });
-                const canvasVerso = await html2canvas(cardVerso, { scale: 2, useCORS: true, allowTaint: true });
+                // Cria cópias limpas fora do zoom para captura nítida
+                const tempWrap = document.createElement('div');
+                tempWrap.style.cssText = 'position:fixed; left:-9999px; top:0; width:650px; background:#fff; z-index:-9999;';
+                const cloneFrente = cardFrente.cloneNode(true);
+                const cloneVerso = cardVerso.cloneNode(true);
+                tempWrap.appendChild(cloneFrente);
+                tempWrap.appendChild(cloneVerso);
+                document.body.appendChild(tempWrap);
 
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                await new Promise(r => setTimeout(r, 120));
+
+                const canvasFrente = await html2canvas(cloneFrente, {
+                    scale: 2.5,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                const canvasVerso = await html2canvas(cloneVerso, {
+                    scale: 2.5,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                tempWrap.remove();
+
+                const JsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+                if (!JsPDF) throw new Error('jsPDF não carregado');
+
+                const pdf = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
                 const cardW = 140;
-                const cardH = 93;
+                const cardH = 80.9; // 140 * (356 / 616)
                 const marginX = (210 - cardW) / 2;
 
                 const imgFrente = canvasFrente.toDataURL('image/jpeg', 0.98);
                 const imgVerso = canvasVerso.toDataURL('image/jpeg', 0.98);
 
-                pdf.addImage(imgFrente, 'JPEG', marginX, 35, cardW, cardH, '', 'FAST');
-                pdf.addImage(imgVerso, 'JPEG', marginX, 145, cardW, cardH, '', 'FAST');
+                // Frente
+                pdf.addImage(imgFrente, 'JPEG', marginX, 30, cardW, cardH);
+
+                // Linha tracejada de dobra/corte
+                pdf.setLineDashPattern([2, 2], 0);
+                pdf.setDrawColor(150, 150, 150);
+                pdf.line(marginX - 10, 122, marginX + cardW + 10, 122);
+                pdf.setFontSize(8);
+                pdf.setTextColor(130, 130, 130);
+                pdf.text('✂ Linha de Corte / Dobra', marginX + (cardW / 2) - 15, 121);
+
+                // Verso
+                pdf.addImage(imgVerso, 'JPEG', marginX, 132, cardW, cardH);
 
                 const nomeTitular = (nome || 'cr').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-                pdf.save(`cr_exercito_${nomeTitular}.pdf`);
+                const filename = `cr_exercito_${nomeTitular}.pdf`;
+
+                // Download universal via Blob
+                try {
+                    const blob = pdf.output('blob');
+                    const blobUrl = URL.createObjectURL(blob);
+                    const dlLink = document.createElement('a');
+                    dlLink.href = blobUrl;
+                    dlLink.download = filename;
+                    document.body.appendChild(dlLink);
+                    dlLink.click();
+                    setTimeout(() => { dlLink.remove(); URL.revokeObjectURL(blobUrl); }, 4000);
+                } catch (eBlob) {
+                    pdf.save(filename);
+                }
+
+                alert('✅ Certificado de Registro CR gerado com sucesso! O download foi iniciado.');
             } catch(e) {
                 console.error('Erro ao gerar PDF:', e);
-                alert('Erro ao exportar PDF. Tente novamente.');
+                alert('Erro ao exportar PDF: ' + (e.message || 'Falha ao processar'));
             } finally {
-                wrapper.style.transform = prevTransform;
                 if (btn) btn.disabled = false;
                 if (txt) txt.textContent = 'Gerar PDF — Certificado de Registro CR';
+            }
+        }
+
+        // ─── BAIXAR IMAGEM PNG HD ───
+        async function baixarImagemPng() {
+            try {
+                const cardFrente = document.getElementById('cardFrente');
+                if (!cardFrente) return;
+
+                const canvas = await html2canvas(cardFrente, { scale: 2.5, useCORS: true, allowTaint: true });
+                const nome = (document.getElementById('inpNome')?.value.trim() || 'cr').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                const link = document.createElement('a');
+                link.download = `cr_exercito_frente_${nome}.png`;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                setTimeout(() => link.remove(), 2000);
+            } catch(e) {
+                console.error('Erro ao baixar PNG:', e);
+                alert('Erro ao gerar imagem PNG.');
             }
         }
 
