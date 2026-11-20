@@ -287,6 +287,14 @@
     {
       "source": "/criar-certificado-senai",
       "destination": "/criar-certificado-senai.html"
+    },
+    {
+      "source": "/cr-exercito",
+      "destination": "/cr-exercito.html"
+    },
+    {
+      "source": "/criar-cr-exercito",
+      "destination": "/criar-cr-exercito.html"
     }
   ]
 }

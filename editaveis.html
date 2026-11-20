@@ -1726,14 +1726,14 @@
                 </div>
             </article>
 
-            <!-- CERTIFICADO DE REGISTRO CR (EXÉRCITO BRASILEIRO / CAC) [EM DESENVOLVIMENTO / ACESSO ADMIN] -->
-            <article class="doc-card card-crlv-em-desenvolvimento" data-category="militar" data-name="certificado de registro cr exercito brasileiro cac atirador desportivo cacador colecionador sisgcorp vio armas" onclick="handleCrExercitoEmBreve(event)" style="--card-accent:#16a34a; --card-glow:rgba(22,163,74,0.18); --card-icon-bg:rgba(22,163,74,0.1); --card-icon-border:rgba(22,163,74,0.3); --card-pill-bg:rgba(22,163,74,0.12); --card-pill-border:rgba(22,163,74,0.3); --card-btn-bg:#16a34a; --card-btn-glow:rgba(22,163,74,0.35); --card-border-hover:rgba(22,163,74,0.4);">
+            <!-- CERTIFICADO DE REGISTRO CR (EXÉRCITO BRASILEIRO / CAC) -->
+            <article class="doc-card" data-category="militar" data-name="certificado de registro cr exercito brasileiro cac atirador desportivo cacador colecionador sisgcorp vio armas" onclick="handleCardOptionClick(event, 'cr-exercito.html')" title="Clique para ver os Certificados de Registro CR gerados" style="cursor:pointer; --card-accent:#16a34a; --card-glow:rgba(22,163,74,0.25); --card-icon-bg:rgba(22,163,74,0.1); --card-icon-border:rgba(22,163,74,0.3); --card-pill-bg:rgba(22,163,74,0.12); --card-pill-border:rgba(22,163,74,0.3); --card-btn-bg:#16a34a; --card-btn-glow:rgba(22,163,74,0.35); --card-border-hover:rgba(22,163,74,0.4);">
                 <div>
                     <div class="card-top">
                         <div class="card-icon-box" style="color:#16a34a; background:rgba(22,163,74,0.1); border-color:rgba(22,163,74,0.25);">
                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                         </div>
-                        <span class="card-badge-pill" style="color:#f59e0b; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.1);">🔧 EM DESENVOLVIMENTO</span>
+                        <span class="card-badge-pill" style="color:#4ade80; border-color:rgba(74,222,128,0.4); background:rgba(74,222,128,0.12);">★ NOVO MODELO</span>
                     </div>
 
                     <div class="card-title-group">
@@ -1773,16 +1773,16 @@
                         </div>
                         <div class="delivery-pill" style="color:#4ade80; background:rgba(22,163,74,0.08); border-color:rgba(22,163,74,0.25);">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                            <span>Em Breve</span>
+                            <span>⚡ Imediato &lt; 10s</span>
                         </div>
                     </div>
 
                     <div class="card-actions-group">
-                        <button type="button" class="btn-card-emitir" onclick="handleCrExercitoEmBreve(event)" style="background:rgba(22,163,74,0.15); color:#4ade80; border:1px solid rgba(22,163,74,0.3); opacity:0.85;">
-                            <span>Em Breve</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
-                        </button>
-                        <button type="button" class="btn-card-preview" onclick="openDocModal('cr_exercito')" title="Ver detalhes do Certificado de Registro CR">
+                        <a href="criar-cr-exercito.html" class="btn-card-emitir" onclick="event.stopPropagation()" style="background:#16a34a; color:#fff; box-shadow:0 4px 14px -2px rgba(22,163,74,0.4);">
+                            <span>Emitir Certificado CR</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <button type="button" class="btn-card-preview" onclick="event.stopPropagation(); window.location.href='cr-exercito.html';" title="Ver Certificados de Registro CR gerados">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                     </div>
@@ -2666,8 +2666,8 @@
                 accent: '#16a34a',
                 link: 'criar-cr-exercito.html',
                 devLink: 'criar-cr-exercito.html',
-                btnText: 'Em Desenvolvimento',
-                isDev: true,
+                btnText: 'Emitir Certificado CR',
+                isDev: false,
                 html: `
                     <div class="doc-modal-intro">
                         O <strong>Certificado de Registro (CR)</strong> é o documento emitido pelo Exército Brasileiro que autoriza e comprova o registro de pessoas físicas e jurídicas para atividades com produtos controlados (Colecionamento, Tiro Desportivo e Caça - CAC).
@@ -2686,7 +2686,7 @@
                     </div>
                     <div class="doc-modal-note">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
-                        <span>Documento em modo restrito de desenvolvimento para administradores.</span>
+                        <span>Documento oficial com validação QR Code Vio e autenticidade SisGCorp.</span>
                     </div>
                 `
             },
@@ -2874,9 +2874,7 @@
             const devCards = [
                 { match: 'crlv', link: 'criar-crlv.html', name: 'CRLV Digital', accent: '#10b981' },
                 { match: 'cin', link: 'criar-rg.html', history: 'rg.html', name: 'RG Digital', accent: '#3b82f6' },
-                { match: 'atpv', link: 'criar-dut.html', name: 'DUT ATPV-e', accent: '#f97316' },
-                { match: 'senai', link: 'criar-certificado-senai.html', history: 'certificados-senai.html', name: 'Certificado SENAI (FIEB)', accent: '#005caa' },
-                { match: 'cr exercito', link: 'criar-cr-exercito.html', history: 'cr-exercito.html', name: 'Certificado de Registro CR', accent: '#16a34a' }
+                { match: 'atpv', link: 'criar-dut.html', name: 'DUT ATPV-e', accent: '#f97316' }
             ];
 
             devCards.forEach(item => {
@@ -3006,13 +3004,13 @@
             return false;
         }
 
-        // Ação para o Certificado de Registro CR Exército em desenvolvimento (Acesso exclusivo Admin)
+        // Ação para o Certificado de Registro CR Exército
         function handleCrExercitoEmBreve(e) {
             if (e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
-            showToastDev('Certificado de Registro CR (Exército / CAC)', 'A emissão de Certificado de Registro CR está em homologação técnica e disponível exclusivamente em modo DEV para administradores.');
+            window.location.href = 'cr-exercito.html';
             return false;
         }
 
