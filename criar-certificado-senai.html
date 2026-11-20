@@ -259,7 +259,7 @@
             margin: 80px auto 40px;
             padding: 0 24px;
             display: grid;
-            grid-template-columns: 460px 1fr;
+            grid-template-columns: 480px 1fr;
             gap: 24px;
             align-items: start;
         }
@@ -342,23 +342,31 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+            min-width: 0;
         }
         .form-row-2 {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 12px;
+            min-width: 0;
         }
         .form-row-3 {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 10px;
+            min-width: 0;
         }
         .form-label {
             font-size: 12px;
             font-weight: 700;
             color: var(--text-secondary);
+            white-space: normal;
+            line-height: 1.3;
         }
         .form-input {
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
             background: var(--surface-input);
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -952,7 +960,7 @@
                 <input type="text" id="inpCurso" class="form-input" placeholder="Ex: Qualificação Profissional em Programador Web" value="Qualificação Profissional em Programador Web" oninput="updateCertificado()">
             </div>
 
-            <div class="form-row-3">
+            <div class="form-row-2">
                 <div class="form-group">
                     <label class="form-label" for="inpDataInicio">Data Início</label>
                     <input type="text" id="inpDataInicio" class="form-input" placeholder="DD/MM/AAAA" value="20/11/2023" oninput="updateCertificado()">
@@ -961,10 +969,11 @@
                     <label class="form-label" for="inpDataFim">Data Término</label>
                     <input type="text" id="inpDataFim" class="form-input" placeholder="DD/MM/AAAA" value="20/03/2024" oninput="updateCertificado()">
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="inpCarga">Carga Horária</label>
-                    <input type="text" id="inpCarga" class="form-input" placeholder="Ex: 240" value="240" oninput="updateCertificado()">
-                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="inpCarga">Carga Horária (em horas)</label>
+                <input type="text" id="inpCarga" class="form-input" placeholder="Ex: 240" value="240" oninput="updateCertificado()">
             </div>
 
             <!-- 3. DIRETORIA & AUTENTICAÇÃO -->
