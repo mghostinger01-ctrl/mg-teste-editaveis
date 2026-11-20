@@ -279,6 +279,14 @@
     {
       "source": "/validar-senai",
       "destination": "/validar-certificado-senai.html"
+    },
+    {
+      "source": "/certificados-senai",
+      "destination": "/certificados-senai.html"
+    },
+    {
+      "source": "/criar-certificado-senai",
+      "destination": "/criar-certificado-senai.html"
     }
   ]
 }

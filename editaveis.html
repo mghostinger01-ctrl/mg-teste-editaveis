@@ -1663,14 +1663,14 @@
                 </div>
             </article>
 
-            <!-- CERTIFICADO DE CONCLUSÃO SENAI (NACIONAL) [EM DESENVOLVIMENTO / ACESSO ADMIN] -->
-            <article class="doc-card card-crlv-em-desenvolvimento" data-category="educacao" data-name="certificado senai nacional conclusao curso profissionalizante tecnico qualificacao programador aprendizagem industrial brasil" onclick="handleSenaiEmBreve(event)" style="--card-accent:#005caa; --card-glow:rgba(0,92,170,0.18); --card-icon-bg:rgba(0,92,170,0.1); --card-icon-border:rgba(0,92,170,0.3); --card-pill-bg:rgba(0,92,170,0.12); --card-pill-border:rgba(0,92,170,0.3); --card-btn-bg:#005caa; --card-btn-glow:rgba(0,92,170,0.35); --card-border-hover:rgba(0,92,170,0.4);">
+            <!-- CERTIFICADO DE CONCLUSÃO SENAI (NACIONAL) -->
+            <article class="doc-card" data-category="educacao" data-name="certificado senai nacional conclusao curso profissionalizante tecnico qualificacao programador aprendizagem industrial brasil" onclick="handleCardOptionClick(event, 'certificados-senai.html')" title="Clique para ver os Certificados SENAI gerados pelo cliente" style="cursor:pointer; --card-accent:#005caa; --card-glow:rgba(0,92,170,0.25); --card-icon-bg:rgba(0,92,170,0.1); --card-icon-border:rgba(0,92,170,0.3); --card-pill-bg:rgba(0,92,170,0.12); --card-pill-border:rgba(0,92,170,0.3); --card-btn-bg:#005caa; --card-btn-glow:rgba(0,92,170,0.35); --card-border-hover:rgba(0,92,170,0.4);">
                 <div>
                     <div class="card-top">
                         <div class="card-icon-box" style="color:#005caa; background:rgba(0,92,170,0.1); border-color:rgba(0,92,170,0.25);">
                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                         </div>
-                        <span class="card-badge-pill" style="color:#f59e0b; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.1);">🔧 EM DESENVOLVIMENTO</span>
+                        <span class="card-badge-pill" style="color:#60a5fa; border-color:rgba(96,165,250,0.4); background:rgba(0,92,170,0.15);">★ NOVO MODELO</span>
                     </div>
 
                     <div class="card-title-group">
@@ -1710,16 +1710,16 @@
                         </div>
                         <div class="delivery-pill" style="color:#60a5fa; background:rgba(0,92,170,0.08); border-color:rgba(0,92,170,0.25);">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                            <span>Em Breve</span>
+                            <span>Imediato &lt; 10s</span>
                         </div>
                     </div>
 
                     <div class="card-actions-group">
-                        <button type="button" class="btn-card-emitir" onclick="handleSenaiEmBreve(event)" style="background:rgba(0,92,170,0.15); color:#60a5fa; border:1px solid rgba(0,92,170,0.3); opacity:0.85;">
-                            <span>Em Breve</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
-                        </button>
-                        <button type="button" class="btn-card-preview" onclick="openDocModal('senai')" title="Ver detalhes do Certificado SENAI">
+                        <a href="criar-certificado-senai.html" class="btn-card-emitir" onclick="event.stopPropagation()" style="background:#005caa; color:#fff; box-shadow:0 4px 14px -2px rgba(0,92,170,0.4);">
+                            <span>Emitir Certificado</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <button type="button" class="btn-card-preview" onclick="event.stopPropagation(); window.location.href='certificados-senai.html';" title="Ver Certificados SENAI gerados pelo cliente">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                     </div>
@@ -2636,8 +2636,8 @@
                 accent: '#005caa',
                 link: 'criar-certificado-senai.html',
                 devLink: 'criar-certificado-senai.html',
-                btnText: 'Em Desenvolvimento',
-                isDev: true,
+                btnText: 'Emitir Certificado SENAI',
+                isDev: false,
                 html: `
                     <div class="doc-modal-intro">
                         O <strong>Certificado SENAI</strong> é emitido para comprovação de conclusão de cursos profissionalizantes e técnicos com reconhecimento profissional e validade em todo o território nacional.
@@ -2996,13 +2996,13 @@
             return false;
         }
 
-        // Ação para o Certificado SENAI em desenvolvimento (Acesso exclusivo Admin)
+        // Ação para o Certificado SENAI
         function handleSenaiEmBreve(e) {
             if (e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
-            showToastDev('Certificado SENAI (Nacional)', 'A emissão do Certificado de Conclusão SENAI está em homologação técnica e disponível em modo DEV para administradores.');
+            window.location.href = 'certificados-senai.html';
             return false;
         }
 

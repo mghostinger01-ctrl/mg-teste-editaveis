@@ -10,14 +10,14 @@
     <!-- Open Graph / Compartilhamento de Links -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MG Editáveis">
-    <meta property="og:title" content="MG Editáveis • Certificados SENAI (Nacional)">
-    <meta property="og:description" content="Histórico completo de certificados de conclusão SENAI com validade nacional em tempo real.">
+    <meta property="og:title" content="MG Editáveis • Certificados SENAI">
+    <meta property="og:description" content="Acesse seu painel exclusivo para emissão e controle de Certificados de Conclusão SENAI com validação oficial por QR Code.">
     <meta property="og:image" content="https://mg-editaveis.vercel.app/og-image.png">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MG Editáveis | Certificados SENAI (Nacional)</title>
+    <title>MG Editáveis — Certificados de Conclusão SENAI Emitidos</title>
     <script src="saldo-sync.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,7 +41,7 @@
 
             --senai-blue: #005caa;
             --senai-blue-hover: #0047ba;
-            --senai-blue-light: rgba(0, 92, 170, 0.14);
+            --senai-blue-light: rgba(0, 92, 170, 0.15);
             --senai-blue-border: rgba(0, 92, 170, 0.35);
 
             --text-primary: #ffffff;
@@ -71,8 +71,97 @@
             flex-direction: column;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            position: relative;
         }
 
+        /* TEMA CLARO */
+        body.light-theme {
+            --bg-page: #f8fafc;
+            --bg-header: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --bg-input: #f1f5f9;
+            --border-color: #e2e8f0;
+            --border-subtle: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+        }
+        body.light-theme .header {
+            background: #ffffff;
+            border-bottom-color: #e2e8f0;
+        }
+        body.light-theme .stat-card {
+            background: #ffffff;
+            border-color: #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        body.light-theme .stat-value {
+            color: #0f172a;
+        }
+        body.light-theme .table-wrap {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+        }
+        body.light-theme table {
+            background-color: #ffffff !important;
+        }
+        body.light-theme thead th {
+            background: #f8fafc !important;
+            color: #64748b;
+            border-bottom-color: #e2e8f0 !important;
+        }
+        body.light-theme tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        body.light-theme tbody td {
+            border-bottom-color: #f1f5f9;
+            color: #334155;
+        }
+        body.light-theme .name-cell {
+            color: #0f172a !important;
+        }
+        body.light-theme .filters-bar {
+            background: #ffffff;
+            border-color: #e2e8f0;
+        }
+        body.light-theme .filter-input,
+        body.light-theme .status-pills {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+        body.light-theme .status-pill-btn.active {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+        body.light-theme .btn-edit-cnh,
+        body.light-theme .btn-dots,
+        body.light-theme .btn-page {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+        body.light-theme .btn-edit-cnh:hover,
+        body.light-theme .btn-dots:hover,
+        body.light-theme .btn-page:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        body.light-theme .action-dropdown {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        body.light-theme .sec-title {
+            color: #0f172a;
+        }
+        body.light-theme .page-title-group h1 {
+            color: #0f172a;
+        }
+
+        /* ─── SCROLLBAR ─── */
         ::-webkit-scrollbar { width: 7px; height: 7px; }
         ::-webkit-scrollbar-track { background: var(--bg-page); }
         ::-webkit-scrollbar-thumb { background: #252a2c; border-radius: 4px; }
@@ -247,12 +336,13 @@
             text-decoration: none;
             border-radius: 6px;
             transition: all 0.15s;
+            cursor: pointer;
         }
         .dropdown-item:hover { background: #232729; color: #fff; }
         .dropdown-item.danger { color: #f87171; }
         .dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
 
-        /* ─── CONTAINER PRINCIPAL ─── */
+        /* ─── PAGE CONTAINER ─── */
         .page-container {
             max-width: 1400px;
             width: 100%;
@@ -261,38 +351,16 @@
             display: flex;
             flex-direction: column;
             gap: 18px;
-            position: relative;
-            z-index: 2;
+            position: relative !important;
+            z-index: 2 !important;
         }
 
-        /* ─── BREADCRUMB ─── */
-        .breadcrumb-wrap {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        .breadcrumb-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-        .breadcrumb-link:hover { color: #fff; }
-        .breadcrumb-sep { color: #3a3f42; }
-
-        /* ─── STATS CARDS GRID ─── */
+        /* ─── METRIC CARDS ROWS ─── */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 16px;
-        }
-        @media (max-width: 1024px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 600px) {
-            .stats-grid { grid-template-columns: 1fr; }
+            margin-bottom: 8px;
         }
         .stat-card {
             background: var(--bg-card);
@@ -302,6 +370,10 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+        .stat-card.action-card {
+            background: linear-gradient(135deg, rgba(0, 92, 170, 0.18) 0%, rgba(0, 92, 170, 0.05) 100%);
+            border: 1px solid rgba(0, 92, 170, 0.35);
         }
         .stat-label {
             font-size: 12px;
@@ -313,13 +385,7 @@
         .stat-value {
             font-size: 26px;
             font-weight: 900;
-            color: #ffffff;
-            font-variant-numeric: tabular-nums;
-        }
-        .stat-value.green { color: var(--primary); }
-        .stat-card.action-card {
-            background: linear-gradient(135deg, rgba(0, 92, 170, 0.18) 0%, rgba(0, 92, 170, 0.05) 100%) !important;
-            border: 1px solid var(--senai-blue-border) !important;
+            color: #fff;
         }
         .btn-new-doc {
             display: inline-flex;
@@ -327,7 +393,7 @@
             justify-content: center;
             gap: 8px;
             background: var(--senai-blue);
-            color: #ffffff;
+            color: #fff;
             padding: 11px 18px;
             border-radius: 10px;
             font-size: 13.5px;
@@ -335,13 +401,21 @@
             text-decoration: none;
             margin-top: 6px;
             box-shadow: 0 4px 14px rgba(0, 92, 170, 0.35);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            cursor: pointer;
+            transition: all 0.2s;
         }
         .btn-new-doc:hover {
             background: var(--senai-blue-hover);
             transform: translateY(-1px);
             box-shadow: 0 6px 18px rgba(0, 92, 170, 0.45);
+        }
+
+        /* ─── SECTION TITLE ─── */
+        .sec-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 12px;
+            margin-bottom: 2px;
         }
 
         /* ─── FILTERS TOOLBAR ─── */
@@ -354,6 +428,8 @@
             align-items: flex-end;
             gap: 14px;
             flex-wrap: wrap;
+            position: relative !important;
+            z-index: 5 !important;
         }
         .filter-group {
             display: flex;
@@ -376,9 +452,12 @@
             outline: none;
             transition: border-color 0.2s;
         }
-        .filter-input:focus { border-color: var(--senai-blue); }
-        .filter-input::placeholder { color: #55585a; }
-
+        .filter-input:focus {
+            border-color: var(--senai-blue);
+        }
+        .filter-input::placeholder {
+            color: #55585a;
+        }
         .status-pills {
             display: flex;
             background: var(--bg-input);
@@ -397,32 +476,37 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.15s;
+            font-family: var(--font);
         }
         .status-pill-btn.active {
             background: #252a2c;
             color: #ffffff;
-            font-weight: 700;
         }
         .btn-clear-filters {
             background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 8px 14px;
-            border-radius: var(--radius-sm);
+            border: none;
+            color: var(--text-secondary);
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.15s;
+            padding: 8px 6px;
+            margin-left: auto;
+            transition: color 0.2s;
+            font-family: var(--font);
         }
-        .btn-clear-filters:hover { color: #fff; border-color: #383e3c; }
+        .btn-clear-filters:hover {
+            color: #ffffff;
+        }
 
-        /* ─── TABELA DE CERTIFICADOS ─── */
+        /* ─── DATA TABLE ─── */
         .table-wrap {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             overflow: hidden;
-            box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.6);
+            position: relative !important;
+            z-index: 5 !important;
+            box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
         }
         .table-responsive {
             width: 100%;
@@ -431,158 +515,159 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 12.5px;
             text-align: left;
+            background-color: #191c1d !important;
         }
         thead th {
-            background: #141617;
-            padding: 12px 18px;
-            font-size: 11.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 12px 14px;
+            font-size: 11px;
             color: var(--text-muted);
-            border-bottom: 1px solid var(--border-color);
+            text-transform: uppercase;
+            font-weight: 700;
+            border-bottom: 1px solid #232729 !important;
+            background: #161819 !important;
             white-space: nowrap;
         }
-        tbody tr {
-            border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.15s;
-        }
-        tbody tr:last-child { border-bottom: none; }
-        tbody tr:hover { background-color: var(--bg-card-hover); }
         tbody td {
-            padding: 14px 18px;
+            padding: 13px 14px;
+            border-bottom: 1px solid var(--border-subtle);
             vertical-align: middle;
             color: var(--text-secondary);
         }
+        tbody tr {
+            transition: background 0.15s;
+        }
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
         .id-cell {
             font-family: var(--font-mono);
-            font-size: 12px;
+            font-size: 11.5px;
             color: #60a5fa;
             font-weight: 600;
+            white-space: nowrap;
         }
         .name-cell {
             font-weight: 700;
             color: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
-        .name-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--senai-blue-light);
-            border: 1px solid var(--senai-blue-border);
-            color: #60a5fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 800;
-            flex-shrink: 0;
+        .cpf-cell {
+            font-family: var(--font-mono);
+            font-size: 11.5px;
+            color: var(--text-muted);
+            white-space: nowrap;
         }
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
+        .status-cell {
             font-weight: 700;
-            background: rgba(0, 220, 130, 0.1);
-            color: var(--primary);
-            border: 1px solid rgba(0, 220, 130, 0.25);
+            white-space: nowrap;
         }
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: currentColor;
+        .date-cell {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            white-space: nowrap;
         }
 
         /* ─── AÇÕES DA LINHA ─── */
         .actions-cell {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            position: relative;
         }
-        .btn-edit-cert {
-            background: #141617;
-            border: 1px solid var(--border-color);
+        .btn-edit-cnh {
+            background: #1e2224;
+            border: 1px solid #2a3032;
             color: #ffffff;
-            padding: 6px 14px;
+            padding: 5px 10px;
             border-radius: 6px;
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 11.5px;
+            font-weight: 600;
             cursor: pointer;
-            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.15s;
+            transition: all 0.2s;
+            font-family: var(--font);
+            white-space: nowrap;
         }
-        .btn-edit-cert:hover {
-            background: var(--senai-blue);
-            border-color: var(--senai-blue);
-            color: #fff;
+        .btn-edit-cnh:hover {
+            border-color: #005caa;
+            color: #ffffff;
+            background: #252b2d;
+        }
+        .btn-edit-cnh svg {
+            width: 12px;
+            height: 12px;
+            color: #9ca3af;
         }
         .btn-dots {
-            width: 28px;
-            height: 28px;
+            background: #1e2224;
+            border: 1px solid #2a3032;
+            color: var(--text-secondary);
+            padding: 5px 8px;
             border-radius: 6px;
-            background: #141617;
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             cursor: pointer;
-            transition: all 0.15s;
-            position: relative;
+            font-size: 12px;
+            transition: all 0.2s;
+            line-height: 1;
         }
-        .btn-dots:hover { color: #fff; border-color: #383e3c; }
+        .btn-dots:hover {
+            border-color: #3a4042;
+            color: #fff;
+        }
 
+        /* Dropdown Menu */
         .action-dropdown {
             position: absolute;
             right: 0;
             top: 34px;
-            background: #191c1d;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 6px;
-            min-width: 160px;
+            width: 190px;
+            background: #181b1c;
+            border: 1px solid #2a3032;
+            border-radius: 8px;
+            padding: 5px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             display: none;
             flex-direction: column;
             gap: 2px;
             z-index: 100;
         }
-        .action-dropdown.show { display: flex; }
-        .dropdown-act-item {
+        .action-dropdown.show {
+            display: flex;
+        }
+        .action-dropdown .dropdown-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 12px;
+            padding: 8px 10px;
             font-size: 12px;
-            font-weight: 600;
             color: var(--text-secondary);
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            text-decoration: none;
             transition: all 0.15s;
         }
-        .dropdown-act-item:hover { background: #24292b; color: #fff; }
-        .dropdown-act-item.danger { color: #f87171; }
-        .dropdown-act-item.danger:hover { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+        .action-dropdown .dropdown-item:hover {
+            background: #232729;
+            color: #ffffff;
+        }
+        .action-dropdown .dropdown-item.danger {
+            color: #f87171;
+        }
+        .action-dropdown .dropdown-item.danger:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
 
-        /* ─── PAGINAÇÃO ─── */
+        /* ─── FOOTER PAGINAÇÃO ─── */
         .table-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 20px;
+            padding: 12px 18px;
             border-top: 1px solid var(--border-color);
             font-size: 12px;
             color: var(--text-muted);
@@ -594,27 +679,160 @@
             gap: 8px;
         }
         .btn-page {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: #ffffff;
-            padding: 5px 12px;
-            border-radius: 6px;
+            background: #1e2224;
+            border: 1px solid #2a3032;
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 5px;
             font-size: 11.5px;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.2s;
         }
         .btn-page:hover:not(:disabled) {
-            background: #252a2c;
-            border-color: #383e3c;
+            background: #2b3032;
+            color: #fff;
         }
         .btn-page:disabled {
-            opacity: 0.4;
+            opacity: 0.35;
             cursor: not-allowed;
+        }
+
+        /* ─── FLOATING THEME FAB ─── */
+        .fab-chat {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 18px rgba(0, 220, 130, 0.4);
+            z-index: 99;
+            color: #062517;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .fab-chat svg {
+            width: 22px;
+            height: 22px;
+            fill: #062517;
+        }
+        .fab-chat:hover {
+            transform: scale(1.06);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.6);
+        }
+
+        /* ─── NEURAL PLEXUS CANVAS BACKGROUND ─── */
+        .neural-bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ─── BOTÃO FLUTUANTE PULSANTE - NETWORKING ─── */
+        .networking-fab {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 99999;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px 10px 14px;
+            background: linear-gradient(135deg, #121915 0%, #17241e 100%);
+            border: 1.5px solid #00dc82;
+            border-radius: 50px;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            box-shadow: 0 8px 24px -4px rgba(0,0,0,0.7), 0 0 20px rgba(0,220,130,0.35);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.2,0.8,0.2,1);
+            animation: pulseNetworkingGlow 2.4s infinite ease-in-out;
+            user-select: none;
+        }
+        .networking-fab:hover {
+            transform: translateY(-3px) scale(1.03);
+            border-color: #34d399;
+            box-shadow: 0 12px 30px -4px rgba(0,0,0,0.8), 0 0 32px rgba(0,220,130,0.65);
+            color: #ffffff;
+        }
+        .fab-icon-bubble {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            background: #00dc82;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #062517;
+            flex-shrink: 0;
+            box-shadow: 0 0 14px rgba(0,220,130,0.6);
+        }
+        .fab-icon-bubble svg { width: 19px; height: 19px; }
+        .fab-ping-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border: 2px solid #121915;
+            border-radius: 50%;
+            animation: pingPulse 1.8s infinite;
+        }
+        .fab-text-col {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+        .fab-text-subtitle {
+            font-size: 9.5px;
+            font-weight: 800;
+            color: #00dc82;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+        .fab-text-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+        @keyframes pulseNetworkingGlow {
+            0%, 100% { box-shadow: 0 8px 24px -4px rgba(0,0,0,0.7), 0 0 16px rgba(0,220,130,0.3); }
+            50% { box-shadow: 0 10px 28px -4px rgba(0,0,0,0.8), 0 0 28px rgba(0,220,130,0.55); }
+        }
+        @keyframes pingPulse {
+            0% { transform: scale(0.9); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.6; }
+            100% { transform: scale(0.9); opacity: 1; }
+        }
+
+        @media (max-width: 860px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .header-inner { padding: 0 16px; }
+            .page-container { padding: 16px 12px; }
+            .filters-bar { flex-direction: column; align-items: stretch; }
+            .filter-input { width: 100% !important; }
+            .status-pills { width: 100%; justify-content: center; }
+            .networking-fab { bottom: 80px; left: 16px; }
         }
     </style>
 </head>
 <body>
+
+    <!-- HIGH-TECH NEURAL/PLEXUS CANVAS BACKGROUND -->
+    <canvas id="neuralCanvas" class="neural-bg-canvas"></canvas>
 
     <!-- CABEÇALHO PADRÃO OFICIAL MG EDITÁVEIS (62px) -->
     <header class="header">
@@ -673,53 +891,59 @@
         </div>
     </header>
 
-    <!-- CONTAINER DA PÁGINA -->
+    <!-- PAGE CONTAINER (IDENTICAL TO DIPLOMA.HTML) -->
     <div class="page-container">
 
-        <!-- BREADCRUMB -->
-        <div class="breadcrumb-wrap">
-            <a href="editaveis.html" class="breadcrumb-link">Catálogo</a>
-            <span class="breadcrumb-sep">/</span>
-            <span>Certificados SENAI (Nacional)</span>
+        <!-- PAGE HEADER ESPECÍFICO SENAI -->
+        <div class="page-header" style="margin-bottom: 20px;">
+            <div class="page-title-group">
+                <h1 style="font-size: 22px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 10px;">
+                    <a href="editaveis.html" style="color:#94a3b8; text-decoration:none; display:inline-flex; align-items:center; transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'" title="Voltar ao catálogo">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    </a>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#005caa" stroke-width="2.3"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    <span>Certificados SENAI Emitidos</span>
+                </h1>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Histórico completo de certificados de conclusão (SENAI) gerados com validação por QR Code e autenticidade oficial.</p>
+            </div>
         </div>
 
-        <!-- STATS GRID -->
+        <!-- 3 CARDS KPI PADRÃO ORGANIZADO -->
         <div class="stats-grid">
             <div class="stat-card">
                 <span class="stat-label">Total Gerados</span>
-                <span class="stat-value" id="statTotal">1</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Certificados Ativos</span>
-                <span class="stat-value green" id="statAtivos">1</span>
+                <span class="stat-value" id="statTotalVal">0</span>
             </div>
             <div class="stat-card">
                 <span class="stat-label">Saldo Disponível</span>
-                <span class="stat-value" id="statSaldo" style="color:var(--primary);">R$ 0,00</span>
+                <span class="stat-value" id="statSaldo" style="color: #00dc82;">R$ 0,00</span>
             </div>
             <div class="stat-card action-card">
-                <span class="stat-label" style="color:#60a5fa;">Novo Documento</span>
+                <span class="stat-label" style="color: #60a5fa;">Novo Documento</span>
                 <a href="criar-certificado-senai.html" class="btn-new-doc">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    <span>Emitir Certificado SENAI</span>
+                    <span>Emitir Novo Certificado</span>
                 </a>
             </div>
         </div>
 
-        <!-- BARRA DE FILTROS -->
+        <!-- SECTION TITLE -->
+        <div class="sec-title">Certificados SENAI Gerados</div>
+
+        <!-- FILTERS TOOLBAR -->
         <div class="filters-bar">
             <div class="filter-group">
-                <label class="filter-label" for="filterNome">Nome</label>
-                <input type="text" class="filter-input" id="filterNome" placeholder="Buscar por aluno" oninput="applyFilters()" style="width: 180px;">
+                <label class="filter-label">Nome</label>
+                <input type="text" class="filter-input" id="filterNome" placeholder="Buscar por nome" oninput="applyFilters()" style="width: 175px;">
             </div>
 
             <div class="filter-group">
-                <label class="filter-label" for="filterCpf">CPF</label>
-                <input type="text" class="filter-input" id="filterCpf" placeholder="00000000000" oninput="applyFilters()" style="width: 150px;">
+                <label class="filter-label">CPF</label>
+                <input type="text" class="filter-input" id="filterCpf" placeholder="000.000.000-00" oninput="applyFilters()" style="width: 155px;">
             </div>
 
             <div class="filter-group">
-                <label class="filter-label" for="filterData">Data</label>
+                <label class="filter-label">Data</label>
                 <input type="date" class="filter-input" id="filterData" onchange="applyFilters()" style="width: 145px; color-scheme:dark;">
             </div>
 
@@ -727,19 +951,19 @@
                 <label class="filter-label">Status</label>
                 <div class="status-pills">
                     <button class="status-pill-btn active" id="btnStatusTodas" onclick="setStatusFilter('Todas', this)">Todas</button>
-                    <button class="status-pill-btn" id="btnStatusAtivos" onclick="setStatusFilter('Ativo', this)">Ativos</button>
+                    <button class="status-pill-btn" id="btnStatusAtivo" onclick="setStatusFilter('Ativo', this)">Ativos</button>
+                    <button class="status-pill-btn" id="btnStatusOficial" onclick="setStatusFilter('Oficial', this)">Oficiais</button>
                 </div>
             </div>
 
-            <button type="button" class="btn-clear-filters" onclick="clearFilters()">Limpar Filtros</button>
-
-            <button type="button" id="btnBulkDelete" onclick="deleteSelected()" style="display:none; align-items:center; gap:6px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#ef4444; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer;">
+            <button class="btn-clear-filters" onclick="clearFilters()">Limpar Filtros</button>
+            <button id="btnBulkDelete" onclick="deleteSelectedCertificados()" style="display:none; align-items:center; gap:6px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#ef4444; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 <span>Excluir Selecionados (<span id="bulkDeleteCount">0</span>)</span>
             </button>
         </div>
 
-        <!-- TABELA -->
+        <!-- TABLE WRAP -->
         <div class="table-wrap">
             <div class="table-responsive">
                 <table>
@@ -747,414 +971,609 @@
                         <tr>
                             <th style="width: 40px;"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="accent-color:var(--primary); cursor:pointer;"></th>
                             <th>ID</th>
-                            <th>Aluno</th>
+                            <th>Nome</th>
                             <th>CPF</th>
-                            <th>Curso Concluído</th>
-                            <th>Carga Horária</th>
-                            <th>Data de Emissão</th>
-                            <th>Status</th>
+                            <th>Certificado SENAI Status</th>
+                            <th>Data e Hora da Geração</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tblBody">
-                        <!-- Inserido dinamicamente via JS -->
+                        <!-- Preenchido via JavaScript -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- RODAPÉ DA TABELA / PAGINAÇÃO -->
+            <!-- TABLE PAGINATION FOOTER -->
             <div class="table-footer">
                 <div id="paginationInfo">Mostrando 0 de 0 Certificados</div>
                 <div class="pagination-controls">
-                    <span id="pageCurrentInfo">Página 1 de 1</span>
-                    <button type="button" class="btn-page" id="btnPrevPage" onclick="prevPage()">Anterior</button>
-                    <button type="button" class="btn-page" id="btnNextPage" onclick="nextPage()">Próxima</button>
+                    <span id="pageCurrentInfo">Página 0 de 0</span>
+                    <button class="btn-page" id="btnPrevPage" onclick="prevPage()">Anterior</button>
+                    <button class="btn-page" id="btnNextPage" onclick="nextPage()">Próxima</button>
                 </div>
             </div>
         </div>
+
     </div>
 
+    <!-- FLOATING THEME TOGGLE BUTTON (FAB) -->
+    <div class="fab-chat" id="themeFabBtn" title="Alternar Modo Claro / Escuro" onclick="toggleTheme()">
+        <svg id="themeIcon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+    </div>
+
+    <!-- BOTÃO FLUTUANTE PULSANTE - GRUPO NETWORKING MG EDITÁVEIS -->
+    <a href="https://chat.whatsapp.com/J0FvvNpoL7SHodR4ISMbyP?s=cl&p=a&iam=2" target="_blank" rel="noopener noreferrer"
+       class="networking-fab" id="networkingGroupFab" title="Entrar no Grupo de Networking" onclick="var u=this.getAttribute('href'); if(u && u.length > 5){ window.open(u, '_blank'); return false; }">
+        <div class="fab-icon-bubble">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span class="fab-ping-badge"></span>
+        </div>
+        <div class="fab-text-col">
+            <span class="fab-text-subtitle">Comunidade Ativa</span>
+            <span class="fab-text-title" id="networkingGroupTitle">Networking MG Editáveis</span>
+        </div>
+    </a>
+
     <script>
-        // ─── DADOS PADRÃO (EXEMPLO DA FOTO OFICIAL) ───
-        const DEFAULT_ITEMS = [
-            {
-                id: 'SENAI867170',
-                nome: 'ISRAEL SANTOS CARDEAL',
-                cpf: '86717019565',
-                rg: '2125673908',
-                orgao: 'SSP / BA',
-                curso: 'Qualificação Profissional em Programador Web',
-                carga: '240 horas',
-                dataInicio: '20/11/2023',
-                dataFim: '20/03/2024',
-                data: '20/03/2024',
-                created_at: '2024-03-20T10:00:00.000Z',
-                status: 'Ativo'
+    // ─── TEMA CLARO / ESCURO ───
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-theme');
+        localStorage.setItem('happynation_theme', isLight ? 'light' : 'dark');
+        updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+        const isLight = document.body.classList.contains('light-theme');
+        const icon = document.getElementById('themeIcon');
+        if (icon) {
+            if (isLight) {
+                icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+            } else {
+                icon.innerHTML = '<path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>';
             }
-        ];
+        }
+    }
 
-        let allCertificados = [];
-        let filteredCertificados = [];
-        let currentPage = 1;
-        const ITEMS_PER_PAGE = 10;
-        let currentFilterStatus = 'Todas';
+    if (localStorage.getItem('happynation_theme') === 'light') {
+        document.body.classList.add('light-theme');
+    }
+    updateThemeIcon();
 
-        // ─── CARREGAR USUÁRIO & SALDO ───
-        function loadLoggedUser() {
+    // ─── AVATAR DROPDOWN ───
+    function toggleAvatarDropdown(e) {
+        if (e) e.stopPropagation();
+        const drop = document.getElementById('avatarDropdown');
+        if (drop) drop.classList.toggle('show');
+    }
+    document.addEventListener('click', (e) => {
+        const drop = document.getElementById('avatarDropdown');
+        if (drop && drop.classList.contains('show') && !e.target.closest('#avatarDropdown') && !e.target.closest('#userHeaderAvatar')) {
+            drop.classList.remove('show');
+        }
+    });
+
+    function handleLogout(e) {
+        if (e) e.preventDefault();
+        localStorage.removeItem('happynation_user');
+        sessionStorage.removeItem('happynation_user');
+        localStorage.removeItem('happynation_admin_auth');
+        sessionStorage.removeItem('happynation_admin_auth');
+        window.location.href = 'login.html';
+    }
+
+    function showToast(feature) {
+        alert(feature || 'Notificações');
+    }
+
+    // ─── CARREGAR USUÁRIO LOGADO & SALDO ───
+    function loadLoggedUser() {
+        try {
+            let user = null;
+            const userJson = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user');
+            if (userJson) user = JSON.parse(userJson);
+
+            const nameEl = document.getElementById('dropUserName');
+            const emailEl = document.getElementById('dropUserEmail');
+            const avatarEl = document.getElementById('userHeaderAvatar');
+
+            const name = user ? (user.name || user.nome || 'MG Editáveis') : 'MG Editáveis';
+            const email = user ? (user.email || 'admin@mgeditaveis.com.br') : 'admin@mgeditaveis.com.br';
+
+            if (nameEl) nameEl.textContent = name;
+            if (emailEl) emailEl.textContent = email;
+            if (avatarEl) avatarEl.textContent = name.trim().charAt(0).toUpperCase();
+
+            const saldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') 
+                ? window.MGSaldo.get() 
+                : (parseFloat(localStorage.getItem('happynation_saldo') || '7860.00'));
+
+            const saldoHeader = document.getElementById('userHeaderSaldo');
+            if (saldoHeader) saldoHeader.textContent = `Saldo R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            const statSaldo = document.getElementById('statSaldo');
+            if (statSaldo) statSaldo.textContent = `R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        } catch(e) {}
+    }
+
+    // ─── DADOS, FILTROS E PAGINAÇÃO ───
+    let allCertificados = [];
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 10;
+    let currentFilterStatus = 'Todas';
+
+    function formatarCpf(v) {
+        if (!v) return '000.000.000-00';
+        const d = v.replace(/\D/g, '');
+        if (d.length === 11) {
+            return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+        return v;
+    }
+
+    function loadCertificadosData() {
+        const items = [];
+        const seenIds = new Set();
+        let u = {};
+        try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+        const uEmail = (u.email || '').toLowerCase().trim();
+        const userSenaiKey = uEmail ? 'happynation_senai_' + uEmail : null;
+        const deletedList = JSON.parse(localStorage.getItem('happynation_deleted_senai') || '[]');
+
+        function addIfValid(item) {
+            if (!item || !item.id) return;
+            if (deletedList.includes(item.id)) return;
+            if (seenIds.has(item.id)) return;
+            seenIds.add(item.id);
+            items.push(item);
+        }
+
+        // 1. Carrega do histórico geral do SENAI
+        try {
+            const hist = JSON.parse(localStorage.getItem('senai_historico') || '[]');
+            if (Array.isArray(hist)) hist.forEach(addIfValid);
+        } catch(e) {}
+
+        // 2. Carrega da chave do usuário
+        if (userSenaiKey) {
             try {
-                let user = null;
-                const userJson = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user');
-                if (userJson) user = JSON.parse(userJson);
-
-                const nameEl = document.getElementById('dropUserName');
-                const emailEl = document.getElementById('dropUserEmail');
-                const avatarEl = document.getElementById('userHeaderAvatar');
-
-                const name = user ? (user.name || user.nome || 'MG Editáveis') : 'MG Editáveis';
-                const email = user ? (user.email || 'admin@mgeditaveis.com.br') : 'admin@mgeditaveis.com.br';
-
-                if (nameEl) nameEl.textContent = name;
-                if (emailEl) emailEl.textContent = email;
-                if (avatarEl) avatarEl.textContent = name.trim().charAt(0).toUpperCase();
-
-                const saldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') 
-                    ? window.MGSaldo.get() 
-                    : (parseFloat(localStorage.getItem('happynation_saldo') || '7860.00'));
-                
-                const saldoHeader = document.getElementById('userHeaderSaldo');
-                if (saldoHeader) saldoHeader.textContent = `Saldo R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                
-                const statSaldo = document.getElementById('statSaldo');
-                if (statSaldo) statSaldo.textContent = `R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                const list = JSON.parse(localStorage.getItem(userSenaiKey) || '[]');
+                if (Array.isArray(list)) list.forEach(addIfValid);
             } catch(e) {}
         }
 
-        // ─── CARREGAR CERTIFICADOS SENAI ───
-        function loadCertificados() {
-            let items = [];
-            const seen = new Set();
-
-            function addIfValid(item) {
-                if (!item) return;
-                const id = String(item.id || item.codigo || Math.random());
-                if (seen.has(id)) return;
-                seen.add(id);
-
-                items.push({
-                    id: id,
-                    nome: String(item.nome || 'ALUNO').toUpperCase(),
-                    cpf: item.cpf || '00000000000',
-                    rg: item.rg || '2125673908',
-                    orgao: item.orgao || 'SSP / BA',
-                    curso: item.curso || 'Qualificação Profissional',
-                    carga: item.carga ? (String(item.carga).includes('horas') ? item.carga : item.carga + ' horas') : '240 horas',
-                    dataInicio: item.dataInicio || '20/11/2023',
-                    dataFim: item.dataFim || '20/03/2024',
-                    data: item.data || item.created_at || new Date().toLocaleDateString('pt-BR'),
-                    created_at: item.created_at || new Date().toISOString(),
-                    status: item.status || 'Ativo'
-                });
+        // 3. Carrega de todas as chaves happynation_senai_*
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('happynation_senai_')) {
+                try {
+                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                    if (Array.isArray(list)) list.forEach(addIfValid);
+                } catch(e) {}
             }
-
-            // 1. Carrega de senai_historico
-            try {
-                const stored = JSON.parse(localStorage.getItem('senai_historico') || '[]');
-                if (Array.isArray(stored)) stored.forEach(addIfValid);
-            } catch(e) {}
-
-            // 2. Carrega de happynation_senai_
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_senai_')) {
-                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(arr)) arr.forEach(addIfValid);
-                    }
-                }
-            } catch(e) {}
-
-            // 3. Fallback do modelo oficial original
-            DEFAULT_ITEMS.forEach(addIfValid);
-
-            // 4. ORDENAÇÃO: AS MAIS RECENTES SEMPRE NO TOPO!
-            items.sort((a, b) => {
-                const timeA = new Date(a.created_at || a.data).getTime() || 0;
-                const timeB = new Date(b.created_at || b.data).getTime() || 0;
-                return timeB - timeA;
-            });
-
-            allCertificados = [...items];
-            applyFilters();
         }
 
-        // ─── FILTROS & BUSCA ───
-        function applyFilters() {
-            const filterNome = (document.getElementById('filterNome').value || '').toLowerCase().trim();
-            const filterCpf = (document.getElementById('filterCpf').value || '').replace(/\D/g, '');
-            const filterData = document.getElementById('filterData').value;
+        // 4. Carrega do último certificado gerado
+        try {
+            const lastSenai = JSON.parse(localStorage.getItem('happynation_last_senai') || 'null');
+            if (lastSenai) addIfValid(lastSenai);
+        } catch(e) {}
 
-            filteredCertificados = allCertificados.filter(item => {
-                // Filtro por nome
-                if (filterNome && !item.nome.toLowerCase().includes(filterNome)) {
-                    return false;
+        // 5. Seed realista se histórico estiver vazio (iguais à foto demonstrada)
+        if (items.length === 0 && deletedList.length === 0) {
+            const seedCertificados = [
+                {
+                    id: 'SENAI-44409',
+                    nome: 'WANDERSON DA SILVA FRANCISCO',
+                    curso: 'Qualificação Profissional em Eletricista Instalador Predial',
+                    carga: '240',
+                    cpf: '053.115.901-90',
+                    rg: '21225232',
+                    orgao: 'SSP',
+                    status: 'Regular (Oficial SENAI)',
+                    created_at: new Date(Date.now() - 3600000 * 2).toISOString()
+                },
+                {
+                    id: 'SENAI-41273',
+                    nome: 'MARIANA SOUZA SILVA',
+                    curso: 'Qualificação Profissional em Técnico de Automação',
+                    carga: '320',
+                    cpf: '382.914.508-42',
+                    rg: '18239011',
+                    orgao: 'SSP',
+                    status: 'Regular (Oficial SENAI)',
+                    created_at: new Date(Date.now() - 3600000 * 5).toISOString()
+                },
+                {
+                    id: 'SENAI-73864',
+                    nome: 'JULIANO GONÇALVES DA SILVA',
+                    curso: 'Qualificação Profissional em Mecânica Industrial',
+                    carga: '280',
+                    cpf: '048.255.856-39',
+                    rg: '14882039',
+                    orgao: 'SSP',
+                    status: 'Regular (Oficial SENAI)',
+                    created_at: new Date(Date.now() - 3600000 * 24).toISOString()
+                },
+                {
+                    id: 'SENAI-61190',
+                    nome: 'FERNANDO CEZAR DA SILVA',
+                    curso: 'Qualificação Profissional em Programador Web',
+                    carga: '240',
+                    cpf: '048.255.856-39',
+                    rg: '21225232',
+                    orgao: 'SSP',
+                    status: 'Regular (Oficial SENAI)',
+                    created_at: new Date(Date.now() - 3600000 * 48).toISOString()
+                },
+                {
+                    id: 'SENAI-86717',
+                    nome: 'ISRAEL SANTOS CARDEAL',
+                    curso: 'Qualificação Profissional em Programador Web',
+                    carga: '240',
+                    cpf: '867.170.195-65',
+                    rg: '2125673908',
+                    orgao: 'SSP',
+                    status: 'Regular (Oficial SENAI)',
+                    created_at: new Date(Date.now() - 3600000 * 72).toISOString()
                 }
-                // Filtro por CPF
-                if (filterCpf) {
-                    const cleanItemCpf = item.cpf.replace(/\D/g, '');
-                    if (!cleanItemCpf.includes(filterCpf)) return false;
-                }
-                // Filtro por data
-                if (filterData) {
-                    const itemDate = item.created_at || item.data;
-                    if (!itemDate.includes(filterData)) return false;
-                }
-                // Filtro por status
-                if (currentFilterStatus !== 'Todas' && item.status !== currentFilterStatus) {
-                    return false;
-                }
-                return true;
-            });
-
-            currentPage = 1;
-            renderTable();
-            updateStats();
+            ];
+            seedCertificados.forEach(addIfValid);
+            try { localStorage.setItem('senai_historico', JSON.stringify(seedCertificados)); } catch(e){}
         }
 
-        function setStatusFilter(status, btn) {
-            currentFilterStatus = status;
-            document.querySelectorAll('.status-pill-btn').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-            applyFilters();
-        }
+        // Ordenação decrescente: Mais recentes sempre no topo!
+        items.sort((a, b) => {
+            const timeA = new Date(a.created_at || a.data || 0).getTime();
+            const timeB = new Date(b.created_at || b.data || 0).getTime();
+            return timeB - timeA;
+        });
 
-        function clearFilters() {
-            document.getElementById('filterNome').value = '';
-            document.getElementById('filterCpf').value = '';
-            document.getElementById('filterData').value = '';
-            setStatusFilter('Todas', document.getElementById('btnStatusTodas'));
-        }
+        allCertificados = [...items];
+        const statTotal = document.getElementById('statTotalVal');
+        if (statTotal) statTotal.textContent = allCertificados.length;
+        renderTable();
+    }
 
-        // ─── ATUALIZAR CONTADORES ───
-        function updateStats() {
-            const total = allCertificados.length;
-            const ativos = allCertificados.filter(x => x.status === 'Ativo').length;
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statAtivos').textContent = ativos;
-        }
+    function renderTable() {
+        const tbody = document.getElementById('tblBody');
+        if (!tbody) return;
 
-        // ─── RENDERIZAR TABELA ───
-        function renderTable() {
-            const tbody = document.getElementById('tblBody');
-            tbody.innerHTML = '';
+        const nomeFilter = (document.getElementById('filterNome')?.value || '').toLowerCase().trim();
+        const cpfFilter = (document.getElementById('filterCpf')?.value || '').replace(/\D/g, '');
+        const dataFilter = (document.getElementById('filterData')?.value || '').trim();
 
-            const total = filteredCertificados.length;
-            const totalPages = Math.ceil(total / ITEMS_PER_PAGE) || 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-
-            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-            const pageItems = filteredCertificados.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-            if (pageItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:36px; color:var(--text-muted);">Nenhum certificado SENAI encontrado.</td></tr>`;
-                document.getElementById('paginationInfo').textContent = 'Mostrando 0 de 0 Certificados';
-                document.getElementById('pageCurrentInfo').textContent = 'Página 0 de 0';
-                document.getElementById('btnPrevPage').disabled = true;
-                document.getElementById('btnNextPage').disabled = true;
-                return;
+        let filtered = allCertificados.filter(d => {
+            if (nomeFilter && !d.nome.toLowerCase().includes(nomeFilter)) return false;
+            if (cpfFilter) {
+                const cleanCpf = String(d.cpf || '').replace(/\D/g, '');
+                if (!cleanCpf.includes(cpfFilter) && !d.id.toLowerCase().includes(cpfFilter)) return false;
             }
+            if (dataFilter) {
+                const itemDate = d.created_at ? d.created_at.split('T')[0] : '';
+                if (itemDate !== dataFilter) return false;
+            }
+            if (currentFilterStatus === 'Ativo' && d.status && !d.status.toLowerCase().includes('oficial') && !d.status.toLowerCase().includes('ativo') && !d.status.toLowerCase().includes('regular')) return false;
+            if (currentFilterStatus === 'Oficial' && d.status && !d.status.toLowerCase().includes('oficial')) return false;
+            return true;
+        });
 
-            pageItems.forEach(item => {
-                const tr = document.createElement('tr');
-                const initial = item.nome.trim().charAt(0).toUpperCase();
+        const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIdx = startIdx + ITEMS_PER_PAGE;
+        const pageItems = filtered.slice(startIdx, endIdx);
 
-                tr.innerHTML = `
-                    <td><input type="checkbox" class="row-checkbox" value="${item.id}" onchange="updateBulkDeleteUI()" style="accent-color:var(--primary); cursor:pointer;"></td>
-                    <td class="id-cell">${item.id}</td>
-                    <td>
-                        <div class="name-cell">
-                            <div class="name-avatar">${initial}</div>
-                            <span>${item.nome}</span>
-                        </div>
-                    </td>
-                    <td>${item.cpf}</td>
-                    <td style="color:#ffffff; font-weight:600;">${item.curso}</td>
-                    <td>${item.carga}</td>
-                    <td>${item.data}</td>
-                    <td>
-                        <span class="status-badge">
-                            <span class="status-dot"></span>
-                            <span>${item.status}</span>
-                        </span>
-                    </td>
+        const pagInfo = document.getElementById('paginationInfo');
+        const pageCur = document.getElementById('pageCurrentInfo');
+        if (pagInfo) {
+            pagInfo.textContent = filtered.length === 0 ? 'Mostrando 0 de 0 Certificados' : `Mostrando ${startIdx + 1}-${Math.min(endIdx, filtered.length)} de ${filtered.length} Certificados`;
+        }
+        if (pageCur) {
+            pageCur.textContent = filtered.length === 0 ? 'Página 0 de 0' : `Página ${currentPage} de ${totalPages}`;
+        }
+
+        const btnPrev = document.getElementById('btnPrevPage');
+        const btnNext = document.getElementById('btnNextPage');
+        if (btnPrev) btnPrev.disabled = (currentPage <= 1);
+        if (btnNext) btnNext.disabled = (currentPage >= totalPages);
+
+        if (pageItems.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:36px; color:var(--text-muted);">Nenhum certificado SENAI encontrado com os filtros selecionados.</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        pageItems.forEach(d => {
+            const dt = d.created_at ? new Date(d.created_at) : new Date();
+            const dateFormatted = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+            const statusText = d.status || 'Regular (Oficial SENAI)';
+
+            html += `
+                <tr>
+                    <td><input type="checkbox" class="row-select-cb" value="${d.id}" onchange="updateSelectCount()" style="accent-color:var(--primary); cursor:pointer;"></td>
+                    <td class="id-cell">${d.id}</td>
+                    <td class="name-cell" style="cursor:pointer;" onclick="verCertificado('${d.id}')">${d.nome}</td>
+                    <td class="cpf-cell">${formatarCpf(d.cpf)}</td>
+                    <td class="status-cell" style="color: #00dc82 !important;">${statusText}</td>
+                    <td class="date-cell">${dateFormatted}</td>
                     <td>
                         <div class="actions-cell">
-                            <button type="button" class="btn-edit-cert" onclick="editarCertificado('${item.id}')">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                <span>Editar</span>
+                            <button class="btn-edit-cnh" onclick="editarCertificado('${d.id}')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                <span>Editar Certificado</span>
                             </button>
-                            <div style="position:relative;">
-                                <button type="button" class="btn-dots" onclick="toggleRowMenu(event, this)">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-                                </button>
-                                <div class="action-dropdown">
-                                    <div class="dropdown-act-item" onclick="abrirNoEditor('${item.id}')">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                        <span>Abrir e Baixar</span>
-                                    </div>
-                                    <div class="dropdown-act-item danger" onclick="excluirCertificado('${item.id}')">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                        <span>Excluir</span>
-                                    </div>
+                            <button class="btn-dots" onclick="toggleDropdown(event, this)">•••</button>
+                            <div class="action-dropdown">
+                                <div class="dropdown-item" onclick="verCertificado('${d.id}')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <span>Ver Informações</span>
+                                </div>
+                                <div class="dropdown-item" onclick="validarCertificadoQr('${d.id}')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    <span>Validar Autenticidade (QR)</span>
+                                </div>
+                                <div class="dropdown-item danger" onclick="deleteCertificadoRow('${d.id}')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    <span>Excluir Certificado</span>
                                 </div>
                             </div>
                         </div>
                     </td>
-                `;
-                tbody.appendChild(tr);
-            });
+                </tr>
+            `;
+        });
 
-            // Atualiza rodapé de paginação
-            const end = Math.min(startIndex + ITEMS_PER_PAGE, total);
-            document.getElementById('paginationInfo').textContent = `Mostrando ${startIndex + 1} a ${end} de ${total} Certificados`;
-            document.getElementById('pageCurrentInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-            document.getElementById('btnPrevPage').disabled = (currentPage === 1);
-            document.getElementById('btnNextPage').disabled = (currentPage === totalPages);
-        }
+        tbody.innerHTML = html;
+    }
 
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderTable();
-            }
-        }
+    function verCertificado(docId) {
+        window.location.href = 'criar-certificado-senai.html?id=' + encodeURIComponent(docId);
+    }
 
-        function nextPage() {
-            const totalPages = Math.ceil(filteredCertificados.length / ITEMS_PER_PAGE) || 1;
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderTable();
-            }
-        }
-
-        // ─── AÇÕES DE EDIÇÃO & VISUALIZAÇÃO ───
-        function editarCertificado(id) {
-            const item = allCertificados.find(x => x.id === id);
-            if (item) {
+    function editarCertificado(docId) {
+        const item = (typeof allCertificados !== 'undefined' ? allCertificados : []).find(x => String(x.id) === String(docId));
+        if (item) {
+            try {
                 localStorage.setItem('happynation_edit_senai', JSON.stringify(item));
                 sessionStorage.setItem('happynation_edit_senai', JSON.stringify(item));
-            }
-            window.location.href = `criar-certificado-senai.html?id=${id}`;
-        }
-
-        function abrirNoEditor(id) {
-            editarCertificado(id);
-        }
-
-        function excluirCertificado(id) {
-            if (!confirm(`Deseja realmente excluir o Certificado SENAI (${id})?`)) return;
-
-            // Remove do array local
-            allCertificados = allCertificados.filter(x => x.id !== id);
-
-            // Atualiza localStorage
-            try {
-                let hist = JSON.parse(localStorage.getItem('senai_historico') || '[]');
-                hist = hist.filter(x => x.id !== id);
-                localStorage.setItem('senai_historico', JSON.stringify(hist));
-
-                let u = {};
-                try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
-                const email = (u.email || 'admin@mgeditaveis.com.br').toLowerCase().trim();
-                let userHist = JSON.parse(localStorage.getItem('happynation_senai_' + email) || '[]');
-                userHist = userHist.filter(x => x.id !== id);
-                localStorage.setItem('happynation_senai_' + email, JSON.stringify(userHist));
             } catch(e) {}
-
-            applyFilters();
         }
+        window.location.href = 'criar-certificado-senai.html?id=' + encodeURIComponent(docId) + '&edit=true';
+    }
 
-        // ─── SELEÇÃO EM MASSA & EXCLUSÃO ───
-        function toggleSelectAll(master) {
-            document.querySelectorAll('.row-checkbox').forEach(cb => {
-                cb.checked = master.checked;
+    function validarCertificadoQr(docId) {
+        const item = (typeof allCertificados !== 'undefined' ? allCertificados : []).find(x => String(x.id) === String(docId));
+        if (item) {
+            const params = new URLSearchParams({
+                id: item.id,
+                nome: item.nome,
+                cpf: item.cpf ? item.cpf.replace(/\D/g, '') : '',
+                rg: item.rg || '',
+                orgao: item.orgao || 'SSP',
+                curso: item.curso || '',
+                carga: item.carga || '240'
             });
-            updateBulkDeleteUI();
+            window.open('validar-certificado-senai.html?' + params.toString(), '_blank');
+        } else {
+            window.open('validar-certificado-senai.html?id=' + encodeURIComponent(docId), '_blank');
         }
+    }
 
-        function updateBulkDeleteUI() {
-            const checked = document.querySelectorAll('.row-checkbox:checked');
-            const btn = document.getElementById('btnBulkDelete');
-            const countSpan = document.getElementById('bulkDeleteCount');
-            if (checked.length > 0) {
-                btn.style.display = 'inline-flex';
-                countSpan.textContent = checked.length;
-            } else {
-                btn.style.display = 'none';
+    function deleteCertificadoRow(docId) {
+        if (!confirm('Deseja realmente excluir este Certificado SENAI?')) return;
+        allCertificados = allCertificados.filter(c => c.id !== docId);
+
+        try {
+            let deletedIds = JSON.parse(localStorage.getItem('happynation_deleted_senai') || '[]');
+            if (!deletedIds.includes(docId)) {
+                deletedIds.push(docId);
+                localStorage.setItem('happynation_deleted_senai', JSON.stringify(deletedIds));
             }
+
+            let history = JSON.parse(localStorage.getItem('senai_historico') || '[]');
+            history = history.filter(d => d.id !== docId);
+            localStorage.setItem('senai_historico', JSON.stringify(history));
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('happynation_senai_')) {
+                    try {
+                        const list = JSON.parse(localStorage.getItem(key) || '[]');
+                        const filtered = list.filter(c => c.id !== docId);
+                        localStorage.setItem(key, JSON.stringify(filtered));
+                    } catch(eKey) {}
+                }
+            }
+        } catch(e) {}
+
+        const statTotal = document.getElementById('statTotalVal');
+        if (statTotal) statTotal.textContent = allCertificados.length;
+        renderTable();
+    }
+
+    function toggleDropdown(e, btn) {
+        e.stopPropagation();
+        document.querySelectorAll('.action-dropdown').forEach(d => {
+            if (d !== btn.nextElementSibling) d.classList.remove('show');
+        });
+        const dropdown = btn.nextElementSibling;
+        if (dropdown) dropdown.classList.toggle('show');
+    }
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('show'));
+    });
+
+    function applyFilters() {
+        currentPage = 1;
+        renderTable();
+    }
+
+    function setStatusFilter(status, btn) {
+        currentFilterStatus = status;
+        document.querySelectorAll('.status-pill-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        applyFilters();
+    }
+
+    function clearFilters() {
+        const inpNome = document.getElementById('filterNome');
+        const inpCpf = document.getElementById('filterCpf');
+        const inpData = document.getElementById('filterData');
+        if (inpNome) inpNome.value = '';
+        if (inpCpf) inpCpf.value = '';
+        if (inpData) inpData.value = '';
+        setStatusFilter('Todas', document.getElementById('btnStatusTodas'));
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
         }
+    }
 
-        function deleteSelected() {
-            const checked = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
-            if (checked.length === 0) return;
-            if (!confirm(`Deseja excluir os ${checked.length} certificados selecionados?`)) return;
-
-            allCertificados = allCertificados.filter(x => !checked.includes(x.id));
-
-            try {
-                let hist = JSON.parse(localStorage.getItem('senai_historico') || '[]');
-                hist = hist.filter(x => !checked.includes(x.id));
-                localStorage.setItem('senai_historico', JSON.stringify(hist));
-
-                let u = {};
-                try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
-                const email = (u.email || 'admin@mgeditaveis.com.br').toLowerCase().trim();
-                let userHist = JSON.parse(localStorage.getItem('happynation_senai_' + email) || '[]');
-                userHist = userHist.filter(x => !checked.includes(x.id));
-                localStorage.setItem('happynation_senai_' + email, JSON.stringify(userHist));
-            } catch(e) {}
-
-            document.getElementById('selectAllCheckbox').checked = false;
-            updateBulkDeleteUI();
-            applyFilters();
+    function nextPage() {
+        const totalPages = Math.ceil(allCertificados.length / ITEMS_PER_PAGE) || 1;
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTable();
         }
+    }
 
-        // ─── DROPDOWNS ───
-        function toggleRowMenu(e, btn) {
-            e.stopPropagation();
-            document.querySelectorAll('.action-dropdown').forEach(d => {
-                if (d !== btn.nextElementSibling) d.classList.remove('show');
+    // ─── SELEÇÃO EM MASSA & EXCLUSÃO ───
+    function toggleSelectAll(master) {
+        document.querySelectorAll('.row-select-cb').forEach(cb => {
+            cb.checked = master.checked;
+        });
+        updateSelectCount();
+    }
+
+    function updateSelectCount() {
+        const selected = document.querySelectorAll('.row-select-cb:checked');
+        const bulkBtn = document.getElementById('btnBulkDelete');
+        const countSpan = document.getElementById('bulkDeleteCount');
+        if (bulkBtn && countSpan) {
+            countSpan.textContent = selected.length;
+            bulkBtn.style.display = selected.length > 0 ? 'inline-flex' : 'none';
+        }
+    }
+
+    function deleteSelectedCertificados() {
+        const selected = Array.from(document.querySelectorAll('.row-select-cb:checked')).map(cb => cb.value);
+        if (selected.length === 0) return;
+        if (!confirm(`Deseja realmente excluir os ${selected.length} certificados selecionados?`)) return;
+
+        allCertificados = allCertificados.filter(c => !selected.includes(c.id));
+
+        try {
+            let deletedIds = JSON.parse(localStorage.getItem('happynation_deleted_senai') || '[]');
+            selected.forEach(id => {
+                if (!deletedIds.includes(id)) deletedIds.push(id);
             });
-            const menu = btn.nextElementSibling;
-            if (menu) menu.classList.toggle('show');
-        }
+            localStorage.setItem('happynation_deleted_senai', JSON.stringify(deletedIds));
 
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('show'));
+            let history = JSON.parse(localStorage.getItem('senai_historico') || '[]');
+            history = history.filter(d => !selected.includes(d.id));
+            localStorage.setItem('senai_historico', JSON.stringify(history));
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('happynation_senai_')) {
+                    try {
+                        const list = JSON.parse(localStorage.getItem(key) || '[]');
+                        const filtered = list.filter(c => !selected.includes(c.id));
+                        localStorage.setItem(key, JSON.stringify(filtered));
+                    } catch(eKey) {}
+                }
+            }
+        } catch(e) {}
+
+        const master = document.getElementById('selectAllCheckbox');
+        if (master) master.checked = false;
+        updateSelectCount();
+        const statTotal = document.getElementById('statTotalVal');
+        if (statTotal) statTotal.textContent = allCertificados.length;
+        renderTable();
+    }
+
+    // ─── HIGH-TECH NEURAL/PLEXUS CANVAS ANIMATION ───
+    function initNeuralBackground() {
+        const canvas = document.getElementById('neuralCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
         });
 
-        function toggleAvatarDropdown(e) {
-            if (e) e.stopPropagation();
-            const drop = document.getElementById('avatarDropdown');
-            if (drop) drop.classList.toggle('show');
+        const particles = [];
+        const count = Math.min(Math.floor((width * height) / 22000), 55);
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.45,
+                vy: (Math.random() - 0.5) * 0.45,
+                radius: Math.random() * 1.8 + 1
+            });
         }
 
-        function handleLogout(e) {
-            if (e) e.preventDefault();
-            localStorage.removeItem('happynation_user');
-            sessionStorage.removeItem('happynation_user');
-            localStorage.removeItem('happynation_admin_auth');
-            sessionStorage.removeItem('happynation_admin_auth');
-            window.location.href = 'login.html';
-        }
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            const isLight = document.body.classList.contains('light-theme');
+            const dotColor = isLight ? 'rgba(0, 92, 170, 0.45)' : 'rgba(0, 220, 130, 0.5)';
+            const lineColor = isLight ? 'rgba(0, 92, 170,' : 'rgba(0, 220, 130,';
 
-        function showToast(msg) {
-            alert(msg || 'Notificações');
-        }
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+                if (p.y < 0) p.y = height;
+                if (p.y > height) p.y = 0;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadLoggedUser();
-            loadCertificados();
-        });
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = dotColor;
+                ctx.fill();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 130) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `${lineColor} ${(1 - dist / 130) * 0.22})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+        loadLoggedUser();
+        loadCertificadosData();
+        initNeuralBackground();
+    });
     </script>
 </body>
 </html>
