@@ -866,61 +866,44 @@
             display: block;
         }
 
-        /* ─── MARCA D'ÁGUA DE PRÉVIA — MÚLTIPLOS LOGOS SENAI REPETIDOS NA FOLHA ─── */
+        /* ─── MARCA D'ÁGUA DE PRÉVIA — MÚLTIPLOS LOGOS SENAI GRANDES REPETIDOS NA FOLHA ─── */
         .cert-preview-watermark-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: -6%;
+            left: -15%;
+            width: 130%;
+            height: 112%;
             pointer-events: none;
             z-index: 30;
             display: flex;
             flex-direction: column;
             justify-content: space-around;
             overflow: hidden;
-            padding: 30px 0;
+            padding: 15px 0;
         }
         .cert-wm-row {
             display: flex;
             justify-content: space-around;
             align-items: center;
-            transform: rotate(-22deg) scale(1.08);
-            opacity: 0.12;
+            transform: rotate(-24deg);
+            opacity: 0.15;
             user-select: none;
-            gap: 20px;
+            gap: 36px;
             white-space: nowrap;
+        }
+        .cert-wm-row:nth-child(even) {
+            transform: rotate(-24deg) translateX(-70px);
         }
         .cert-wm-item {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            color: #005caa;
+            justify-content: center;
         }
-        .cert-wm-item svg {
-            width: 110px;
-            height: 32px;
-            fill: #005caa;
-        }
-        .cert-wm-item span {
-            font-family: 'Plus Jakarta Sans', Arial, sans-serif;
-            font-size: 13px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            color: #005caa;
-            text-transform: uppercase;
-        }
-        .cert-wm-row.text-band {
-            opacity: 0.15;
-            color: #dc2626;
-        }
-        .cert-wm-row.text-band span {
-            font-family: Arial, sans-serif;
-            font-size: 17px;
-            font-weight: 900;
-            letter-spacing: 4px;
-            color: #dc2626;
-            text-transform: uppercase;
+        .cert-wm-logo-svg {
+            width: 250px;
+            height: 64px;
+            display: block;
+            filter: drop-shadow(0 2px 4px rgba(0, 92, 170, 0.12));
         }
 
         /* ─── QR CODE E LINK NO CANTO INFERIOR DIREITO (AMPLIADO, NÍTIDO E COM QUIET ZONE) ─── */
@@ -1235,57 +1218,187 @@
 
                         <!-- MARCA D'ÁGUA DE PRÉVIA — MÚLTIPLOS LOGOS SENAI REPETIDOS NA FOLHA -->
                         <div class="cert-preview-watermark-overlay" id="previewWatermarkOverlay">
-                            <div class="cert-wm-row text-band">
-                                <span>★ PRÉVIA NÃO OFICIAL ★</span>
-                                <span>•</span>
-                                <span>SENAI NACIONAL</span>
-                                <span>•</span>
-                                <span>PRÉVIA NÃO OFICIAL</span>
+                            <div class="cert-wm-row">
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
                             </div>
                             <div class="cert-wm-row">
                                 <div class="cert-wm-item">
-                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
-                                    <span>• NÃO OFICIAL</span>
-                                </div>
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
                                 <div class="cert-wm-item">
-                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
-                                    <span>• NÃO OFICIAL</span>
-                                </div>
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
                             </div>
                             <div class="cert-wm-row">
                                 <div class="cert-wm-item">
-                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
-                                    <span>• PRÉVIA</span>
-                                </div>
-                                <div class="cert-wm-item">
-                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
-                                    <span>• PRÉVIA</span>
-                                </div>
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
                             </div>
-                            <div class="cert-wm-row text-band">
-                                <span>DOCUMENTO PENDENTE DE EMISSÃO</span>
-                                <span>•</span>
-                                <span>DESCONTO DO SALDO R$ 20,00</span>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
                             </div>
                             <div class="cert-wm-row">
                                 <div class="cert-wm-item">
-                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
-                                    <span>• NÃO OFICIAL</span>
-                                </div>
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
                                 <div class="cert-wm-item">
-                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
-                                    <span>• NÃO OFICIAL</span>
-                                </div>
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
                             </div>
                             <div class="cert-wm-row">
                                 <div class="cert-wm-item">
-                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
-                                    <span>• PRÉVIA</span>
-                                </div>
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
                                 <div class="cert-wm-item">
-                                    <svg viewBox="0 0 160 45"><path d="M6 32 L16 10 L26 10 L16 32 Z M20 32 L30 10 L40 10 L30 32 Z M34 32 L44 10 L54 10 L44 32 Z" fill="#005caa"/><text x="60" y="28" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="2" fill="#005caa">SENAI</text></svg>
-                                    <span>• PRÉVIA</span>
-                                </div>
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                            </div>
+                            <div class="cert-wm-row">
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                            </div>
+                            <div class="cert-wm-row">
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
+                                <div class="cert-wm-item">
+                                <svg viewBox="0 0 240 60" class="cert-wm-logo-svg">
+                                    <g fill="#005caa">
+                                        <path d="M10 46 L26 12 L46 12 L30 46 Z M38 46 L54 12 L74 12 L58 46 Z M66 46 L82 12 L102 12 L86 46 Z"/>
+                                        <text x="114" y="44" font-family="'Plus Jakarta Sans', Arial, Helvetica, sans-serif" font-weight="900" font-size="38" letter-spacing="3.5">SENAI</text>
+                                    </g>
+                                </svg>
+                            </div>
                             </div>
                         </div>
 
