@@ -1042,6 +1042,77 @@
             color: #00dc82;
         }
 
+    
+        /* ─── MARCA D'ÁGUA DE SEGURANÇA ICETRAN (MÚLTIPLOS REPETIDOS NA FOLHA) ─── */
+        .icetran-preview-watermark-overlay {
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            pointer-events: none;
+            user-select: none;
+            z-index: 35;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            overflow: hidden;
+            padding: 20px 0;
+        }
+
+        .icetran-wm-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            transform: rotate(-25deg);
+            white-space: nowrap;
+            gap: 40px;
+            user-select: none;
+        }
+
+        .icetran-wm-row:nth-child(even) {
+            transform: rotate(-25deg) translateX(-90px);
+        }
+
+        .icetran-wm-item {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: rgba(0, 47, 108, 0.22);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .icetran-wm-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .icetran-wm-chevron {
+            width: 7px;
+            height: 22px;
+            background: #f59e0b;
+            transform: skewX(-20deg);
+            display: inline-block;
+            border-radius: 1px;
+            opacity: 0.35;
+        }
+
+        .icetran-wm-chevron.blue {
+            background: #002f6c;
+            opacity: 0.35;
+        }
+
+        .icetran-wm-dot {
+            font-size: 16px;
+            opacity: 0.5;
+            color: #f59e0b;
+        }
+
     </style>
 </head>
 <body>
@@ -1374,6 +1445,57 @@
 
                     <!-- ─── FOLHA 1: FRENTE DO CERTIFICADO ICETRAN (100% AUTÊNTICO) ─── -->
                     <div class="cert-sheet-landscape" id="sheetFrente">
+                        <!-- MARCA D'ÁGUA DE SEGURANÇA ICETRAN (LIBERADA APÓS EMISSÃO) -->
+                        <div class="icetran-preview-watermark-overlay" id="icetranWatermarkFrente">
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                        </div>
                         <!-- Imagem do Template Oficial com Faixa Navy/Amarela, Assinatura e Logo DETRANMG -->
                         <img src="assets/icetran_frente_template.png?v=7" alt="Template Frente ICETRAN" style="position: absolute; top: 0; left: 0; width: 1024px; height: 730px; z-index: 1; pointer-events: none;">
                         
@@ -1413,6 +1535,57 @@
 
                     <!-- ─── FOLHA 2: VERSO DO CERTIFICADO ICETRAN (100% AUTÊNTICO) ─── -->
                     <div class="cert-sheet-landscape" id="sheetVerso">
+                        <!-- MARCA D'ÁGUA DE SEGURANÇA ICETRAN (LIBERADA APÓS EMISSÃO) -->
+                        <div class="icetran-preview-watermark-overlay" id="icetranWatermarkVerso">
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                            
+                            <div class="icetran-wm-row">
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                                <span class="icetran-wm-item"><span class="icetran-wm-icon"><span class="icetran-wm-chevron"></span><span class="icetran-wm-chevron blue"></span></span>ICETRAN <span class="icetran-wm-dot">•</span></span>
+                            </div>
+                        </div>
                         <div class="cert-verso-wrap">
                             <div class="verso-border-box">
                                 <div class="verso-top-yellow-bar"></div>
@@ -1818,6 +1991,12 @@
                 btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="animate-spin"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/></svg> Gerando PDF A4...`;
             }
 
+            // Oculta marcas d'água de prévia temporariamente para captura 100% limpa no PDF
+            const wmFrente = document.getElementById('icetranWatermarkFrente');
+            const wmVerso = document.getElementById('icetranWatermarkVerso');
+            if (wmFrente) wmFrente.style.display = 'none';
+            if (wmVerso) wmVerso.style.display = 'none';
+
             try {
                 const s1 = document.getElementById('sheetFrente');
                 const s2 = document.getElementById('sheetVerso');
@@ -1826,7 +2005,7 @@
                 const prevWrapperTransform = wrapper ? wrapper.style.transform : '';
                 if (wrapper) wrapper.style.transform = 'scale(1)';
 
-                // Captura Frente em Alta Resolução
+                // Captura Frente em Alta Resolução (Sem marca d'água)
                 const canvasFrente = await html2canvas(s1, {
                     scale: 2.4,
                     useCORS: true,
@@ -1834,7 +2013,7 @@
                     logging: false
                 });
 
-                // Captura Verso em Alta Resolução
+                // Captura Verso em Alta Resolução (Sem marca d'água)
                 const canvasVerso = await html2canvas(s2, {
                     scale: 2.4,
                     useCORS: true,
@@ -1889,7 +2068,7 @@
                 // Salva automaticamente no histórico de recentes
                 salvarCertificadoNoHistorico(false);
 
-                // Desconta saldo visual se disponível
+                // Desconta saldo oficial
                 if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
                     window.MGSaldo.deduct(20.00, {
                         tipo: 'certificado_condutor',
@@ -1899,8 +2078,29 @@
                         tagText: 'CERTIFICADO'
                     });
                 }
+
+                // REMOVE DEFINITIVAMENTE AS MARCAS D'ÁGUA DA PRÉVIA NA TELA (Documento Liberado)
+                window._icetranPdfGenerated = true;
+                if (wmFrente) wmFrente.remove();
+                if (wmVerso) wmVerso.remove();
+
+                if (window.Swal) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Certificado Emitido com Sucesso!',
+                        text: 'O PDF oficial sem marca d'água foi baixado e o saldo de R$ 20,00 foi debitado.',
+                        background: '#191c1d',
+                        color: '#fff',
+                        confirmButtonColor: '#00dc82'
+                    });
+                }
             } catch(err) {
                 console.error('Erro ao gerar PDF do Certificado:', err);
+                // Restaura marca d'água caso tenha ocorrido erro
+                if (!window._icetranPdfGenerated) {
+                    if (wmFrente) wmFrente.style.display = 'flex';
+                    if (wmVerso) wmVerso.style.display = 'flex';
+                }
                 alert('Erro ao gerar o PDF. Tente novamente ou utilize o botão Imprimir A4.');
             } finally {
                 if (btn) {
@@ -1910,7 +2110,15 @@
             }
         }
 
-        // Salvar no Histórico Local e Sincronizar com Recentes
+        // Bloqueia impressão direta antes da emissão
+        function imprimirCertificado() {
+            if (!window._icetranPdfGenerated) {
+                alert('⚠️ Para imprimir o Certificado oficial sem marca d\'água, clique primeiro em "Gerar PDF — Certificado de Condutor" para emitir o documento e debitar o saldo.');
+                return;
+            }
+            window.print();
+        }
+
         function salvarCertificadoNoHistorico(showAlert = true) {
             const nome = document.getElementById('inpAlunoNome').value || DEFAULT_CERT.alunoNome;
             const cpf = document.getElementById('inpAlunoCpf').value || DEFAULT_CERT.alunoCpf;
