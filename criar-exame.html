@@ -10,7 +10,7 @@
     <!-- Open Graph / Compartilhamento -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="MG Editáveis | Exame Toxicológico Pardini">
-    <meta property="og:description" content="Geração e Emissão de Laudo Toxicológico Pardini Forense e Ocupacional em alta resolução.">
+    <meta property="og:description" content="Geração e Emissão de Laudo Toxicológico Pardini em altíssima resolução.">
     <meta property="og:image" content="http://painel-mg-editaveis.com/og-image.png">
     
     <link rel="icon" type="image/png" href="favicon.png">
@@ -561,7 +561,7 @@
             max-height: 1123px;
             background: #ffffff;
             color: #000000;
-            padding: 24px 34px 18px 34px;
+            padding: 22px 30px 18px 30px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
             position: relative;
             font-family: Arial, Helvetica, sans-serif;
@@ -574,6 +574,12 @@
             overflow: hidden;
             user-select: none;
             pointer-events: none;
+        }
+
+        /* Cor azul institucional idêntica ao laudo oficial */
+        .blue-val {
+            color: #003399 !important;
+            font-weight: 700;
         }
 
         /* MARCA D'ÁGUA DE PRÉVIA */
@@ -600,9 +606,9 @@
             left: 50%;
             transform: translate(-50%, -50%) rotate(-25deg);
             font-family: Arial, sans-serif;
-            font-size: 76px;
+            font-size: 72px;
             font-weight: 900;
-            letter-spacing: 6px;
+            letter-spacing: 5px;
             color: rgba(196, 18, 48, 0.08);
             text-transform: uppercase;
             white-space: nowrap;
@@ -632,7 +638,7 @@
             white-space: nowrap;
         }
 
-        /* ─── 1. CABEÇALHO DO LAUDO (LOGO + CNPJ + ABNT) ─── */
+        /* ─── 1. CABEÇALHO DO LAUDO (LOGO PARDINI + CNPJ + SELO ABNT) ─── */
         .pardini-header-row {
             display: flex;
             align-items: center;
@@ -647,8 +653,8 @@
         }
 
         .pardini-logo-svg {
-            width: 54px;
-            height: 54px;
+            width: 58px;
+            height: 58px;
             flex-shrink: 0;
         }
 
@@ -659,15 +665,15 @@
         }
 
         .pardini-txt-topo {
-            font-size: 11px;
+            font-size: 12.5px;
             font-weight: 700;
-            color: #6b7280;
-            letter-spacing: 2px;
+            color: #606870;
+            letter-spacing: 1.5px;
             margin-bottom: 3px;
         }
 
         .pardini-txt-marca {
-            font-size: 27px;
+            font-size: 28px;
             font-weight: 900;
             color: #c41230;
             letter-spacing: -0.5px;
@@ -676,8 +682,7 @@
 
         .pardini-txt-sub {
             font-size: 11px;
-            color: #4b6b82;
-            font-style: italic;
+            color: #6c8294;
             font-weight: 600;
             margin-top: 4px;
         }
@@ -687,7 +692,7 @@
             position: relative;
             border: 1px solid #000;
             border-radius: 2px;
-            padding: 8px 16px;
+            padding: 8px 18px;
             text-align: center;
             display: flex;
             align-items: center;
@@ -720,7 +725,7 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            width: 76px;
+            width: 78px;
         }
 
         .acred-top-black {
@@ -762,11 +767,11 @@
             margin-top: 2px;
         }
 
-        /* ─── 2. PRIMEIRO BLOCO (DADOS DO DOADOR & SEGURANÇA) ─── */
+        /* ─── 2. PRIMEIRO BLOCO (DADOS DO DOADOR & AUTENTICAÇÃO) ─── */
         .block-grid-1 {
             border: 1.2px solid #000;
             display: grid;
-            grid-template-columns: 54% 46%;
+            grid-template-columns: 53% 47%;
             margin-bottom: 7px;
             box-sizing: border-box;
         }
@@ -783,6 +788,7 @@
             padding: 3px 6px;
             border-bottom: 1.2px solid #000;
             background: #fff;
+            color: #003399;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -798,7 +804,7 @@
         .doador-title {
             font-size: 9px;
             font-weight: 800;
-            color: #000;
+            color: #003399;
             margin-bottom: 2px;
         }
 
@@ -809,11 +815,6 @@
         }
 
         .doador-row .lbl {
-            font-weight: 700;
-            color: #000;
-        }
-
-        .doador-row .val {
             font-weight: 700;
             color: #000;
         }
@@ -835,11 +836,6 @@
             color: #000;
         }
 
-        .subcol-item .val {
-            font-weight: 700;
-            color: #000;
-        }
-
         /* Lado direito do bloco 1 (Autenticação, Barcode e QR) */
         .block-col-right {
             display: flex;
@@ -852,6 +848,11 @@
             padding: 3px 6px;
             border-bottom: 1.2px solid #000;
             background: #fff;
+            color: #000;
+        }
+
+        .auth-top-header-line .blue-val {
+            color: #003399 !important;
         }
 
         .auth-content-box {
@@ -904,11 +905,15 @@
             margin-top: 5px;
         }
 
+        .auth-instructions-text .blue-val {
+            color: #003399 !important;
+        }
+
         /* ─── 3. SEGUNDO BLOCO (FCC, LAUDO, AMOSTRA, NF) ─── */
         .block-grid-2 {
             border: 1.2px solid #000;
             display: grid;
-            grid-template-columns: 28% 46% 26%;
+            grid-template-columns: 30% 44% 26%;
             margin-bottom: 9px;
             box-sizing: border-box;
         }
@@ -931,11 +936,6 @@
             color: #000;
         }
 
-        .b2-col .val {
-            font-weight: 700;
-            color: #000;
-        }
-
         /* ─── 4. TÍTULO CIANO DA TABELA ─── */
         .cyan-table-title-container {
             display: flex;
@@ -946,7 +946,7 @@
 
         .cyan-thick-bar {
             height: 3px;
-            background-color: #009ebc;
+            background-color: #009fe3;
             width: 100%;
         }
 
@@ -961,7 +961,7 @@
 
         .cyan-thin-bar {
             height: 1px;
-            background-color: #009ebc;
+            background-color: #009fe3;
             width: 100%;
         }
 
@@ -1026,7 +1026,7 @@
         }
 
         .pardini-tox-table tbody td {
-            padding: 1px 3px;
+            padding: 1.2px 3px;
             color: #000;
             font-size: 7.6px;
             line-height: 1.25;
@@ -1149,6 +1149,11 @@
             color: #000;
         }
 
+        .bottom-three-cols a, .bottom-three-cols span.blue-link {
+            color: #003399;
+            text-decoration: underline;
+        }
+
         .bottom-hash-line {
             text-align: center;
             font-size: 7px;
@@ -1266,7 +1271,7 @@
                 <div class="form-row">
                     <div class="form-field">
                         <label>CPF do Doador</label>
-                        <input type="text" class="input-box" id="inp_cpf" value="107.413.816-30" oninput="mascaraCpf(this); syncFromCheckout()" placeholder="000.000.000-00">
+                        <input type="text" class="input-box" id="inp_cpf" value="107.413.316-30" oninput="mascaraCpf(this); syncFromCheckout()" placeholder="000.000.000-00">
                     </div>
 
                     <div class="form-field">
@@ -1297,14 +1302,14 @@
                 <div class="form-row single">
                     <div class="form-field">
                         <label>Posto de Coleta (PCL)</label>
-                        <input type="text" class="input-box" id="inp_posto" value="LABCLIN LABORATORIO DE ANALISES CLINICAS LTDA - 64" oninput="syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_posto" value="LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64" oninput="syncFromCheckout()">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
                         <label>Laudo Nº</label>
-                        <input type="text" class="input-box" id="inp_laudo" value="087D9MMT700293968" oninput="syncFromCheckout(); updateBarcode()" placeholder="Ex: 087D9MMT700293968">
+                        <input type="text" class="input-box" id="inp_laudo" value="087D99MT700293968" oninput="syncFromCheckout(); updateBarcode()" placeholder="Ex: 087D99MT700293968">
                     </div>
 
                     <div class="form-field">
@@ -1387,17 +1392,17 @@
                 </button>
             </div>
 
-            <!-- SEÇÃO 5: SEGURANÇA E MÉDICO REVISOR -->
+            <!-- SEÇÃO 5: SEGURANÇA E RESPONSÁVEL TÉCNICO -->
             <div class="form-section">
                 <div class="form-section-title">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    <span>5. Autenticação & Médico Revisor</span>
+                    <span>5. Autenticação & Responsável Técnico</span>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
                         <label>Código Autenticação</label>
-                        <input type="text" class="input-box" id="inp_autenticacao" value="815HQF" oninput="syncFromCheckout(); updateBarcode()" style="text-transform:uppercase;">
+                        <input type="text" class="input-box" id="inp_autenticacao" value="81540F" oninput="syncFromCheckout(); updateBarcode()" style="text-transform:uppercase;">
                     </div>
 
                     <div class="form-field">
@@ -1409,26 +1414,26 @@
                 <div class="form-row single">
                     <div class="form-field">
                         <label>URL Autenticação QR Code</label>
-                        <input type="text" class="input-box" id="inp_auth_url" value="exametox.com/autenticacao" oninput="syncFromCheckout(); updateQrCode()">
+                        <input type="text" class="input-box" id="inp_auth_url" value="exame.tox.com.br/autenticacao" oninput="syncFromCheckout(); updateQrCode()">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
-                        <label>Nome do Médico Revisor</label>
-                        <input type="text" class="input-box" id="inp_medico_nome" value="Thassio Z. B. Vassiliades" oninput="syncFromCheckout()">
+                        <label>Responsável Técnico</label>
+                        <input type="text" class="input-box" id="inp_medico_nome" value="Thais de L. C. F. Martinodes" oninput="syncFromCheckout()">
                     </div>
 
                     <div class="form-field">
-                        <label>CPF do Médico</label>
-                        <input type="text" class="input-box" id="inp_medico_cpf" value="312.146.888-02" oninput="syncFromCheckout()">
+                        <label>Registro CRF</label>
+                        <input type="text" class="input-box" id="inp_medico_crm" value="CRF - MG: 46.360" oninput="syncFromCheckout()">
                     </div>
                 </div>
 
                 <div class="form-row single">
                     <div class="form-field">
-                        <label>CRM do Médico</label>
-                        <input type="text" class="input-box" id="inp_medico_crm" value="CRM - SP: 173324" oninput="syncFromCheckout()">
+                        <label>Contato / Celular</label>
+                        <input type="text" class="input-box" id="inp_medico_cel" value="Cel.: 34 - 713334" oninput="syncFromCheckout()">
                     </div>
                 </div>
             </div>
@@ -1465,7 +1470,7 @@
             <div class="preview-top-toolbar">
                 <div class="preview-tag">
                     <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:4px;"></span>
-                    Visualização A4 Oficial (Pardini Forense e Ocupacional)
+                    Visualização A4 Oficial (Pardini • Análises Clínicas e Diagnóstico)
                 </div>
                 <div class="zoom-controls">
                     <button class="btn-zoom" onclick="changeZoom(-0.08)" title="Diminuir Zoom">−</button>
@@ -1510,18 +1515,22 @@
                         <div class="pardini-header-row">
                             <div class="pardini-logo-group">
                                 <svg class="pardini-logo-svg" viewBox="0 0 100 100">
-                                    <!-- Hexágono Superior Esquerdo -->
-                                    <polygon points="35,10 65,10 80,36 65,62 35,62 20,36" fill="#c41230" stroke="#ffffff" stroke-width="2.5" />
-                                    <!-- Hexágono Inferior Direito -->
-                                    <polygon points="50,38 80,38 95,64 80,90 50,90 35,64" fill="#c41230" stroke="#ffffff" stroke-width="2.5" />
-                                    <!-- Filetes Geométricos Internos Brancos -->
-                                    <polygon points="35,18 65,18 75,36 65,54 35,54 25,36" fill="none" stroke="#ffffff" stroke-width="2.2" />
-                                    <polygon points="50,46 80,46 90,64 80,82 50,82 40,64" fill="none" stroke="#ffffff" stroke-width="2.2" />
+                                    <!-- Círculo / Fundo vermelho carmim arredondado -->
+                                    <circle cx="50" cy="50" r="46" fill="#c41230" />
+                                    <!-- Hexágono químico 1 -->
+                                    <polygon points="32,24 54,24 65,44 54,64 32,64 21,44" fill="none" stroke="#ffffff" stroke-width="2.8" stroke-linejoin="round" />
+                                    <line x1="33" y1="29" x2="52" y2="29" stroke="#ffffff" stroke-width="2" />
+                                    <line x1="58" y1="44" x2="49" y2="60" stroke="#ffffff" stroke-width="2" />
+                                    <line x1="27" y1="44" x2="36" y2="60" stroke="#ffffff" stroke-width="2" />
+                                    <!-- Hexágono químico 2 entrelaçado -->
+                                    <polygon points="46,36 68,36 79,56 68,76 46,76 35,56" fill="none" stroke="#ffffff" stroke-width="2.8" stroke-linejoin="round" />
+                                    <line x1="47" y1="41" x2="66" y2="41" stroke="#ffffff" stroke-width="2" />
+                                    <line x1="72" y1="56" x2="63" y2="72" stroke="#ffffff" stroke-width="2" />
                                 </svg>
                                 <div class="pardini-logo-text">
                                     <div class="pardini-txt-topo">TOXICOLOGIA</div>
                                     <div class="pardini-txt-marca">PARDINI</div>
-                                    <div class="pardini-txt-sub">Forense e Ocupacional</div>
+                                    <div class="pardini-txt-sub">Análises Clínicas e Diagnóstico</div>
                                 </div>
                             </div>
 
@@ -1552,35 +1561,35 @@
                         <!-- 2. PRIMEIRO BLOCO (DADOS DO DOADOR & AUTENTICAÇÃO) -->
                         <div class="block-grid-1">
                             <div class="block-col-left">
-                                <div class="block-top-header-line" id="fld_posto_coleta">PCL: LABCLIN LABORATORIO DE ANALISES CLINICAS LTDA - 64</div>
+                                <div class="block-top-header-line" id="fld_posto_coleta">PCL: LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64</div>
                                 <div class="doador-inner-wrap">
-                                    <div class="doador-title">DADOS DO DOADOR</div>
+                                    <div class="doador-title">DADOS DO(A) DOADOR</div>
                                     <div class="doador-row">
                                         <span class="lbl">Nome:</span>
-                                        <span class="val" id="fld_nome">Leandro Fernandes</span>
+                                        <span class="val blue-val" id="fld_nome">Leandro Fernandes</span>
                                     </div>
                                     <div class="doador-row">
                                         <span class="lbl">CPF:</span>
-                                        <span class="val" id="fld_cpf">107.413.816-30</span>
+                                        <span class="val blue-val" id="fld_cpf">107.413.316-30</span>
                                     </div>
                                     <div class="doador-subcols-grid">
                                         <div>
-                                            <div class="subcol-item"><span class="lbl">Tipo:</span> <span class="val" id="fld_tipo">CLT</span></div>
-                                            <div class="subcol-item"><span class="lbl">Finalidade:</span> <span class="val" id="fld_finalidade">PERIODICO</span></div>
-                                            <div class="subcol-item"><span class="lbl">Coleta:</span> <span class="val" id="fld_coleta">26/01/2024</span></div>
-                                            <div class="subcol-item"><span class="lbl">Recebimento:</span> <span class="val" id="fld_recebimento">26/01/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Tipo:</span> <span class="val blue-val" id="fld_tipo">CLT</span></div>
+                                            <div class="subcol-item"><span class="lbl">Finalidade:</span> <span class="val blue-val" id="fld_finalidade">PERIODICO</span></div>
+                                            <div class="subcol-item"><span class="lbl">Coleta:</span> <span class="val blue-val" id="fld_coleta">26/01/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Recebimento:</span> <span class="val blue-val" id="fld_recebimento">26/01/2024</span></div>
                                         </div>
                                         <div>
-                                            <div class="subcol-item"><span class="lbl">Análise Lab:</span> <span class="val" id="fld_analise_lab">27/01/2024</span></div>
-                                            <div class="subcol-item"><span class="lbl">Resultado:</span> <span class="val" id="fld_resultado">30/01/2024</span></div>
-                                            <div class="subcol-item"><span class="lbl">Validade:</span> <span class="val" id="fld_validade">29/04/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Análise Lab:</span> <span class="val blue-val" id="fld_analise_lab">27/01/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Resultado:</span> <span class="val blue-val" id="fld_resultado">30/01/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Validade:</span> <span class="val blue-val" id="fld_validade">29/04/2024</span></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="block-col-right">
-                                <div class="auth-top-header-line">INFORMAÇÕES DE SEGURANÇA AUTENTICAÇÃO: <span id="fld_autenticacao">815HQF</span></div>
+                                <div class="auth-top-header-line">INFORMAÇÕES DE SEGURANÇA AUTENTICAÇÃO: <span class="blue-val" id="fld_autenticacao">81540F</span></div>
                                 <div class="auth-content-box">
                                     <div class="auth-graphics-row">
                                         <div class="barcode-holder">
@@ -1591,7 +1600,7 @@
                                         </div>
                                     </div>
                                     <div class="auth-instructions-text">
-                                        Confira a autenticidade deste laudo: escaneie o QR code com o celular ou acesse <span id="fld_auth_url_display">exametox.com/autenticacao</span>
+                                        Confira a autenticidade deste laudo: escaneie o QR code com o celular ou acesse <span class="blue-val" id="fld_auth_url_display">exame.tox.com.br/autenticacao</span>
                                     </div>
                                 </div>
                             </div>
@@ -1600,24 +1609,24 @@
                         <!-- 3. SEGUNDO BLOCO (FCC, LAUDO, AMOSTRA BIOLÓGICA, NF) -->
                         <div class="block-grid-2">
                             <div class="b2-col">
-                                <div><span class="lbl">FCC:</span> <span class="val" id="fld_fcc">CN305638578</span></div>
-                                <div><span class="lbl">Laudo Nº:</span> <span class="val" id="fld_laudo">087D9MMT700293968</span></div>
+                                <div><span class="lbl">FCC:</span> <span class="val blue-val" id="fld_fcc">CN305638578</span></div>
+                                <div><span class="lbl">Laudo Nº:</span> <span class="val blue-val" id="fld_laudo" style="font-style:italic;">087D99MT700293968</span></div>
                             </div>
                             <div class="b2-col center">
-                                <div><span class="lbl">Amostra Biológica:</span> <span class="val" id="fld_amostra">Cabelos CABEÇA - 3,0 cm</span></div>
-                                <div><span class="lbl">Comprimento Coletado:</span> <span class="val" id="fld_comp_coletado">3,0 cm</span></div>
-                                <div><span class="lbl">Comprimento Analisado:</span> <span class="val" id="fld_comp_analisado">3,0 cm</span></div>
-                                <div><span class="lbl">Janela de detecção:</span> <span class="val" id="fld_janela">Aproximadamente 90 dias</span></div>
+                                <div><span class="lbl">Amostra Biológica:</span> <span class="val blue-val" id="fld_amostra">Cabelos CABEÇA - 3,0 cm</span></div>
+                                <div><span class="lbl">Comprimento Coletado:</span> <span class="val blue-val" id="fld_comp_coletado">3,0 cm</span></div>
+                                <div><span class="lbl">Comprimento Analisado:</span> <span class="val blue-val" id="fld_comp_analisado">3,0 cm</span></div>
+                                <div><span class="lbl">Janela de detecção:</span> <span class="val blue-val" id="fld_janela">Aproximadamente 90 dias</span></div>
                             </div>
                             <div class="b2-col">
-                                <div><span class="lbl">Emissão NF:</span> <span class="val" id="fld_nf">0000/00/00</span></div>
+                                <div><span class="lbl">Emissão NF:</span> <span class="val blue-val" id="fld_nf">0000/00/00</span></div>
                             </div>
                         </div>
 
                         <!-- 4. TÍTULO CIANO DA TABELA -->
                         <div class="cyan-table-title-container">
                             <div class="cyan-thick-bar"></div>
-                            <div class="cyan-title-heading">RESULTADO DE ANALISE TOXICOLOGICA</div>
+                            <div class="cyan-title-heading">RESULTADO DE ANALISE TOXICOLÓGICA</div>
                             <div class="cyan-thin-bar"></div>
                         </div>
 
@@ -1631,19 +1640,19 @@
                                     <th class="th-corte-main" colspan="2">VALORES DE CORTE</th>
                                 </tr>
                                 <tr>
-                                    <th class="th-corte-sub">TRIAGEM (ng/mg)</th>
+                                    <th class="th-corte-sub">TRIAGEM (µg/mg)</th>
                                     <th class="th-corte-sub">CONFIRMATÓRIO (ng/mg)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- 1. ANFEPRAMONA -->
-                                <tr class="group-head"><td colspan="5">ANFEPRAMONA</td></tr>
+                                <!-- 1. ANFETAMINA -->
+                                <tr class="group-head"><td colspan="5">ANFETAMINA</td></tr>
                                 <tr class="sub-row">
-                                    <td class="td-name">ANFEPRAMONA</td>
+                                    <td class="td-name">ANFETAMINA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.2</td>
-                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
                                 </tr>
 
                                 <!-- 2. ANFETAMINAS -->
@@ -1652,15 +1661,15 @@
                                     <td class="td-name">ANFETAMINA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.2</td>
-                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
                                 </tr>
                                 <tr class="sub-row">
                                     <td class="td-name">MDA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.2</td>
-                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">.</td>
+                                    <td class="td-center">.</td>
                                 </tr>
 
                                 <!-- 3. COCAÍNA -->
@@ -1669,39 +1678,39 @@
                                     <td class="td-name">COCAÍNA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.5</td>
-                                    <td class="td-center">0.5</td>
+                                    <td class="td-center">0,5</td>
+                                    <td class="td-center">0,5</td>
                                 </tr>
                                 <tr class="sub-row">
                                     <td class="td-name">BENZOILECGONINA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">.</td>
-                                    <td class="td-center">0.05</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,05</td>
                                 </tr>
                                 <tr class="sub-row">
                                     <td class="td-name">NORCOCAÍNA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">.</td>
-                                    <td class="td-center">0.05</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,05</td>
                                 </tr>
                                 <tr class="sub-row">
-                                    <td class="td-name">COCAETILENO</td>
+                                    <td class="td-name">ECOGONELINA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">.</td>
-                                    <td class="td-center">0.05</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,05</td>
                                 </tr>
 
-                                <!-- 4. FEMPROPOREX -->
-                                <tr class="group-head"><td colspan="5">FEMPROPOREX</td></tr>
+                                <!-- 4. FENPROPOREX -->
+                                <tr class="group-head"><td colspan="5">FENPROPOREX</td></tr>
                                 <tr class="sub-row">
-                                    <td class="td-name">FEMPROPOREX</td>
+                                    <td class="td-name">FENPROPOREX</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.2</td>
-                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
                                 </tr>
 
                                 <!-- 5. CANABINOIDES -->
@@ -1710,15 +1719,15 @@
                                     <td class="td-name">THC</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.1</td>
-                                    <td class="td-center">.</td>
+                                    <td class="td-center">0,1</td>
+                                    <td class="td-center">-</td>
                                 </tr>
                                 <tr class="sub-row">
-                                    <td class="td-name">CARBOXI THC</td>
+                                    <td class="td-name">CARBOXI-THC</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">.</td>
-                                    <td class="td-center">0.0002</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,0002</td>
                                 </tr>
 
                                 <!-- 6. METANFETAMINAS -->
@@ -1727,15 +1736,15 @@
                                     <td class="td-name">METANFETAMINA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.2</td>
-                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
                                 </tr>
                                 <tr class="sub-row">
                                     <td class="td-name">MDMA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.2</td>
-                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
                                 </tr>
 
                                 <!-- 7. MAZINDOL -->
@@ -1744,8 +1753,8 @@
                                     <td class="td-name">MAZINDOL</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.5</td>
-                                    <td class="td-center">0.5</td>
+                                    <td class="td-center">0,5</td>
+                                    <td class="td-center">0,5</td>
                                 </tr>
 
                                 <!-- 8. OPIÁCEOS -->
@@ -1754,22 +1763,22 @@
                                     <td class="td-name">MORFINA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.2</td>
-                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
                                 </tr>
                                 <tr class="sub-row">
                                     <td class="td-name">CODEÍNA</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.2</td>
-                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
                                 </tr>
                                 <tr class="sub-row">
-                                    <td class="td-name">ACETILMORFINA</td>
+                                    <td class="td-name">ACETILMORFINA .6</td>
                                     <td class="td-center res-text">NEGATIVO</td>
                                     <td class="td-center">-</td>
-                                    <td class="td-center">0.2</td>
-                                    <td class="td-center">0.2</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1778,10 +1787,10 @@
                         <div class="relatorio-medico-wrap">
                             <div class="relatorio-heading">Relatório Médico</div>
                             <div class="relatorio-box-destaque" id="fld_parecer_box">
-                                NÃO FEZ USO indevido de substâncias psicoativas de acordo com a Resolução 923, DE 28 DE MARÇO DE 2022..
+                                <span class="blue-val">NÃO FEZ USO</span> indevido de substâncias psicoativas de acordo com a Resolução 923, DE 28 DE MARÇO DE 2022..
                             </div>
                             <div class="relatorio-disclaimers-list">
-                                <p>* A indicação de uso de substâncias psicoativas é considerada sempre que a presença de substâncias e ou os metabólitos dessas são encontradas nas amostras pesquisadas acima dos limites de referência estabelecidos na legislação brasileira</p>
+                                <p>*• A indicação de uso de substâncias psicoativas é considerada sempre que a presença de substâncias e ou os metabólitos dessas são encontradas nas amostras pesquisadas acima dos limites de referência estabelecidos na legislação brasileira</p>
                                 <p>*Este parecer médico NÃO indica aptidão ou não para a função, cabendo ao Médico Revisor da empresa avaliação final.</p>
                                 <p>Este parecer médico tem validade de 60 dias a partir da data de coleta da amostra pelo doador.</p>
                                 <p class="data-emissao-line">Data de emissão do relatório médico: <span id="fld_relatorio_data">30/01/2024</span></p>
@@ -1791,21 +1800,26 @@
                         <!-- 7. RODAPÉ INSTITUCIONAL & ASSINATURA -->
                         <div class="pardini-footer-grid">
                             <div class="footer-legal-paragraph" id="fld_legal_txt">
-                                Coleta foi realizada pelo seguinte Posto de Coleta: Labclin Laboratório de Análises Clínicas Ltda, localizado em Centro, Rua São Paulo, 409 - BELO HORIZONTE - MG. Laboratório de coleta não acreditado para a análise do exame toxicológico. Exame realizado pela Toxicologia Pardini Laboratórios S/A (CRFMG: 34.162), empresa do Grupo Hermes Pardini, localizado em Rua Professor José Vieira de Mendonça, 770, CEP: 31310-260 - Engenho Nogueira - Belo Horizonte - MG Laboratório credenciado pelo DENATRAN - email:atoxicolopiapardini.com.br - Telefone: (Sem DDD) 3003-1166 É proibida a reprodução total ou parcial.
+                                Coleta foi realizada pelo seguinte Posto de Coleta: Laboratório de Análises Clínicas LabClin<br>
+                                Localizado em: R. Dr. José Pires, 29 - BELA HORIZONTE - MG, laboratório de coleta: rua da unidade<br>
+                                Amostras coletadas em conformidade com as normas do Sistema Nacional de Qualidade (SNQ), 1.2.018/2018.<br>
+                                Este laudo é válido somente para a amostra analisada. O resultado obtido refere-se exclusivamente à amostra<br>
+                                recebida. A reprodução deste documento só será permitida com autorização da Toxicologia Pardini.<br>
+                                www.pardini.com.br - Telefone: (31) 2101-4000 - e-mail: suporte@pardini.com.br
                             </div>
 
                             <div class="footer-sig-block">
                                 <div class="medico-sig-container">
                                     <svg viewBox="0 0 240 80">
-                                        <!-- Assinatura Manuscrita Realista de Thassio Z. B. Vassiliades -->
-                                        <path d="M 32 58 C 38 42, 48 14, 60 10 C 66 8, 68 18, 64 34 C 58 54, 50 68, 70 64 C 82 60, 90 46, 102 30 C 112 20, 122 42, 130 55 C 136 62, 146 40, 156 34 C 166 26, 170 42, 175 58 C 180 66, 190 58, 202 50" fill="none" stroke="#000000" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M 26 48 Q 78 42, 138 38 T 212 34" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" />
-                                        <circle cx="213" cy="34" r="1.3" fill="#000000" />
+                                        <!-- Assinatura em caneta azul oficial idêntica à foto -->
+                                        <path d="M 32 60 C 38 42, 46 12, 60 8 C 66 6, 68 18, 64 34 C 58 54, 48 68, 68 64 C 80 60, 88 46, 100 28 C 110 18, 120 40, 128 54 C 134 62, 144 38, 154 32 C 164 24, 168 40, 174 56 C 180 64, 190 56, 204 48" fill="none" stroke="#003399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M 26 48 Q 78 40, 142 36 T 215 30" fill="none" stroke="#003399" stroke-width="2.6" stroke-linecap="round" />
+                                        <circle cx="216" cy="30" r="1.4" fill="#003399" />
                                     </svg>
                                 </div>
-                                <div class="medico-name-txt" id="fld_medico_nome">Thassio Z. B. Vassiliades</div>
-                                <div class="medico-doc-txt" id="fld_medico_cpf">CPF: 312.146.888-02</div>
-                                <div class="medico-doc-txt" id="fld_medico_crm">CRM - SP: 173324</div>
+                                <div class="medico-name-txt" id="fld_medico_nome">Thais de L. C. F. Martinodes</div>
+                                <div class="medico-doc-txt" id="fld_medico_crm">CRF - MG: 46.360</div>
+                                <div class="medico-doc-txt" id="fld_medico_cel">Cel.: 34 - 713334</div>
                             </div>
                         </div>
 
@@ -1813,11 +1827,11 @@
                         <div class="bottom-final-bar">
                             <div class="bottom-three-cols">
                                 <span>TXP.FOR.TOX.0052/04</span>
-                                <span>www.exametoxicologico.com.br</span>
+                                <span class="blue-link" id="fld_site_footer">www.exametoxicológico.com.br</span>
                                 <span>Pág 1 / 1</span>
                             </div>
                             <div class="bottom-hash-line">
-                                Este laudo foi assinado digitalmente sob o nro: <span id="fld_hash_cod">406e230323742ad</span>
+                                Este laudo foi assinado digitalmente sob o nº: <span id="fld_hash_cod">406e230323742ad</span>
                             </div>
                         </div>
 
@@ -1915,8 +1929,7 @@
             btnNeg.className = 'status-toggle-btn active-neg';
             btnPos.className = 'status-toggle-btn';
             if (parecerBox) {
-                parecerBox.textContent = 'NÃO FEZ USO indevido de substâncias psicoativas de acordo com a Resolução 923, DE 28 DE MARÇO DE 2022..';
-                parecerBox.style.color = '#000000';
+                parecerBox.innerHTML = '<span class="blue-val">NÃO FEZ USO</span> indevido de substâncias psicoativas de acordo com a Resolução 923, DE 28 DE MARÇO DE 2022..';
             }
             document.querySelectorAll('.res-text').forEach(el => {
                 el.textContent = 'NEGATIVO';
@@ -1926,8 +1939,7 @@
             btnNeg.className = 'status-toggle-btn';
             btnPos.className = 'status-toggle-btn active-pos';
             if (parecerBox) {
-                parecerBox.textContent = 'DETECTADO o uso de substâncias psicoativas acima dos limites de corte da Resolução 923/2022.';
-                parecerBox.style.color = '#c41230';
+                parecerBox.innerHTML = '<span style="color:#c41230; font-weight:800;">DETECTADO O USO</span> indevido de substâncias psicoativas acima dos limites de corte da Resolução 923/2022.';
             }
             document.querySelectorAll('.res-text').forEach((el, idx) => {
                 if (idx === 3) { // Cocaína
@@ -1983,7 +1995,7 @@
         if (elNome) elNome.textContent = val('inp_nome') || 'Leandro Fernandes';
 
         const elCpf = document.getElementById('fld_cpf');
-        if (elCpf) elCpf.textContent = val('inp_cpf') || '107.413.816-30';
+        if (elCpf) elCpf.textContent = val('inp_cpf') || '107.413.316-30';
 
         const elTipo = document.getElementById('fld_tipo');
         if (elTipo) elTipo.textContent = val('inp_tipo') || 'CLT';
@@ -1993,10 +2005,10 @@
 
         // Posto e Laudo
         const elPosto = document.getElementById('fld_posto_coleta');
-        if (elPosto) elPosto.textContent = val('inp_posto') || 'PCL: LABCLIN LABORATORIO DE ANALISES CLINICAS LTDA - 64';
+        if (elPosto) elPosto.textContent = val('inp_posto') || 'PCL: LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64';
 
         const elLaudo = document.getElementById('fld_laudo');
-        if (elLaudo) elLaudo.textContent = val('inp_laudo') || '087D9MMT700293968';
+        if (elLaudo) elLaudo.textContent = val('inp_laudo') || '087D99MT700293968';
 
         const elFcc = document.getElementById('fld_fcc');
         if (elFcc) elFcc.textContent = val('inp_fcc') || 'CN305638578';
@@ -2037,36 +2049,36 @@
 
         // Autenticação e Segurança
         const elAut = document.getElementById('fld_autenticacao');
-        if (elAut) elAut.textContent = val('inp_autenticacao') || '815HQF';
+        if (elAut) elAut.textContent = val('inp_autenticacao') || '81540F';
 
         const elHash = document.getElementById('fld_hash_cod');
         if (elHash) elHash.textContent = val('inp_hash') || '406e230323742ad';
 
         const elAuthUrl = document.getElementById('fld_auth_url_display');
-        if (elAuthUrl) elAuthUrl.textContent = val('inp_auth_url') || 'exametox.com/autenticacao';
+        if (elAuthUrl) elAuthUrl.textContent = val('inp_auth_url') || 'exame.tox.com.br/autenticacao';
 
-        // Médico
+        // Médico Responsável
         const elMedNome = document.getElementById('fld_medico_nome');
-        if (elMedNome) elMedNome.textContent = val('inp_medico_nome') || 'Thassio Z. B. Vassiliades';
-
-        const elMedCpf = document.getElementById('fld_medico_cpf');
-        if (elMedCpf) elMedCpf.textContent = 'CPF: ' + (val('inp_medico_cpf').replace(/^CPF:\s*/i, '') || '312.146.888-02');
+        if (elMedNome) elMedNome.textContent = val('inp_medico_nome') || 'Thais de L. C. F. Martinodes';
 
         const elMedCrm = document.getElementById('fld_medico_crm');
-        if (elMedCrm) elMedCrm.textContent = (val('inp_medico_crm') || 'CRM - SP: 173324');
+        if (elMedCrm) elMedCrm.textContent = (val('inp_medico_crm') || 'CRF - MG: 46.360');
+
+        const elMedCel = document.getElementById('fld_medico_cel');
+        if (elMedCel) elMedCel.textContent = (val('inp_medico_cel') || 'Cel.: 34 - 713334');
     }
 
     // ─── CÓDIGO DE BARRAS & QR CODE ───
     function updateBarcode() {
         try {
-            const raw = document.getElementById('inp_laudo')?.value || '087D9MMT700293968';
-            const clean = raw.replace(/[^A-Za-z0-9]/g, '') || '087D9MMT700293968';
+            const raw = document.getElementById('inp_laudo')?.value || '087D99MT700293968';
+            const clean = raw.replace(/[^A-Za-z0-9]/g, '') || '087D99MT700293968';
             if (typeof JsBarcode === 'function') {
                 JsBarcode('#barcodeSvg', clean, {
                     format: 'CODE128',
                     lineColor: '#000000',
-                    width: 1.4,
-                    height: 38,
+                    width: 1.35,
+                    height: 40,
                     displayValue: false,
                     margin: 2
                 });
@@ -2083,7 +2095,7 @@
             if (!container) return;
             container.innerHTML = '';
 
-            let rawUrl = (document.getElementById('inp_auth_url')?.value || 'exametox.com/autenticacao').trim();
+            let rawUrl = (document.getElementById('inp_auth_url')?.value || 'exame.tox.com.br/autenticacao').trim();
             if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
                 rawUrl = 'https://' + rawUrl;
             }
@@ -2106,11 +2118,11 @@
     // ─── RESTAURAR VALORES PADRÃO ───
     function resetToDefaults() {
         document.getElementById('inp_nome').value = 'Leandro Fernandes';
-        document.getElementById('inp_cpf').value = '107.413.816-30';
+        document.getElementById('inp_cpf').value = '107.413.316-30';
         document.getElementById('inp_tipo').value = 'CLT';
         document.getElementById('inp_finalidade').value = 'PERIODICO';
-        document.getElementById('inp_posto').value = 'LABCLIN LABORATORIO DE ANALISES CLINICAS LTDA - 64';
-        document.getElementById('inp_laudo').value = '087D9MMT700293968';
+        document.getElementById('inp_posto').value = 'LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64';
+        document.getElementById('inp_laudo').value = '087D99MT700293968';
         document.getElementById('inp_fcc').value = 'CN305638578';
         document.getElementById('inp_amostra').value = 'Cabelos CABEÇA - 3,0 cm';
         document.getElementById('inp_janela').value = 'Aproximadamente 90 dias';
@@ -2122,12 +2134,12 @@
         document.getElementById('inp_analise_lab').value = '27/01/2024';
         document.getElementById('inp_resultado').value = '30/01/2024';
         document.getElementById('inp_validade').value = '29/04/2024';
-        document.getElementById('inp_autenticacao').value = '815HQF';
+        document.getElementById('inp_autenticacao').value = '81540F';
         document.getElementById('inp_hash').value = '406e230323742ad';
-        document.getElementById('inp_auth_url').value = 'exametox.com/autenticacao';
-        document.getElementById('inp_medico_nome').value = 'Thassio Z. B. Vassiliades';
-        document.getElementById('inp_medico_cpf').value = '312.146.888-02';
-        document.getElementById('inp_medico_crm').value = 'CRM - SP: 173324';
+        document.getElementById('inp_auth_url').value = 'exame.tox.com.br/autenticacao';
+        document.getElementById('inp_medico_nome').value = 'Thais de L. C. F. Martinodes';
+        document.getElementById('inp_medico_crm').value = 'CRF - MG: 46.360';
+        document.getElementById('inp_medico_cel').value = 'Cel.: 34 - 713334';
 
         setResultadoGeral('Negativo');
         syncFromCheckout();
@@ -2144,7 +2156,7 @@
         clone.style.minHeight = '1123px';
         clone.style.height = '1123px';
         clone.style.maxHeight = '1123px';
-        clone.style.padding = '24px 34px 18px 34px';
+        clone.style.padding = '22px 30px 18px 30px';
         clone.style.boxShadow = 'none';
         clone.style.background = '#ffffff';
         clone.style.boxSizing = 'border-box';
