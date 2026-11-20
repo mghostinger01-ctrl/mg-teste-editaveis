@@ -1031,8 +1031,8 @@
             </div>
 
             <div class="form-group" style="margin-top:10px;">
-                <label class="form-label" for="inpQrUrl">Link de Validação (QR Code)</label>
-                <input type="text" id="inpQrUrl" class="form-input" value="https://senai.br/certificados" oninput="updateCertificado()">
+                <label class="form-label" for="inpQrUrl">Link de Validação (Domínio do QR Code)</label>
+                <input type="text" id="inpQrUrl" class="form-input" value="https://fieborg-br-senai.vercel.app" oninput="updateCertificado()">
             </div>
 
             <!-- AÇÃO PRINCIPAL DE EMISSÃO -->
@@ -1116,7 +1116,7 @@
                             <!-- QR Code e Link Oficial -->
                             <div class="cert-qr-container">
                                 <div id="qrcodePreview" class="cert-qr-box"></div>
-                                <div class="cert-qr-url" id="prevQrUrl">https://senai.br/certificados</div>
+                                <div class="cert-qr-url" id="prevQrUrl">https://fieborg-br-senai.vercel.app</div>
                             </div>
                         </div>
                     </div>
@@ -1139,7 +1139,7 @@
             carga: '240',
             diretorNome: 'Evandro Munice Mazo',
             diretorCargo: 'DIRETOR REGIONAL DO SENAI',
-            qrUrl: 'https://senai.br/certificados'
+            qrUrl: 'https://fieborg-br-senai.vercel.app'
         };
 
         let currentZoom = 0.85;
@@ -1190,8 +1190,26 @@
             // Atualiza Assinatura Dinâmica Feita à Mão
             renderAssinatura();
 
-            // Atualiza QR Code dinamicamente
-            renderQrCode(qrUrl);
+            // Atualiza QR Code dinamicamente com os parâmetros para validação instantânea no celular
+            const baseUrl = (qrUrl || 'https://fieborg-br-senai.vercel.app').trim();
+            const valParams = new URLSearchParams({
+                id: 'SENAI' + (cpf.replace(/\D/g, '').slice(-6) || '781294'),
+                nome: nome,
+                cpf: cpf.replace(/\D/g, ''),
+                rg: rg,
+                orgao: orgao,
+                curso: curso,
+                dataInicio: dataInicio,
+                dataFim: dataFim,
+                carga: carga,
+                diretor: diretorNome,
+                cargo: diretorCargo
+            });
+            const fullQrTarget = baseUrl.includes('?') 
+                ? `${baseUrl}&${valParams.toString()}` 
+                : `${baseUrl.replace(/\/+$/, '')}/?${valParams.toString()}`;
+
+            renderQrCode(fullQrTarget);
         }
 
         function renderQrCode(url) {
@@ -1200,7 +1218,7 @@
             container.innerHTML = '';
             try {
                 qrCodeObj = new QRCode(container, {
-                    text: url || 'https://senai.br/certificados',
+                    text: url || 'https://fieborg-br-senai.vercel.app',
                     width: 72,
                     height: 72,
                     colorDark: '#000000',

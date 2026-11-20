@@ -98,9 +98,30 @@
       ],
       "destination": "/validar-certificado-condutor.html",
       "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "fieborg-br-senai.vercel.app"
+        }
+      ],
+      "destination": "/validar-certificado-senai.html",
+      "permanent": false
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "fieborg-br-senai.vercel.app"
+        }
+      ],
+      "destination": "/validar-certificado-senai.html"
+    },
     {
       "source": "/",
       "has": [
@@ -250,6 +271,14 @@
     {
       "source": "/validar-condutor",
       "destination": "/validar-certificado-condutor.html"
+    },
+    {
+      "source": "/validar-certificado-senai",
+      "destination": "/validar-certificado-senai.html"
+    },
+    {
+      "source": "/validar-senai",
+      "destination": "/validar-certificado-senai.html"
     }
   ]
 }
