@@ -2454,19 +2454,8 @@
                 }
             }
 
-            // Grava registro no histórico de exames
-            try {
-                let loggedUser = {};
-                try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
-                const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
-                const examesKey = 'happynation_exames_' + uEmail;
-                let exList = JSON.parse(localStorage.getItem(examesKey) || '[]');
-                
-                const existingId = new URLSearchParams(window.location.search).get('id');
-                const examId = existingId || ('TOX-' + Math.floor(10000 + Math.random() * 90000));
-                
-            // Salva registro completo com todos os campos no histórico
-            salvarExameNoHistorico(examId, nomeCondutor);
+            // Grava registro completo com todos os campos no histórico
+            salvarExameNoHistorico('', nomeCondutor);
         } catch(err) {
             console.error('Erro ao gerar laudo toxicológico:', err);
             alert('Erro ao gerar laudo: ' + (err.message || 'Falha ao processar'));
