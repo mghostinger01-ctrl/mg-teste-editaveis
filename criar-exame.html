@@ -2131,6 +2131,7 @@
             if (amostraVal) qParams.set('am', amostraVal);
 
             const targetUrl = baseUrl + '?' + qParams.toString();
+            window._lastQrUrl = targetUrl;
 
             if (typeof QRCode === 'function') {
                 qrCodeInstance = new QRCode(container, {
@@ -2218,11 +2219,50 @@
             qrPreview.classList.remove('qr-locked');
             qrPreview.style.filter = 'none';
             qrPreview.style.opacity = '1';
-            const imgs = qrPreview.querySelectorAll('img, canvas');
-            imgs.forEach(el => {
-                el.style.filter = 'none';
-                el.style.opacity = '1';
-            });
+
+            // Garante que a imagem do QR Code seja renderizada no clone sem depender de canvas em branco
+            const origCanvas = sheetEl.querySelector('#qrcodePreview canvas');
+            const origImg = sheetEl.querySelector('#qrcodePreview img');
+            let hasValidImg = false;
+
+            qrPreview.innerHTML = '';
+
+            if (origCanvas && origCanvas.width > 0) {
+                try {
+                    const dataUrl = origCanvas.toDataURL('image/png');
+                    if (dataUrl && dataUrl.length > 100) {
+                        const imgEl = document.createElement('img');
+                        imgEl.src = dataUrl;
+                        imgEl.style.width = '58px';
+                        imgEl.style.height = '58px';
+                        imgEl.style.display = 'block';
+                        qrPreview.appendChild(imgEl);
+                        hasValidImg = true;
+                    }
+                } catch(eCanvas) {}
+            }
+
+            if (!hasValidImg && origImg && origImg.src && origImg.src.startsWith('data:')) {
+                const imgEl = document.createElement('img');
+                imgEl.src = origImg.src;
+                imgEl.style.width = '58px';
+                imgEl.style.height = '58px';
+                imgEl.style.display = 'block';
+                qrPreview.appendChild(imgEl);
+                hasValidImg = true;
+            }
+
+            // Fallback caso não tenha imagem gerada ainda
+            if (!hasValidImg && typeof QRCode === 'function' && window._lastQrUrl) {
+                new QRCode(qrPreview, {
+                    text: window._lastQrUrl,
+                    width: 58,
+                    height: 58,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.L
+                });
+            }
         }
 
         return clone;
@@ -2231,6 +2271,11 @@
     // ─── MÉTODO PARA EXPORTAR BLOB DO PDF PARA O COMBO ───
     window.gerarPdfExameBlob = async function() {
         try {
+            syncFromCheckout();
+            updateBarcode();
+            updateQrCode();
+            await new Promise(r => setTimeout(r, 80));
+
             const sheet = document.getElementById('sheetDoc');
             if (!sheet) throw new Error('Elemento sheetDoc não encontrado');
 
@@ -2318,6 +2363,7 @@
             syncFromCheckout();
             updateBarcode();
             updateQrCode();
+            await new Promise(r => setTimeout(r, 80));
 
             const sheet = document.getElementById('sheetDoc');
             if (!sheet) throw new Error('Elemento sheetDoc não encontrado');
@@ -2459,6 +2505,7 @@
             syncFromCheckout();
             updateBarcode();
             updateQrCode();
+            await new Promise(r => setTimeout(r, 80));
 
             const sheet = document.getElementById('sheetDoc');
             if (!sheet) return;
