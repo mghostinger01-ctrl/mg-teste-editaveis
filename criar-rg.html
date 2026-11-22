@@ -487,9 +487,9 @@
         .composite-card-frame {
             margin-left: 26px;
             margin-top: 28px;
-            width: 559px;
-            height: 355px;
-            border: 1px solid #d1d5db;
+            width: 560px;
+            height: 356px;
+            border: 1px solid #c4c7c5;
             border-radius: 4px;
             box-sizing: border-box;
             overflow: hidden;
@@ -510,10 +510,10 @@
 
         #compPhoto {
             position: absolute;
-            top: 140px;
-            left: 39px;
-            width: 110px;
-            height: 140px;
+            top: 143px;
+            left: 41px;
+            width: 99px;
+            height: 139px;
             object-fit: cover;
             z-index: 5;
             border: 1px solid #cbd5e1;
@@ -521,8 +521,9 @@
         }
 
         #compHeaderUf {
+            display: none;
             position: absolute;
-            top: 45px;
+            top: 38px;
             left: 120px;
             width: 360px;
             text-align: center;
@@ -537,8 +538,9 @@
         }
 
         #compHeaderSsp {
+            display: none;
             position: absolute;
-            top: 58px;
+            top: 50px;
             left: 120px;
             width: 360px;
             text-align: center;
@@ -565,93 +567,93 @@
         }
 
         #compNome {
-            top: 167px;
-            left: 194px;
+            top: 161px;
+            left: 183px;
             width: 350px;
             font-size: 13px;
             font-weight: 800;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.15px;
         }
 
         #compNomeSocial {
-            top: 204px;
-            left: 194px;
+            top: 198px;
+            left: 183px;
             width: 350px;
             font-size: 12.5px;
             font-weight: 700;
         }
 
         #compCpf {
-            top: 243px;
-            left: 194px;
-            width: 175px;
-            font-size: 14px;
+            top: 233px;
+            left: 183px;
+            width: 160px;
+            font-size: 13.5px;
             font-weight: 800;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.15px;
         }
 
         #compSexo {
-            top: 243px;
-            left: 375px;
-            width: 80px;
+            top: 233px;
+            left: 354px;
+            width: 60px;
             font-size: 13px;
             font-weight: 800;
         }
 
         #compNasc {
-            top: 275px;
-            left: 194px;
-            width: 175px;
+            top: 266px;
+            left: 183px;
+            width: 160px;
             font-size: 12px;
             font-weight: 700;
         }
 
         #compNac {
-            top: 275px;
-            left: 375px;
-            width: 80px;
+            top: 266px;
+            left: 354px;
+            width: 60px;
             font-size: 12px;
             font-weight: 700;
         }
 
         #compNat {
-            top: 308px;
-            left: 194px;
-            width: 175px;
+            top: 302px;
+            left: 183px;
+            width: 160px;
             font-size: 11.5px;
             font-weight: 700;
             text-transform: uppercase;
         }
 
         #compVal {
-            top: 308px;
-            left: 375px;
-            width: 120px;
+            top: 302px;
+            left: 354px;
+            width: 110px;
             font-size: 11.5px;
             font-weight: 700;
         }
 
         #compSigBox {
             position: absolute;
-            top: 274px;
-            left: 195px;
-            width: 215px;
-            height: 54px;
+            top: 270px;
+            left: 191px;
+            width: 216px;
+            height: 58px;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            align-items: flex-end;
+            justify-content: flex-start;
             z-index: 5;
         }
 
         #compSigImg {
-            max-width: 100%;
-            max-height: 100%;
+            max-width: 216px;
+            max-height: 52px;
             object-fit: contain;
         }
 
         #compSigText {
             font-family: 'Homemade Apple', cursive;
-            font-size: 20px;
+            font-size: 18px;
             color: #000000;
             font-weight: 600;
             line-height: 1;
@@ -659,7 +661,7 @@
         }
 
         .composite-qr-col {
-            margin-left: 38px;
+            margin-left: 37px;
             margin-top: 9px;
             width: 326px;
             display: flex;
@@ -672,7 +674,7 @@
             width: 100%;
             text-align: left;
             font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
             color: #000000;
             margin-bottom: 5px;
@@ -682,36 +684,41 @@
         .comp-qr-box {
             width: 326px;
             height: 315px;
-            border: 1px solid #d1d5db;
+            border: 1px solid #c4c7c5;
             background: #ffffff;
             box-sizing: border-box;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         #compQrInner {
-            width: 100%;
-            height: 100%;
+            width: 224px;
+            height: 224px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         #compQrImg {
-            width: 224px;
-            height: 224px;
+            width: 224px !important;
+            height: 224px !important;
+            max-width: 224px !important;
+            max-height: 224px !important;
             object-fit: contain;
+            display: block;
         }
 
         .comp-qr-caption {
-            margin-top: 19px;
+            margin-top: 18px;
             font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 500;
             color: #000000;
             text-align: center;
             line-height: 1.35;
+            letter-spacing: -0.1px;
             white-space: nowrap;
         }
         #viewFrenteContainer {
@@ -1147,9 +1154,9 @@
                                 <!-- Foto 3x4 Oficial -->
                                 <img id="compPhoto" src="assets/rayson_foto.png" alt="Foto">
 
-                                <!-- Cabeçalho Estado e Órgão -->
-                                <div id="compHeaderUf" class="comp-field-header">Estado de Minas Gerais</div>
-                                <div id="compHeaderSsp" class="comp-field-header-sub">Polícia Civil do Estado de Minas Gerais</div>
+                                <!-- Cabeçalho Estado e Órgão (já gravados no guilhoche oficial) -->
+                                <div id="compHeaderUf" class="comp-field-header" style="display:none;"></div>
+                                <div id="compHeaderSsp" class="comp-field-header-sub" style="display:none;"></div>
 
                                 <!-- Campos Textuais sobre o Guilhoche Oficial -->
                                 <div class="comp-dyn-field" id="compNome">RAYSON EVENCIO MARTINS</div>
@@ -1174,7 +1181,7 @@
                             <div class="comp-qr-title">QR Code</div>
                             <div class="comp-qr-box">
                                 <div id="compQrInner">
-                                    <img id="compQrImg" src="assets/rayson_qr_vio.png" alt="QR Code Vio">
+                                    <img id="compQrImg" src="assets/rayson_qr_vio.png" alt="QR Code Vio" style="width:224px; height:224px; object-fit:contain; display:block;">
                                 </div>
                             </div>
                             <div class="comp-qr-caption">
@@ -1408,10 +1415,24 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
             if (cVal) cVal.textContent = val;
 
             const cUf = document.getElementById('compHeaderUf');
-            if (cUf) cUf.textContent = local;
+            if (cUf) {
+                if (local && !local.includes('Minas Gerais')) {
+                    cUf.textContent = local;
+                    cUf.style.display = 'block';
+                } else {
+                    cUf.style.display = 'none';
+                }
+            }
 
             const cSsp = document.getElementById('compHeaderSsp');
-            if (cSsp) cSsp.textContent = orgao;
+            if (cSsp) {
+                if (orgao && !orgao.includes('Civil do Estado de Minas Gerais')) {
+                    cSsp.textContent = orgao;
+                    cSsp.style.display = 'block';
+                } else {
+                    cSsp.style.display = 'none';
+                }
+            }
 
             // QR Code do Documento Oficial
             renderQrOficial(cpf, nome);
@@ -1495,7 +1516,7 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
             if (!inner) return;
             const cleanCpf = (cpf || '').replace(/\D/g, '');
             if (cleanCpf === '70709490658') {
-                inner.innerHTML = '<img id="compQrImg" src="assets/rayson_qr_vio.png" alt="QR Code Vio" style="width:100%; height:100%; object-fit:contain;">';
+                inner.innerHTML = '<img id="compQrImg" src="assets/rayson_qr_vio.png" alt="QR Code Vio" style="width:224px; height:224px; object-fit:contain; display:block;">';
                 return;
             }
             const qrUrl = `https://servicos.serpro.gov.br/vio/?d=${cleanCpf}&t=CIN&auth=1`;
@@ -1503,8 +1524,8 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
             if (window.QRCode) {
                 new QRCode(inner, {
                     text: qrUrl,
-                    width: 285,
-                    height: 285,
+                    width: 224,
+                    height: 224,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
                     correctLevel: QRCode.CorrectLevel.M
