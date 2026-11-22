@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/doc-isolation-guard.js"></script>
+
+    <!-- Open Graph / Compartilhamento de Links -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MG Editáveis">
+    <meta property="og:title" content="MG Editáveis • Certificados de Condutor (ICETRAN)">
+    <meta property="og:description" content="Histórico completo de certificados de condutor especializado gerados em tempo real.">
+    <meta property="og:image" content="https://mg-editaveis.vercel.app/og-image.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | Certificados de Condutor (ICETRAN)</title>
+    <script src="saldo-sync.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-page: #121414;
+            --bg-header: #141716;
+            --bg-card: #191c1d;
+            --bg-card-hover: #1e2223;
+            --bg-input: #141617;
+            --border-color: #242829;
+            --border-subtle: #1e2223;
+            
+            --primary: #00dc82;
+            --primary-hover: #00c975;
+            --primary-light: rgba(0, 220, 130, 0.12);
+            --primary-border: rgba(0, 220, 130, 0.28);
+
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #2563eb;
+            --accent-blue-light: rgba(59, 130, 246, 0.12);
+            --accent-blue-border: rgba(59, 130, 246, 0.28);
+
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: var(--font);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: var(--bg-page); }
+        ::-webkit-scrollbar-thumb { background: #252a2c; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #353b3c; }
+
+        /* ─── LIGHT THEME OVERRIDES ─── */
+        body.light-theme {
+            --bg-page: #f6f8f7;
+            --bg-header: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8fafc;
+            --bg-input: #f1f5f9;
+            --border-color: #e2e8f0;
+            --border-subtle: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+        }
+        body.light-theme thead th { background: #f8fafc !important; color: #64748b !important; }
+        body.light-theme tbody tr td { color: #334155 !important; }
+        body.light-theme .name-cell { color: #0f172a !important; }
+        body.light-theme .id-cell { color: #2563eb !important; }
+        body.light-theme .btn-edit-cnh { background: #f1f5f9; border-color: #cbd5e1; color: #0f172a; }
+        body.light-theme .btn-dots { background: #f1f5f9; border-color: #cbd5e1; color: #475569; }
+        body.light-theme .action-dropdown { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        body.light-theme .dropdown-item { color: #334155; }
+        body.light-theme .dropdown-item:hover { background: #f1f5f9; }
+        body.light-theme .status-pill-btn.active { background: #e2e8f0; color: #0f172a; }
+
+        /* ─── SOLID BACKGROUND SHIELD ─── */
+        .page-container {
+            position: relative !important;
+            z-index: 2 !important;
+        }
+        .stat-card, .table-wrap, .filters-bar {
+            background-color: #191c1d !important;
+            border-color: #232729 !important;
+            opacity: 1 !important;
+            position: relative !important;
+            z-index: 5 !important;
+            box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+        }
+        body.light-theme .stat-card, body.light-theme .table-wrap, body.light-theme .filters-bar {
+            background-color: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08) !important;
+        }
+
+        /* ─── CABEÇALHO OFICIAL 62px ─── */
+        .header {
+            height: 62px;
+            background: var(--bg-header);
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+        }
+        .header-inner {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: #00dc82;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 16px rgba(0, 220, 130, 0.45);
+            overflow: hidden;
+        }
+        .brand-icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .brand-text {
+            font-size: 19px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.4px;
+            white-space: nowrap;
+        }
+        body.light-theme .brand-text { color: #0f172a; }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+
+        .saldo-pill {
+            background: rgba(0, 220, 130, 0.08);
+            color: #00dc82;
+            border: 1px solid #00dc82;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 220, 130, 0.15);
+        }
+        .saldo-pill:hover {
+            background: rgba(0, 220, 130, 0.16);
+            box-shadow: 0 0 16px rgba(0, 220, 130, 0.35);
+            transform: translateY(-1px);
+        }
+        .saldo-pill svg {
+            width: 15px; height: 15px;
+            stroke: #00dc82; stroke-width: 2.2; flex-shrink: 0;
+        }
+
+        .header-link {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+        .header-link:hover { color: #ffffff; }
+
+        .header-icon {
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .header-icon:hover { color: #ffffff; }
+        .header-icon svg { width: 17px; height: 17px; }
+
+        .btn-voltar {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-voltar:hover { color: #ffffff; }
+        .btn-voltar svg { width: 14px; height: 14px; }
+
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #00dc82;
+            color: #062517;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        /* ─── AVATAR DROPDOWN ─── */
+        .avatar-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: #191c1d;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            z-index: 99999;
+            overflow: hidden;
+            animation: fadeInDrop 0.15s ease-out;
+        }
+        .avatar-dropdown.show { display: flex; }
+        @keyframes fadeInDrop {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .dropdown-name {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .dropdown-email {
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            word-break: break-all;
+        }
+        .dropdown-menu {
+            display: flex;
+            flex-direction: column;
+            padding: 6px;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 12.5px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .dropdown-item svg { width: 15px; height: 15px; color: var(--text-secondary); }
+        .dropdown-item:hover { background: rgba(255, 255, 255, 0.05); }
+        .dropdown-item.danger { color: #ef4444; }
+        .dropdown-item.danger svg { color: #ef4444; }
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 4px 6px;
+        }
+
+        /* ─── ESTRUTURA PRINCIPAL PADRÃO (980px) ─── */
+        .page-container {
+            margin-top: 62px;
+            max-width: 980px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 24px 16px 80px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-header {
+            margin-bottom: 6px;
+        }
+        .page-title-group h1 {
+            font-size: 22px;
+            font-weight: 900;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-title-group p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ─── 3 STAT CARDS PADRÃO ─── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .stat-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-value {
+            font-size: 26px;
+            font-weight: 900;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+        }
+        .stat-value.green {
+            color: var(--primary);
+        }
+        .stat-card.action-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%) !important;
+            border: 1px solid rgba(59, 130, 246, 0.3) !important;
+        }
+        .btn-new-doc {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--accent-blue);
+            color: #ffffff;
+            padding: 11px 18px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 800;
+            text-decoration: none;
+            margin-top: 6px;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+        .btn-new-doc:hover {
+            background: var(--accent-blue-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(59, 130, 246, 0.45);
+        }
+
+        /* ─── TÍTULO DA SEÇÃO ─── */
+        .sec-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 12px;
+            margin-bottom: 2px;
+        }
+
+        /* ─── FILTERS TOOLBAR ─── */
+        .filters-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            display: flex;
+            align-items: flex-end;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .filter-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .filter-input {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            color: #fff;
+            font-family: var(--font);
+            font-size: 12.5px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .filter-input:focus { border-color: var(--primary); }
+        .filter-input::placeholder { color: #55585a; }
+
+        .status-pills {
+            display: flex;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 2px;
+            gap: 2px;
+        }
+        .status-pill-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: var(--font);
+        }
+        .status-pill-btn.active {
+            background: #252a2c;
+            color: #ffffff;
+        }
+        .btn-clear-filters {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 6px;
+            margin-left: auto;
+            transition: color 0.2s;
+            font-family: var(--font);
+        }
+        .btn-clear-filters:hover { color: #ffffff; }
+
+        /* ─── TABELA DE DADOS (PIXEL PERFECT COM CNH/RG) ─── */
+        .table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: visible;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            text-align: left;
+        }
+        thead th {
+            padding: 12px 14px;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            background: #161819;
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 13px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+            color: #cbd5e1;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+        .id-cell {
+            font-family: var(--font-mono);
+            color: #60a5fa;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .name-cell {
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .name-cell:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        .cpf-cell {
+            font-family: var(--font-mono);
+            color: #cbd5e1;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .curso-cell {
+            color: #cbd5e1;
+            font-size: 12px;
+            max-width: 230px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .status-cell {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .date-cell {
+            font-size: 12px;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        /* ─── ACTIONS CELL COM DROPDOWN IDÊNTICO À CNH/RG ─── */
+        .actions-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+        .btn-edit-cnh {
+            background: #1e2224;
+            border: 1px solid #2a3032;
+            color: #ffffff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--font);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn-edit-cnh:hover {
+            border-color: #3a4042;
+            color: #ffffff;
+            background: #252b2d;
+        }
+        .btn-edit-cnh svg {
+            width: 12px; height: 12px; color: #9ca3af;
+        }
+        .btn-dots {
+            background: #1e2224;
+            border: 1px solid #2a3032;
+            color: var(--text-secondary);
+            padding: 5px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .btn-dots:hover {
+            border-color: #3a4042;
+            color: #fff;
+        }
+        .action-dropdown {
+            position: absolute;
+            right: 0;
+            top: 34px;
+            width: 190px;
+            background: #181b1c;
+            border: 1px solid #2a3032;
+            border-radius: 8px;
+            padding: 5px;
+            z-index: 500;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .action-dropdown.show { display: flex; }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+        .dropdown-item.danger { color: #f87171; }
+        .dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.12); }
+
+        /* ─── PAGINAÇÃO NO RODAPÉ ─── */
+        .table-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-page {
+            background: #232728;
+            border: 1px solid #2d3334;
+            color: #cbd5e1;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: var(--font);
+        }
+        .btn-page:hover {
+            background: #2b3032;
+            color: #fff;
+        }
+        .btn-page:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: var(--border-color);
+        }
+
+        /* ─── CANVAS DE FUNDO ANIMADO ─── */
+        .neural-bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ─── FLOATING THEME FAB ─── */
+        .fab-chat {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #062517;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 18px rgba(0, 220, 130, 0.4);
+            z-index: 999;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .fab-chat:hover {
+            transform: scale(1.06);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.6);
+        }
+        .fab-chat svg { width: 22px; height: 22px; fill: #062517; }
+    </style>
+</head>
+<body>
+    <!-- CANVAS DE FUNDO NEURAL -->
+    <canvas id="neuralCanvas" class="neural-bg-canvas"></canvas>
+
+    <!-- CABEÇALHO PADRÃO OFICIAL MG EDITÁVEIS (62px) -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <a href="recargas.html" class="saldo-pill" title="Clique para recarregar saldo">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </a>
+
+                <a href="indicacoes.html" class="header-link" style="display:inline-flex; align-items:center; gap:6px; color:#94a3b8; font-size:13px; font-weight:600; text-decoration:none; white-space:nowrap; flex-shrink:0;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px; height:15px; min-width:15px; min-height:15px; flex-shrink:0;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <span>Indique e Ganhe</span>
+                </a>
+
+                <div class="header-icon" onclick="showToast('Notificações')" title="Notificações">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </div>
+
+                <!-- BOTAO VOLTAR PADRÃO IDENTICO A CNH -->
+                <a href="editaveis.html" class="btn-voltar" title="Voltar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Voltar
+                </a>
+
+                <div class="avatar-circle" id="userHeaderAvatar" onclick="toggleAvatarDropdown(event)" title="Meu Perfil">M</div>
+
+                <!-- Avatar Dropdown -->
+                <div class="avatar-dropdown" id="avatarDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-name" id="dropUserName">MG Editáveis</div>
+                        <div class="dropdown-email" id="dropUserEmail">admin@mgeditaveis.com.br</div>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="perfil.html" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span>Perfil</span>
+                        </a>
+                        <a href="suporte.html" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <span>Suporte</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="login.html" class="dropdown-item danger" onclick="handleLogout(event)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            <span>Sair</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTAINER DA PÁGINA (980px PADRÃO CENTRALIZADO) -->
+    <div class="page-container">
+
+        <!-- HEADER DA PÁGINA ESPECÍFICO CERTIFICADO -->
+        <div class="page-header" style="margin-bottom: 20px;">
+            <div class="page-title-group">
+                <h1 style="font-size: 22px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 10px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span>Certificados de Condutor Emitidos</span>
+                </h1>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Histórico completo de certificados de cursos especializados de trânsito (ICETRAN) gerados com validação por QR Code e registro Detran.</p>
+            </div>
+        </div>
+
+        <!-- 3 CARDS KPI PADRÃO ORGANIZADO -->
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <div class="stat-card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px 20px; display: flex; flex-direction: column; gap: 8px;">
+                <span class="stat-label" style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Total Gerados</span>
+                <span class="stat-value" id="statTotalVal" style="font-size: 26px; font-weight: 900; color: #fff;">0</span>
+            </div>
+
+            <div class="stat-card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px 20px; display: flex; flex-direction: column; gap: 8px;">
+                <span class="stat-label" style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Saldo Disponível</span>
+                <span class="stat-value" id="statSaldo" style="font-size: 26px; font-weight: 900; color: #00dc82;">R$ 0,00</span>
+            </div>
+
+            <div class="stat-card action-card" style="background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(59,130,246,0.05) 100%); border: 1px solid rgba(59,130,246,0.3); border-radius: var(--radius-md); padding: 18px 20px; display: flex; flex-direction: column; gap: 8px;">
+                <span class="stat-label" style="font-size: 12px; font-weight: 700; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.5px;">Novo Documento</span>
+                <a href="criar-certificado-condutor.html" class="btn-new-doc">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>Emitir Novo Certificado ICETRAN</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- TÍTULO DA SEÇÃO -->
+        <div class="sec-title">Certificados Gerados</div>
+
+        <!-- FILTERS TOOLBAR -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label class="filter-label">Nome</label>
+                <input type="text" class="filter-input" id="filterNome" placeholder="Buscar por nome" oninput="applyFilters()" style="width: 175px;">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">CPF</label>
+                <input type="text" class="filter-input" id="filterCpf" placeholder="000.000.000-00" oninput="applyFilters()" style="width: 155px;">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Data</label>
+                <input type="date" class="filter-input" id="filterData" onchange="applyFilters()" style="width: 145px; color-scheme:dark;">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Status</label>
+                <div class="status-pills">
+                    <button class="status-pill-btn active" id="btnStatusTodas" onclick="setStatusFilter('Todas', this)">Todas</button>
+                    <button class="status-pill-btn" id="btnStatusAprovados" onclick="setStatusFilter('Aprovado', this)">Aprovados</button>
+                </div>
+            </div>
+
+            <button class="btn-clear-filters" onclick="clearFilters()">Limpar Filtros</button>
+            <button id="btnBulkDelete" onclick="deleteSelectedCertificados()" style="display:none; align-items:center; gap:6px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#ef4444; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span>Excluir Selecionados (<span id="bulkDeleteCount">0</span>)</span>
+            </button>
+        </div>
+
+        <!-- TABLE WRAP -->
+        <div class="table-wrap">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="accent-color:var(--primary); cursor:pointer;"></th>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Curso Especializado</th>
+                            <th>Certificado Status</th>
+                            <th>Data e Hora da Geração</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblBody">
+                        <!-- Preenchido via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TABLE PAGINATION FOOTER -->
+            <div class="table-footer">
+                <div id="paginationInfo">Mostrando 0 de 0 Certificados</div>
+                <div class="pagination-controls">
+                    <span id="pageCurrentInfo">Página 0 de 0</span>
+                    <button class="btn-page" onclick="prevPage()">Anterior</button>
+                    <button class="btn-page" onclick="nextPage()">Próxima</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FLOATING THEME TOGGLE BUTTON (FAB) -->
+    <div class="fab-chat" id="themeFabBtn" title="Alternar Modo Claro / Escuro" onclick="toggleTheme()">
+        <svg id="themeIcon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // ─── TEMA CLARO / ESCURO ───
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('light-theme');
+            localStorage.setItem('happynation_theme', isLight ? 'light' : 'dark');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const isLight = document.body.classList.contains('light-theme');
+            const icon = document.getElementById('themeIcon');
+            if (icon) {
+                if (isLight) {
+                    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+                } else {
+                    icon.innerHTML = '<path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>';
+                }
+            }
+        }
+
+        if (localStorage.getItem('happynation_theme') === 'light') {
+            document.body.classList.add('light-theme');
+        }
+
+        // ─── AVATAR DROPDOWN ───
+        function toggleAvatarDropdown(e) {
+            if (e) e.stopPropagation();
+            const drop = document.getElementById('avatarDropdown');
+            if (drop) drop.classList.toggle('show');
+        }
+
+        document.addEventListener('click', (e) => {
+            const drop = document.getElementById('avatarDropdown');
+            if (drop && drop.classList.contains('show') && !e.target.closest('#avatarDropdown') && !e.target.closest('#userHeaderAvatar')) {
+                drop.classList.remove('show');
+            }
+        });
+
+        function handleLogout(e) {
+            if (e) e.preventDefault();
+            localStorage.removeItem('happynation_user');
+            sessionStorage.removeItem('happynation_user');
+            localStorage.removeItem('happynation_admin_auth');
+            sessionStorage.removeItem('happynation_admin_auth');
+            window.location.href = 'login.html';
+        }
+
+        function showToast(featureName) {
+            alert(featureName || 'Notificações');
+        }
+
+        // ─── DADOS DO HISTÓRICO DE CERTIFICADOS ───
+        const DEFAULT_ITEMS = [
+            {
+                id: '0006MG00000900002',
+                nome: 'SAULO DE SANTANA NASCIMENTO',
+                cpf: '137.573.156-42',
+                curso: 'Condutores de Veículos de Emergência',
+                data: '20/01/2021',
+                status: 'Aprovado'
+            },
+            {
+                id: '000209941',
+                nome: 'ADEMIR RODRIGUES DE OLIVEIRA',
+                cpf: '247.604.778-34',
+                curso: 'Condutores de Veículo de Transporte Coletivo de Passageiros',
+                data: '17/07/2024 15:30',
+                status: 'Aprovado'
+            }
+        ];
+
+        let allCertificados = [];
+        let filteredCertificados = [];
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 10;
+        let currentFilterStatus = 'Todas';
+
+        function loadLoggedUser() {
+            try {
+                let user = null;
+                const userJson = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user');
+                if (userJson) user = JSON.parse(userJson);
+
+                const nameEl = document.getElementById('dropUserName');
+                const emailEl = document.getElementById('dropUserEmail');
+                const avatarEl = document.getElementById('userHeaderAvatar');
+
+                const name = user ? (user.name || user.nome || 'MG Editáveis') : 'MG Editáveis';
+                const email = user ? (user.email || 'admin@mgeditaveis.com.br') : 'admin@mgeditaveis.com.br';
+
+                if (nameEl) nameEl.textContent = name;
+                if (emailEl) emailEl.textContent = email;
+                if (avatarEl) avatarEl.textContent = name.trim().charAt(0).toUpperCase();
+
+                const saldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') 
+                    ? window.MGSaldo.get() 
+                    : (parseFloat(localStorage.getItem('happynation_saldo') || '7860.00'));
+                
+                const saldoHeader = document.getElementById('userHeaderSaldo');
+                if (saldoHeader) saldoHeader.textContent = `Saldo R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                
+                const statSaldo = document.getElementById('statSaldo');
+                if (statSaldo) statSaldo.textContent = `R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            } catch(e) {}
+        }
+
+        window.addEventListener('storage', loadLoggedUser);
+
+        function loadCertificados() {
+            let items = [];
+            const seen = new Set();
+            const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+                email: '',
+                id: '',
+                isAdmin: false
+            };
+            const email = clientCtx.email;
+            const isAdmin = clientCtx.isAdmin;
+            const userKey = email ? ('happynation_certificados_' + email) : '';
+
+            function addIfValid(item) {
+                if (!item) return;
+                const id = String(item.id || item.codigo || item.certNumero || Math.random());
+                if (seen.has(id)) return;
+
+                // Se for cliente comum, valida posse estrita e descarta mocks/fakes
+                if (!isAdmin && window.DocIsolationGuard) {
+                    if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+                }
+
+                seen.add(id);
+
+                items.push({
+                    id: id,
+                    nome: String(item.nome || item.alunoNome || item.condutor || 'CONDUTOR').toUpperCase(),
+                    cpf: item.cpf || item.alunoCpf || '000.000.000-00',
+                    curso: item.curso || item.cursoNome || 'Condutores de Veículos Especializados',
+                    data: item.data || item.created_at || new Date().toLocaleString('pt-BR'),
+                    status: item.status || 'Aprovado'
+                });
+            }
+
+            // 1. Carrega estritamente da chave do usuário logado
+            if (userKey) {
+                try {
+                    const arr = JSON.parse(localStorage.getItem(userKey) || '[]');
+                    if (Array.isArray(arr)) arr.forEach(addIfValid);
+                } catch(e) {}
+            }
+
+            // 2. Apenas para ADMIN: permite carregar chaves legadas e histórico geral
+            if (isAdmin) {
+                try {
+                    const stored = JSON.parse(localStorage.getItem('icetran_historico') || '[]');
+                    if (Array.isArray(stored)) stored.forEach(addIfValid);
+                } catch(e) {}
+
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith('happynation_certificados_') && k !== userKey) {
+                            const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                            if (Array.isArray(arr)) arr.forEach(addIfValid);
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            allCertificados = [...items];
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const nomeQ = (document.getElementById('filterNome')?.value || '').toLowerCase().trim();
+            const cpfQ = (document.getElementById('filterCpf')?.value || '').toLowerCase().trim();
+            const dataQ = (document.getElementById('filterData')?.value || '').trim();
+
+            filteredCertificados = allCertificados.filter(c => {
+                if (nomeQ && !c.nome.toLowerCase().includes(nomeQ)) return false;
+                if (cpfQ && !c.cpf.toLowerCase().includes(cpfQ)) return false;
+                if (dataQ && c.data && !c.data.includes(dataQ)) return false;
+                if (currentFilterStatus !== 'Todas' && (c.status || 'Aprovado') !== currentFilterStatus) return false;
+                return true;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        function setStatusFilter(status, btn) {
+            currentFilterStatus = status;
+            document.querySelectorAll('.status-pill-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            applyFilters();
+        }
+
+        function clearFilters() {
+            const inNome = document.getElementById('filterNome');
+            const inCpf = document.getElementById('filterCpf');
+            const inData = document.getElementById('filterData');
+            if (inNome) inNome.value = '';
+            if (inCpf) inCpf.value = '';
+            if (inData) inData.value = '';
+            currentFilterStatus = 'Todas';
+            document.querySelectorAll('.status-pill-btn').forEach(b => b.classList.remove('active'));
+            const bTodas = document.getElementById('btnStatusTodas');
+            if (bTodas) bTodas.classList.add('active');
+            applyFilters();
+        }
+
+        // ─── SELEÇÃO E BULK DELETE ───
+        function toggleSelectAll(master) {
+            document.querySelectorAll('#tblBody input.row-select-cb').forEach(cb => {
+                cb.checked = master.checked;
+            });
+            updateSelectCount();
+        }
+
+        function updateSelectCount() {
+            const selected = document.querySelectorAll('#tblBody input.row-select-cb:checked');
+            const total = document.querySelectorAll('#tblBody input.row-select-cb');
+            const master = document.getElementById('selectAllCheckbox');
+            if (master) {
+                master.checked = total.length > 0 && selected.length === total.length;
+                master.indeterminate = selected.length > 0 && selected.length < total.length;
+            }
+
+            const bulkBtn = document.getElementById('btnBulkDelete');
+            const bulkCount = document.getElementById('bulkDeleteCount');
+            if (bulkBtn && bulkCount) {
+                bulkCount.textContent = selected.length;
+                bulkBtn.style.display = selected.length > 0 ? 'inline-flex' : 'none';
+            }
+        }
+
+        function deleteSelectedCertificados() {
+            const selectedBoxes = Array.from(document.querySelectorAll('#tblBody input.row-select-cb:checked'));
+            const ids = selectedBoxes.map(cb => cb.value).filter(Boolean);
+            if (!ids.length) return;
+
+            if (!confirm(`Deseja realmente excluir ${ids.length} Certificado(s) selecionado(s) permanentemente?`)) {
+                return;
+            }
+
+            ids.forEach(id => {
+                deleteFromStorage(id);
+            });
+
+            loadCertificados();
+            updateSelectCount();
+        }
+
+        function deleteFromStorage(id) {
+            try {
+                let hist = JSON.parse(localStorage.getItem('icetran_historico') || '[]');
+                hist = hist.filter(x => String(x.id || x.codigo) !== String(id));
+                localStorage.setItem('icetran_historico', JSON.stringify(hist));
+
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('happynation_certificados_')) {
+                        let arr = JSON.parse(localStorage.getItem(k) || '[]');
+                        arr = arr.filter(x => String(x.id || x.codigo) !== String(id));
+                        localStorage.setItem(k, JSON.stringify(arr));
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function deleteCertificado(id) {
+            if (!confirm('Deseja realmente excluir este certificado do histórico?')) return;
+            deleteFromStorage(id);
+            loadCertificados();
+        }
+
+        function editarCertificado(id) {
+            const item = (typeof allCertificados !== 'undefined' ? allCertificados : []).find(x => String(x.id || x.codigo || x.certNumero) === String(id));
+            if (item) {
+                try {
+                    localStorage.setItem('happynation_edit_certificado_condutor', JSON.stringify(item));
+                    sessionStorage.setItem('happynation_edit_certificado_condutor', JSON.stringify(item));
+                } catch(e) {}
+            }
+            window.location.href = 'criar-certificado-condutor.html?id=' + encodeURIComponent(id) + '&edit=true';
+        }
+
+        function verCertificado(id) {
+            window.location.href = 'criar-certificado-condutor.html?id=' + encodeURIComponent(id);
+        }
+
+        function toggleDropdown(e, btn) {
+            e.stopPropagation();
+            document.querySelectorAll('.action-dropdown').forEach(d => {
+                if (d !== btn.nextElementSibling) d.classList.remove('show');
+            });
+            const dropdown = btn.nextElementSibling;
+            if (dropdown) dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('show'));
+        });
+
+        function renderTable() {
+            const tbody = document.getElementById('tblBody');
+            const totalEl = document.getElementById('statTotalVal');
+            if (totalEl) totalEl.textContent = allCertificados.length;
+
+            const total = filteredCertificados.length;
+            const totalPages = Math.ceil(total / ITEMS_PER_PAGE) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIdx = startIdx + ITEMS_PER_PAGE;
+            const pageItems = filteredCertificados.slice(startIdx, endIdx);
+
+            const pagInfo = document.getElementById('paginationInfo');
+            if (pagInfo) {
+                if (total === 0) {
+                    pagInfo.textContent = 'Mostrando 0 de 0 Certificados';
+                } else {
+                    pagInfo.textContent = `Mostrando ${startIdx + 1}-${Math.min(endIdx, total)} de ${total} Certificados`;
+                }
+            }
+
+            const pageCurrentInfo = document.getElementById('pageCurrentInfo');
+            if (pageCurrentInfo) {
+                pageCurrentInfo.textContent = total === 0 ? 'Página 0 de 0' : `Página ${currentPage} de ${totalPages}`;
+            }
+
+            if (pageItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:36px; color:var(--text-muted);">Nenhum certificado encontrado com os filtros aplicados.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            pageItems.forEach(item => {
+                html += `
+                    <tr>
+                        <td><input type="checkbox" class="row-select-cb" value="${item.id}" onchange="updateSelectCount()" style="accent-color:var(--primary); cursor:pointer;"></td>
+                        <td class="id-cell">${item.id || '—'}</td>
+                        <td class="name-cell" onclick="verCertificado('${item.id}')">${item.nome || '—'}</td>
+                        <td class="cpf-cell">${item.cpf || '—'}</td>
+                        <td class="curso-cell" title="${item.curso || ''}">${item.curso || 'Curso de Trânsito'}</td>
+                        <td class="status-cell" style="color:#00dc82 !important;">${item.status || 'Aprovado'}</td>
+                        <td class="date-cell">${item.data || '—'}</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-edit-cnh" onclick="editarCertificado('${item.id}')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    Emitir Certificado
+                                </button>
+                                <button class="btn-dots" onclick="toggleDropdown(event, this)">•••</button>
+                                <div class="action-dropdown">
+                                    <div class="dropdown-item" onclick="verCertificado('${item.id}')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Ver Informações
+                                    </div>
+                                    <div class="dropdown-item danger" onclick="deleteCertificado('${item.id}')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        Excluir
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            updateSelectCount();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredCertificados.length / ITEMS_PER_PAGE);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        // ─── ANIMAÇÃO DO CANVAS NEURAL BACKGROUND ───
+        (function initNeuralCanvas() {
+            const canvas = document.getElementById('neuralCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
+            const PARTICLE_COUNT = 38;
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    radius: Math.random() * 1.6 + 0.8
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0) p.x = width;
+                    if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height;
+                    if (p.y > height) p.y = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(0, 220, 130, 0.45)';
+                    ctx.fill();
+
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const p2 = particles[j];
+                        const dx = p.x - p2.x;
+                        const dy = p.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < 120) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.strokeStyle = `rgba(0, 220, 130, ${0.18 * (1 - dist / 120)})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(draw);
+            }
+            draw();
+        })();
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLoggedUser();
+            loadCertificados();
+        });
+    </script>
+</body>
+</html>

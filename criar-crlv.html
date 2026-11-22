@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/dev-guard.js"></script>
+
+    <!-- Open Graph / Compartilhamento -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="MG Editáveis | CRLV Digital (Documento de Veículo)">
+    <meta property="og:description" content="Emissão oficial de Certificado de Registro e Licenciamento de Veículo - Digital (CRLV-e / SENATRAN / DETRAN).">
+    <meta property="og:image" content="http://painel-mg-editaveis.com/og-image.png">
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | CRLV Digital - Documento de Veículo</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="assets/crlv_assets_b64.js"></script>
+    <script src="saldo-sync.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700;900&display=swap');
+
+        :root {
+            --bg-color: #0b0d0e;
+            --surface: #141718;
+            --surface-hover: #1b1e20;
+            --surface-card: #191c1d;
+            --border: #232729;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --primary: #00dc82;
+            --primary-hover: #00c975;
+            --primary-glow: rgba(0, 220, 130, 0.25);
+            --font-ui: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-doc: 'Roboto', 'Arial', 'Helvetica Neue', sans-serif;
+        }
+
+        body.light-theme {
+            --bg-color: #f4f6f8;
+            --surface: #ffffff;
+            --surface-hover: #f1f3f5;
+            --surface-card: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #00c975;
+            --primary-hover: #00b064;
+            --primary-glow: rgba(0, 201, 117, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-ui);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* ─── SCROLLBAR ULTRA-SLEEK ─── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0d0e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            transition: background 0.2s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00dc82;
+        }
+
+        /* ─── CABEÇALHO DO SISTEMA ─── */
+        .header {
+            height: 64px;
+            background: rgba(20, 23, 24, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-inner {
+            max-width: 1440px;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: #00dc82;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 14px var(--primary-glow);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .brand-icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 9px;
+        }
+
+        .brand-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .saldo-pill {
+            background: rgba(0, 220, 130, 0.08);
+            color: #00dc82;
+            border: 1px solid #00dc82;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-voltar {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .btn-voltar:hover {
+            color: var(--text-main);
+            border-color: #3a4043;
+        }
+
+        /* ─── WORKSPACE (SPLIT VIEW PADRÃO) ─── */
+        .workspace-grid {
+            max-width: 1440px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px 20px 120px 20px;
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 24px;
+            align-items: start;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 1200px) {
+            .workspace-grid { 
+                grid-template-columns: 1fr; 
+                padding: 16px 14px 120px 14px;
+            }
+        }
+
+        .sidebar-col {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 84px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .sidebar-col::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar-col::-webkit-scrollbar-track {
+            background: #141718;
+        }
+        .sidebar-col::-webkit-scrollbar-thumb {
+            background: #2b3034;
+            border-radius: 3px;
+        }
+
+        .sidebar-title-area h1 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-title-area p {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            margin-bottom: 20px;
+        }
+
+        .badge-senatran {
+            background: rgba(0, 220, 130, 0.12);
+            color: var(--primary);
+            border: 1px solid rgba(0, 220, 130, 0.3);
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        /* SEÇÕES DO FORMULÁRIO */
+        .form-section {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-header svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .form-row-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 6px;
+        }
+
+        .input-box, .select-box, .textarea-box {
+            width: 100%;
+            background: #111314;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 9px 12px;
+            color: #ffffff;
+            font-size: 12.5px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .input-box:focus, .select-box:focus, .textarea-box:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .textarea-box {
+            resize: vertical;
+            min-height: 60px;
+            font-family: var(--font-ui);
+        }
+
+        .btn-auxiliar {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            margin-top: 6px;
+        }
+
+        .btn-auxiliar:hover {
+            background: rgba(0, 220, 130, 0.1);
+            color: var(--primary);
+            border-color: rgba(0, 220, 130, 0.3);
+        }
+
+        /* ─── COLUNA DE PRÉ-VISUALIZAÇÃO / CANVAS ─── */
+        .preview-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .preview-toolbar {
+            width: 100%;
+            max-width: 820px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .preview-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #00dc82;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00dc82;
+            box-shadow: 0 0 8px #00dc82;
+            animation: pulseAnim 2s infinite;
+        }
+
+        @keyframes pulseAnim {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-zoom {
+            background: #111314;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-zoom:hover {
+            color: #fff;
+            border-color: #3a4043;
+        }
+
+        .zoom-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            min-width: 44px;
+            text-align: center;
+        }
+
+        /* ─── CONTAINER DA FOLHA A4 OFICIAL CRLV ─── */
+        #canvasContainer {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding-bottom: 30px;
+        }
+
+        #zoomWrapper {
+            transform-origin: top center;
+            transition: transform 0.15s ease-out;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════════
+           ESTILOS OFICIAIS 100% IDÊNTICOS AO MODELO SENATRAN / DETRAN
+           Folha A4 HD Oficial: 1024px largura x 1442px altura (Frente e Verso Juntas)
+           ═════════════════════════════════════════════════════════════════════ */
+        .sheet-crlv-a4 {
+            width: 1024px;
+            height: 1442px;
+            background-color: #ffffff;
+            background-image: url('assets/crlv_template_hd_clean.png');
+            background-size: 1024px 1442px;
+            background-repeat: no-repeat;
+            background-position: top left;
+            position: relative;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+            border-radius: 2px;
+            overflow: hidden;
+            user-select: text;
+        }
+
+        /* TIPOGRAFIA EXATA DOS DADOS MONOESPAÇADOS OFICIAIS (COURIER NEW BOLD) */
+        .crlv-val {
+            position: absolute;
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 16.6px;
+            color: #000000;
+            line-height: 1;
+            white-space: nowrap;
+            letter-spacing: 0px;
+            -webkit-text-stroke: 0.35px #000;
+        }
+
+        /* ─── BARRA INFERIOR FLUTUANTE DE EMISSÃO ─── */
+        .bottom-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 23, 24, 0.96);
+            backdrop-filter: blur(14px);
+            border-top: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ─── BARRA INFERIOR FLUTUANTE DE EMISSÃO ─── */
+        .bottom-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 23, 24, 0.96);
+            backdrop-filter: blur(14px);
+            border-top: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .bottom-cost-info {
+            font-size: 13.5px;
+            color: var(--text-muted);
+        }
+
+        .bottom-cost-price {
+            font-weight: 800;
+            color: #00dc82;
+            font-size: 15px;
+        }
+
+        .action-btns-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-imprimir {
+            background: #1b1e20;
+            color: #ffffff;
+            border: 1px solid var(--border);
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-imprimir:hover {
+            background: #25292c;
+            border-color: #3a4043;
+        }
+
+        .btn-emitir {
+            background: linear-gradient(135deg, #00dc82, #00b368);
+            color: #0b0d0e;
+            border: none;
+            padding: 11px 26px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(0, 220, 130, 0.35);
+            transition: all 0.2s;
+        }
+
+        .btn-emitir:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.45);
+        }
+
+        .btn-emitir:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ─── TOAST NOTIFICAÇÃO ─── */
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: #191c1d;
+            border: 1px solid #00dc82;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: translateY(-50px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ─── ESTILOS DE IMPRESSÃO ─── */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .header, .sidebar-col, .preview-toolbar, .bottom-action-bar, .toast {
+                display: none !important;
+            }
+            .workspace-grid {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .preview-col, #canvasContainer, #zoomWrapper {
+                transform: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+            .sheet-crlv-a4 {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                width: 100% !important;
+                height: 100vh !important;
+                page-break-after: avoid !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0mm;
+            }
+        }
+    
+        /* Card Resumo / Ações de Checkout Padrão */
+        .checkout-actions-card {
+            background: rgba(0, 220, 130, 0.05);
+            border: 1px solid rgba(0, 220, 130, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .checkout-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .price-label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .price-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: #00dc82;
+        }
+
+        .btn-reset-defaults {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 7px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-reset-defaults:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-action-primary {
+            background: #00dc82;
+            color: #062517;
+            font-weight: 800;
+            font-size: 13.5px;
+            padding: 13px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(0, 220, 130, 0.25);
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 100%;
+        }
+
+        .btn-action-primary:hover {
+            background: #00f590;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.35);
+        }
+</style>
+</head>
+<body>
+
+    <!-- CABEÇALHO DO SISTEMA -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <div class="saldo-pill">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </div>
+                <a href="recargas.html" class="btn-voltar" style="background:rgba(0,220,130,0.1); color:#00dc82; border-color:rgba(0,220,130,0.3);">
+                    + Recarregar
+                </a>
+                <a href="editaveis.html" class="btn-voltar">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+                    <span>Catálogo</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- WORKSPACE PRINCIPAL -->
+    <div class="workspace-grid">
+
+        <!-- SIDEBAR DE EDIÇÃO -->
+        <aside class="sidebar-col">
+            <div class="sidebar-title-area">
+                <h1>
+                    <span>CRLV-e Digital</span>
+                    <span class="badge-senatran">SENATRAN</span>
+                </h1>
+                <p>Certificado de Registro e Licenciamento de Veículo oficial com QR Code Vio.</p>
+            </div>
+
+            <!-- SEÇÃO 1: REGISTRO E IDENTIFICAÇÃO -->
+            <div class="form-section">
+                <div class="section-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    1. Identificação do Registro
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>UF do DETRAN</label>
+                        <select class="select-box" id="inp_detran_uf">
+                            <option value="AC">DETRAN- AC</option>
+                            <option value="AL">DETRAN- AL</option>
+                            <option value="AP">DETRAN- AP</option>
+                            <option value="AM">DETRAN- AM</option>
+                            <option value="BA" selected>DETRAN- BA</option>
+                            <option value="CE">DETRAN- CE</option>
+                            <option value="DF">DETRAN- DF</option>
+                            <option value="ES">DETRAN- ES</option>
+                            <option value="GO">DETRAN- GO</option>
+                            <option value="MA">DETRAN- MA</option>
+                            <option value="MT">DETRAN- MT</option>
+                            <option value="MS">DETRAN- MS</option>
+                            <option value="MG">DETRAN- MG</option>
+                            <option value="PA">DETRAN- PA</option>
+                            <option value="PB">DETRAN- PB</option>
+                            <option value="PR">DETRAN- PR</option>
+                            <option value="PE">DETRAN- PE</option>
+                            <option value="PI">DETRAN- PI</option>
+                            <option value="RJ">DETRAN- RJ</option>
+                            <option value="RN">DETRAN- RN</option>
+                            <option value="RS">DETRAN- RS</option>
+                            <option value="RO">DETRAN- RO</option>
+                            <option value="RR">DETRAN- RR</option>
+                            <option value="SC">DETRAN- SC</option>
+                            <option value="SP">DETRAN- SP</option>
+                            <option value="SE">DETRAN- SE</option>
+                            <option value="TO">DETRAN- TO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Exercício</label>
+                        <input type="text" class="input-box" id="inp_exercicio" value="2025" maxlength="4">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Código RENAVAM</label>
+                        <input type="text" class="input-box" id="inp_renavam" value="00872698394" maxlength="11">
+                    </div>
+                    <div class="form-group">
+                        <label>Placa do Veículo</label>
+                        <input type="text" class="input-box" id="inp_placa" value="JMI5104" maxlength="8" style="text-transform:uppercase;">
+                    </div>
+                </div>
+
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>Ano Fab.</label>
+                        <input type="text" class="input-box" id="inp_ano_fab" value="2005" maxlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label>Ano Mod.</label>
+                        <input type="text" class="input-box" id="inp_ano_mod" value="2006" maxlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label>Nº do CRV</label>
+                        <input type="text" class="input-box" id="inp_num_crv" value="***">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cód. Segurança CLA</label>
+                        <input type="text" class="input-box" id="inp_cla" value="47849505457" maxlength="11">
+                    </div>
+                    <div class="form-group">
+                        <label>CAT</label>
+                        <input type="text" class="input-box" id="inp_cat" value="***">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 2: DADOS TÉCNICOS DO VEÍCULO -->
+            <div class="form-section">
+                <div class="section-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+                    2. Dados Técnicos do Veículo
+                </div>
+
+                <div class="form-group">
+                    <label>Marca / Modelo / Versão</label>
+                    <input type="text" class="input-box" id="inp_marca_modelo" value="YAMAHA/FAZER YS250" style="text-transform:uppercase;">
+                </div>
+
+                <div class="form-group">
+                    <label>Espécie / Tipo</label>
+                    <input type="text" class="input-box" id="inp_especie_tipo" value="PASSAGEIRO MOTOCICLETA" style="text-transform:uppercase;">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Placa Anterior / UF</label>
+                        <input type="text" class="input-box" id="inp_placa_ant" value="*******/**" style="text-transform:uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Chassi</label>
+                        <input type="text" class="input-box" id="inp_chassi" value="9C6KG017060006367" maxlength="17" style="text-transform:uppercase;">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cor Predominante</label>
+                        <input type="text" class="input-box" id="inp_cor" value="PRETA" style="text-transform:uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Combustível</label>
+                        <input type="text" class="input-box" id="inp_combustivel" value="GASOLINA" style="text-transform:uppercase;">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <input type="text" class="input-box" id="inp_categoria" value="PARTICULAR" style="text-transform:uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Capacidade</label>
+                        <input type="text" class="input-box" id="inp_capacidade" value="*.*">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Potência / Cilindrada</label>
+                        <input type="text" class="input-box" id="inp_potencia" value="0CV/249" style="text-transform:uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Peso Bruto Total (PBT)</label>
+                        <input type="text" class="input-box" id="inp_peso_bruto" value="0.31">
+                    </div>
+                </div>
+
+                <div class="form-row-4">
+                    <div class="form-group">
+                        <label>Motor</label>
+                        <input type="text" class="input-box" id="inp_motor" value="G347E-006361" style="text-transform:uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>CMT</label>
+                        <input type="text" class="input-box" id="inp_cmt" value="*.*">
+                    </div>
+                    <div class="form-group">
+                        <label>Eixos</label>
+                        <input type="text" class="input-box" id="inp_eixos" value="*">
+                    </div>
+                    <div class="form-group">
+                        <label>Lotação</label>
+                        <input type="text" class="input-box" id="inp_lotacao" value="02P" style="text-transform:uppercase;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Carroceria</label>
+                    <input type="text" class="input-box" id="inp_carroceria" value="NÃO APLICAVEL" style="text-transform:uppercase;">
+                </div>
+            </div>
+
+            <!-- SEÇÃO 3: PROPRIETÁRIO E EMISSÃO -->
+            <div class="form-section">
+                <div class="section-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    3. Proprietário e Emissão
+                </div>
+
+                <div class="form-group">
+                    <label>Nome do Proprietário</label>
+                    <input type="text" class="input-box" id="inp_nome" value="JORDELIO RODRIGUES DOS SANTOS" style="text-transform:uppercase;">
+                </div>
+
+                <div class="form-group">
+                    <label>CPF ou CNPJ</label>
+                    <input type="text" class="input-box" id="inp_cpf_cnpj" value="046.660.515-38" maxlength="18" placeholder="000.000.000-00" oninput="mascaraCpf(this)">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Município / UF (Local)</label>
+                        <input type="text" class="input-box" id="inp_local" value="VITORIA DA CONQUISTA BA" style="text-transform:uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Data de Emissão</label>
+                        <input type="text" class="input-box" id="inp_data" value="25/03/2025">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hora de Emissão</label>
+                        <input type="text" class="input-box" id="inp_hora" value="13:51:05">
+                    </div>
+                    <div class="form-group">
+                        <label>Código Hash de Segurança</label>
+                        <input type="text" class="input-box" id="inp_hash" value="5AB2639EA1C99AEB" style="text-transform:uppercase;">
+                    </div>
+                </div>
+
+                <button type="button" class="btn-auxiliar" onclick="setCurrentDateTime()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Usar Data e Hora Atual
+                </button>
+            </div>
+
+            <!-- SEÇÃO 4: OBSERVAÇÕES E NOTAS -->
+            <div class="form-section">
+                <div class="section-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    4. Observações do Veículo
+                </div>
+
+                <div class="form-group">
+                    <label>Texto de Observações</label>
+                    <textarea class="textarea-box" id="inp_observacoes">SEM OBSERVAÇÕES</textarea>
+                </div>
+
+                
+        <!-- CARD FINAL DE CHECKOUT: PREÇO E BOTÃO GERAR PDF -->
+        <div class="checkout-actions-card">
+            <div class="checkout-price-row">
+                <div>
+                    <div class="price-label">Valor da Emissão:</div>
+                    <div class="price-value" id="custoCrlvDisplay">R$ 25,00</div>
+                </div>
+                <button type="button" class="btn-reset-defaults" onclick="restoreDefaultData()" title="Restaurar dados padrão do CRLV">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+                    <span>Restaurar Padrão</span>
+                </button>
+            </div>
+
+            <button type="button" class="btn-action-primary btn-gerar" id="btnEmitirCrlv" onclick="emitirCrlvPdf()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span id="btnGerarTxt">Gerar PDF — CRLV Digital</span>
+            </button>
+        </div>
+        
+            </div>
+
+        </aside>
+
+        <!-- COLUNA DE VISUALIZAÇÃO AO VIVO (PRÉVIA 100% FIEL) -->
+        <main class="preview-col">
+            <div class="preview-toolbar">
+                <div class="preview-badge">
+                    <div class="pulse-dot"></div>
+                    <span>Visualização Vetorial 100% Idêntica ao Modelo Oficial</span>
+                </div>
+                <div class="zoom-controls">
+                    <button class="btn-zoom" onclick="changeZoom(-0.05)" title="Diminuir">−</button>
+                    <span class="zoom-text" id="zoomLevelDisplay">78%</span>
+                    <button class="btn-zoom" onclick="changeZoom(+0.05)" title="Aumentar">+</button>
+                    <button class="btn-zoom" onclick="resetZoom()" title="Ajustar" style="width:auto; padding:0 8px; font-size:11px;">Ajustar</button>
+                </div>
+            </div>
+
+            <!-- CONTAINER CANVAS / A4 -->
+            <div id="canvasContainer">
+                <div id="zoomWrapper">
+
+                    <!-- FOLHA A4 CRLV-E DIGITAL (100% IDÊNTICA AO MODELO OFICIAL HD - FRENTE E VERSO JUNTAS) -->
+                    <div class="sheet-crlv-a4" id="sheetDoc">
+
+                        <!-- 1. UF DO DETRAN NO SUBHEADER (ao lado de DETRAN-) -->
+                        <div id="view_detran_uf" style="position:absolute; left:98px; top:92px; font-family:Arial, sans-serif; font-weight:700; font-size:12px; color:#222;">BA</div>
+
+                        <!-- ══════ COLUNA ESQUERDA (DADOS PRINCIPAIS & QR CODE) ══════ -->
+                        <!-- CÓDIGO RENAVAM -->
+                        <div class="crlv-val" id="view_renavam" style="left:56px; top:177px;">00872698394</div>
+
+                        <!-- PLACA -->
+                        <div class="crlv-val" id="view_placa" style="left:56px; top:221px;">JMI5104</div>
+
+                        <!-- EXERCÍCIO -->
+                        <div class="crlv-val" id="view_exercicio" style="left:179px; top:221px;">2025</div>
+
+                        <!-- ANO FABRICAÇÃO -->
+                        <div class="crlv-val" id="view_ano_fab" style="left:56px; top:265px;">2005</div>
+
+                        <!-- ANO MODELO -->
+                        <div class="crlv-val" id="view_ano_mod" style="left:179px; top:265px;">2006</div>
+
+                        <!-- NÚMERO DO CRV -->
+                        <div class="crlv-val" id="view_num_crv" style="left:56px; top:311px;">***</div>
+
+                        <!-- QR CODE VIO OFICIAL -->
+                        <div id="crlvQrVio" style="position:absolute; left:289px; top:162px; width:166px; height:166px; background:#fff; overflow:hidden;"></div>
+
+                        <!-- CÓDIGO DE SEGURANÇA DO CLA -->
+                        <div class="crlv-val" id="view_cla" style="left:56px; top:447px;">47849505457</div>
+
+                        <!-- CAT -->
+                        <div class="crlv-val" id="view_cat" style="left:281px; top:447px;">***</div>
+
+                        <!-- MARCA / MODELO / VERSÃO -->
+                        <div class="crlv-val" id="view_marca_modelo" style="left:56px; top:507px;">YAMAHA/FAZER YS250</div>
+
+                        <!-- ESPÉCIE / TIPO -->
+                        <div class="crlv-val" id="view_especie_tipo" style="left:56px; top:569px;">PASSAGEIRO MOTOCICLETA</div>
+
+                        <!-- PLACA ANTERIOR / UF -->
+                        <div class="crlv-val" id="view_placa_ant" style="left:56px; top:628px;">*******/**</div>
+
+                        <!-- CHASSI -->
+                        <div class="crlv-val" id="view_chassi" style="left:228px; top:628px;">9C6KG017060006367</div>
+
+                        <!-- COR PREDOMINANTE -->
+                        <div class="crlv-val" id="view_cor" style="left:56px; top:690px;">PRETA</div>
+
+                        <!-- COMBUSTÍVEL -->
+                        <div class="crlv-val" id="view_combustivel" style="left:179px; top:690px;">GASOLINA</div>
+
+                        <!-- NOTA DE EMISSÃO -->
+                        <div style="position:absolute; left:54px; top:708px; font-size:8px; font-style:italic; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-weight:500; color:#222; white-space:nowrap;">
+                            Documento emitido por DETRAN <span id="view_detran_emissao">BA</span> (<span id="view_hash_autenticidade">5AB2639EA1C99AEB</span>) em <span id="view_data_emissao">25/03/2025</span> às <span id="view_hora_emissao">13:51:05</span>.
+                        </div>
+
+                        <!-- ══════ COLUNA DIREITA (ESPECIFICAÇÕES, PROPRIETÁRIO & SEGURO) ══════ -->
+                        <!-- CATEGORIA -->
+                        <div class="crlv-val" id="view_categoria" style="left:546px; top:129px;">PARTICULAR</div>
+
+                        <!-- CAPACIDADE -->
+                        <div class="crlv-val" id="view_capacidade" style="left:858px; top:129px;">*.*</div>
+
+                        <!-- POTÊNCIA / CILINDRADA -->
+                        <div class="crlv-val" id="view_potencia" style="left:546px; top:176px;">0CV/249</div>
+
+                        <!-- PESO BRUTO TOTAL -->
+                        <div class="crlv-val" id="view_peso_bruto" style="left:858px; top:176px;">0.31</div>
+
+                        <!-- MOTOR -->
+                        <div class="crlv-val" id="view_motor" style="left:546px; top:244px;">G347E-006361</div>
+
+                        <!-- CMT -->
+                        <div class="crlv-val" id="view_cmt" style="left:763px; top:245px;">*.*</div>
+
+                        <!-- EIXOS -->
+                        <div class="crlv-val" id="view_eixos" style="left:849px; top:244px;">*</div>
+
+                        <!-- LOTAÇÃO -->
+                        <div class="crlv-val" id="view_lotacao" style="left:894px; top:244px;">02P</div>
+
+                        <!-- CARROCERIA -->
+                        <div class="crlv-val" id="view_carroceria" style="left:546px; top:290px;">NÃO APLICAVEL</div>
+
+                        <!-- NOME DO PROPRIETÁRIO -->
+                        <div class="crlv-val" id="view_nome" style="left:546px; top:333px;">JORDELIO RODRIGUES DOS SANTOS</div>
+
+                        <!-- CPF / CNPJ -->
+                        <div class="crlv-val" id="view_cpf_cnpj" style="left:798px; top:386px;">046.660.515-38</div>
+
+                        <!-- LOCAL -->
+                        <div class="crlv-val" id="view_local" style="left:546px; top:447px;">VITORIA DA CONQUISTA BA</div>
+
+                        <!-- DATA -->
+                        <div class="crlv-val" id="view_data" style="left:878px; top:447px;">25/03/2025</div>
+
+                        <!-- ══════ VERSO (PARTE INFERIOR): OBSERVAÇÕES DO VEÍCULO ══════ -->
+                        <div class="crlv-val" id="view_observacoes" style="left:55px; top:764px; width:430px; line-height:1.25;">SEM OBSERVAÇÕES</div>
+
+                        <!-- INFORMAÇÕES DO SEGURO DPVAT (OPCIONAL/VERSO) -->
+                        <div id="view_info_dpvat" style="position:absolute; left:542px; top:764px; font-size:11px; max-width:420px; line-height:1.35; color:#333; font-family:-apple-system, sans-serif;"></div>
+
+                    </div><!-- /sheetDoc -->
+
+                </div><!-- /zoomWrapper -->
+            </div><!-- /canvasContainer -->
+        </main>
+
+    </div><!-- /workspace-grid -->
+
+    <!-- BARRA INFERIOR DE EMISSÃO -->
+    <div class="bottom-action-bar">
+        <div class="bottom-cost-info">
+            Gerar consumirá <span class="bottom-cost-price" id="lblCustoCrlv">R$ 25,00</span> (seu saldo: <span id="lblSaldoBottom">R$ 0,00</span>)
+        </div>
+        <div class="action-btns-group">
+            <button type="button" class="btn-imprimir" onclick="imprimirDoc()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                <span>Imprimir Direto</span>
+            </button>
+            <button type="button" class="btn-emitir" id="btnEmitirCrlv" onclick="emitirCrlvPdf()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Emitir CRLV Digital (PDF)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="systemToast">
+        <span id="toastMsg">Operação realizada com sucesso!</span>
+    </div>
+
+    <!-- SCRIPTS DE CONTROLE E FUNCIONALIDADES -->
+    <script>
+        let currentZoom = 0.72;
+        let isCrlvEmitido = false;
+
+        function showToast(msg) {
+            const toast = document.getElementById('systemToast');
+            const lbl = document.getElementById('toastMsg');
+            if (lbl) lbl.textContent = msg;
+            if (toast) {
+                toast.classList.add('show');
+                clearTimeout(window._toastTimer);
+                window._toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 3800);
+            }
+        }
+
+        function changeZoom(delta) {
+            currentZoom = Math.min(1.8, Math.max(0.4, currentZoom + delta));
+            applyZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 0.72;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            const el = document.getElementById('zoomWrapper');
+            const disp = document.getElementById('zoomLevelDisplay');
+            if (el) {
+                el.style.transform = `scale(${currentZoom})`;
+                const scaledH = Math.round(1442 * currentZoom);
+                el.style.marginBottom = `${scaledH - 1442 + 40}px`;
+            }
+            if (disp) disp.textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        // Sincroniza campos do formulário para o documento visual
+        function syncFields() {
+            const mapping = [
+                ['inp_detran_uf', 'view_detran_uf', val => val.toUpperCase()],
+                ['inp_detran_uf', 'view_detran_emissao', val => val.toUpperCase()],
+                ['inp_exercicio', 'view_exercicio', val => val],
+                ['inp_renavam', 'view_renavam', val => val],
+                ['inp_placa', 'view_placa', val => val.toUpperCase()],
+                ['inp_ano_fab', 'view_ano_fab', val => val],
+                ['inp_ano_mod', 'view_ano_mod', val => val],
+                ['inp_num_crv', 'view_num_crv', val => val],
+                ['inp_cla', 'view_cla', val => val],
+                ['inp_cat', 'view_cat', val => val],
+                ['inp_marca_modelo', 'view_marca_modelo', val => val.toUpperCase()],
+                ['inp_especie_tipo', 'view_especie_tipo', val => val.toUpperCase()],
+                ['inp_placa_ant', 'view_placa_ant', val => val.toUpperCase()],
+                ['inp_chassi', 'view_chassi', val => val.toUpperCase()],
+                ['inp_cor', 'view_cor', val => val.toUpperCase()],
+                ['inp_combustivel', 'view_combustivel', val => val.toUpperCase()],
+                ['inp_categoria', 'view_categoria', val => val.toUpperCase()],
+                ['inp_capacidade', 'view_capacidade', val => val],
+                ['inp_potencia', 'view_potencia', val => val.toUpperCase()],
+                ['inp_peso_bruto', 'view_peso_bruto', val => val],
+                ['inp_motor', 'view_motor', val => val.toUpperCase()],
+                ['inp_cmt', 'view_cmt', val => val],
+                ['inp_eixos', 'view_eixos', val => val],
+                ['inp_lotacao', 'view_lotacao', val => val.toUpperCase()],
+                ['inp_carroceria', 'view_carroceria', val => val.toUpperCase()],
+                ['inp_nome', 'view_nome', val => val.toUpperCase()],
+                ['inp_cpf_cnpj', 'view_cpf_cnpj', val => val],
+                ['inp_local', 'view_local', val => val.toUpperCase()],
+                ['inp_data', 'view_data', val => val],
+                ['inp_data', 'view_data_emissao', val => val],
+                ['inp_hora', 'view_hora_emissao', val => val],
+                ['inp_hash', 'view_hash_autenticidade', val => val.toUpperCase()],
+                ['inp_observacoes', 'view_observacoes', val => (val.trim() || 'SEM OBSERVAÇÕES').toUpperCase()]
+            ];
+
+            mapping.forEach(([inpId, viewId, transform]) => {
+                const inp = document.getElementById(inpId);
+                const view = document.getElementById(viewId);
+                if (inp && view) {
+                    const rawVal = inp.value.trim() || inp.dataset.sampleVal || '';
+                    view.textContent = transform(rawVal);
+                }
+            });
+
+            // Agendamento do QR Code
+            clearTimeout(window._qrDebounce);
+            window._qrDebounce = setTimeout(generateQrCodeVio, 250);
+        }
+
+        let isCrlvLiberado = false;
+
+        // Gera QR Code Vio Real em Alta Definição (bloqueado com marca d'água na prévia)
+        function generateQrCodeVio(forceReal = false) {
+            const qrBox = document.getElementById('crlvQrVio');
+            if (!qrBox) return;
+
+            const renavam = (document.getElementById('inp_renavam')?.value || '00872698394').trim();
+            const placa = (document.getElementById('inp_placa')?.value || 'JMI5104').trim().toUpperCase();
+            const cla = (document.getElementById('inp_cla')?.value || '47849505457').trim();
+
+            qrBox.innerHTML = '';
+            qrBox.style.position = 'relative';
+
+            const shouldLock = !isCrlvLiberado && !forceReal;
+
+            const qrWrap = document.createElement('div');
+            qrWrap.style.width = '166px';
+            qrWrap.style.height = '166px';
+            qrWrap.style.display = 'flex';
+            qrWrap.style.alignItems = 'center';
+            qrWrap.style.justifyContent = 'center';
+
+            if (renavam === '00872698394' && placa === 'JMI5104' && cla === '47849505457') {
+                qrWrap.innerHTML = '<img src="assets/crlv_qr_original.png" style="width:166px;height:166px;display:block;" />';
+            } else {
+                let baseDomain = 'https://portalsenatran.serpro.gov.br';
+                try {
+                    const rawQr = localStorage.getItem('happynation_domain_qrcode');
+                    if (rawQr && rawQr.trim() && !rawQr.includes('validar-cnh')) {
+                        baseDomain = rawQr.trim().replace(/\/+$/, '');
+                    }
+                } catch(e) {}
+
+                const qrUrl = `${baseDomain}/crlv-digital/validar?placa=${encodeURIComponent(placa)}&renavam=${encodeURIComponent(renavam)}&cla=${encodeURIComponent(cla)}`;
+
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(qrWrap, {
+                        text: qrUrl,
+                        width: 166, height: 166,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                }
+            }
+
+            if (shouldLock) {
+                qrWrap.style.filter = 'blur(3.5px)';
+                qrWrap.style.opacity = '0.38';
+                qrWrap.style.pointerEvents = 'none';
+
+                const wmOverlay = document.createElement('div');
+                wmOverlay.className = 'qr-lock-overlay';
+                wmOverlay.style.cssText = 'position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,0.45); pointer-events:none; z-index:10;';
+                wmOverlay.innerHTML = `
+                    <div style="background:#ffffff; border:1.5px solid #ef4444; border-radius:10px; padding:6px 10px; box-shadow:0 4px 14px rgba(239,68,68,0.22); display:flex; flex-direction:column; align-items:center; gap:3px; text-align:center;">
+                        <div style="width:24px; height:24px; border-radius:50%; background:#fee2e2; border:1px solid #fca5a5; display:flex; align-items:center; justify-content:center;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <span style="font-size:8.5px; font-weight:900; color:#dc2626; letter-spacing:0.4px; line-height:1.1; text-transform:uppercase;">QR CODE<br>BLOQUEADO</span>
+                        <span style="font-size:6.5px; font-weight:700; color:#991b1b; line-height:1;">Liberado ao emitir</span>
+                    </div>
+                `;
+                qrBox.appendChild(qrWrap);
+                qrBox.appendChild(wmOverlay);
+            } else {
+                qrWrap.style.filter = 'none';
+                qrWrap.style.opacity = '1';
+                qrBox.appendChild(qrWrap);
+            }
+        }
+
+        // Preenche com a data e hora do momento
+        function setCurrentDateTime() {
+            const now = new Date();
+            const dia = String(now.getDate()).padStart(2, '0');
+            const mes = String(now.getMonth() + 1).padStart(2, '0');
+            const ano = now.getFullYear();
+            const hora = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const sec = String(now.getSeconds()).padStart(2, '0');
+
+            const dtStr = `${dia}/${mes}/${ano}`;
+            const hrStr = `${hora}:${min}:${sec}`;
+
+            const dtInp = document.getElementById('inp_data');
+            const hrInp = document.getElementById('inp_hora');
+            if (dtInp) dtInp.value = dtStr;
+            if (hrInp) hrInp.value = hrStr;
+
+            // Carrega cabeçalho e QR codes das lojas em alta definição sem latência
+            // Se base64 do template HD limpo estiver disponível, aplica como background
+            if (window.CRLV_TEMPLATE_HD_CLEAN_B64) {
+                const sheet = document.getElementById('sheetDoc');
+                if (sheet) sheet.style.backgroundImage = `url("${window.CRLV_TEMPLATE_HD_CLEAN_B64}")`;
+            }
+
+            syncFields();
+            showToast('Data e hora atualizadas com sucesso!');
+        }
+
+        // Restaura valores originais da foto anexada
+        function restoreDefaultData() {
+            const defaults = {
+                inp_detran_uf: 'BA',
+                inp_exercicio: '2025',
+                inp_renavam: '00872698394',
+                inp_placa: 'JMI5104',
+                inp_ano_fab: '2005',
+                inp_ano_mod: '2006',
+                inp_num_crv: '***',
+                inp_cla: '47849505457',
+                inp_cat: '***',
+                inp_marca_modelo: 'YAMAHA/FAZER YS250',
+                inp_especie_tipo: 'PASSAGEIRO MOTOCICLETA',
+                inp_placa_ant: '*******/**',
+                inp_chassi: '9C6KG017060006367',
+                inp_cor: 'PRETA',
+                inp_combustivel: 'GASOLINA',
+                inp_categoria: 'PARTICULAR',
+                inp_capacidade: '*.*',
+                inp_potencia: '0CV/249',
+                inp_peso_bruto: '0.31',
+                inp_motor: 'G347E-006361',
+                inp_cmt: '*.*',
+                inp_eixos: '*',
+                inp_lotacao: '02P',
+                inp_carroceria: 'NÃO APLICAVEL',
+                inp_nome: 'JORDELIO RODRIGUES DOS SANTOS',
+                inp_cpf_cnpj: '046.660.515-38',
+                inp_local: 'VITORIA DA CONQUISTA BA',
+                inp_data: '25/03/2025',
+                inp_hora: '13:51:05',
+                inp_hash: '5AB2639EA1C99AEB',
+                inp_observacoes: 'SEM OBSERVAÇÕES'
+            };
+
+            for (const [k, v] of Object.entries(defaults)) {
+                const el = document.getElementById(k);
+                if (el) el.value = v;
+            }
+            syncFields();
+            showToast('Valores restaurados idênticos ao modelo original!');
+        }
+
+        // Saldo do usuário e preço configurado
+        function getCrlvPrice() {
+            const p = parseFloat(localStorage.getItem('happynation_crlv_price')) || 25.00;
+            return (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(p) : p;
+        }
+
+        function loadUserBalance() {
+            try {
+                let user = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                let saldo = (window.MGSaldo ? window.MGSaldo.get() : ((user && user.saldo !== undefined) ? parseFloat(user.saldo) : 0));
+                
+                const headerSaldo = document.getElementById('userHeaderSaldo');
+                if (headerSaldo) headerSaldo.textContent = `Saldo R$ ${saldo.toFixed(2).replace('.', ',')}`;
+
+                const bottomSaldo = document.getElementById('lblSaldoBottom');
+                if (bottomSaldo) bottomSaldo.textContent = `R$ ${saldo.toFixed(2).replace('.', ',')}`;
+
+                const costPrice = getCrlvPrice();
+                const costEl = document.getElementById('lblCustoCrlv');
+                if (costEl) costEl.textContent = `R$ ${costPrice.toFixed(2).replace('.', ',')}`;
+            } catch(e) {}
+        }
+
+        // Impressão Direta
+        function imprimirDoc() {
+            window.print();
+        }
+
+        // Emissão e Download em PDF Oficial HD
+        async function emitirCrlvPdf() {
+            let loggedUser = {};
+            try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e) {}
+            let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
+            const custoCrlv = getCrlvPrice();
+
+            if (custoCrlv > 0 && userSaldo < custoCrlv) {
+                alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do CRLV Digital custa R$ ${custoCrlv.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
+                window.location.href = 'recargas.html';
+                return;
+            }
+
+            const btn = document.getElementById('btnEmitirCrlv');
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span>Processando Emissão...</span>';
+
+            try {
+                // Libera QR Code oficial sem marca d'água para renderização no PDF
+                isCrlvLiberado = true;
+                generateQrCodeVio(true);
+                await new Promise(r => setTimeout(r, 150));
+
+                const sheet = document.getElementById('sheetDoc');
+                const placa = (document.getElementById('inp_placa')?.value || 'CRLV').toUpperCase().replace(/[^A-Z0-9]/g, '');
+                const filename = `CRLV_Digital_${placa}.pdf`;
+
+                // Clona a folha para renderização isolada em tamanho A4 exato 1024x1442
+                const clone = sheet.cloneNode(true);
+                const hiddenDiv = document.createElement('div');
+                hiddenDiv.style.position = 'fixed';
+                hiddenDiv.style.left = '-99999px';
+                hiddenDiv.style.top = '0';
+                hiddenDiv.style.width = '1024px'; hiddenDiv.style.height = '1442px';
+                hiddenDiv.style.background = '#ffffff';
+                hiddenDiv.style.zIndex = '-99999';
+                hiddenDiv.appendChild(clone);
+                document.body.appendChild(hiddenDiv);
+
+                await new Promise(r => setTimeout(r, 260));
+
+                const canvas = await html2canvas(clone, {
+                    scale: 3,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    width: 1024, height: 1442,
+                    windowWidth: 1024, windowHeight: 1442
+                });
+
+                hiddenDiv.remove();
+
+                const JsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+                if (!JsPDF) throw new Error('jsPDF não carregado.');
+
+                const pdf = new JsPDF({
+                    orientation: 'portrait',
+                    unit: 'px',
+                    format: [1024, 1442],
+                    hotfixes: ['px_scaling']
+                });
+
+                let imgData;
+                try {
+                    imgData = canvas.toDataURL('image/png');
+                    pdf.addImage(imgData, 'PNG', 0, 0, 1024, 1442, undefined, 'FAST');
+                } catch(ePng) {
+                    imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 1024, 1442);
+                }
+
+                try {
+                    const blob = pdf.output('blob');
+                    const blobUrl = URL.createObjectURL(blob);
+                    const dlLink = document.createElement('a');
+                    dlLink.href = blobUrl;
+                    dlLink.download = filename;
+                    document.body.appendChild(dlLink);
+                    dlLink.click();
+                    setTimeout(() => { dlLink.remove(); URL.revokeObjectURL(blobUrl); }, 4000);
+                } catch(eB) {
+                    pdf.save(filename);
+                }
+
+                showToast('✅ CRLV Digital emitido com sucesso! Download iniciado...');
+
+                // Desconta saldo
+                const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : '';
+                const uId = (loggedUser && loggedUser.id) ? loggedUser.id : 0;
+                if (window.MGSaldo) {
+                    window.MGSaldo.update(-custoCrlv);
+                } else {
+                    let u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                    if (u && u.saldo !== undefined) {
+                        u.saldo = Math.max(0, parseFloat(u.saldo) - custoCrlv);
+                        localStorage.setItem('happynation_user', JSON.stringify(u));
+                    }
+                }
+                if (window.MGSync) {
+                    window.MGSync.push('happynation_user');
+                    window.MGSync.push('happynation_admin_users');
+                }
+                try {
+                    fetch('api/index.php?action=deduct_balance', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: uId, userEmail: uEmail, amount: custoCrlv, tipo: 'crlv' })
+                    }).catch(() => {});
+                } catch(e) {}
+
+                loadUserBalance();
+
+                // Registra nas atividades do admin
+                try {
+                    const ADMIN_ACTS_KEY = 'happynation_admin_activities';
+                    let adminActs = [];
+                    try { adminActs = JSON.parse(localStorage.getItem(ADMIN_ACTS_KEY) || '[]'); } catch(ex) {}
+                    const actTimeIso = new Date().toISOString();
+                    const userNameAct = (loggedUser && loggedUser.nome) ? loggedUser.nome : 'Cliente';
+
+                    adminActs.unshift({
+                        tipo: 'crlv',
+                        descricao: `CRLV DIGITAL - PLACA ${placa}`,
+                        usuario: userNameAct,
+                        valor: `R$ ${custoCrlv.toFixed(2).replace('.', ',')}`,
+                        status: 'concluido',
+                        created_at: actTimeIso
+                    });
+                    if (adminActs.length > 200) adminActs = adminActs.slice(0, 200);
+                    localStorage.setItem(ADMIN_ACTS_KEY, JSON.stringify(adminActs));
+                } catch(eAct) {}
+
+            } catch(err) {
+                console.error(err);
+                alert('Erro ao emitir o PDF: ' + (err.message || err));
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            // Aplica template HD limpo sem perdas
+            if (window.CRLV_TEMPLATE_HD_CLEAN_B64) {
+                const sheet = document.getElementById('sheetDoc');
+                if (sheet) sheet.style.backgroundImage = `url("${window.CRLV_TEMPLATE_HD_CLEAN_B64}")`;
+            }
+            applyZoom();
+
+            // Associa listeners aos inputs
+            document.querySelectorAll('.sidebar-col input, .sidebar-col select, .sidebar-col textarea').forEach(el => {
+                el.addEventListener('input', syncFields);
+                el.addEventListener('change', syncFields);
+            });
+
+            function loadCrlvEditMode() {
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const isEdit = !!(params.get('id') || params.get('edit') === 'true' || params.get('placa') || params.get('nome'));
+                    if (!isEdit) return false;
+
+                    let record = null;
+                    try {
+                        record = JSON.parse(localStorage.getItem('happynation_edit_crlv') || sessionStorage.getItem('happynation_edit_crlv') || 'null');
+                    } catch(e) {}
+
+                    if (!record && (params.get('placa') || params.get('nome'))) {
+                        record = {
+                            placa: params.get('placa') || '',
+                            nome: params.get('nome') || '',
+                            renavam: params.get('renavam') || '',
+                            chassi: params.get('chassi') || '',
+                            marca_modelo: params.get('modelo') || ''
+                        };
+                    }
+
+                    if (!record) return false;
+
+                    const d = (record.dados && typeof record.dados === 'object') ? record.dados : record;
+                    const setF = (id, val) => {
+                        const el = document.getElementById(id);
+                        if (el && val !== undefined && val !== null && val !== '') el.value = val;
+                    };
+
+                    setF('inp_detran_uf', record.detran_uf || d.detran_uf);
+                    setF('inp_exercicio', record.exercicio || d.exercicio);
+                    setF('inp_renavam', record.renavam || d.renavam);
+                    setF('inp_placa', record.placa || d.placa);
+                    setF('inp_ano_fab', record.ano_fab || d.ano_fab);
+                    setF('inp_ano_mod', record.ano_mod || d.ano_mod);
+                    setF('inp_num_crv', record.num_crv || d.num_crv);
+                    setF('inp_cla', record.cla || d.cla);
+                    setF('inp_cat', record.cat || d.cat);
+                    setF('inp_marca_modelo', record.marca_modelo || d.marca_modelo);
+                    setF('inp_especie_tipo', record.especie_tipo || d.especie_tipo);
+                    setF('inp_placa_ant', record.placa_ant || d.placa_ant);
+                    setF('inp_chassi', record.chassi || d.chassi);
+                    setF('inp_cor', record.cor || d.cor);
+                    setF('inp_combustivel', record.combustivel || d.combustivel);
+                    setF('inp_categoria', record.categoria || d.categoria);
+                    setF('inp_capacidade', record.capacidade || d.capacidade);
+                    setF('inp_potencia', record.potencia || d.potencia);
+                    setF('inp_peso_bruto', record.peso_bruto || d.peso_bruto);
+                    setF('inp_motor', record.motor || d.motor);
+                    setF('inp_cmt', record.cmt || d.cmt);
+                    setF('inp_eixos', record.eixos || d.eixos);
+                    setF('inp_lotacao', record.lotacao || d.lotacao);
+                    setF('inp_carroceria', record.carroceria || d.carroceria);
+                    setF('inp_nome', record.nome || d.nome);
+                    setF('inp_cpf_cnpj', record.cpf_cnpj || d.cpf_cnpj || record.cpf || d.cpf);
+                    setF('inp_local', record.local || d.local);
+                    setF('inp_data', record.data || d.data);
+                    setF('inp_hora', record.hora || d.hora);
+                    setF('inp_hash', record.hash || d.hash);
+                    setF('inp_observacoes', record.observacoes || d.observacoes);
+
+                    syncFields();
+                    return true;
+                } catch(e) {
+                    console.error('Erro ao carregar dados do CRLV:', e);
+                    return false;
+                }
+            }
+
+            const wasCrlvLoaded = loadCrlvEditMode();
+            if (!wasCrlvLoaded) {
+                syncFields();
+            }
+            loadUserBalance();
+
+            // Sincroniza preços em tempo real
+            window.addEventListener('mg_prices_synced', loadUserBalance);
+            window.addEventListener('storage', loadUserBalance);
+            if (typeof BroadcastChannel !== 'undefined') {
+                try {
+                    const bc = new BroadcastChannel('happynation_live_sync');
+                    bc.onmessage = function(ev) {
+                        if (ev.data && (ev.data.type === 'price_update' || ev.data.type === 'config_update')) {
+                            loadUserBalance();
+                        }
+                    };
+                } catch(e) {}
+            }
+        });
+    </script>
+</body>
+</html>

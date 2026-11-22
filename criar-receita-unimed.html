@@ -1,0 +1,1744 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receita Médica Unimed | MG Editáveis</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <!-- Verificação de Administrador & Homologação -->
+    <script>
+        window.isAdminUser = false;
+        (function() {
+            try {
+                if (localStorage.getItem('happynation_admin_auth') === 'true' || sessionStorage.getItem('happynation_admin_auth') === 'true') {
+                    window.isAdminUser = true;
+                }
+                const uStr = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user');
+                if (uStr) {
+                    const u = JSON.parse(uStr);
+                    if (u && (u.email === 'admin@gmail.com' || u.role === 'admin')) {
+                        window.isAdminUser = true;
+                    }
+                }
+            } catch(e) {}
+        })();
+    </script>
+
+    <link rel="stylesheet" href="css/toast.css">
+    <script src="js/toast.js"></script>
+
+    <!-- Libs para PDF e QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="saldo-sync.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@500;700&display=swap');
+
+        :root {
+            --bg-page: #0b0d0e;
+            --bg-surface: #141718;
+            --bg-surface-elevated: #1a1e20;
+            --border-color: #232729;
+            --border-subtle: #1c2022;
+            --primary: #00995D;
+            --primary-hover: #007a4a;
+            --primary-glow: rgba(0, 153, 93, 0.25);
+            --text-primary: #ffffff;
+            --text-secondary: #9aa2a6;
+            --text-muted: #5f686c;
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+            --unimed-green: #00995D;
+            --unimed-dark: #004d2e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── CABEÇALHO PADRÃO ─── */
+        .header {
+            height: 60px;
+            background: #151718;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-inner {
+            max-width: 1440px;
+            height: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: #00dc82;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 14px rgba(0, 220, 130, 0.35);
+        }
+
+        .brand-icon-img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .brand-text {
+            font-weight: 800;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .saldo-pill {
+            background: rgba(0, 153, 93, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(0, 153, 93, 0.35);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            background: #232729;
+            border: 1px solid #333a3e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+            color: #00dc82;
+        }
+
+        /* ─── WORKSPACE PRINCIPAL ─── */
+        .workspace {
+            display: flex;
+            flex: 1;
+            max-width: 1440px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px;
+            gap: 28px;
+            box-sizing: border-box;
+        }
+
+        /* ─── PAINEL DE FORMULÁRIO ─── */
+        .editor-sidebar {
+            width: 440px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px 20px;
+        }
+
+        .panel-header-title {
+            font-size: 17px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-header-tag {
+            background: rgba(0, 153, 93, 0.15);
+            color: #34d399;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px 20px;
+        }
+
+        .form-card-title {
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #0f1112;
+            border: 1px solid #232729;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 13.5px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.15s ease;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 54px;
+        }
+
+        /* ─── MEDICAMENTOS NO FORM ─── */
+        .med-item-box {
+            background: #0d0f10;
+            border: 1px solid #1f2325;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .med-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .med-item-num {
+            font-size: 11px;
+            font-weight: 800;
+            color: #34d399;
+            text-transform: uppercase;
+        }
+
+        .btn-remove-med {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 2px 6px;
+        }
+
+        .btn-add-med {
+            width: 100%;
+            background: rgba(0, 153, 93, 0.12);
+            border: 1px dashed rgba(0, 153, 93, 0.4);
+            color: #34d399;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add-med:hover {
+            background: rgba(0, 153, 93, 0.2);
+        }
+
+        /* ─── BOTÃO EMITIR ─── */
+        .btn-emitir {
+            width: 100%;
+            background: linear-gradient(135deg, #00995D 0%, #007a4a 100%);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 800;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(0, 153, 93, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .btn-emitir:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(0, 153, 93, 0.5);
+        }
+
+        /* ─── PAINEL DE PREVIEW ─── */
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .preview-toolbar {
+            width: 100%;
+            max-width: 680px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .preview-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-badge-status {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        /* ─── CONTROLES DE ZOOM / APROXIMAÇÃO ─── */
+        .zoom-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #141718;
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+
+        .btn-zoom {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid #282d30;
+            color: #9aa2a6;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 800;
+            transition: all 0.15s ease;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+        }
+
+        .btn-zoom:hover {
+            color: #ffffff;
+            background: rgba(0, 153, 93, 0.25);
+            border-color: #00995D;
+        }
+
+        .btn-zoom-reset {
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            color: #34d399;
+        }
+
+        #zoomDisp {
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            min-width: 44px;
+            text-align: center;
+            font-family: var(--font-mono);
+        }
+
+        .recipe-viewport-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: auto;
+            padding: 10px 0 40px;
+        }
+
+        /* ─── FOLHA DA RECEITA UNIMED (PROPORÇÃO IDÊNTICA AO ORIGINAL 718x1024) ─── */
+        .recipe-sheet-wrapper {
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.65);
+            border-radius: 2px;
+            overflow: hidden;
+            background: #ffffff;
+            transform-origin: top center;
+            transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        #recipeDoc {
+            width: 731px;
+            height: 1024px;
+            background: #ffffff;
+            color: #000000;
+            position: relative;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== FOLHA POSICIONADA MILIMETRICAMENTE (modelo 731x1024) ===== */
+        #recipeDoc .rx { position: absolute; white-space: nowrap; margin: 0; padding: 0; color: #000; }
+        #recipeDoc .rx-b { font-weight: 700; }
+
+        #recipeDoc .rx-logo { position: absolute; left: 21.43px; top: 17.14px; width: 162.86px; height: 53.57px; overflow: hidden; background: #fff; }
+        #recipeDoc .rx-logo img { position: absolute; left: -21.43px; top: -17.14px; width: 731.43px; height: auto; max-width: none; display: block; }
+        #recipeDoc .rx-logo-cover { position: absolute; left: 40px; top: 33.9px; width: 70px; height: 15px; background: rgb(13,143,71); }
+        #recipeDoc .rx-logo-city { display: none !important; position: absolute; left: 42.1px; top: 32.2px; height: 16px; line-height: 16px; font-size: 14.5px; font-weight: 700; color: #ffffff; white-space: nowrap; font-family: Arial, Helvetica, sans-serif; }
+
+        #recipeDoc .rx-lbl { font-size: 12px; line-height: 14px; font-weight: 700; }
+        #recipeDoc .rx-val { font-size: 12px; line-height: 14px; font-weight: 400; }
+
+        #recipeDoc .rx-qrbox { position: absolute; left: 485px; top: 40px; width: 211px; height: 202px; border: 1px solid #7a7a7a; box-sizing: border-box; background: #fff; }
+        #recipeDoc .rx-qr-txt { font-size: 11px; line-height: 15px; font-weight: 700; }
+        #recipeDoc #docQrBox { position: absolute; left: 493px; top: 150px; width: 86px; height: 86px; background: #fff; }
+        #recipeDoc #docQrBox img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+
+        /* QR CODE BLOQUEADO NA PRÉVIA */
+        .qr-locked-box {
+            width: 100%;
+            height: 100%;
+            background: #fff8f8;
+            border: 1.5px dashed #ef4444;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4px;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+        .qr-locked-box::before {
+            content: 'PRÉVIA';
+            position: absolute;
+            font-size: 13px;
+            font-weight: 900;
+            color: rgba(239, 68, 68, 0.15);
+            transform: rotate(-35deg);
+            letter-spacing: 2px;
+            pointer-events: none;
+        }
+        .qr-locked-box svg {
+            color: #ef4444;
+            margin-bottom: 2px;
+            filter: drop-shadow(0 1px 2px rgba(239,68,68,0.25));
+        }
+        .qr-locked-title {
+            font-size: 8px;
+            font-weight: 900;
+            color: #b91c1c;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.1;
+        }
+        .qr-locked-sub {
+            font-size: 6.5px;
+            font-weight: 700;
+            color: #ef4444;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-top: 1px;
+        }
+
+        #recipeDoc .rx-line { position: absolute; left: 35px; width: 661px; height: 1px; background: #b0b0b0; }
+
+        #recipeDoc #docMedsList { position: absolute; left: 72px; top: 312.3px; width: 620px; }
+        #recipeDoc .rec-med-row { position: relative; margin: 0 0 12.6px 0; }
+        #recipeDoc .rec-med-row-header { position: relative; display: block; height: 14px; margin: 0; }
+        #recipeDoc .rec-med-name { position: absolute; left: 0; top: 0; font-size: 12.2px; line-height: 14px; font-weight: 700; color: #000; white-space: nowrap; }
+        #recipeDoc .rec-med-qty { position: absolute; left: 381.6px; top: 0; font-size: 12.2px; line-height: 14px; font-weight: 700; color: #000; text-align: left; white-space: nowrap; }
+        #recipeDoc .rec-med-posology { margin: 3.4px 0 0 0; padding: 0; font-size: 9.6px; line-height: 12px; color: #444; max-width: 330px; }
+
+        #recipeDoc .rx-icp-img { position: absolute; left: 131.4px; top: 902px; width: 27.1px; height: 34.3px; overflow: hidden; }
+        #recipeDoc .rx-icp-img img { position: absolute; left: -131.4px; top: -411.4px; width: 731.43px; height: auto; max-width: none; display: block; }
+        #recipeDoc .rx-icp-txt { left: 173.6px; top: 905.5px; font-size: 9.6px; line-height: 13px; color: #8f8f8f; text-transform: uppercase; }
+        #recipeDoc .rx-sign { position: absolute; left: 190.4px; top: 949.5px; width: 400px; text-align: center; }
+        #recipeDoc .rx-sign-in { display: inline-block; text-align: left; }
+        #recipeDoc .rx-sign-name { font-size: 12.2px; line-height: 15px; font-weight: 700; white-space: nowrap; color: #000; }
+        #recipeDoc .rx-sign-addr { font-size: 9.4px; line-height: 11px; margin: -1px 0 0 3px; white-space: nowrap; color: #000; }
+
+        /* ─── MARCA D'ÁGUA DE PRÉVIA NO EDITOR ─── */
+        .recipe-watermark-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 50;
+            overflow: hidden;
+            border-radius: inherit;
+        }
+
+        .recipe-watermark-inner {
+            position: absolute;
+            inset: -120px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 40px 30px;
+            transform: rotate(-28deg);
+            transform-origin: center center;
+        }
+
+        .recipe-wm-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 24px;
+            opacity: 0.18;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .recipe-wm-tile img {
+            width: 180px;
+            height: auto;
+            filter: grayscale(100%);
+        }
+
+        .recipe-wm-tile span {
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #00995D;
+            text-transform: uppercase;
+        }
+
+        .recipe-watermark-center-stamp {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-32deg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            z-index: 55;
+            pointer-events: none;
+            opacity: 0.28;
+            white-space: nowrap;
+        }
+
+        .recipe-watermark-center-stamp img {
+            width: 320px;
+            height: auto;
+        }
+
+        .recipe-watermark-center-stamp .stamp-text {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: #00995D;
+            text-transform: uppercase;
+            border-top: 2.5px dashed #00995D;
+            border-bottom: 2.5px dashed #00995D;
+            padding: 6px 30px;
+        }
+
+        #recipeDoc.generating .recipe-watermark-overlay {
+            display: none !important;
+        }
+
+        /* ─── 1. SEÇÃO SUPERIOR (ESQUERDA: LOGO + PACIENTE | DIREITA: BOX QR) ─── */
+        .rec-top-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .rec-top-left-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* LOGO UNIMED SVG PURO – IDÊNTICO AO ORIGINAL */
+        .rec-unimed-logo-wrapper {
+            display: inline-block;
+            margin-bottom: 18px;
+            user-select: none;
+            line-height: 0;
+        }
+        .rec-unimed-logo-wrapper svg {
+            display: block;
+        }
+
+        /* LOGO UNIMED HTML PURO */
+        .unimed-logo-box {
+            display: inline-block;
+            background: #008C51;
+            border-radius: 14px;
+            padding: 8px 20px 10px 16px;
+            min-width: 170px;
+            line-height: 1;
+            margin-bottom: 18px;
+            user-select: none;
+        }
+        .unimed-logo-name {
+            font-family: 'Arial Black', Arial, Helvetica, sans-serif !important;
+            font-size: 46px !important;
+            font-weight: 900 !important;
+            color: #ffffff !important;
+            letter-spacing: -1.5px;
+            line-height: 1;
+            display: block;
+        }
+        .unimed-logo-city {
+            font-family: Arial, Helvetica, sans-serif !important;
+            font-size: 15px !important;
+            font-weight: 400 !important;
+            color: #ffffff !important;
+            text-align: right;
+            display: block;
+            margin-top: 2px;
+            letter-spacing: 0.2px;
+        }
+
+        /* DADOS DO PACIENTE */
+        .rec-patient-info-block {
+            margin-top: 4px;
+        }
+
+        .rec-lbl-paciente {
+            font-size: 11.5px;
+            color: #111111 !important;
+            margin-bottom: 3px;
+            font-weight: 400;
+        }
+
+        .rec-val-paciente {
+            font-size: 16px;
+            font-weight: 800;
+            color: #000000 !important;
+            margin-bottom: 12px;
+            letter-spacing: -0.2px;
+        }
+
+        .rec-patient-columns-row {
+            display: flex;
+            gap: 36px;
+            margin-bottom: 10px;
+        }
+
+        .rec-field-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rec-field-col-lbl {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #000000 !important;
+            margin-bottom: 3px;
+        }
+
+        .rec-field-col-val {
+            font-size: 10.5px;
+            font-weight: 400;
+            color: #111111 !important;
+        }
+
+        .rec-patient-addr-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rec-patient-addr-lbl {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #000000 !important;
+            margin-bottom: 3px;
+        }
+
+        .rec-patient-addr-val {
+            font-size: 10.5px;
+            font-weight: 400;
+            color: #111111 !important;
+        }
+
+        /* ─── 2. COLUNA DA DIREITA: BOX QR CODE ─── */
+        .rec-qr-card-box {
+            width: 208px;
+            border: 1px solid #777777;
+            padding: 10px 12px 10px 12px;
+            box-sizing: border-box;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rec-qr-card-intro {
+            font-size: 9px;
+            font-weight: 700;
+            color: #000000 !important;
+            line-height: 1.25;
+            margin-bottom: 6px;
+        }
+
+        .rec-qr-card-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #000000 !important;
+            line-height: 1.25;
+            margin-bottom: 8px;
+        }
+
+        .rec-qr-card-bottom {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rec-qr-code-holder {
+            width: 86px;
+            height: 86px;
+            background: #ffffff;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rec-qr-code-holder img {
+            width: 86px;
+            height: 86px;
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        .rec-qr-keys-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .rec-key-lbl {
+            font-size: 8.5px;
+            color: #333333 !important;
+            line-height: 1.2;
+        }
+
+        .rec-key-val {
+            font-size: 11px;
+            font-weight: 800;
+            color: #000000 !important;
+            line-height: 1.25;
+            margin-bottom: 6px;
+        }
+
+        /* ─── 3. LINHAS HORIZONTAIS DIVISÓRIAS ─── */
+        .rec-divider-line {
+            border: none;
+            border-top: 1px solid #c8c8c8;
+            margin: 18px 0 28px 0;
+            width: 100%;
+        }
+
+        .rec-divider-line-bottom {
+            border: none;
+            border-top: 1px solid #c8c8c8;
+            margin: 0 0 34px 0;
+            width: 100%;
+        }
+
+        /* ─── 4. SEÇÃO DE MEDICAMENTOS ─── */
+        .rec-meds-section {
+            flex: 1;
+            padding-top: 4px;
+        }
+
+        .rec-med-row {
+            margin-bottom: 24px;
+        }
+
+        .rec-med-row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+        }
+
+        .rec-med-name {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #000000 !important;
+        }
+
+        .rec-med-qty {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #000000 !important;
+            text-align: right;
+        }
+
+        .rec-med-posology {
+            font-size: 10.5px;
+            color: #444444 !important;
+            line-height: 1.45;
+            padding-left: 2px;
+        }
+
+        /* ─── 5. RODAPÉ ─── */
+        .rec-footer-area {
+            margin-top: auto;
+        }
+
+        .rec-icp-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .rec-icp-img {
+            height: 28px;
+            width: auto;
+            flex-shrink: 0;
+            filter: grayscale(100%);
+        }
+
+        .rec-icp-text {
+            font-size: 8.5px;
+            color: #777777 !important;
+            line-height: 1.35;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        .rec-doctor-signature-center {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .rec-doc-name-crm {
+            font-size: 12px;
+            font-weight: 800;
+            color: #000000 !important;
+            letter-spacing: -0.1px;
+        }
+
+        .rec-doc-address {
+            font-size: 9.5px;
+            color: #444444 !important;
+        }
+    
+        /* Card Resumo / Ações de Checkout Padrão */
+        .checkout-actions-card {
+            background: rgba(0, 220, 130, 0.05);
+            border: 1px solid rgba(0, 220, 130, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .checkout-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .price-label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .price-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: #00dc82;
+        }
+
+        .btn-reset-defaults {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 7px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-reset-defaults:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-action-primary {
+            background: #00dc82;
+            color: #062517;
+            font-weight: 800;
+            font-size: 13.5px;
+            padding: 13px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(0, 220, 130, 0.25);
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 100%;
+        }
+
+        .btn-action-primary:hover {
+            background: #00f590;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.35);
+        }
+</style>
+</head>
+<body>
+
+    <!-- CABEÇALHO PADRÃO -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-actions">
+                <a href="receitas-unimed.html" style="color: #9aa2a6; font-size: 13px; text-decoration: none; font-weight: 600;">Minhas Receitas</a>
+                <a href="recargas.html" class="saldo-pill" id="headerSaldoPill">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <span id="headerSaldoVal">R$ 0,00</span>
+                </a>
+                <div class="user-avatar" id="headerUserAvatar">U</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- WORKSPACE -->
+    <main class="workspace">
+        
+        <!-- SIDEBAR DE EDIÇÃO -->
+        <aside class="editor-sidebar">
+            <div class="panel-header">
+                <h1 class="panel-header-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00995D" stroke-width="2.5"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>
+                    Receita Médica Unimed
+                </h1>
+                <span class="panel-header-tag">OFICIAL ICP</span>
+            </div>
+
+            <!-- SEÇÃO 1: DADOS DO PACIENTE -->
+            <div class="form-card">
+                <div class="form-card-title">Identificação do Paciente</div>
+
+                <div class="form-group">
+                    <label class="form-label">Nome Completo do Paciente</label>
+                    <input type="text" id="inpPaciente" class="form-input" value="Renato Silva" oninput="atualizarPreview()">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">CPF</label>
+                        <input type="text" id="inpCPF" class="form-input" value="101.010.100-12" maxlength="14" placeholder="000.000.000-00" oninput="mascaraCpf(this); atualizarPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nascimento</label>
+                        <input type="text" id="inpNasc" class="form-input" value="11/11/1990" oninput="atualizarPreview()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Data de Emissão</label>
+                        <input type="text" id="inpEmissao" class="form-input" value="12/11/2026" oninput="atualizarPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Unidade / Cidade</label>
+                        <input type="text" id="inpCidade" class="form-input" value="São Paulo" oninput="atualizarPreview()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Endereço do Paciente</label>
+                    <input type="text" id="inpEndereco" class="form-input" value="Rua das Flores, 1500, 344" oninput="atualizarPreview()">
+                </div>
+            </div>
+
+            <!-- SEÇÃO 2: DADOS DE SEGURANÇA E QR CODE -->
+            <div class="form-card">
+                <div class="form-card-title">
+                    <span>Validação & QR Code</span>
+                    <button type="button" onclick="gerarTokensAleatorios()" style="background:transparent; border:none; color:#34d399; font-size:11px; cursor:pointer; font-weight:700;">Gerar Novos</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Token da Receita</label>
+                        <input type="text" id="inpToken" class="form-input" value="TY5T4YK" oninput="atualizarPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Código de Acesso</label>
+                        <input type="text" id="inpCodigo" class="form-input" value="6585" oninput="atualizarPreview()">
+                    </div>
+                </div>
+
+                
+            </div>
+
+            <!-- SEÇÃO 3: MEDICAMENTOS -->
+            <div class="form-card">
+                <div class="form-card-title">
+                    <span>Medicamentos Prescritos</span>
+                    <span id="medsCountBadge" style="color:#34d399; font-size:11px;">1 item</span>
+                </div>
+
+                <div id="medsFormContainer">
+                    <!-- Medicamentos inseridos dinamicamente -->
+                </div>
+
+                <button type="button" class="btn-add-med" onclick="adicionarMedicamento()">+ Adicionar Outro Medicamento</button>
+            </div>
+
+            <!-- SEÇÃO 4: DADOS DO MÉDICO -->
+            <div class="form-card">
+                <div class="form-card-title">Médico Prescritor</div>
+
+                <div class="form-group">
+                    <label class="form-label">Nome do Médico</label>
+                    <input type="text" id="inpMedico" class="form-input" value="Dr. Marcelo Tavares" oninput="atualizarPreview()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">CRM e UF</label>
+                    <input type="text" id="inpCRM" class="form-input" value="CRM 91919 SP" oninput="atualizarPreview()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Endereço do Consultório</label>
+                    <input type="text" id="inpEndMedico" class="form-input" value="Rua das Flores, 1500, 344" oninput="atualizarPreview()">
+                </div>
+            </div>
+
+            <!-- CARD FINAL DE CHECKOUT: PREÇO E BOTÃO GERAR PDF -->
+        <div class="checkout-actions-card">
+            <div class="checkout-price-row">
+                <div>
+                    <div class="price-label">Valor da Emissão:</div>
+                    <div class="price-value" id="custoReceitaDisplay">R$ 15,00</div>
+                </div>
+                <button type="button" class="btn-reset-defaults" onclick="resetToDefaults()" title="Restaurar dados padrão da receita">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+                    <span>Restaurar Padrão</span>
+                </button>
+            </div>
+
+            <button type="button" class="btn-action-primary btn-gerar" id="btnEmitirReceita" onclick="emitirReceitaPDF()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span id="btnGerarTxt">Gerar PDF — Receita Unimed</span>
+            </button>
+        </div>
+        </aside>
+
+        <!-- PREVIEW -->
+        <section class="preview-panel">
+            <div class="preview-toolbar">
+                <div class="preview-title">
+                    <span class="preview-badge-status"></span>
+                    Pré-visualização Oficial Unimed (A4)
+                </div>
+                <div class="zoom-wrap">
+                    <button type="button" class="btn-zoom" onclick="changeZoom(-0.05)" title="Afastar (−)">−</button>
+                    <span id="zoomDisp">125%</span>
+                    <button type="button" class="btn-zoom" onclick="changeZoom(0.05)" title="Aproximar (+)">+</button>
+                    <button type="button" class="btn-zoom btn-zoom-reset" onclick="resetZoom()" title="Tamanho Real 100%">100%</button>
+                </div>
+            </div>
+
+            <!-- VIEWPORT CONTAINER DE APROXIMAÇÃO -->
+            <div class="recipe-viewport-container">
+                <!-- ENVOLTÓRIO DA FOLHA -->
+                <div class="recipe-sheet-wrapper" id="zoomSheetWrapper">
+                
+                <!-- MARCA D'ÁGUA DE PRÉVIA -->
+                <div class="recipe-watermark-overlay" id="recipeWatermark" aria-hidden="true">
+                    <div class="recipe-watermark-center-stamp">
+                        <img src="assets/unimed_logo_limpo.png" alt="Unimed">
+                        <div class="stamp-text">PRÉVIA OFICIAL • NÃO VÁLIDO</div>
+                    </div>
+                    <div class="recipe-watermark-inner">
+                        <div class="recipe-wm-tile"><img src="assets/unimed_logo_limpo.png" alt=""><span>Prévia Oficial</span></div>
+                        <div class="recipe-wm-tile"><img src="assets/unimed_logo_limpo.png" alt=""><span>Prévia Oficial</span></div>
+                        <div class="recipe-wm-tile"><img src="assets/unimed_logo_limpo.png" alt=""><span>Prévia Oficial</span></div>
+                        <div class="recipe-wm-tile"><img src="assets/unimed_logo_limpo.png" alt=""><span>Prévia Oficial</span></div>
+                        <div class="recipe-wm-tile"><img src="assets/unimed_logo_limpo.png" alt=""><span>Prévia Oficial</span></div>
+                        <div class="recipe-wm-tile"><img src="assets/unimed_logo_limpo.png" alt=""><span>Prévia Oficial</span></div>
+                        <div class="recipe-wm-tile"><img src="assets/unimed_logo_limpo.png" alt=""><span>Prévia Oficial</span></div>
+                        <div class="recipe-wm-tile"><img src="assets/unimed_logo_limpo.png" alt=""><span>Prévia Oficial</span></div>
+                    </div>
+                </div>
+
+                <!-- DOCUMENTO -->
+                <div id="recipeDoc">
+
+                    <!-- LOGO UNIMED (recorte do modelo) + cidade dinâmica -->
+                    <div class="rx-logo" title="Logotipo Oficial Unimed">
+                        <img src="assets/unimed_receita_ref.jpg" alt="Unimed">
+                        <div class="rx-logo-cover"></div>
+                        <div class="rx-logo-city" id="docCity">são paulo</div>
+                    </div>
+
+                    <!-- PACIENTE -->
+                    <div class="rx rx-lbl" style="left:35px; top:103px;">Paciente:</div>
+                    <div class="rx" id="docPaciente" style="left:35px; top:118.6px; font-size:17px; line-height:20px; font-weight:700;">Renato Silva</div>
+
+                    <div class="rx rx-lbl" style="left:35px; top:146px;">CPF do Paciente:</div>
+                    <div class="rx rx-val" id="docCPF" style="left:35.7px; top:159.4px;">101.010.100-12</div>
+
+                    <div class="rx rx-lbl" style="left:209.3px; top:146px;">Nascimento:</div>
+                    <div class="rx rx-val" id="docNasc" style="left:212.9px; top:159.4px;">11/11/1990</div>
+
+                    <div class="rx rx-lbl" style="left:356.4px; top:146px;">Emissão:</div>
+                    <div class="rx" id="docEmissao" style="left:342.9px; top:162.4px; font-size:10.8px; line-height:12px;">12/11/2026</div>
+
+                    <div class="rx rx-lbl" style="left:35px; top:182.3px;">Endereço:</div>
+                    <div class="rx rx-val" id="docEndereco" style="left:34.3px; top:197.3px; font-size:12.3px;">Rua das Flores, 1500, 344</div>
+
+                    <!-- BOX QR CODE -->
+                    <div class="rx-qrbox"></div>
+                    <div class="rx rx-qr-txt" style="left:496px; top:47.5px;">Paciente,<br>sua receita foi enviada para o seu<br>celular e também pode ser acessada<br>pelo QR code!</div>
+                    <div class="rx rx-qr-txt" style="left:496px; top:117px; line-height:14.6px;">Acesse e aproveite as<br>vantagens.</div>
+
+                    <div id="docQrBox"></div>
+
+                    <div class="rx" style="left:586.4px; top:158.5px; font-size:10.7px; line-height:13px;">Token da receita:</div>
+                    <div class="rx rx-b" id="docToken" style="left:572px; width:101px; text-align:center; top:171.4px; font-size:10.7px; line-height:13px;">TY5T4YK</div>
+                    <div class="rx" style="left:587px; top:203.3px; font-size:9.5px; line-height:12px;">codigo de acesso:</div>
+                    <div class="rx rx-b" id="docCodigo" style="left:572px; width:101px; text-align:center; top:214.4px; font-size:12.2px; line-height:14px;">6585</div>
+
+                    <!-- LINHA 1 -->
+                    <div class="rx-line" style="top:246.5px;"></div>
+
+                    <!-- MEDICAMENTOS -->
+                    <div id="docMedsList"></div>
+
+                    <!-- LINHA 2 -->
+                    <div class="rx-line" style="top:730.5px;"></div>
+
+                    <!-- ICP BRASIL -->
+                    <div class="rx-icp-img"><img src="assets/unimed_receita_ref2.png" alt="ICP-Brasil"></div>
+                    <div class="rx rx-icp-txt">ESTE DOCUMENTO FOI ASSINADO DIGITALMENTE COM CERTIFICADO DIGITAL PADRÃO<br>ICP-BRASIL AMPARADO PELA MEDIDA PROVISÓRIA 2200-2/2001</div>
+
+                    <!-- ASSINATURA -->
+                    <div class="rx-sign">
+                        <div class="rx-sign-in">
+                            <div class="rx-sign-name"><span id="docMedico">Dr. marcelo tavares</span> | <span id="docCRM">CRM 91919 SP</span></div>
+                            <div class="rx-sign-addr" id="docEndMedico">Rua das Flores, 1500, 344</div>
+                        </div>
+                    </div>
+
+                </div></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        
+        // Controles de aproximação / afastamento (Zoom)
+        let currentZoom = 1.25;
+
+        function applyZoom() {
+            const wrapper = document.getElementById('zoomSheetWrapper');
+            if (wrapper) {
+                wrapper.style.transform = `scale(${currentZoom})`;
+            }
+            const disp = document.getElementById('zoomDisp');
+            if (disp) {
+                disp.textContent = `${Math.round(currentZoom * 100)}%`;
+            }
+        }
+
+        function changeZoom(delta) {
+            currentZoom = Math.min(Math.max(0.4, currentZoom + delta), 2.0);
+            applyZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 1.25;
+            applyZoom();
+        }
+
+        // Lista dinâmica de medicamentos
+        let medicamentos = [
+            {
+                nome: "Tylenol 500 mg, Comprimido",
+                qtd: "1 caixa com 6 comprimidos",
+                posologia: "Tomar 1 comprimido via oral de 6/6h se dor ou febre"
+            }
+        ];
+
+        function renderizarFormMedicamentos() {
+            const container = document.getElementById('medsFormContainer');
+            container.innerHTML = '';
+
+            document.getElementById('medsCountBadge').textContent = `${medicamentos.length} ${medicamentos.length === 1 ? 'item' : 'itens'}`;
+
+            medicamentos.forEach((m, idx) => {
+                const box = document.createElement('div');
+                box.className = 'med-item-box';
+                box.innerHTML = `
+                    <div class="med-item-header">
+                        <span class="med-item-num">Medicamento #${idx + 1}</span>
+                        ${medicamentos.length > 1 ? `<button type="button" class="btn-remove-med" onclick="removerMedicamento(${idx})">Remover</button>` : ''}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nome & Apresentação</label>
+                        <input type="text" class="form-input" value="${m.nome}" oninput="medicamentos[${idx}].nome = this.value; atualizarPreview();">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Quantidade</label>
+                        <input type="text" class="form-input" value="${m.qtd}" oninput="medicamentos[${idx}].qtd = this.value; atualizarPreview();">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Posologia / Instruções</label>
+                        <textarea class="form-input form-textarea" oninput="medicamentos[${idx}].posologia = this.value; atualizarPreview();">${m.posologia}</textarea>
+                    </div>
+                `;
+                container.appendChild(box);
+            });
+        }
+
+        function adicionarMedicamento() {
+            medicamentos.push({
+                nome: "Amoxicilina 500mg, Cápsula",
+                qtd: "1 caixa com 21 cápsulas",
+                posologia: "Tomar 1 cápsula de 8 em 8 horas por 7 dias."
+            });
+            renderizarFormMedicamentos();
+            atualizarPreview();
+        }
+
+        function removerMedicamento(idx) {
+            if (medicamentos.length <= 1) return;
+            medicamentos.splice(idx, 1);
+            renderizarFormMedicamentos();
+            atualizarPreview();
+        }
+
+        function gerarTokensAleatorios() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let token = '';
+            for (let i = 0; i < 7; i++) {
+                token += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            const cod = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('inpToken').value = token;
+            document.getElementById('inpCodigo').value = cod;
+            atualizarPreview();
+        }
+
+        let qrTimer = null;
+        
+function resetToDefaults() {
+    if (confirm('Deseja restaurar os dados padrão da receita médica?')) {
+        window.location.href = window.location.pathname;
+    }
+}
+
+function atualizarPreview() {
+            const getVal = (id, fallback) => {
+                const el = document.getElementById(id);
+                if (!el) return fallback || '';
+                return el.value.trim() || el.dataset.sampleVal || fallback || '';
+            };
+
+            const paciente = getVal('inpPaciente', 'Renato Silva');
+            const cpf = getVal('inpCPF', '101.010.100-12');
+            const nasc = getVal('inpNasc', '11/11/1990');
+            const emissao = getVal('inpEmissao', '12/11/2026');
+            const cidade = getVal('inpCidade', 'São Paulo');
+            const endereco = getVal('inpEndereco', 'Rua das Flores, 1500, 344');
+            const token = getVal('inpToken', 'TY5T4YK');
+            const codigo = getVal('inpCodigo', '6585');
+            const medico = getVal('inpMedico', 'Dr. Marcelo Tavares');
+            const crm = getVal('inpCRM', 'CRM 91919 SP');
+            const endMedico = getVal('inpEndMedico', 'Rua das Flores, 1500, 344');
+
+            document.getElementById('docCity').textContent = cidade.toLowerCase();
+            document.getElementById('docPaciente').textContent = paciente;
+            document.getElementById('docCPF').textContent = cpf;
+            document.getElementById('docNasc').textContent = nasc;
+            document.getElementById('docEmissao').textContent = emissao;
+            document.getElementById('docEndereco').textContent = endereco;
+            document.getElementById('docToken').textContent = token;
+            document.getElementById('docCodigo').textContent = codigo;
+            document.getElementById('docMedico').textContent = medico;
+            document.getElementById('docCRM').textContent = crm;
+            document.getElementById('docEndMedico').textContent = endMedico;
+
+            // Renderizar na folha os medicamentos (mantém modelo de prévia se estiver vazio)
+            const listEl = document.getElementById('docMedsList');
+            listEl.innerHTML = '';
+            medicamentos.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'rec-med-row';
+                const mNome = (m.nome || '').trim() || 'Tylenol 500 mg, Comprimido';
+                const mQtd = (m.qtd || '').trim() || '1 caixa com 6 comprimidos';
+                const mPos = (m.posologia || '').trim() || 'Tomar 1 comprimido via oral de 6/6h se dor ou febre';
+                item.innerHTML = `
+                    <div class="rec-med-row-header">
+                        <div class="rec-med-name">${mNome}</div>
+                        <div class="rec-med-qty">${mQtd}</div>
+                    </div>
+                    <div class="rec-med-posology">${mPos}</div>
+                `;
+                listEl.appendChild(item);
+            });
+
+            // Gerar QR Code com debounce
+            clearTimeout(qrTimer);
+            qrTimer = setTimeout(gerarQrCode, 150);
+        }
+
+        let isDocLiberado = false;
+
+        function gerarQrCode(forceReal = false) {
+            const qrBox = document.getElementById('docQrBox');
+            if (!qrBox) return;
+            qrBox.innerHTML = '';
+
+            // Se ainda não foi emitido e pago, exibe o QR Code bloqueado com marca d'água
+            if (!isDocLiberado && !forceReal) {
+                qrBox.innerHTML = `
+                    <div class="qr-locked-box" title="QR Code bloqueado na prévia. Será liberado após emitir o PDF e debitar o saldo.">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <span class="qr-locked-title">QR BLOQUEADO</span>
+                        <span class="qr-locked-sub">LIBERA APÓS EMISSÃO</span>
+                    </div>
+                `;
+                return;
+            }
+
+            const token = document.getElementById('inpToken').value.trim() || 'TY5T4YK';
+            const codigo = document.getElementById('inpCodigo').value.trim() || '6585';
+            const paciente = document.getElementById('inpPaciente').value.trim() || 'Renato Silva';
+            const cpf = document.getElementById('inpCPF').value.trim() || '101.010.100-1';
+            const nasc = document.getElementById('inpNasc').value.trim() || '11/11/1990';
+            const emissao = document.getElementById('inpEmissao').value.trim() || '12/11/2026';
+            const cidade = document.getElementById('inpCidade').value.trim() || 'são paulo';
+            const endereco = document.getElementById('inpEndereco').value.trim() || 'Rua das Flores, 1500, 344';
+            const medico = document.getElementById('inpMedico').value.trim() || 'Dr. Marcelo Tavares';
+            const crm = document.getElementById('inpCRM').value.trim() || 'CRM 91919 SP';
+            const endMedico = document.getElementById('inpEndMedico').value.trim() || 'Rua das Flores, 1500, 344';
+
+            let baseDomain = 'https://receita-unimed.vercel.app';
+            try {
+                const customDomain = localStorage.getItem('happynation_domain_qrcode_receita');
+                if (customDomain && customDomain.trim()) baseDomain = customDomain.trim();
+            } catch(e) {}
+            baseDomain = baseDomain.replace(/\/+$/, '');
+
+            // Serializa medicamentos de forma compacta (Nome|Qtd|Posologia;;Nome2|Qtd2|Posologia2)
+            const medsCompact = (medicamentos || []).map(m => {
+                const n = (m.nome || '').replace(/[|;]/g, ' ');
+                const q = (m.qtd || '').replace(/[|;]/g, ' ');
+                const p = (m.posologia || '').replace(/[|;]/g, ' ');
+                return `${n}|${q}|${p}`;
+            }).join(';;');
+
+            const params = new URLSearchParams({
+                t: token,
+                c: codigo,
+                p: paciente,
+                cpf: cpf,
+                n: nasc,
+                e: emissao,
+                cid: cidade,
+                end: endereco,
+                m: medico,
+                crm: crm,
+                end_m: endMedico,
+                meds: medsCompact
+            });
+
+            const qrUrl = `${baseDomain}/validar-receita-unimed.html?${params.toString()}`;
+
+            if (typeof QRCode !== 'undefined') {
+                const tempDiv = document.createElement('div');
+                tempDiv.style.position = 'fixed';
+                tempDiv.style.left = '-9999px';
+                tempDiv.style.top = '-9999px';
+                tempDiv.style.width = '300px';
+                tempDiv.style.height = '300px';
+                tempDiv.style.background = '#ffffff';
+                tempDiv.style.padding = '10px';
+                document.body.appendChild(tempDiv);
+
+                try {
+                    new QRCode(tempDiv, {
+                        text: qrUrl,
+                        width: 300,
+                        height: 300,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+
+                    setTimeout(() => {
+                        const canvas = tempDiv.querySelector('canvas');
+                        const img = tempDiv.querySelector('img');
+                        let src = '';
+                        if (canvas) {
+                            src = canvas.toDataURL('image/png');
+                        } else if (img && img.src) {
+                            src = img.src;
+                        }
+                        if (src) {
+                            qrBox.innerHTML = `<img src="${src}" alt="QR Code Receita Unimed" style="width:100%; height:100%; display:block; image-rendering:pixelated; background:#fff; padding:2px; box-sizing:border-box;">`;
+                        }
+                        if (document.body.contains(tempDiv)) {
+                            document.body.removeChild(tempDiv);
+                        }
+                    }, 50);
+                } catch(e) {
+                    console.error('Erro ao gerar QR Code:', e);
+                    if (document.body.contains(tempDiv)) {
+                        document.body.removeChild(tempDiv);
+                    }
+                }
+            }
+        }
+
+        // Salvar no histórico de receitas
+        function salvarRegistroReceita() {
+            try {
+                let userEmail = 'default';
+                const uStr = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user');
+                if (uStr) {
+                    const u = JSON.parse(uStr);
+                    if (u && u.email) userEmail = u.email;
+                }
+
+                const key = `happynation_receitas_${userEmail}`;
+                const raw = localStorage.getItem(key) || '[]';
+                let list = JSON.parse(raw);
+                if (!Array.isArray(list)) list = [];
+
+                const item = {
+                    id: (window.__editReceitaId || ('rec_' + Date.now())),
+                    cidade: (document.getElementById('inpCidade') ? document.getElementById('inpCidade').value.trim() : ''),
+                    paciente: document.getElementById('inpPaciente').value.trim() || 'Renato Silva',
+                    cpf: document.getElementById('inpCPF').value.trim(),
+                    nasc: document.getElementById('inpNasc').value.trim(),
+                    emissao: document.getElementById('inpEmissao').value.trim(),
+                    endereco: document.getElementById('inpEndereco').value.trim(),
+                    token: document.getElementById('inpToken').value.trim(),
+                    codigo: document.getElementById('inpCodigo').value.trim(),
+                    medico: document.getElementById('inpMedico').value.trim(),
+                    crm: document.getElementById('inpCRM').value.trim(),
+                    end_medico: document.getElementById('inpEndMedico').value.trim(),
+                    medicamentos: medicamentos,
+                    criadoEm: new Date().toISOString()
+                };
+
+                if (window.__editReceitaId) {
+                    const ix = list.findIndex(r => String(r.id) === String(window.__editReceitaId));
+                    if (ix >= 0) { item.criadoEm = list[ix].criadoEm || item.criadoEm; list[ix] = item; }
+                    else { list.unshift(item); }
+                } else {
+                    list.unshift(item);
+                }
+                localStorage.setItem(key, JSON.stringify(list));
+            } catch(e) {
+                console.warn('Erro ao salvar receita recente:', e);
+            }
+        }
+
+        function renderRealQrCodeAsync() {
+            return new Promise((resolve) => {
+                gerarQrCode(true);
+                setTimeout(resolve, 200);
+            });
+        }
+
+        // Emissão do PDF com desconto de saldo
+        async function emitirReceitaPDF() {
+            const CUSTO = getCustoReceita();
+
+            if (window.MGSaldo && typeof window.MGSaldo.canAfford === 'function') {
+                if (!window.MGSaldo.canAfford(CUSTO)) {
+                    if (window.showToast) {
+                        showToast(`Saldo insuficiente! Custo: R$ ${CUSTO.toFixed(2)}. Recarregue seu saldo.`, 'error');
+                    } else {
+                        alert(`Saldo insuficiente! Custo: R$ ${CUSTO.toFixed(2)}. Recarregue seu saldo.`);
+                    }
+                    return;
+                }
+            }
+
+            const docEl = document.getElementById('recipeDoc');
+            if (!docEl) return;
+
+            const btnEmitir = document.getElementById('btnEmitirReceita');
+            if (btnEmitir) btnEmitir.disabled = true;
+
+            try {
+                // 1. Deduzir saldo ANTES de liberar o documento oficial
+                if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
+                    await window.MGSaldo.deduct(CUSTO, {
+                        tipo: 'receita_unimed',
+                        descricao: (document.getElementById('inpPaciente').value.trim() || 'PACIENTE').toUpperCase(),
+                        subRotulo: 'Receita Médica (Unimed)',
+                        tagClass: 'badge-unimed',
+                        tagText: 'RECEITA'
+                    });
+                }
+
+                // 2. Libera o QR Code oficial (remove bloqueio e marca d'água)
+                isDocLiberado = true;
+                await renderRealQrCodeAsync();
+
+                const wrapper = document.getElementById('zoomSheetWrapper');
+                const prevTransform = wrapper ? wrapper.style.transform : '';
+                if (wrapper) wrapper.style.transform = 'scale(1)';
+
+                docEl.classList.add('generating');
+
+                if (window.showToast) {
+                    showToast('Saldo debitado! Gerando Receita Médica com QR Code oficial...', 'info');
+                }
+
+                const canvas = await html2canvas(docEl, {
+                    scale: 2.5,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+
+                docEl.classList.remove('generating');
+                if (wrapper) wrapper.style.transform = prevTransform;
+
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                const pacienteNome = (document.getElementById('inpPaciente').value.trim() || 'paciente').replace(/\s+/g, '_');
+                pdf.save(`Receita_Unimed_${pacienteNome}.pdf`);
+
+                // Remove a marca d'água de prévia da tela ao vivo e mantém QR Code liberado
+                const wm = document.getElementById('recipeWatermark');
+                if (wm) wm.remove();
+
+                // Salvar recente
+                salvarRegistroReceita();
+
+                if (window.showToast) {
+                    showToast('✅ Receita emitida com sucesso! QR Code liberado. Redirecionando...', 'success');
+                }
+
+                setTimeout(() => {
+                    window.location.href = 'receitas-unimed.html';
+                }, 1400);
+
+            } catch(err) {
+                docEl.classList.remove('generating');
+                if (wrapper) wrapper.style.transform = prevTransform;
+                if (btnEmitir) btnEmitir.disabled = false;
+                console.error('Erro ao gerar PDF da receita:', err);
+                if (window.showToast) {
+                    showToast('Ocorreu um erro ao gerar o PDF. Tente novamente.', 'error');
+                }
+            }
+        }
+
+        // Preço configurado no painel admin (fonte única da verdade) — padrão R$ 15,00
+        function getCustoReceita() {
+            return parseFloat(localStorage.getItem('happynation_receita_unimed_price')) || 15.00;
+        }
+        function aplicarCustoReceita(precoNovo) {
+            const v = (precoNovo !== undefined && precoNovo !== null && !isNaN(parseFloat(precoNovo))) ? parseFloat(precoNovo) : getCustoReceita();
+            const el = document.getElementById('custoReceitaDisplay');
+            if (el) el.textContent = 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        window.addEventListener('mg_prices_synced', (ev) => {
+            aplicarCustoReceita(ev && ev.detail && ev.detail.receita_unimed_price);
+        });
+        window.addEventListener('storage', () => aplicarCustoReceita());
+
+        function carregarReceitaParaEdicao() {
+            try {
+                const qs = new URLSearchParams(window.location.search);
+                const id = qs.get('id');
+                if (!id && qs.get('edit') !== 'true' && !qs.get('nome')) return;
+                let found = null;
+                try {
+                    found = JSON.parse(localStorage.getItem('happynation_edit_receita') || sessionStorage.getItem('happynation_edit_receita') || 'null');
+                } catch(e) {}
+                if (!found && id) {
+                    for (let i = 0; i < localStorage.length && !found; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith('happynation_receitas_')) {
+                            const list = JSON.parse(localStorage.getItem(k) || '[]');
+                            if (Array.isArray(list)) found = list.find(r => String(r.id) === String(id)) || null;
+                        }
+                    }
+                }
+                if (!found && qs.get('nome')) {
+                    found = { id: id || '', paciente: qs.get('nome') || '', cpf: qs.get('cpf') || '' };
+                }
+                if (!found) return;
+                window.__editReceitaId = found.id || id || '';
+                isDocLiberado = true;
+                const wm = document.getElementById('recipeWatermark');
+                if (wm) wm.remove();
+                const d = (found.dados && typeof found.dados === 'object') ? found.dados : found;
+                const set = (el, v) => { const e = document.getElementById(el); if (e && v !== undefined && v !== null && v !== '') e.value = v; };
+                set('inpPaciente', found.paciente || d.paciente || found.nome || d.nome);
+                set('inpCPF', found.cpf || d.cpf);
+                set('inpNasc', found.nasc || d.nasc);
+                set('inpEmissao', found.emissao || d.emissao || found.data || d.data);
+                set('inpCidade', found.cidade || d.cidade || 'são paulo');
+                set('inpEndereco', found.endereco || d.endereco);
+                set('inpToken', found.token || d.token);
+                set('inpCodigo', found.codigo || d.codigo);
+                set('inpMedico', found.medico || d.medico);
+                set('inpCRM', found.crm || d.crm);
+                set('inpEndMedico', found.end_medico || d.end_medico);
+                const meds = found.medicamentos || d.medicamentos;
+                if (Array.isArray(meds) && meds.length) {
+                    medicamentos.length = 0;
+                    meds.forEach(m => medicamentos.push(m));
+                }
+                const btnG = document.getElementById('btnGerarPdf');
+                if (btnG) {
+                    const sp = btnG.querySelector('span') || btnG;
+                    sp.textContent = 'Salvar Alterações & Baixar PDF';
+                }
+            } catch(e) { console.warn('Erro ao carregar receita para edição:', e); }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            aplicarCustoReceita();
+            carregarReceitaParaEdicao();
+            renderizarFormMedicamentos();
+            atualizarPreview();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script src="js/security-guard.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Validação Oficial de Laudo Toxicológico | Toxicologia Pardini</title>
+
+    <!-- Metadados de Compartilhamento / Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Toxicologia Pardini — Portal Oficial de Autenticação">
+    <meta property="og:title" content="Autenticidade de Exame Toxicológico — Toxicologia Pardini">
+    <meta property="og:description" content="Consulta pública e validação oficial de exames toxicológicos de larga janela de detecção emitidos pelo laboratório Toxicologia Pardini.">
+    <meta property="og:image" content="https://exame-toxologico.vercel.app/assets/logo_toxicologia_pardini_puro.png">
+    <meta name="theme-color" content="#c8102e">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/logo_toxicologia_pardini_puro.png">
+    <link rel="apple-touch-icon" href="assets/logo_toxicologia_pardini_puro.png">
+
+    <!-- Tipografia Oficial de Alta Definição -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --pardini-red: #c8102e;
+            --pardini-red-dark: #a00b22;
+            --pardini-red-light: #fdf2f2;
+            --pardini-slate: #334155;
+            --pardini-dark: #0f172a;
+            --success-green: #059669;
+            --success-green-dark: #065f46;
+            --success-green-light: #ecfdf5;
+            --success-border: #a7f3d0;
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --border-subtle: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── TOPO INSTITUCIONAL PARDINI ─── */
+        header {
+            background: #ffffff;
+            border-bottom: 3px solid var(--pardini-red);
+            box-shadow: 0 4px 18px rgba(200, 16, 46, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-inner {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .header-logo-img {
+            height: 44px;
+            width: auto;
+            max-width: 220px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .header-security-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #334155;
+            white-space: nowrap;
+        }
+
+        .security-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success-green);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5); }
+            70% { box-shadow: 0 0 0 6px rgba(5, 150, 105, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+        }
+
+        /* ─── CONTAINER PRINCIPAL ─── */
+        .main-container {
+            max-width: 980px;
+            width: 100%;
+            margin: 28px auto 40px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            flex: 1;
+        }
+
+        /* ─── BANNER DE AUTENTICIDADE (HERO) ─── */
+        .auth-banner-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+            border: 1.5px solid var(--success-border);
+            border-radius: 16px;
+            padding: 24px 28px;
+            box-shadow: 0 6px 24px rgba(5, 150, 105, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-banner-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: var(--success-green);
+        }
+
+        .auth-icon-wrap {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: var(--success-green);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+        }
+
+        .auth-icon-wrap svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .auth-banner-text {
+            flex: 1;
+        }
+
+        .auth-status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--success-green-light);
+            border: 1px solid var(--success-border);
+            color: var(--success-green-dark);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+        }
+
+        .auth-banner-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--success-green-dark);
+            letter-spacing: -0.3px;
+            margin-bottom: 4px;
+        }
+
+        .auth-banner-desc {
+            font-size: 13.5px;
+            color: #334155;
+            line-height: 1.45;
+        }
+
+        .auth-meta-line {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* ─── CARDS DE CONTEÚDO ─── */
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+            overflow: hidden;
+        }
+
+        .card-header-bar {
+            padding: 16px 24px;
+            background: #fafbfc;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .card-header-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header-title svg {
+            color: var(--pardini-red);
+        }
+
+        .badge-pill-code {
+            font-family: var(--font-mono);
+            background: #fee2e2;
+            color: var(--pardini-red-dark);
+            border: 1px solid #fecaca;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ─── GRID DE DADOS DO EXAME ─── */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding: 24px;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 10px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .info-item-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-item-value {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #0f172a;
+            word-break: break-word;
+        }
+
+        .info-item-value.highlight-blue {
+            color: #003399;
+        }
+
+        .info-item-value.mono {
+            font-family: var(--font-mono);
+            letter-spacing: 0.4px;
+        }
+
+        /* ─── TABELA DE RESULTADOS DO PAINEL TOXICOLÓGICO ─── */
+        .toxicology-table-wrap {
+            padding: 20px 24px;
+            overflow-x: auto;
+        }
+
+        .toxicology-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .toxicology-table th {
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 800;
+            padding: 10px 14px;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .toxicology-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+
+        .toxicology-table tr:hover td {
+            background: #fafbfc;
+        }
+
+        .badge-negativo {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--success-green-light);
+            border: 1px solid var(--success-border);
+            color: var(--success-green-dark);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+
+        .conclusion-box {
+            margin: 0 24px 24px 24px;
+            background: #f0fdf4;
+            border: 1.5px solid var(--success-border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .conclusion-box-icon {
+            color: var(--success-green);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .conclusion-box-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--success-green-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 4px;
+        }
+
+        .conclusion-box-text {
+            font-size: 13px;
+            color: #166534;
+            line-height: 1.45;
+        }
+
+        /* ─── RESPONSABILIDADE TÉCNICA E ICP-BRASIL ─── */
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            padding: 24px;
+            border-top: 1px solid var(--border);
+            background: #fafbfc;
+        }
+
+        .sig-box {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sig-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .sig-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .sig-sub {
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .icp-stamp {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            width: fit-content;
+        }
+
+        /* ─── BARRA DE AÇÕES INFERIOR ─── */
+        .actions-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            color: #334155;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            border-color: var(--pardini-red);
+            color: var(--pardini-red);
+            background: #fdf2f2;
+            transform: translateY(-1px);
+        }
+
+        .btn-action.btn-primary {
+            background: var(--pardini-red);
+            border-color: var(--pardini-red);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(200, 16, 46, 0.25);
+        }
+
+        .btn-action.btn-primary:hover {
+            background: var(--pardini-red-dark);
+            border-color: var(--pardini-red-dark);
+            color: #ffffff;
+        }
+
+        /* ─── RODAPÉ INSTITUCIONAL ─── */
+        footer {
+            background: #ffffff;
+            border-top: 1px solid var(--border);
+            padding: 24px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-top: auto;
+        }
+
+        .footer-inner {
+            max-width: 980px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .footer-legal-text {
+            max-width: 760px;
+        }
+
+        /* ─── RESPONSIVIDADE ─── */
+        @media (max-width: 768px) {
+            .header-inner {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 16px;
+            }
+
+            .main-container {
+                margin-top: 16px;
+                padding: 0 14px;
+            }
+
+            .auth-banner-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px 16px;
+                gap: 14px;
+            }
+
+            .auth-meta-line {
+                justify-content: center;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .signatures-grid {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+
+            .toxicology-table-wrap {
+                padding: 14px 16px;
+            }
+        }
+
+        /* ─── ESTILOS PARA IMPRESSÃO ─── */
+        @media print {
+            header, footer, .actions-row, .header-security-badge {
+                display: none !important;
+            }
+            body {
+                background: #ffffff;
+                color: #000000;
+            }
+            .main-container {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .content-card, .auth-banner-card {
+                border: 1px solid #000000 !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── CABEÇALHO COM LOGOTIPO OFICIAL TOXICOLOGIA PARDINI ─── -->
+    <header>
+        <div class="header-inner">
+            <a href="https://exame-toxologico.vercel.app/autenticacao.html" class="brand-link" title="Toxicologia Pardini">
+                <img src="assets/logo_toxicologia_pardini_puro.png" class="header-logo-img" alt="Toxicologia Pardini - Análises Clínicas e Diagnóstico">
+            </a>
+            <div class="header-security-badge">
+                <span class="security-dot"></span>
+                <span>Validação Oficial em Tempo Real</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ─── CONTAINER PRINCIPAL DE VALIDAÇÃO ─── -->
+    <main class="main-container">
+
+        <!-- BANNER DE AUTENTICIDADE CONFIRMADA -->
+        <section class="auth-banner-card">
+            <div class="auth-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="auth-banner-text">
+                <div class="auth-status-tag">Autenticidade Confirmada • Registro Válido</div>
+                <h1 class="auth-banner-title">LAUDO TOXICOLÓGICO AUTENTICADO</h1>
+                <p class="auth-banner-desc">
+                    O laudo laboratorial consultado é <strong>autêntico, íntegro e oficial</strong>, emitido pelo laboratório <strong>Toxicologia Pardini</strong> em estrita conformidade com a Lei Federal nº 13.103/2015 e Resolução CONTRAN nº 923/2022.
+                </p>
+                <div class="auth-meta-line">
+                    <span>Validação realizada em: <strong id="valConsultaTimestamp">--/--/---- às --:--</strong></span>
+                    <span>•</span>
+                    <span>Acreditação: <strong>ABNT NBR ISO/IEC 17025 (CRL 1291)</strong></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARD 1: DADOS DO DOADOR E IDENTIFICAÇÃO DO LAUDO -->
+        <section class="content-card">
+            <div class="card-header-bar">
+                <div class="card-header-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <span>Dados do Laudo e Identificação do Doador</span>
+                </div>
+                <div class="badge-pill-code" title="Código de Autenticação">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <span id="txtAutenticacao">81540F</span>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-item-label">Nome Completo do Doador</span>
+                    <span class="info-item-value highlight-blue" id="txtNomeDoador">LEANDRO FERNANDES</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">CPF (Protegido por LGPD)</span>
+                    <span class="info-item-value mono" id="txtCpfDoador">107.***.***-30</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">Número do Laudo</span>
+                    <span class="info-item-value highlight-blue mono" id="txtNumeroLaudo">087D99MT700293968</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">Formulário Cadeia de Custódia (FCC)</span>
+                    <span class="info-item-value mono" id="txtFcc">CN305638578</span>
+                </div>
+
+                <div class="info-item full-width">
+                    <span class="info-item-label">Posto de Coleta Laboratorial Credenciado (PCL)</span>
+                    <span class="info-item-value" id="txtPostoColeta">LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">Tipo de Contrato / Finalidade</span>
+                    <span class="info-item-value" id="txtFinalidade">CLT — Periódico / Habilitação CNH</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">Amostra Biológica Analisada</span>
+                    <span class="info-item-value" id="txtAmostra">Cabelos CABEÇA — 3,0 cm (Queratina)</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">Janela de Detecção Estimada</span>
+                    <span class="info-item-value highlight-blue" id="txtJanela">Aproximadamente 90 dias</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">Data da Coleta</span>
+                    <span class="info-item-value" id="txtDataColeta">26/01/2024</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">Recebimento no Laboratório</span>
+                    <span class="info-item-value" id="txtDataRecebimento">26/01/2024</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">Data da Análise Laboratorial</span>
+                    <span class="info-item-value" id="txtDataAnalise">27/01/2024</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">Data de Emissão do Laudo</span>
+                    <span class="info-item-value" id="txtDataEmissao">30/01/2024</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-item-label">Validade RENACH / DETRAN</span>
+                    <span class="info-item-value highlight-blue" id="txtDataValidade">29/04/2024</span>
+                </div>
+
+                <div class="info-item full-width">
+                    <span class="info-item-label">Hash Criptográfico de Segurança (SHA-256)</span>
+                    <span class="info-item-value mono" style="font-size:12px; color:#475569;" id="txtHashDigital">406e230323742ad8f9a21b3e8c14d9987a12b</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARD 2: PAINEL ANALÍTICO TOXICOLÓGICO -->
+        <section class="content-card">
+            <div class="card-header-bar">
+                <div class="card-header-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    <span>Painel Toxicológico de Larga Janela de Detecção</span>
+                </div>
+                <div style="font-size:11.5px; font-weight:700; color:#059669; background:#ecfdf5; border:1px solid #a7f3d0; padding:4px 10px; border-radius:6px;">
+                    Metodologia: LC-MS/MS
+                </div>
+            </div>
+
+            <div class="toxicology-table-wrap">
+                <table class="toxicology-table">
+                    <thead>
+                        <tr>
+                            <th>Grupo de Substâncias</th>
+                            <th>Substâncias / Metabólitos Pesquisados</th>
+                            <th>Nível de Corte (Cut-off)</th>
+                            <th>Resultado Analítico</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Anfetaminas</strong></td>
+                            <td>Anfetamina, Metanfetamina, MDA, MDMA, MDEA</td>
+                            <td>0,20 ng/mg</td>
+                            <td><span class="badge-negativo">NEGATIVO</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Canabinoides</strong></td>
+                            <td>Tetrahidrocanabinol (THC), 11-nor-delta-9-THC-COOH</td>
+                            <td>0,20 pg/mg</td>
+                            <td><span class="badge-negativo">NEGATIVO</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cocaína</strong></td>
+                            <td>Cocaína, Benzoilecgonina, Cocaetileno, Norcocaína</td>
+                            <td>0,50 ng/mg</td>
+                            <td><span class="badge-negativo">NEGATIVO</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Opiáceos</strong></td>
+                            <td>Morfina, Codeína, 6-Acetilmorfina, Heroína, Oxicodona</td>
+                            <td>0,20 ng/mg</td>
+                            <td><span class="badge-negativo">NEGATIVO</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fenciclidina</strong></td>
+                            <td>Fenciclidina (PCP)</td>
+                            <td>0,20 ng/mg</td>
+                            <td><span class="badge-negativo">NEGATIVO</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PARECER TÉCNICO CONCLUSIVO -->
+            <div class="conclusion-box">
+                <div class="conclusion-box-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="conclusion-box-title">Parecer Técnico Conclusivo Oficial</div>
+                    <div class="conclusion-box-text" id="txtParecerConclusivo">
+                        O doador <strong>NÃO FEZ USO</strong> indevido de substâncias psicoativas de acordo com as diretrizes e limites de corte estabelecidos pela <strong>Resolução CONTRAN nº 923, de 28 de março de 2022</strong> e Portarias correlatas do Ministério do Trabalho e Previdência.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ASSINATURAS E RESPONSABILIDADE TÉCNICA -->
+            <div class="signatures-grid">
+                <div class="sig-box">
+                    <div class="sig-title">Responsável Técnico Laboratorial</div>
+                    <div class="sig-name" id="txtMedicoNome">Thais de L. C. F. Martinodes</div>
+                    <div class="sig-sub" id="txtMedicoCrm">Farmacêutica Bioquímica — CRF-MG: 46.360</div>
+                    <div class="sig-sub">Cel.: 34 - 713334 • Toxicologia Pardini</div>
+                </div>
+
+                <div class="sig-box">
+                    <div class="sig-title">Certificação Digital & Segurança</div>
+                    <div class="sig-name">Instituto Hermes Pardini S/A</div>
+                    <div class="sig-sub">CNPJ: 19.324.782/0001-35 • Vespasiano / MG</div>
+                    <div class="icp-stamp">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>Assinado Digitalmente • Padrão ICP-Brasil</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── BOTÕES DE AÇÃO ─── -->
+        <div class="actions-row">
+            <button class="btn-action btn-primary" onclick="window.print()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                <span>Imprimir Comprovante de Autenticidade</span>
+            </button>
+
+            <button class="btn-action" onclick="copiarCodigoAutenticacao()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Copiar Código de Autenticação</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- ─── RODAPÉ INSTITUCIONAL PARDINI ─── -->
+    <footer>
+        <div class="footer-inner">
+            <p><strong>TOXICOLOGIA PARDINI</strong> • Instituto Hermes Pardini S.A. • CNPJ: 19.324.782/0001-35</p>
+            <p class="footer-legal-text">
+                Laboratório de Ensaios Acreditado pela Cgcre/INMETRO sob o nº CRL 1291 de acordo com a norma ABNT NBR ISO/IEC 17025. Este portal atende integralmente aos requisitos de conferência de autenticidade documental regulamentados pelo SENATRAN, DETRAN e Ministério do Trabalho.
+            </p>
+            <p>© <span id="footerAno">2026</span> Toxicologia Pardini. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- SCRIPT DE PROCESSAMENTO DOS DADOS DO LAUDO -->
+    <script>
+        (function() {
+            // Data e hora da consulta em tempo real
+            const agora = new Date();
+            const dataStr = agora.toLocaleDateString('pt-BR');
+            const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const tsElem = document.getElementById('valConsultaTimestamp');
+            if (tsElem) tsElem.textContent = `${dataStr} às ${horaStr}`;
+
+            const anoElem = document.getElementById('footerAno');
+            if (anoElem) anoElem.textContent = agora.getFullYear();
+
+            // Leitura de parâmetros de busca via URL
+            const urlParams = new URLSearchParams(window.location.search);
+
+            const paramCodigo = (urlParams.get('codigo') || urlParams.get('autenticacao') || '81540F').trim();
+            const paramLaudo = (urlParams.get('laudo') || urlParams.get('numero') || '087D99MT700293968').trim();
+            const paramCpfRaw = (urlParams.get('cpf') || '107.413.316-30').trim();
+            const paramNome = (urlParams.get('nome') || 'LEANDRO FERNANDES').trim();
+            const paramFcc = (urlParams.get('fcc') || 'CN305638578').trim();
+            const paramPosto = (urlParams.get('posto') || 'LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64').trim();
+            const paramFinalidade = (urlParams.get('finalidade') || 'CLT — PERIODICO / Habilitação CNH').trim();
+            const paramColeta = (urlParams.get('coleta') || '26/01/2024').trim();
+            const paramRecebimento = (urlParams.get('recebimento') || '26/01/2024').trim();
+            const paramAnalise = (urlParams.get('analise') || '27/01/2024').trim();
+            const paramEmissao = (urlParams.get('emissao') || urlParams.get('resultado_data') || '30/01/2024').trim();
+            const paramValidade = (urlParams.get('validade') || '29/04/2024').trim();
+            const paramHash = (urlParams.get('hash') || '406e230323742ad8f9a21b3e8c14d9987a12b').trim();
+            const paramAmostra = (urlParams.get('amostra') || 'Cabelos CABEÇA — 3,0 cm (Queratina)').trim();
+
+            // Mascaramento LGPD do CPF
+            let maskedCpf = paramCpfRaw;
+            const cleanDigits = paramCpfRaw.replace(/\D/g, '');
+            if (cleanDigits.length === 11) {
+                maskedCpf = `${cleanDigits.slice(0,3)}.***.***-${cleanDigits.slice(9,11)}`;
+            }
+
+            // Injeção nos elementos de visualização
+            document.getElementById('txtAutenticacao').textContent = paramCodigo.toUpperCase();
+            document.getElementById('txtNumeroLaudo').textContent = paramLaudo.toUpperCase();
+            document.getElementById('txtNomeDoador').textContent = paramNome.toUpperCase();
+            document.getElementById('txtCpfDoador').textContent = maskedCpf;
+            document.getElementById('txtFcc').textContent = paramFcc.toUpperCase();
+            document.getElementById('txtPostoColeta').textContent = paramPosto.toUpperCase();
+            document.getElementById('txtFinalidade').textContent = paramFinalidade;
+            document.getElementById('txtAmostra').textContent = paramAmostra;
+            document.getElementById('txtDataColeta').textContent = paramColeta;
+            document.getElementById('txtDataRecebimento').textContent = paramRecebimento;
+            document.getElementById('txtDataAnalise').textContent = paramAnalise;
+            document.getElementById('txtDataEmissao').textContent = paramEmissao;
+            document.getElementById('txtDataValidade').textContent = paramValidade;
+            document.getElementById('txtHashDigital').textContent = paramHash;
+
+            // Médico e CRF se passados
+            if (urlParams.get('medico')) {
+                document.getElementById('txtMedicoNome').textContent = urlParams.get('medico');
+            }
+            if (urlParams.get('crm')) {
+                document.getElementById('txtMedicoCrm').textContent = urlParams.get('crm');
+            }
+        })();
+
+        // Função de cópia do código de autenticação
+        function copiarCodigoAutenticacao() {
+            const cod = document.getElementById('txtAutenticacao').textContent.trim();
+            navigator.clipboard.writeText(cod).then(() => {
+                alert(`Código ${cod} copiado para a área de transferência!`);
+            }).catch(() => {
+                prompt('Copie o código de autenticação:', cod);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,3955 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <!-- Google Fonts para Assinaturas Feitas à Mão -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Allura&family=Caveat:wght@600;700&family=Cedarville+Cursive&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Homemade+Apple&family=La+Belle+Aurore&family=Marck+Script&family=Mr+Dafoe&family=Pinyon+Script&family=Sacramento&display=swap" rel="stylesheet">
+
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+
+    <!-- Open Graph / Compartilhamento -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="MG Editáveis | Atestado Médico UPA 24h">
+    <meta property="og:description" content="Geração e Emissão de Atestado Médico Oficial UPA 24h com visualização em tempo real.">
+    <meta property="og:image" content="http://painel-mg-editaveis.com/og-image.png">
+    
+    <!-- Favicon e Ícones Oficiais UPA 24 Horas -->
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-upa-192.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-upa.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon-upa.png">
+    <link rel="shortcut icon" type="image/png" href="assets/favicon-upa.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | Gerador de Atestado Médico UPA 24h</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="assets/template_atestado_b64.js"></script>
+    <script src="assets/logo_upa_oficial_b64.js"></script>
+    <script src="assets/sig_original_b64.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Alex+Brush&family=Allura&family=Caveat:wght@600;700&family=Cedarville+Cursive&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Homemade+Apple&family=La+Belle+Aurore&family=Marck+Script&family=Mr+Dafoe&family=Pinyon+Script&family=Sacramento&display=swap');
+
+        :root {
+            --bg-color: #0b0d0e;
+            --surface: #141718;
+            --surface-hover: #1b1e20;
+            --surface-card: #191c1d;
+            --border: #232729;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --primary: #00dc82;
+            --primary-hover: #00c975;
+            --primary-glow: rgba(0, 220, 130, 0.25);
+            --danger: #ff4757;
+            --warning: #ffb142;
+            --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body.light-theme {
+            --bg-color: #f4f6f8;
+            --surface: #ffffff;
+            --surface-hover: #f1f3f5;
+            --surface-card: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #00c975;
+            --primary-hover: #00b064;
+            --primary-glow: rgba(0, 201, 117, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ─── CABEÇALHO PADRÃO MG EDITÁVEIS ─── */
+        .header {
+            height: 64px;
+            background: rgba(20, 23, 24, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        body.light-theme .header {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .header-inner {
+            max-width: 1440px;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 0 14px var(--primary-glow);
+        }
+
+        .brand-icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+
+        body.light-theme .brand-text {
+            color: #0f172a;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .saldo-pill {
+            background: rgba(0, 220, 130, 0.08);
+            color: #00dc82;
+            border: 1px solid #00dc82;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .saldo-pill:hover {
+            background: rgba(0, 220, 130, 0.16);
+            transform: translateY(-1px);
+        }
+
+        .btn-header-voltar {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-header-voltar:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .avatar-circle {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #062517;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        /* ─── LAYOUT CHECKOUT EM 2 COLUNAS (SPLIT VIEW) ─── */
+        .checkout-container {
+            max-width: 1440px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px 24px 60px 24px;
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 1100px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ─── COLUNA ESQUERDA: FORMULÁRIO DE PREENCHIMENTO (ESTILO CHECKOUT) ─── */
+        .form-checkout-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 84px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        body.light-theme .form-checkout-card {
+            background: #ffffff;
+            border-color: #e2e8f0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .checkout-header {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .checkout-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        body.light-theme .checkout-title {
+            color: #0f172a;
+        }
+
+        .checkout-desc {
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+
+        /* Grupos de Campos */
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-section-title {
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-field label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        body.light-theme .form-field label {
+            color: #475569;
+        }
+
+        .input-box {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 9px 12px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        body.light-theme .input-box {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        .input-box:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 220, 130, 0.15);
+        }
+
+        /* CID Trigger Button no Form */
+        .cid-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .cid-btn-select {
+            background: rgba(0, 220, 130, 0.12);
+            border: 1px solid rgba(0, 220, 130, 0.35);
+            color: var(--primary);
+            padding: 0 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cid-btn-select:hover {
+            background: var(--primary);
+            color: #062517;
+        }
+
+        /* Presets de dias no formulário */
+        
+        /* ─── MODAL E SELETOR DE ASSINATURAS FEITAS À MÃO (12 ESTILOS) ─── */
+        
+        /* Grade inline de assinaturas */
+        .sig-selector-wrapper {
+            background: #111415;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: 14px;
+        }
+        body.light-theme .sig-selector-wrapper {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .btn-sig-variation {
+            background: rgba(0, 220, 130, 0.12);
+            border: 1px solid rgba(0, 220, 130, 0.35);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+        .btn-sig-variation:hover {
+            background: var(--primary);
+            color: #0b0d0e;
+        }
+
+        .sig-styles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 9px;
+            margin-top: 8px;
+        }
+        @media (max-width: 480px) {
+            .sig-styles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sig-style-card {
+            background: #ffffff;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 8px 6px 6px 6px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            user-select: none;
+            height: 96px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        .sig-style-card:hover {
+            border-color: rgba(0, 220, 130, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .sig-style-card.active {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 1px var(--primary), 0 4px 14px rgba(0, 220, 130, 0.28);
+        }
+
+        .sig-card-badge {
+            position: absolute;
+            top: 4px;
+            right: 5px;
+            width: 15px;
+            height: 15px;
+            background: var(--primary);
+            color: #0b0d0e;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 9.5px;
+            font-weight: 900;
+        }
+        .sig-style-card.active .sig-card-badge {
+            display: flex;
+        }
+
+        .sig-preview-box {
+            width: 100%;
+            height: 60px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 1px;
+        }
+
+        .sig-preview-box svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .sig-style-title {
+            font-family: Arial, sans-serif;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .sig-style-sub {
+            font-family: Arial, sans-serif;
+            font-size: 8.5px;
+            color: #64748b;
+            text-align: center;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        .sig-active-preview-card {
+            background: #111415;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 14px;
+            transition: all 0.2s;
+        }
+        body.light-theme .sig-active-preview-card {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .sig-preview-display {
+            background: #ffffff;
+            border-radius: 8px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.08);
+            cursor: pointer;
+            padding: 4px;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .sig-preview-display:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 220, 130, 0.2);
+        }
+
+        .sig-action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-open-sig-modal {
+            flex: 1;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
+            transition: all 0.15s ease;
+        }
+        .btn-open-sig-modal:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-sig-variation-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+        body.light-theme .btn-sig-variation-btn {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #1e293b;
+        }
+        .btn-sig-variation-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--primary);
+        }
+
+        /* MODAL POPUP */
+        .sig-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: sigFadeIn 0.2s ease-out;
+        }
+        .sig-modal-backdrop.open {
+            display: flex;
+        }
+
+        @keyframes sigFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .sig-modal-box {
+            background: #141718;
+            border: 1px solid #2a2e30;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+            animation: sigSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        body.light-theme .sig-modal-box {
+            background: #ffffff;
+            border-color: #e2e8f0;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes sigSlideUp {
+            from { transform: translateY(20px) scale(0.97); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .sig-modal-header {
+            padding: 16px 20px 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #101213;
+        }
+        body.light-theme .sig-modal-header {
+            background: #f8fafc;
+        }
+
+        .sig-modal-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.light-theme .sig-modal-title {
+            color: #0f172a;
+        }
+
+        .sig-modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .sig-modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ff4757;
+        }
+
+        .sig-modal-toolbar {
+            padding: 12px 20px;
+            background: #16191b;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        body.light-theme .sig-modal-toolbar {
+            background: #f1f5f9;
+        }
+
+        .sig-modal-input-wrap {
+            flex: 1;
+            min-width: 220px;
+            position: relative;
+        }
+
+        .sig-modal-input {
+            width: 100%;
+            background: #1f2326;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+        }
+        body.light-theme .sig-modal-input {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+        .sig-modal-input:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-modal-gerar {
+            background: #ef4444;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .btn-modal-gerar:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .sig-modal-body {
+            padding: 16px 20px;
+            overflow-y: auto;
+            max-height: calc(88vh - 145px);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 580px) {
+            .sig-modal-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card de assinatura estilo IDÊNTICO À IMAGEM DO USUÁRIO */
+        .sig-modal-card {
+            background: #ffffff;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 8px 10px 6px 10px;
+            height: 100px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+        .sig-modal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .sig-modal-card.active {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 1px #ef4444, 0 6px 18px rgba(239, 68, 68, 0.28);
+        }
+
+        .sig-card-check-badge {
+            position: absolute;
+            top: 5px;
+            right: 7px;
+            color: #ef4444;
+            font-size: 13px;
+            font-weight: 900;
+            display: none;
+        }
+        .sig-modal-card.active .sig-card-check-badge {
+            display: block;
+        }
+
+        .sig-card-svg-wrap {
+            width: 100%;
+            height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .sig-card-svg-wrap svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .sig-card-label {
+            font-family: Arial, sans-serif;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #334155;
+            text-align: center;
+            line-height: 1;
+            padding-bottom: 2px;
+        }
+
+        .dias-chips-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+        }
+
+        .dias-chip {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            color: #cbd5e1;
+            padding: 8px 4px;
+            border-radius: 7px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+        }
+
+        .dias-chip.active, .dias-chip:hover {
+            background: rgba(0, 220, 130, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        
+        /* ─── BOTÕES MODERNOS DO FORMULÁRIO ─── */
+        .btn-reset-defaults {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 7px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-reset-defaults:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-reset-defaults:active {
+            transform: translateY(0);
+        }
+
+        .btn-search-cid {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 220, 130, 0.1);
+            border: 1px solid rgba(0, 220, 130, 0.28);
+            color: #00dc82;
+            padding: 0 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .btn-search-cid:hover {
+            background: rgba(0, 220, 130, 0.2);
+            border-color: #00dc82;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 220, 130, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-search-cid:active {
+            transform: translateY(0);
+        }
+
+        .btn-fill-now {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(0, 220, 130, 0.08);
+            border: 1px solid rgba(0, 220, 130, 0.22);
+            color: #00dc82;
+            font-size: 12.5px;
+            font-weight: 700;
+            padding: 9px 16px;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-fill-now:hover {
+            background: rgba(0, 220, 130, 0.16);
+            border-color: #00dc82;
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(0, 220, 130, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .btn-fill-now:active {
+            transform: translateY(0);
+        }
+
+        .dias-chip {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+            padding: 8px 4px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.18s ease;
+        }
+
+        .dias-chip:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .dias-chip.active {
+            background: rgba(0, 220, 130, 0.16) !important;
+            border-color: #00dc82 !important;
+            color: #00dc82 !important;
+            box-shadow: 0 0 10px rgba(0, 220, 130, 0.25);
+        }
+
+        /* Card Resumo / Ação Final Checkout */
+        .checkout-actions-card {
+            background: rgba(0, 220, 130, 0.05);
+            border: 1px solid rgba(0, 220, 130, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkout-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .price-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .price-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .btn-action-primary {
+            background: var(--primary);
+            color: #062517;
+            font-weight: 800;
+            font-size: 14px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px var(--primary-glow);
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 100%;
+        }
+
+        .btn-action-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(0, 220, 130, 0.45);
+        }
+
+        .btn-action-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ─── COLUNA DIREITA: PREVIEW AO VIVO DA FOLHA DO ATESTADO ─── */
+        .preview-column {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .preview-top-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 16px;
+        }
+
+        .preview-tag {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .preview-tag::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            background: #191c1d;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .btn-zoom {
+            background: none;
+            border: none;
+            color: #fff;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: background 0.15s;
+        }
+
+        .btn-zoom:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .zoom-text {
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 0 8px;
+            color: var(--text-muted);
+            min-width: 48px;
+            text-align: center;
+        }
+
+        .preview-canvas-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background: transparent;
+            border-radius: 0;
+            padding: 4px 0 80px 0;
+            border: none;
+            box-shadow: none;
+            overflow-x: auto;
+            overflow-y: visible;
+            position: relative;
+        }
+
+        .form-checkout-card::-webkit-scrollbar {
+            width: 4px;
+        }
+        .form-checkout-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .form-checkout-card::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 999px;
+        }
+        .form-checkout-card::-webkit-scrollbar-thumb:hover {
+            background: #00dc82;
+        }
+
+        body.light-theme .preview-canvas-container {
+            background: transparent;
+        }
+
+        #zoomWrapper {
+            transition: transform 0.15s ease-out;
+            transform-origin: top center;
+        }
+
+        /* ─── FOLHA A4 DO ATESTADO (794px x 1123px - SOMENTE LEITURA / PREVIEW AO VIVO) ─── */
+        .sheet-a4 {
+            width: 794px;
+            height: 1123px;
+            max-height: 1123px;
+            background: #ffffff;
+            color: #000000;
+            padding: 42px 48px 36px 48px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.32);
+            border-radius: 2px;
+            position: relative;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14.5px;
+            line-height: 1.45;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            overflow: hidden;
+            user-select: none;
+            pointer-events: none; /* Bloqueia qualquer clique ou edição direta na folha */
+        }
+
+        /* ─── MARCA D'ÁGUA DE PRÉVIA — COBERTURA TOTAL SOBRE INFORMAÇÕES E FOLHA ─── */
+        .watermark-grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        /* Faixa diagonal superior diretamente sobre o texto/informações */
+        .watermark-band-info-top {
+            position: absolute;
+            top: 24%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            white-space: nowrap;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: rgba(220, 38, 38, 0.20);
+            font-family: 'Arial Black', Arial, sans-serif;
+            text-transform: uppercase;
+            border-top: 1.5px dashed rgba(220, 38, 38, 0.28);
+            border-bottom: 1.5px dashed rgba(220, 38, 38, 0.28);
+            padding: 4px 45px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Logo UPA e aviso em cima da área das informações */
+        .watermark-upa-info {
+            position: absolute;
+            top: 31%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            pointer-events: none;
+        }
+
+        .watermark-upa-info-img {
+            width: 185px;
+            height: auto;
+            opacity: 0.17;
+            filter: grayscale(15%) contrast(110%);
+        }
+
+        .watermark-upa-info-txt {
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: rgba(185, 28, 28, 0.70);
+            text-transform: uppercase;
+            text-align: center;
+            font-family: 'Arial Black', Arial, sans-serif;
+            background: rgba(254, 242, 242, 0.65);
+            padding: 2px 10px;
+            border-radius: 4px;
+            border: 1px dashed rgba(185, 28, 28, 0.35);
+        }
+
+        /* Faixa diagonal cruzando o meio das informações */
+        .watermark-band-info-mid {
+            position: absolute;
+            top: 39%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            white-space: nowrap;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 6px;
+            color: rgba(220, 38, 38, 0.18);
+            font-family: 'Arial Black', Arial, sans-serif;
+            text-transform: uppercase;
+            border-top: 1.5px dashed rgba(220, 38, 38, 0.28);
+            border-bottom: 1.5px dashed rgba(220, 38, 38, 0.28);
+            padding: 4px 50px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Logo UPA grande centralizado */
+        .watermark-upa-center {
+            position: absolute;
+            top: 56%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .watermark-upa-logo-img {
+            width: 220px;
+            height: auto;
+            opacity: 0.18;
+            filter: grayscale(20%) contrast(110%);
+        }
+
+        .watermark-upa-label {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: rgba(185, 28, 28, 0.65);
+            text-transform: uppercase;
+            text-align: center;
+            font-family: 'Arial Black', Arial, sans-serif;
+            background: rgba(254, 242, 242, 0.65);
+            padding: 3px 12px;
+            border-radius: 4px;
+            border: 1px dashed rgba(185, 28, 28, 0.35);
+        }
+
+        /* Faixa diagonal sutil de fundo */
+        .watermark-diagonal-band {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-35deg);
+            white-space: nowrap;
+            font-size: 72px;
+            font-weight: 900;
+            letter-spacing: 18px;
+            color: rgba(185, 28, 28, 0.08);
+            font-family: 'Arial Black', Arial, sans-serif;
+            text-transform: uppercase;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* QR CODE BLOQUEADO NA PRÉVIA */
+        .qr-locked-placeholder {
+            width: 100%;
+            height: 100%;
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6px;
+            box-sizing: border-box;
+            color: #64748b;
+        }
+
+        .qr-locked-placeholder svg {
+            color: #ef4444;
+            margin-bottom: 4px;
+        }
+
+        .qr-locked-text {
+            font-size: 9.5px;
+            font-weight: 800;
+            color: #ef4444;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.15;
+        }
+
+        /* ─── CABEÇALHO DO ATESTADO (UPA 24h + ENDEREÇO + QR CODE) ─── */
+        .atestado-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            padding-bottom: 22px;
+        }
+
+        .upa-logo-header {
+            display: flex;
+            align-items: center;
+        }
+
+        .upa-official-logo-img {
+            height: 112px;
+            width: auto;
+            max-width: 320px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .atestado-header-address {
+            flex: 1;
+            margin-left: 28px;
+            font-size: 13.5px;
+            line-height: 1.35;
+            color: #000;
+            font-weight: 700;
+        }
+
+        .atestado-header-address span {
+            font-size: 13.5px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .atestado-header-qr {
+            width: 140px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .atestado-header-qr img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* ─── BARRA TÍTULO CENTRAL ATESTADO MÉDICO COM LINHA DUPLA ─── */
+        .atestado-title-bar {
+            text-align: center;
+            border-top: 1.5px solid #000;
+            border-bottom: 1.5px solid #000;
+            padding: 5px 0;
+            margin-top: 2px;
+            margin-bottom: 40px;
+        }
+
+        .atestado-title-bar span {
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: 0.8px;
+            color: #000;
+        }
+
+        /* ─── CORPO DO ATESTADO (EXATOS ESPAÇAMENTOS DO ORIGINAL) ─── */
+        .atestado-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .atestado-para-row {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            color: #000;
+            margin-bottom: 38px;
+            padding-left: 55px;
+        }
+
+        .atestado-para-row .para-title {
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            font-size: 15px;
+            margin-right: 4px;
+        }
+
+        .atestado-para-row .para-nome-val {
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        .atestado-texto-box {
+            font-size: 14.5px;
+            line-height: 1.5;
+            color: #000;
+            text-align: justify;
+            margin-bottom: 28px;
+        }
+
+        .atestado-texto-content {
+            font-size: 14.5px;
+            line-height: 1.5;
+            color: #000;
+            text-align: justify;
+            padding: 0;
+            margin: 0;
+            border: none;
+            background: transparent;
+        }
+
+        .atestado-cid-row {
+            font-size: 17px;
+            font-weight: 700;
+            display: flex;
+            align-items: baseline;
+            position: relative;
+            margin-bottom: 260px;
+            gap: 6px;
+        }
+
+        .atestado-cid-row .cid-label-badge {
+            font-size: 17px;
+            font-weight: 700;
+            color: #000;
+            user-select: none;
+        }
+
+        .atestado-cid-row .cid-code-val {
+            font-size: 17px;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .atestado-data-local {
+            text-align: right;
+            margin-top: auto;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #000;
+            padding-right: 10px;
+        }
+
+        /* ─── RODAPÉ DO ATESTADO ─── */
+        .atestado-footer {
+            border-top: 1.5px solid #a0a0a0;
+            padding-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .atestado-footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .emitido-info {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .footer-upa-logo {
+            display: flex;
+            align-items: center;
+            margin-top: 2px;
+        }
+
+        .footer-upa-logo img {
+            height: 92px;
+            width: auto;
+            max-width: 260px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .legal-notice-box {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            font-size: 8px;
+            font-weight: 700;
+            line-height: 1.25;
+            max-width: 310px;
+            text-align: justify;
+            color: #000;
+        }
+
+        .footer-center-qr {
+            width: 105px;
+            height: 105px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 20px;
+        }
+
+        .footer-center-qr img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .footer-right-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            text-align: center;
+            min-width: 250px;
+        }
+
+        .carimbo-container {
+            position: relative;
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding-top: 6px;
+        }
+
+        .carimbo-text-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            font-family: "Times New Roman", Times, Georgia, serif;
+            color: #262626;
+            user-select: none;
+            margin-bottom: 2px;
+        }
+
+        .carimbo-dr-nome {
+            font-size: 13.5px;
+            font-weight: 500;
+            line-height: 1.25;
+            color: #1f2429;
+            white-space: nowrap;
+        }
+
+        .carimbo-dr-esp {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.25;
+            color: #33383f;
+            white-space: nowrap;
+        }
+
+        .carimbo-dr-crm {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.25;
+            color: #22262a;
+            white-space: nowrap;
+        }
+
+        .carimbo-sig-svg-wrap {
+            position: absolute;
+            top: -2px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .carimbo-sig-svg-wrap svg {
+            width: 240px;
+            height: 85px;
+            overflow: visible;
+        }
+
+        .carimbo-sig-svg-wrap img {
+            max-height: 75px;
+            max-width: 220px;
+            object-fit: contain;
+        }
+
+        .carimbo-divider {
+            width: 240px;
+            height: 1.2px;
+            background: #1f2429;
+            margin: 4px 0 4px 0;
+        }
+
+        .carimbo-caption {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: #111827;
+            text-align: center;
+        }
+
+        /* ─── MODAL / POPUP DE SELEÇÃO DE CID ─── */
+        .cid-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .cid-modal-overlay.show {
+            display: flex;
+        }
+
+        .cid-modal-box {
+            background: #141718;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 620px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 220, 130, 0.15);
+            animation: zoomFadeModal 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body.light-theme .cid-modal-box {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes zoomFadeModal {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .cid-modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        body.light-theme .cid-modal-header {
+            border-bottom-color: #e2e8f0;
+        }
+
+        .cid-modal-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        body.light-theme .cid-modal-title {
+            color: #0f172a;
+        }
+
+        .cid-modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .cid-modal-close:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .cid-search-wrap {
+            padding: 12px 20px;
+            background: #191c1d;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        body.light-theme .cid-search-wrap {
+            background: #f8fafc;
+            border-bottom-color: #e2e8f0;
+        }
+
+        .cid-search-input {
+            width: 100%;
+            background: #101213;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 9px 14px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        body.light-theme .cid-search-input {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        .cid-search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .cid-category-tabs {
+            display: flex;
+            gap: 6px;
+            padding: 10px 20px;
+            background: #141718;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        body.light-theme .cid-category-tabs {
+            background: #ffffff;
+            border-bottom-color: #e2e8f0;
+        }
+
+        .cid-tab-btn {
+            background: #191c1d;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        body.light-theme .cid-tab-btn {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #64748b;
+        }
+
+        .cid-tab-btn.active, .cid-tab-btn:hover {
+            background: rgba(0, 220, 130, 0.12);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .cid-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+            max-height: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .cid-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            border: 1px solid transparent;
+        }
+
+        .cid-item-row:hover {
+            background: #1a1e20;
+            border-color: #2b3236;
+        }
+
+        body.light-theme .cid-item-row:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .cid-code-badge {
+            background: rgba(0, 220, 130, 0.12);
+            color: #00dc82;
+            border: 1px solid rgba(0, 220, 130, 0.35);
+            font-size: 13px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            min-width: 60px;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        .cid-desc-box {
+            flex: 1;
+            margin-left: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .cid-desc-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        body.light-theme .cid-desc-title {
+            color: #0f172a;
+        }
+
+        .cid-desc-cat {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .cid-item-action {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .cid-item-row:hover .cid-item-action {
+            color: var(--primary);
+        }
+
+        /* TOAST */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast-msg {
+            background: #191c1d;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            animation: slideIn 0.25s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    
+        /* ─── SCROLLBAR ULTRA-SLEEK E PROFISSIONAL ─── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0d0e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            transition: background 0.2s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00dc82;
+        }
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.18) #0b0d0e;
+        }
+</style>
+    <script src="db-sync.js"></script>
+    <script src="saldo-sync.js"></script>
+</head>
+<body>
+
+    <!-- MG EDITAVEIS HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <a href="recargas.html" class="saldo-pill" title="Clique para recarregar saldo">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </a>
+
+                <a href="index.html" class="btn-header-voltar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+                    <span>Voltar</span>
+                </a>
+
+                <div class="avatar-circle" id="userHeaderAvatar">M</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTAINER CHECKOUT SPLIT VIEW (2 COLUNAS) -->
+    <div class="checkout-container">
+        
+        <!-- ════════ COLUNA ESQUERDA: FORMULÁRIO ESTILO CHECKOUT ════════ -->
+        <div class="form-checkout-card">
+            
+            <div class="checkout-header">
+                <div class="checkout-title">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span>Dados do Atestado</span>
+                </div>
+                <div class="checkout-desc">Preencha os campos abaixo. A folha oficial à direita é atualizada instantaneamente ao vivo!</div>
+            </div>
+
+            <!-- SEÇÃO: ENDEREÇO DA UNIDADE (CABEÇALHO DA FOLHA) -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span>Endereço da Unidade (Cabeçalho da Folha)</span>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Logradouro e Número</label>
+                        <input type="text" class="input-box" id="inp_end1" value="Av. Miguel Ignácio Curi, 41" oninput="syncFromCheckout()" placeholder="Ex: Av. Miguel Ignácio Curi, 41">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Bairro - Cidade - UF</label>
+                        <input type="text" class="input-box" id="inp_end2" value="Vila Carmosina - São Paulo - SP" oninput="syncFromCheckout()" placeholder="Ex: Vila Carmosina - São Paulo - SP">
+                    </div>
+
+                    <div class="form-field">
+                        <label>CEP</label>
+                        <input type="text" class="input-box" id="inp_end3" value="CEP: 08295-005" oninput="syncFromCheckout()" placeholder="Ex: CEP: 08295-005">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 1: PACIENTE -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>1. Identificação do Paciente</span>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Nome Completo do Paciente</label>
+                        <input type="text" class="input-box" id="inp_nome" value="TATIANI RODRIGUES MOR" oninput="syncFromCheckout()" placeholder="Ex: JOAO DA SILVA">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>CPF do Paciente</label>
+                        <input type="text" class="input-box" id="inp_cns" value="458.912.873-44" oninput="mascaraCpf(this); syncFromCheckout()" placeholder="000.000.000-00" maxlength="14">
+                    </div>
+
+                    <div class="form-field">
+                        <label>CID-10 (Diagnóstico)</label>
+                        <div class="cid-input-group">
+                            <input type="text" class="input-box" id="inp_cid" value="J02." oninput="syncFromCheckout()" placeholder="Ex: J02.">
+                            <button type="button" class="btn-search-cid" onclick="openCidModal()" title="Escolher na lista completa de CIDs">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <span>Buscar CID</span>
+                    </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 2: REPOUSO E ATENDIMENTO -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>2. Período de Repouso</span>
+                </div>
+
+                <div class="form-field">
+                    <label>Dias de Afastamento / Repouso</label>
+                    <div class="dias-chips-grid">
+                        <button type="button" class="dias-chip" onclick="setCheckoutDias(1, 'um', this)">1 dia</button>
+                        <button type="button" class="dias-chip" onclick="setCheckoutDias(2, 'dois', this)">2 dias</button>
+                        <button type="button" class="dias-chip active" id="chipDia3" onclick="setCheckoutDias(3, 'três', this)">3 dias</button>
+                        <button type="button" class="dias-chip" onclick="setCheckoutDias(5, 'cinco', this)">5 dias</button>
+                        <button type="button" class="dias-chip" onclick="setCheckoutDias(7, 'sete', this)">7 dias</button>
+                        <button type="button" class="dias-chip" onclick="setCheckoutDias(14, 'quatorze', this)">14 dias</button>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Data do Atendimento</label>
+                        <input type="text" class="input-box" id="inp_data" value="04/11/2023" oninput="mascaraData(this); syncFromCheckout()" placeholder="00/00/0000" maxlength="10">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Hora do Atendimento</label>
+                        <input type="text" class="input-box" id="inp_hora" value="08:12:23" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:8px;">
+                    <button type="button" class="btn-fill-now" onclick="preencherDataHoje()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>Preencher Data e Hora Atual</span>
+                </button>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 3: UNIDADE E MÉDICO -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span>3. Unidade e Médico Responsável</span>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Nome da Unidade de Atendimento</label>
+                        <input type="text" class="input-box" id="inp_unidade" value="UPA 24h Itaquera - Consultórios" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Médico(a) Responsável (com Dr./Dra.)</label>
+                        <input type="text" class="input-box" id="inp_medico" value="Dr. Jair Dacas" placeholder="Dr. Jair Dacas" oninput="syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Especialidade / Cargo</label>
+                        <input type="text" class="input-box" id="inp_medico_esp" value="Médica Clínica" placeholder="Médica Clínica" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Registro Profissional CRM</label>
+                        <input type="text" class="input-box" id="inp_crm" value="CRM 29022 RS" placeholder="CRM 29022 RS" oninput="syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Cor da Tinta da Caneta</label>
+                        <div style="display:flex; gap:10px; align-items:center; background:#111415; border:1px solid var(--border); border-radius:10px; padding:6px 14px; height:42px;">
+                            <button type="button" class="btn-cor-caneta" id="btnCorAzul" onclick="setCorCaneta('#1040cf', this)" style="background:#1040cf; width:26px; height:26px; border-radius:50%; border:2px solid #fff; cursor:pointer;" title="Azul Caneta"></button>
+                            <button type="button" class="btn-cor-caneta" id="btnCorAzulMarinho" onclick="setCorCaneta('#002b80', this)" style="background:#002b80; width:26px; height:26px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="Azul Marinho"></button>
+                            <button type="button" class="btn-cor-caneta" id="btnCorPreto" onclick="setCorCaneta('#18181b', this)" style="background:#18181b; width:26px; height:26px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="Preto Tinta"></button>
+                            <span id="lblCorCaneta" style="font-size:12px; font-weight:600; color:var(--text-muted); margin-left:4px;">Azul Caneta</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SELETOR DE ESTILOS DE ASSINATURA FEITA À MÃO (12 OPÇÕES COMPLETAS) -->
+                <div class="sig-selector-wrapper">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+                        <label style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                            <span>Opções de Assinatura Feita à Mão</span>
+                        </label>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button type="button" class="btn-sig-variation" onclick="openSigModal()" title="Abrir janela com todos os estilos em tela cheia" style="background:rgba(239, 68, 68, 0.15); border-color:rgba(239, 68, 68, 0.4); color:#ef4444;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                                <span>Ver em Modal</span>
+                            </button>
+                            <button type="button" class="btn-sig-variation" onclick="proximaVariacaoAssinatura()" title="Gerar novo traço manual com pequenas variações de caligrafia">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                <span>Variar Traço</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="sig-styles-grid" id="sigStylesGrid" style="max-height: 460px; overflow-y: auto; padding-right: 2px;">
+                        <!-- Gerado dinamicamente com os 12 estilos de assinaturas -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD FINAL COM VALOR E BOTÃO DE BAIXAR PDF -->
+            <div class="checkout-actions-card">
+                <div class="checkout-price-row">
+                    <div>
+                        <div class="price-label">Valor da Emissão:</div>
+                        <div class="price-value" id="custoAtestadoDisplay">R$ 20,00</div>
+                    </div>
+                    <button type="button" class="btn-reset-defaults" onclick="resetToDefaults()" title="Restaurar dados padrão do atestado">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+                        <span>Restaurar Padrão</span>
+                    </button>
+                </div>
+
+                <button class="btn-action-primary btn-gerar" id="btnGerarPdf" onclick="gerarPdfAtestado()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span id="btnGerarTxt">Gerar PDF — Atestado Médico</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- ════════ COLUNA DIREITA: VISUALIZAÇÃO AO VIVO (PREVIEW OFICIAL) ════════ -->
+        <div class="preview-column">
+            
+            <div class="preview-top-toolbar">
+                <div class="preview-tag">Visualização ao vivo do Atestado (A4 Oficial)</div>
+                <div class="zoom-controls">
+                    <button class="btn-zoom" onclick="changeZoom(-0.08)" title="Diminuir Zoom">−</button>
+                    <span class="zoom-text" id="zoomValText">119%</span>
+                    <button class="btn-zoom" onclick="changeZoom(0.08)" title="Aumentar Zoom">+</button>
+                </div>
+            </div>
+
+            <div class="preview-canvas-container">
+                <div id="zoomWrapper">
+                    
+                    <!-- FOLHA OFICIAL DO ATESTADO MÉDICO UPA 24H -->
+                    <div class="sheet-a4" id="sheetDoc">
+
+                        <!-- MARCA D'ÁGUA DE PRÉVIA — COBERTURA TOTAL SOBRE INFORMAÇÕES E FOLHA (SOMENTE NO PREVIEW) -->
+                        <div class="watermark-grid-overlay" id="previewWatermarkOverlay">
+
+                            <!-- Faixa diagonal superior sobre os dados do paciente -->
+                            <div class="watermark-band-info-top">DOCUMENTO PENDENTE DE EMISSÃO</div>
+
+                            <!-- Logo UPA e etiqueta sobre o bloco de informações -->
+                            <div class="watermark-upa-info">
+                                <img src="assets/logo_upa_oficial.png" class="watermark-upa-info-img" alt="UPA 24h">
+                                <div class="watermark-upa-info-txt">PRÉVIA • DOCUMENTO PENDENTE</div>
+                            </div>
+
+                            <!-- Faixa diagonal cruzando o corpo do atestado -->
+                            <div class="watermark-band-info-mid">PRÉVIA NÃO AUTORIZADA PARA USO</div>
+
+                            <!-- Faixa diagonal grande de fundo -->
+                            <div class="watermark-diagonal-band">PRÉVIA</div>
+
+                            <!-- Logo UPA centralizado e elegante -->
+                            <div class="watermark-upa-center">
+                                <img src="assets/logo_upa_oficial.png" class="watermark-upa-logo-img" alt="UPA 24h">
+                                <div class="watermark-upa-label">Documento Pendente de Emissão</div>
+                            </div>
+
+                        </div>
+                        
+                        <!-- 1. CABEÇALHO COM LOGO UPA OFICIAL, ENDEREÇO E QR CODE -->
+                        <div class="atestado-header">
+                            <div class="upa-logo-header">
+                                <img src="assets/logo_upa_oficial.png" id="upaLogoTopoImg" alt="UPA 24h" class="upa-official-logo-img">
+                            </div>
+
+                            <div class="atestado-header-address">
+                                <span id="fld_unidade_end1">Av. Miguel Ignácio Curi, 41</span>
+                                <span id="fld_unidade_end2">Vila Carmosina - São Paulo – SP</span>
+                                <span id="fld_unidade_end3">CEP: 08295-005</span>
+                            </div>
+
+                            <div class="atestado-header-qr" id="headerQrBox" title="QR Code de validação" style="position:relative;">
+                                <div class="qr-render-container" id="headerQrInner" style="width:130px; height:130px; display:flex; align-items:center; justify-content:center; filter:blur(3.5px); opacity:0.38;">
+                                    <svg viewBox="0 0 100 100" width="130" height="130" style="background:#fff;"><rect x="5" y="5" width="25" height="25" fill="#000"/><rect x="70" y="5" width="25" height="25" fill="#000"/><rect x="5" y="70" width="25" height="25" fill="#000"/><rect x="10" y="10" width="15" height="15" fill="#fff"/><rect x="75" y="10" width="15" height="15" fill="#fff"/><rect x="10" y="75" width="15" height="15" fill="#fff"/><rect x="14" y="14" width="7" height="7" fill="#000"/><rect x="79" y="14" width="7" height="7" fill="#000"/><rect x="14" y="79" width="7" height="7" fill="#000"/><rect x="36" y="15" width="12" height="12" fill="#000"/><rect x="52" y="28" width="10" height="10" fill="#000"/><rect x="38" y="42" width="20" height="10" fill="#000"/><rect x="65" y="50" width="15" height="15" fill="#000"/><rect x="40" y="70" width="18" height="18" fill="#000"/></svg>
+                                </div>
+                                <div class="qr-lock-overlay" id="headerQrWatermark" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,0.45); pointer-events:none; z-index:10;">
+                                    <div style="background:#ffffff; border:1.5px solid #ef4444; border-radius:10px; padding:6px 8px; box-shadow:0 4px 14px rgba(239,68,68,0.22); display:flex; flex-direction:column; align-items:center; gap:2px; text-align:center;">
+                                        <div style="width:22px; height:22px; border-radius:50%; background:#fee2e2; border:1px solid #fca5a5; display:flex; align-items:center; justify-content:center;">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        </div>
+                                        <span style="font-size:7.5px; font-weight:900; color:#dc2626; letter-spacing:0.4px; line-height:1.1; font-family:var(--font), sans-serif; text-transform:uppercase;">QR CODE<br>BLOQUEADO</span>
+                                        <span style="font-size:6px; font-weight:700; color:#991b1b; line-height:1; font-family:var(--font), sans-serif;">Liberado ao emitir</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. BARRA DE TÍTULO ATESTADO MÉDICO -->
+                        <div class="atestado-title-bar">
+                            <span>ATESTADO MÉDICO</span>
+                        </div>
+
+                        <!-- 3. CORPO DO ATESTADO -->
+                        <div class="atestado-body">
+                            
+                            <!-- Destinatário / Paciente -->
+                            <div class="atestado-para-row">
+                                <span class="para-title">PARA:</span>
+                                <span class="para-nome-val" id="fld_nome_paciente">TATIANI RODRIGUES MOR</span>
+                            </div>
+
+                            <!-- Texto principal do Atestado -->
+                            <div class="atestado-texto-box">
+                                <div class="atestado-texto-content" id="fld_texto_principal">Atesto para os devidos fins, que o(a), <b>TATIANI RODRIGUES MOR</b>, portador(a) do CPF sob nº <b>458.912.873-44</b>, foi atendido(a) no(a), <b>UPA 24h Itaquera - Consultórios</b> na data <b>04/11/2023</b><br>às <b>08:12:23</b>, necessitando de <b>3 (três)</b> dias de repouso por motivo de doença.</div>
+                            </div>
+
+                            <!-- CID estático (sem seta dropdown e sem foco de input) -->
+                            <div class="atestado-cid-row">
+                                <span class="cid-label-badge">CID:</span>
+                                <span class="cid-code-val" id="fld_cid">J02.</span>
+                            </div>
+
+                            <!-- Data e Local (Direita) -->
+                            <div class="atestado-data-local">
+                                <span id="fld_data_extenso">UPA 24h Itaquera, 04 de Novembro de 2023.</span>
+                            </div>
+
+                        </div>
+
+                        <!-- 4. RODAPÉ DO ATESTADO COM LOGOS E ASSINATURA -->
+                        <div class="atestado-footer">
+                            
+                            <div class="atestado-footer-top">
+                                
+                                <!-- Coluna Esquerda -->
+                                <div class="footer-left-col">
+                                    <div class="emitido-info">
+                                        Emitido em: <span id="fld_emitido_em">04/11/2023 08:12:23</span>
+                                    </div>
+
+                                    <div class="footer-upa-logo">
+                                        <img src="assets/logo_upa_oficial.png" id="upaLogoRodapeImg" alt="UPA 24h">
+                                    </div>
+
+                                    <div class="legal-notice-box">
+                                        NOTA: ESTE ATESTADO É VÁLIDO PARA FINALIDADES PREVISTAS NO ARTIGO 27 DE CUPS, APROVADA PELO DECRETO Nº 89 312 DE 23/01/84, E SERÁ EXPEDIDO PARA JUSTIFICATIVA DE 1 A 15 DIAS DE AFASTAMENTO DO TRABALHO.
+                                    </div>
+                                </div>
+
+                                <!-- Centro: Mini QR Code de Rodapé -->
+                                <div class="footer-center-qr" id="footerQrBox">
+                                    <!-- Gerado dinamicamente -->
+                                </div>
+
+                                <!-- Coluna Direita: Carimbo e Assinatura -->
+                                <div class="footer-right-col">
+                                    <div class="carimbo-wrapper" style="width:235px; height:120px; position:relative;">
+                                        <svg id="carimboSvg" viewBox="0 0 235 120" width="235" height="120" style="overflow:visible; display:block;">
+                                            <!-- 1. Textos Oficiais do Carimbo (Serif, 100% idêntico à imagem) -->
+                                            <text id="fld_medico_nome" x="95" y="38" text-anchor="middle" font-family="'Times New Roman', Georgia, serif" font-size="14.5" fill="#2d3339" font-weight="500">Dr. Jair Dacas</text>
+                                            <text id="fld_medico_esp" x="95" y="55" text-anchor="middle" font-family="'Times New Roman', Georgia, serif" font-size="13" fill="#3f454d">Médica Clínica</text>
+                                            <text id="fld_medico_crm" x="95" y="72" text-anchor="middle" font-family="'Times New Roman', Georgia, serif" font-size="13" fill="#2d3339">CRM 29022 RS</text>
+
+                                            <!-- 2. Linha Divisória Oficial -->
+                                            <line x1="0" y1="84" x2="190" y2="84" stroke="#1f2429" stroke-width="1.2" />
+
+                                            <!-- 3. Legenda Inferior -->
+                                            <text x="60" y="98" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="700" fill="#1f2429" letter-spacing="0.4">ASSINATURA/CARIMBO</text>
+
+                                            <!-- 4. Assinatura Realista em Caneta Azul Sobreposta -->
+                                            <g id="carimboSigLayer">
+                                                <path d="M 64 58 C 66 46, 81 35, 99 34 C 112 34, 122 43, 117 57 C 111 71, 100 81, 93 84 C 84 89, 71 99, 66 104 C 66 104, 80 92, 91 84 C 104 74, 119 65, 137 62 C 154 58, 163 58, 170 64 C 177 69, 191 68, 207 64" fill="none" stroke="#1040cf" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+                                                <circle cx="162" cy="42" r="1.6" fill="#1040cf" />
+                                            </g>
+                                        </svg>
+                                        <input type="file" id="sigUploadInput" accept="image/*" style="display:none;" onchange="handleSigUpload(this)">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL DE SELEÇÃO DE CID -->
+    <div class="cid-modal-overlay" id="cidModalOverlay" onclick="closeCidModalOnOverlay(event)">
+        <div class="cid-modal-box">
+            <div class="cid-modal-header">
+                <div class="cid-modal-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span>Selecionar CID-10 (Classificação de Doenças)</span>
+                </div>
+                <button class="cid-modal-close" onclick="closeCidModal()">&times;</button>
+            </div>
+
+            <div class="cid-search-wrap">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--text-muted);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="cid-search-input" id="cidSearchInput" placeholder="Pesquisar por código (ex: J02) ou diagnóstico (ex: gripe, dor, lombalgia, dengue...)" oninput="filterCidList()">
+            </div>
+
+            <div class="cid-category-tabs">
+                <button class="cid-tab-btn active" onclick="setCidTab('todos', this)">Todos Mais Usados</button>
+                <button class="cid-tab-btn" onclick="setCidTab('respiratorio', this)">Respiratório</button>
+                <button class="cid-tab-btn" onclick="setCidTab('digestivo', this)">Digestivo / Gastro</button>
+                <button class="cid-tab-btn" onclick="setCidTab('muscular', this)">Ortopédico / Dores</button>
+                <button class="cid-tab-btn" onclick="setCidTab('infeccioso', this)">Infecciosas / Dengue</button>
+                <button class="cid-tab-btn" onclick="setCidTab('odontologico', this)">Odonto / Dentes</button>
+                <button class="cid-tab-btn" onclick="setCidTab('emocional', this)">Estresse / Psico</button>
+            </div>
+
+            <div class="cid-list-container" id="cidListContainer">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer"></div>
+
+    <script>
+    // ─── ESTADO E CONTROLE DE EMISSÃO (PADRÃO 119% CONFORME SOLICITADO) ───
+    let isAtestadoEmitido = false;
+    let currentZoom = 1.19;
+
+    function applyZoom() {
+        const wrap = document.getElementById('zoomWrapper');
+        const zt = document.getElementById('zoomValText');
+        const container = document.querySelector('.preview-canvas-container');
+        if (wrap) {
+            wrap.style.transformOrigin = 'top center';
+            wrap.style.transform = `scale(${currentZoom})`;
+            const totalH = 1123;
+            const scaledH = Math.round(totalH * currentZoom);
+            if (currentZoom >= 1) {
+                wrap.style.marginBottom = Math.round(totalH * (currentZoom - 1) + 40) + 'px';
+            } else {
+                wrap.style.marginBottom = '-' + Math.round(totalH * (1 - currentZoom)) + 'px';
+            }
+            if (container) {
+                container.style.minHeight = (scaledH + 60) + 'px';
+            }
+        }
+        if (zt) zt.textContent = `${Math.round(currentZoom * 100)}%`;
+    }
+
+    function changeZoom(delta) {
+        currentZoom = Math.min(1.6, Math.max(0.40, Math.round((currentZoom + delta) * 100) / 100));
+        applyZoom();
+    }
+
+    function resetZoom() {
+        currentZoom = 1.19;
+        applyZoom();
+    }
+
+    window.addEventListener('resize', () => {
+        // Mantém zoom 119%
+    });
+
+    // ─── TOAST NOTIFICAÇÃO ───
+    function showToast(msg) {
+        const c = document.getElementById('toastContainer');
+        const t = document.createElement('div');
+        t.className = 'toast-msg';
+        t.textContent = msg;
+        c.appendChild(t);
+        setTimeout(() => {
+            t.style.opacity = '0';
+            t.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => t.remove(), 300);
+        }, 3200);
+    }
+
+    // ─── GERADOR DE QR CODE EM ALTA RESOLUÇÃO (HD 350px / NÍTIDO E ESCANEAMENTO INSTANTÂNEO) ───
+    async function generateHighResQrDataUrl(text, size = 320) {
+        if (typeof QRCode !== 'undefined') {
+            try {
+                const tempDiv = document.createElement('div');
+                tempDiv.style.position = 'fixed';
+                tempDiv.style.left = '-9999px';
+                tempDiv.style.top = '-9999px';
+                document.body.appendChild(tempDiv);
+
+                new QRCode(tempDiv, {
+                    text: text,
+                    width: size,
+                    height: size,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.L
+                });
+
+                await new Promise(r => setTimeout(r, 60));
+
+                let dataUrl = '';
+                const cvs = tempDiv.querySelector('canvas');
+                if (cvs) {
+                    try { dataUrl = cvs.toDataURL('image/png'); } catch (e) {}
+                }
+                const im = tempDiv.querySelector('img');
+                if (!dataUrl && im && im.src && im.src.startsWith('data:')) {
+                    dataUrl = im.src;
+                }
+                tempDiv.remove();
+                if (dataUrl) return dataUrl;
+            } catch(e) {
+                console.warn('Erro ao gerar QRCode HD local:', e);
+            }
+        }
+        return 'https://api.qrserver.com/v1/create-qr-code/?size=' + size + 'x' + size + '&data=' + encodeURIComponent(text);
+    }
+
+    // ─── GERAÇÃO DA URL OFICIAL DE VALIDAÇÃO (HOSTMF / DOMÍNIO CONFIGURÁVEL) ───
+    function getAtestadoValidationUrl(customId, customAuth) {
+        let baseDomain = 'https://validar-atestado.vercel.app';
+        try {
+            const rawAt = localStorage.getItem('happynation_domain_qrcode_atestado');
+            if (rawAt && rawAt.trim()) {
+                baseDomain = rawAt.trim().replace(/\/+$/, '');
+            } else {
+                const rawQr = localStorage.getItem('happynation_domain_qrcode');
+                if (rawQr && rawQr.trim() && !rawQr.includes('validar-cnh') && !rawQr.includes('app-cnh')) {
+                    baseDomain = rawQr.trim().replace(/\/+$/, '');
+                }
+            }
+            const rawCfg = localStorage.getItem('happynation_config') || localStorage.getItem('happynation_domains_cfg');
+            if (rawCfg) {
+                const c = JSON.parse(rawCfg);
+                if (c.dominioQrAtestado && c.dominioQrAtestado.trim()) {
+                    baseDomain = c.dominioQrAtestado.trim().replace(/\/+$/, '');
+                }
+            }
+        } catch(e) {}
+
+        const paciente = (document.getElementById('inp_nome')?.value || 'PACIENTE').toUpperCase().trim();
+        const cns = (document.getElementById('inp_cns')?.value || '458.912.873-44').trim();
+        const cid = (document.getElementById('inp_cid')?.value || 'J02.').trim();
+        const dias = currentDiasNum || 3;
+        const unidade = (document.getElementById('inp_unidade')?.value || 'UPA 24h Itaquera - Consultórios').trim();
+        const medico = (document.getElementById('inp_medico')?.value || 'Dr. Jair Dacas').trim();
+        const medicoEsp = (document.getElementById('inp_medico_esp')?.value || 'Médica Clínica').trim();
+        const crm = (document.getElementById('inp_crm')?.value || 'CRM 29022 RS').trim();
+        const data = (document.getElementById('inp_data')?.value || '04/11/2026').trim();
+        const hora = (document.getElementById('inp_hora')?.value || '08:12:23').trim();
+        const end1 = (document.getElementById('inp_end1')?.value || 'Av. Miguel Ignácio Curi, 41').trim();
+        const end2 = (document.getElementById('inp_end2')?.value || 'Vila Carmosina - São Paulo - SP').trim();
+        const end3 = (document.getElementById('inp_end3')?.value || 'CEP: 08295-005').trim();
+        const atId = customId || new URLSearchParams(window.location.search).get('id') || ('AT-' + Math.floor(10000 + Math.random() * 90000));
+        const authHash = customAuth || ('SUS-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-BR');
+
+        const params = new URLSearchParams();
+        params.set('id', atId);
+        params.set('nome', paciente);
+        params.set('cns', cns);
+        params.set('cpf', cns);
+        params.set('cid', cid);
+        params.set('dias', dias);
+        if (unidade) params.set('unidade', unidade);
+        if (medico) params.set('medico', medico);
+        if (medicoEsp) params.set('esp', medicoEsp);
+        if (crm) params.set('crm', crm);
+        params.set('data', data);
+        params.set('hora', hora);
+        params.set('auth', authHash);
+        if (end1 && !end1.includes('Miguel Ignácio')) {
+            params.set('end1', end1);
+            params.set('end2', end2);
+            params.set('end3', end3);
+        }
+
+        return {
+            url: `${baseDomain}/validar-atestado.html?${params.toString()}`,
+            atId,
+            authHash,
+            paciente,
+            cns,
+            cid,
+            dias,
+            unidade,
+            medico,
+            crm,
+            data,
+            hora
+        };
+    }
+
+    // ─── GERAÇÃO DINÂMICA DE QR CODES (PREVIEW AO VIVO E ESCANEÁVEL) ───
+    async function generateQrCodes(forceReal = false) {
+        const headerBox = document.getElementById('headerQrBox');
+        const footerBox = document.getElementById('footerQrBox');
+        if (!headerBox && !footerBox) return;
+
+        const valData = getAtestadoValidationUrl();
+        const qrUrl = valData.url;
+        const shouldLock = !isAtestadoEmitido && !forceReal;
+
+        if (headerBox) {
+            headerBox.innerHTML = '';
+            headerBox.style.position = 'relative';
+
+            const qrContainer = document.createElement('div');
+            qrContainer.className = 'qr-render-container';
+            qrContainer.style.width = '130px';
+            qrContainer.style.height = '130px';
+            qrContainer.style.display = 'flex';
+            qrContainer.style.alignItems = 'center';
+            qrContainer.style.justifyContent = 'center';
+
+            const qrImgLive = document.createElement('img');
+            qrImgLive.src = await generateHighResQrDataUrl(qrUrl, 260);
+            qrImgLive.style.width = '130px';
+            qrImgLive.style.height = '130px';
+            qrImgLive.style.display = 'block';
+            qrImgLive.style.imageRendering = '-webkit-optimize-contrast';
+            qrContainer.appendChild(qrImgLive);
+
+            if (shouldLock) {
+                qrContainer.style.filter = 'blur(3.5px)';
+                qrContainer.style.opacity = '0.38';
+                qrContainer.style.pointerEvents = 'none';
+
+                const wmOverlay = document.createElement('div');
+                wmOverlay.className = 'qr-lock-overlay';
+                wmOverlay.id = 'headerQrWatermark';
+                wmOverlay.style.position = 'absolute';
+                wmOverlay.style.inset = '0';
+                wmOverlay.style.display = 'flex';
+                wmOverlay.style.flexDirection = 'column';
+                wmOverlay.style.alignItems = 'center';
+                wmOverlay.style.justifyContent = 'center';
+                wmOverlay.style.background = 'rgba(255, 255, 255, 0.45)';
+                wmOverlay.style.pointerEvents = 'none';
+                wmOverlay.style.zIndex = '10';
+                wmOverlay.innerHTML = `
+                    <div style="background:#ffffff; border:1.5px solid #ef4444; border-radius:10px; padding:6px 8px; box-shadow:0 4px 14px rgba(239,68,68,0.22); display:flex; flex-direction:column; align-items:center; gap:2px; text-align:center;">
+                        <div style="width:22px; height:22px; border-radius:50%; background:#fee2e2; border:1px solid #fca5a5; display:flex; align-items:center; justify-content:center;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <span style="font-size:7.5px; font-weight:900; color:#dc2626; letter-spacing:0.4px; line-height:1.1; font-family:var(--font), sans-serif; text-transform:uppercase;">QR CODE<br>BLOQUEADO</span>
+                        <span style="font-size:6px; font-weight:700; color:#991b1b; line-height:1; font-family:var(--font), sans-serif;">Liberado ao emitir</span>
+                    </div>
+                `;
+                headerBox.appendChild(qrContainer);
+                headerBox.appendChild(wmOverlay);
+            } else {
+                qrContainer.style.filter = 'none';
+                qrContainer.style.opacity = '1';
+                headerBox.appendChild(qrContainer);
+            }
+        }
+
+        if (footerBox) {
+            footerBox.innerHTML = '';
+            footerBox.style.position = 'relative';
+
+            const qrContainerF = document.createElement('div');
+            qrContainerF.className = 'qr-render-container';
+            qrContainerF.style.width = '95px';
+            qrContainerF.style.height = '95px';
+            qrContainerF.style.display = 'flex';
+            qrContainerF.style.alignItems = 'center';
+            qrContainerF.style.justifyContent = 'center';
+
+            const qrImgLiveF = document.createElement('img');
+            qrImgLiveF.src = await generateHighResQrDataUrl(qrUrl, 220);
+            qrImgLiveF.style.width = '95px';
+            qrImgLiveF.style.height = '95px';
+            qrImgLiveF.style.display = 'block';
+            qrImgLiveF.style.imageRendering = '-webkit-optimize-contrast';
+            qrContainerF.appendChild(qrImgLiveF);
+
+            if (shouldLock) {
+                qrContainerF.style.filter = 'blur(3px)';
+                qrContainerF.style.opacity = '0.38';
+                qrContainerF.style.pointerEvents = 'none';
+
+                const wmOverlayF = document.createElement('div');
+                wmOverlayF.className = 'qr-lock-overlay';
+                wmOverlayF.id = 'footerQrWatermark';
+                wmOverlayF.style.position = 'absolute';
+                wmOverlayF.style.inset = '0';
+                wmOverlayF.style.display = 'flex';
+                wmOverlayF.style.flexDirection = 'column';
+                wmOverlayF.style.alignItems = 'center';
+                wmOverlayF.style.justifyContent = 'center';
+                wmOverlayF.style.background = 'rgba(255, 255, 255, 0.45)';
+                wmOverlayF.style.pointerEvents = 'none';
+                wmOverlayF.style.zIndex = '10';
+                wmOverlayF.innerHTML = `
+                    <div style="background:#ffffff; border:1.5px solid #ef4444; border-radius:8px; padding:3px 5px; box-shadow:0 3px 10px rgba(239,68,68,0.2); display:flex; flex-direction:column; align-items:center; gap:2px; text-align:center;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span style="font-size:6px; font-weight:900; color:#dc2626; font-family:var(--font), sans-serif; text-transform:uppercase; line-height:1;">BLOQUEADO</span>
+                    </div>
+                `;
+                footerBox.appendChild(qrContainerF);
+                footerBox.appendChild(wmOverlayF);
+            } else {
+                qrContainerF.style.filter = 'none';
+                qrContainerF.style.opacity = '1';
+                footerBox.appendChild(qrContainerF);
+            }
+        }
+    }
+
+    // ─── SINCRONIZAÇÃO EM TEMPO REAL (CHECKOUT <-> FOLHA ATESTADO) ───
+    let currentDiasNum = 3;
+    let currentDiasExt = 'três';
+
+    function setCheckoutDias(num, ext, btn) {
+        currentDiasNum = num;
+        currentDiasExt = ext;
+        document.querySelectorAll('.dias-chip').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('end1')) {
+            const e1 = document.getElementById('inp_end1'); if (e1) e1.value = urlParams.get('end1');
+        }
+        if (urlParams.get('end2')) {
+            const e2 = document.getElementById('inp_end2'); if (e2) e2.value = urlParams.get('end2');
+        }
+        if (urlParams.get('end3')) {
+            const e3 = document.getElementById('inp_end3'); if (e3) e3.value = urlParams.get('end3');
+        }
+        syncFromCheckout();
+    }
+
+    
+    function mascaraCpf(inp) {
+        let v = inp.value.replace(/\D/g, '').slice(0, 11);
+        if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+        else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+        else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+        inp.value = v;
+    }
+
+    function mascaraData(inp) {
+        let v = inp.value.replace(/\D/g, '').slice(0, 8);
+        if (v.length > 4) v = v.replace(/(\d{2})(\d{2})(\d{1,4})/, '$1/$2/$3');
+        else if (v.length > 2) v = v.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+        inp.value = v;
+    }
+
+    function formatarCpf(v) {
+        if (!v) return '000.000.000-00';
+        let s = String(v).replace(/\D/g, '').slice(0, 11);
+        if (s.length === 11) return s.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        if (s.length > 9) return s.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+        if (s.length > 6) return s.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+        if (s.length > 3) return s.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+        return v;
+    }
+
+    // Sincroniza do Checkout para a Folha do Atestado
+    function syncFromCheckout() {
+        const getV = (id, fallback) => {
+            const el = document.getElementById(id);
+            return el ? (el.value.trim() || el.dataset.sampleVal || fallback || '') : (fallback || '');
+        };
+        const nome = getV('inp_nome', 'TATIANI RODRIGUES MOR').toUpperCase();
+        const cns = getV('inp_cns', '458.912.873-44');
+        const cid = getV('inp_cid', 'A09');
+        const data = getV('inp_data', '04/11/2023');
+        const hora = getV('inp_hora', '08:12:23');
+        const unidade = getV('inp_unidade', 'UPA 24h Itaquera - Consultórios');
+        const medico = getV('inp_medico', 'Jair Dacas').trim();
+        const medicoEsp = getV('inp_medico_esp', 'Médica Clínica').trim();
+        const crm = getV('inp_crm', '29022 RS').trim();
+
+        // Atualiza campos estáticos na folha (preview 100% fiel e limpo)
+        // Sincroniza endereço da unidade no cabeçalho da folha
+        const end1 = document.getElementById('inp_end1')?.value || 'Av. Miguel Ignácio Curi, 41';
+        const end2 = document.getElementById('inp_end2')?.value || 'Vila Carmosina - São Paulo - SP';
+        const end3 = document.getElementById('inp_end3')?.value || 'CEP: 08295-005';
+
+        const fldEnd1 = document.getElementById('fld_unidade_end1');
+        if (fldEnd1) fldEnd1.textContent = end1;
+        const fldEnd2 = document.getElementById('fld_unidade_end2');
+        if (fldEnd2) fldEnd2.textContent = end2;
+        const fldEnd3 = document.getElementById('fld_unidade_end3');
+        if (fldEnd3) fldEnd3.textContent = end3;
+
+        const fldNome = document.getElementById('fld_nome_paciente');
+        if (fldNome) fldNome.textContent = nome;
+
+        const fldCid = document.getElementById('fld_cid');
+        if (fldCid) fldCid.textContent = cid;
+
+        // Formatação inteligente e sincronização do Carimbo Médico
+        let medicoDisplay = medico;
+        if (medicoDisplay && !/^(dr\.|dra\.|dr|dra)\b/i.test(medicoDisplay)) {
+            medicoDisplay = 'Dr. ' + medicoDisplay;
+        }
+        const fldMed = document.getElementById('fld_medico_nome');
+        if (fldMed) fldMed.textContent = medicoDisplay || 'Dr. Jair Dacas';
+
+        const fldEsp = document.getElementById('fld_medico_esp');
+        if (fldEsp) fldEsp.textContent = medicoEsp || 'Médica Clínica';
+
+        let crmDisplay = crm;
+        if (crmDisplay && !/^crm\b/i.test(crmDisplay)) {
+            crmDisplay = 'CRM ' + crmDisplay;
+        }
+        const fldCrm = document.getElementById('fld_medico_crm');
+        if (fldCrm) fldCrm.textContent = crmDisplay || 'CRM 29022 RS';
+
+        // Atualiza a assinatura de caneta (seja original, cursiva dinâmica com o nome do médico, etc.)
+        renderAssinatura();
+
+        const fldEmit = document.getElementById('fld_emitido_em');
+        if (fldEmit) fldEmit.textContent = `${data} ${hora}`;
+
+        const fldLibData = document.getElementById('fld_liberado_data');
+        if (fldLibData) fldLibData.textContent = data;
+
+        const fldLibHora = document.getElementById('fld_liberado_hora');
+        if (fldLibHora) fldLibHora.textContent = hora ? hora.substring(0, 5) : '10:40';
+
+        // Atualiza texto principal com negrito nos dados preenchidos
+        const diasStr = `<b>${currentDiasNum} (${currentDiasExt})</b>`;
+        const palavraDia = (parseInt(currentDiasNum, 10) === 1) ? 'dia' : 'dias';
+        const cpfFormatado = formatarCpf(cns);
+        const htmlTexto = `Atesto para os devidos fins, que o(a), <b>${nome}</b>, portador(a) do CPF sob nº <b>${cpfFormatado}</b>, foi atendido(a) no(a), <b>${unidade}</b> na data <b>${data}</b><br>às <b>${hora}</b>, necessitando de ${diasStr} ${palavraDia} de repouso por motivo de doença.`;
+        const elText = document.getElementById('fld_texto_principal');
+        if (elText) elText.innerHTML = htmlTexto;
+
+        // Atualiza data por extenso no rodapé
+        const partesData = data.split('/');
+        if (partesData.length === 3) {
+            const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const mesIdx = parseInt(partesData[1], 10) - 1;
+            const mesNome = meses[mesIdx] || 'Novembro';
+            const cidadeUnidade = unidade.split('-')[0].trim();
+            const fldDataExt = document.getElementById('fld_data_extenso');
+            if (fldDataExt) fldDataExt.textContent = `${cidadeUnidade}, ${partesData[0]} de ${mesNome} de ${partesData[2]}.`;
+        }
+
+        // Atualiza dinamicamente os QR Codes da folha
+        if (window._qrDebounceTimer) clearTimeout(window._qrDebounceTimer);
+        window._qrDebounceTimer = setTimeout(() => {
+            generateQrCodes();
+        }, 350);
+    }
+
+    function preencherDataHoje() {
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2, '0');
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const y = now.getFullYear();
+        const h = String(now.getHours()).padStart(2, '0');
+        const min = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+
+        document.getElementById('inp_data').value = `${d}/${m}/${y}`;
+        document.getElementById('inp_hora').value = `${h}:${min}:${s}`;
+
+        syncFromCheckout();
+        generateQrCodes();
+        showToast('Data e hora sincronizadas para agora!');
+    }
+
+    function resetToDefaults() {
+        if (confirm('Deseja restaurar todos os campos do atestado para os valores padrão originais?')) {
+            document.getElementById('inp_nome').value = "TATIANI RODRIGUES MOR";
+            document.getElementById('inp_cns').value = "458.912.873-44";
+            document.getElementById('inp_cid').value = "J02.";
+            document.getElementById('inp_data').value = "04/11/2023";
+            document.getElementById('inp_hora').value = "08:12:23";
+            document.getElementById('inp_unidade').value = "UPA 24h Itaquera - Consultórios";
+            const e1 = document.getElementById('inp_end1'); if (e1) e1.value = "Av. Miguel Ignácio Curi, 41";
+            const e2 = document.getElementById('inp_end2'); if (e2) e2.value = "Vila Carmosina - São Paulo - SP";
+            const e3 = document.getElementById('inp_end3'); if (e3) e3.value = "CEP: 08295-005";
+            document.getElementById('inp_medico').value = "Dr. Jair Dacas";
+            const esp = document.getElementById('inp_medico_esp'); if (esp) esp.value = "Médica Clínica";
+            document.getElementById('inp_crm').value = "CRM 29022 RS";
+            currentDiasNum = 3;
+            currentDiasExt = 'três';
+            currentSigStyleIndex = 0;
+            currentSigVariation = 0;
+            currentSigColor = '#1040cf';
+
+            document.querySelectorAll('.dias-chip').forEach(b => b.classList.remove('active'));
+            const c3 = document.getElementById('chipDia3');
+            if (c3) c3.classList.add('active');
+
+            const btnAz = document.getElementById('btnCorAzul');
+            if (btnAz) setCorCaneta('#1040cf', btnAz);
+
+            syncFromCheckout();
+            generateQrCodes();
+            showToast('Valores restaurados!');
+        }
+    }
+
+    // ─── GERADOR INTELIGENTE DE ASSINATURAS MÉDICAS FEITAS À MÃO (12 ESTILOS) ───
+    const SIGNATURE_STYLES = [
+        { id: 0, name: "Cursiva clássica", desc: "Traço natural à mão livre" },
+        { id: 1, name: "Cursiva inclinada", desc: "Inclinação médica suave" },
+        { id: 2, name: "Tinta forte", desc: "Caneta pesada e marcante" },
+        { id: 3, name: "Elegante", desc: "Caligrafia nobre com floreio" },
+        { id: 4, name: "Caneta fina", desc: "Ponta fina e traço rápido" },
+        { id: 5, name: "Clássica reta", desc: "Alinhamento sóbrio e formal" },
+        { id: 6, name: "Manuscrita médica", desc: "Estilo receita médica ágil" },
+        { id: 7, name: "Caligrafia expressiva", desc: "Escrita rítmica e moderna" },
+        { id: 8, name: "Rubrica médica ágil", desc: "Laço superior e oscilações" },
+        { id: 9, name: "Traço com paraph", desc: "Inicial + Sobrenome e paraph" },
+        { id: 10, name: "Plantão emergência", desc: "Scribble veloz de pronto-socorro" },
+        { id: 11, name: "Rubrica circular", desc: "Laço envolvente 360°" }
+    ];
+
+    let currentSigStyleIndex = 0;
+    let currentSigVariation = 0;
+    let currentSigColor = '#1040cf';
+
+    function setCorCaneta(color, btn) {
+        currentSigColor = color;
+        document.querySelectorAll('.btn-cor-caneta').forEach(b => b.style.borderColor = 'transparent');
+        const mainBtns = [document.getElementById('btnCorAzul'), document.getElementById('btnCorAzulMarinho'), document.getElementById('btnCorPreto')];
+        const modalBtns = [document.getElementById('modalCorAzul'), document.getElementById('modalCorAzulMarinho'), document.getElementById('modalCorPreto')];
+        
+        let targetIdx = 0;
+        if (color === '#1040cf') targetIdx = 0;
+        else if (color === '#002b80') targetIdx = 1;
+        else targetIdx = 2;
+
+        if (mainBtns[targetIdx]) mainBtns[targetIdx].style.borderColor = '#fff';
+        if (modalBtns[targetIdx]) modalBtns[targetIdx].style.borderColor = '#fff';
+
+        const lbl = document.getElementById('lblCorCaneta');
+        if (lbl) {
+            if (color === '#1040cf') lbl.textContent = 'Azul Caneta';
+            else if (color === '#002b80') lbl.textContent = 'Azul Marinho';
+            else lbl.textContent = 'Preto Tinta';
+        }
+        renderAssinatura();
+    }
+
+    function cleanDoctorName(raw) {
+        let s = (raw || 'Dr. Jair Dacas').trim();
+        let hasDr = /^(?:dr.|dra.|dr|dra|doutor|doutora)\b/i.test(s);
+        let nameWithoutDr = s.replace(/^(?:dr.|dra.|dr|dra|doutor|doutora)\s+/i, '');
+        let prefix = hasDr ? s.match(/^(?:dr.|dra.|dr|dra|doutor|doutora)\b\.?/i)[0] : 'Dr.';
+        if (!prefix.endsWith('.')) prefix += '.';
+
+        const parts = nameWithoutDr.split(/\s+/).filter(Boolean);
+        const first = parts[0] || 'Jair';
+        const last = parts.length > 1 ? parts[parts.length - 1] : first;
+        const initialF = first.charAt(0).toUpperCase();
+        const withDr = `${prefix} ${nameWithoutDr}`;
+
+        return { raw, withDr, nameWithoutDr, first, last, initialF, prefix };
+    }
+
+    function hashDoctorString(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) - hash) + str.charCodeAt(i);
+            hash |= 0;
+        }
+        return Math.abs(hash);
+    }
+
+    function generateDoctorSignature(docName, styleId, color, variation) {
+        const doc = cleanDoctorName(docName);
+        const hash = hashDoctorString(doc.withDr) + (variation * 37);
+        const textToDisplay = doc.withDr;
+        
+        function getFontSize(base, min) {
+            if (textToDisplay.length > 25) return min;
+            if (textToDisplay.length > 18) return Math.round(base * 0.82);
+            return base;
+        }
+
+        let svg = '';
+
+        switch(styleId) {
+            case 0: { // Cursiva clássica
+                const fSize = getFontSize(26, 20);
+                const rot = -2 + (hash % 3);
+                const uY = 70;
+                svg = `
+                    <g transform="rotate(${rot}, 100, 56)">
+                        <text x="24" y="58" style="font-family:'Cedarville Cursive', cursive;" font-family="Cedarville Cursive, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.4">${textToDisplay}</text>
+                        <path d="M 22 ${uY} C 70 ${uY + 4}, 140 ${uY - 3}, 205 ${uY + 1} Q 215 ${uY + 2}, 222 ${uY - 2}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" />
+                        <circle cx="225" cy="${uY - 3}" r="1.4" fill="${color}" />
+                    </g>
+                `;
+                break;
+            }
+            case 1: { // Cursiva inclinada
+                const fSize = getFontSize(32, 23);
+                const rot = -6 + (hash % 3);
+                const uY = 73;
+                svg = `
+                    <g transform="rotate(${rot}, 100, 58)">
+                        <text x="25" y="55" style="font-family:'Allura', cursive;" font-family="Allura, cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.8">${textToDisplay}</text>
+                        <path d="M 24 ${uY} C 65 ${uY + 3}, 125 ${uY - 4}, 185 ${uY + 2} C 198 ${uY + 4}, 210 ${uY - 2}, 222 ${uY - 5}" fill="none" stroke="${color}" stroke-width="1.9" stroke-linecap="round" />
+                        <circle cx="224" cy="${uY - 6}" r="1.5" fill="${color}" />
+                    </g>
+                `;
+                break;
+            }
+            case 2: { // Tinta forte
+                const fSize = getFontSize(28, 21);
+                const rot = -3 + (hash % 3);
+                const uY = 71;
+                svg = `
+                    <g transform="rotate(${rot}, 100, 56)">
+                        <text x="22" y="56" style="font-family:'Mr Dafoe', cursive;" font-family="Mr Dafoe, cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.5">${textToDisplay}</text>
+                        <path d="M 20 ${uY} C 60 ${uY + 2}, 130 ${uY - 2}, 190 ${uY + 1} Q 205 ${uY + 2}, 224 ${uY - 1}" fill="none" stroke="${color}" stroke-width="2.6" stroke-linecap="round" />
+                        <circle cx="226" cy="${uY - 2}" r="1.8" fill="${color}" />
+                    </g>
+                `;
+                break;
+            }
+            case 3: { // Elegante
+                const fSize = getFontSize(33, 24);
+                const rot = -4 + (hash % 3);
+                const uY = 72;
+                svg = `
+                    <g transform="rotate(${rot}, 100, 56)">
+                        <text x="24" y="54" style="font-family:'Great Vibes', cursive;" font-family="Great Vibes, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.8">${textToDisplay}</text>
+                        <path d="M 22 ${uY} C 50 ${uY - 4}, 90 ${uY + 6}, 150 ${uY - 3} C 185 ${uY - 8}, 205 ${uY + 4}, 225 ${uY}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" />
+                        <circle cx="227" cy="${uY}" r="1.4" fill="${color}" />
+                    </g>
+                `;
+                break;
+            }
+            case 4: { // Caneta fina
+                const fSize = getFontSize(26, 19);
+                const rot = -3 + (hash % 4);
+                const uY = 71;
+                svg = `
+                    <g transform="rotate(${rot}, 100, 56)">
+                        <text x="22" y="57" style="font-family:'La Belle Aurore', cursive;" font-family="La Belle Aurore, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.2">${textToDisplay}</text>
+                        <path d="M 20 ${uY} C 70 ${uY + 2}, 140 ${uY - 3}, 220 ${uY}" fill="none" stroke="${color}" stroke-width="1.3" stroke-linecap="round" />
+                        <circle cx="222" cy="${uY}" r="1.2" fill="${color}" />
+                    </g>
+                `;
+                break;
+            }
+            case 5: { // Clássica reta
+                const fSize = getFontSize(27, 20);
+                const uY = 72;
+                svg = `
+                    <g>
+                        <text x="24" y="56" style="font-family:'Marck Script', cursive;" font-family="Marck Script, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.4">${textToDisplay}</text>
+                        <path d="M 22 ${uY} L 220 ${uY}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" />
+                        <path d="M 32 ${uY + 4} L 180 ${uY + 4}" fill="none" stroke="${color}" stroke-width="1.0" stroke-linecap="round" opacity="0.85" />
+                    </g>
+                `;
+                break;
+            }
+            case 6: { // Manuscrita médica
+                const fSize = getFontSize(23, 17);
+                const rot = -5 + (hash % 3);
+                const uY = 71;
+                svg = `
+                    <g transform="rotate(${rot}, 100, 56)">
+                        <text x="22" y="55" style="font-family:'Homemade Apple', cursive;" font-family="Homemade Apple, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.3">${textToDisplay}</text>
+                        <path d="M 20 ${uY} C 60 ${uY + 4}, 120 ${uY - 4}, 180 ${uY + 3} Q 200 ${uY + 5}, 224 ${uY - 4}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" />
+                    </g>
+                `;
+                break;
+            }
+            case 7: { // Caligrafia expressiva
+                const fSize = getFontSize(28, 21);
+                const rot = -4 + (hash % 3);
+                const uY = 72;
+                svg = `
+                    <g transform="rotate(${rot}, 100, 56)">
+                        <text x="24" y="56" style="font-family:'Dancing Script', cursive;" font-family="Dancing Script, cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.6">${textToDisplay}</text>
+                        <path d="M 22 ${uY} C 65 ${uY - 3}, 120 ${uY + 5}, 175 ${uY - 2} C 190 ${uY - 5}, 208 ${uY + 2}, 225 ${uY - 2}" fill="none" stroke="${color}" stroke-width="2.1" stroke-linecap="round" />
+                        <circle cx="227" cy="${uY - 3}" r="1.5" fill="${color}" />
+                    </g>
+                `;
+                break;
+            }
+            case 8: { // Rubrica médica ágil
+                const isDefaultJair = doc.nameWithoutDr.toLowerCase() === 'jair dacas' && variation === 0;
+                if (isDefaultJair) {
+                    svg = `
+                        <path d="M 64 58 C 66 46, 81 35, 99 34 C 112 34, 122 43, 117 57 C 111 71, 100 81, 93 84 C 84 89, 71 99, 66 104 C 66 104, 80 92, 91 84 C 104 74, 119 65, 137 62 C 154 58, 163 58, 170 64 C 177 69, 191 68, 207 64" fill="none" stroke="${color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="162" cy="42" r="1.6" fill="${color}" />
+                    `;
+                } else {
+                    const startX = 46 + (hash % 12);
+                    const startY = 62 + ((hash >> 2) % 6);
+                    const loopTopY = 28 + ((hash >> 4) % 9);
+                    const loopWidth = 36 + ((hash >> 6) % 12);
+                    const waveLen = Math.min(8, Math.max(4, doc.last.length));
+                    let wavePath = `M ${startX} ${startY} C ${startX + 2} ${loopTopY + 12}, ${startX + loopWidth * 0.4} ${loopTopY}, ${startX + loopWidth * 0.9} ${loopTopY + 2} C ${startX + loopWidth * 1.3} ${loopTopY + 2}, ${startX + loopWidth * 1.4} ${startY + 15}, ${startX + loopWidth} ${startY + 22}`;
+
+                    let currX = startX + loopWidth * 0.8;
+                    let currY = startY + 20;
+
+                    for (let w = 0; w < waveLen; w++) {
+                        const charCode = doc.last.charCodeAt(w % doc.last.length) || 100;
+                        const waveH = 10 + (charCode % 12);
+                        const stepX = 8 + (charCode % 5);
+                        const cpY1 = currY - waveH;
+                        const cpY2 = currY + waveH * 0.6;
+                        wavePath += ` Q ${currX + stepX * 0.5} ${cpY1}, ${currX + stepX} ${currY - 2} Q ${currX + stepX * 1.5} ${cpY2}, ${currX + stepX * 2} ${currY}`;
+                        currX += stepX * 2;
+                    }
+
+                    const endX = Math.min(215, currX + 22);
+                    const endY = currY - 6;
+                    wavePath += ` C ${currX + 8} ${currY + 8}, ${endX - 10} ${endY + 12}, ${endX} ${endY}`;
+                    const dotX = endX - 8;
+                    const dotY = endY - 18;
+
+                    svg = `
+                        <path d="${wavePath}" fill="none" stroke="${color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="${dotX}" cy="${dotY}" r="1.6" fill="${color}" />
+                    `;
+                }
+                break;
+            }
+            case 9: { // Traço com paraph
+                const shortName = `${doc.prefix} ${doc.initialF}. ${doc.last}`;
+                let fontSize = 31;
+                if (shortName.length > 18) fontSize = 25;
+                svg = `
+                    <g transform="rotate(-4, 95, 56)">
+                        <text x="32" y="54" style="font-family:'Alex Brush', cursive;" font-family="Alex Brush, cursive" font-size="${fontSize}" font-weight="700" fill="${color}" letter-spacing="1">${shortName}</text>
+                        <path d="M 30 68 C 75 62, 130 64, 185 60 C 200 59, 180 74, 145 76 C 105 78, 60 76, 40 74" fill="none" stroke="${color}" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="192" cy="58" r="1.7" fill="${color}" />
+                    </g>
+                `;
+                break;
+            }
+            case 10: { // Plantão emergência
+                const startX = 40 + (hash % 10);
+                const peakY = 28 + ((hash >> 2) % 8);
+                const valleyY = 88 + ((hash >> 4) % 6);
+                const waveCount = 5 + (hash % 4);
+                let p = `M ${startX} 68 C ${startX + 5} 45, ${startX + 18} ${peakY}, ${startX + 28} ${peakY + 6} C ${startX + 38} ${peakY + 12}, ${startX + 32} ${valleyY}, ${startX + 44} ${valleyY - 6}`;
+
+                let cx = startX + 44;
+                let cy = valleyY - 6;
+                for (let i = 0; i < waveCount; i++) {
+                    const h = 8 + (i % 3) * 4;
+                    p += ` L ${cx + 8} ${cy - h} L ${cx + 16} ${cy + 2}`;
+                    cx += 16;
+                }
+                p += ` C ${cx + 10} ${cy - 8}, ${cx + 26} ${cy - 12}, ${Math.min(215, cx + 38)} ${cy - 6}`;
+
+                svg = `
+                    <path d="${p}" fill="none" stroke="${color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="${startX + 26}" cy="${peakY + 2}" r="1.6" fill="${color}" />
+                `;
+                break;
+            }
+            case 11: { // Rubrica circular
+                const rot = -5 + (hash % 4);
+                svg = `
+                    <g transform="rotate(${rot}, 95, 58)">
+                        <text x="58" y="58" style="font-family:'Caveat', cursive;" font-family="Caveat, cursive" font-size="28" font-weight="700" fill="${color}">${doc.first}</text>
+                        <path d="M 40 62 C 30 38, 70 22, 130 24 C 185 26, 210 50, 198 72 C 185 92, 105 96, 50 86 C 25 81, 30 68, 60 65 L 200 62" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="203" cy="62" r="1.6" fill="${color}" />
+                    </g>
+                `;
+                break;
+            }
+            default: {
+                svg = `<text x="25" y="56" style="font-family:'Cedarville Cursive', cursive;" font-family="Cedarville Cursive, cursive" font-size="26" fill="${color}">${textToDisplay}</text>`;
+            }
+        }
+
+        return svg;
+    }
+
+    function selectSigStyle(idx) {
+        currentSigStyleIndex = idx;
+        renderAssinatura();
+        const curStyle = SIGNATURE_STYLES.find(s => s.id === idx);
+        showToast(`Estilo "${curStyle ? curStyle.name : 'Assinatura'}" selecionado!`);
+    }
+
+    function proximaVariacaoAssinatura() {
+        currentSigVariation++;
+        renderAssinatura();
+        showToast('Traço de assinatura variado!');
+    }
+
+    function renderAssinatura() {
+        const docName = document.getElementById('inp_medico')?.value || 'Dr. Jair Dacas';
+        const layer = document.getElementById('carimboSigLayer');
+        const activeSvg = generateDoctorSignature(docName, currentSigStyleIndex, currentSigColor, currentSigVariation);
+        
+        if (layer) {
+            layer.innerHTML = activeSvg;
+        }
+
+        // Renderiza a grade inline com os 12 estilos
+        renderInlineCards(docName);
+
+        // Renderiza os cards do modal se estiver aberto
+        renderModalCards(docName);
+    }
+
+    function renderInlineCards(docName) {
+        const grid = document.getElementById('sigStylesGrid');
+        if (!grid) return;
+
+        grid.innerHTML = SIGNATURE_STYLES.map((style) => {
+            const isActive = (style.id === currentSigStyleIndex);
+            const previewSvg = generateDoctorSignature(docName, style.id, currentSigColor, currentSigVariation);
+            return `
+                <div class="sig-style-card ${isActive ? 'active' : ''}" onclick="selectSigStyle(${style.id})" title="${style.name} - ${style.desc}">
+                    <span class="sig-card-badge">✓</span>
+                    <div class="sig-preview-box">
+                        <svg viewBox="15 15 210 90" preserveAspectRatio="xMidYMid meet">
+                            ${previewSvg}
+                        </svg>
+                    </div>
+                    <div class="sig-style-title">${style.name}</div>
+                    <div class="sig-style-sub">${style.desc}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function openSigModal() {
+        const docName = document.getElementById('inp_medico')?.value || 'Dr. Jair Dacas';
+        const modalInp = document.getElementById('modalInpMedico');
+        if (modalInp) modalInp.value = docName;
+
+        renderModalCards(docName);
+
+        const modal = document.getElementById('sigModalBackdrop');
+        if (modal) modal.classList.add('open');
+    }
+
+    function closeSigModal() {
+        const modal = document.getElementById('sigModalBackdrop');
+        if (modal) modal.classList.remove('open');
+    }
+
+    function handleSigModalBackdropClick(e) {
+        if (e.target.id === 'sigModalBackdrop') {
+            closeSigModal();
+        }
+    }
+
+    function gerarEstilosModal() {
+        const modalInp = document.getElementById('modalInpMedico');
+        if (modalInp && modalInp.value.trim()) {
+            const formInp = document.getElementById('inp_medico');
+            if (formInp) formInp.value = modalInp.value.trim();
+            syncFromCheckout();
+        }
+        proximaVariacaoAssinatura();
+    }
+
+    function renderModalCards(docName) {
+        const grid = document.getElementById('sigModalGrid');
+        if (!grid) return;
+
+        grid.innerHTML = SIGNATURE_STYLES.map((style) => {
+            const isActive = (style.id === currentSigStyleIndex);
+            const previewSvg = generateDoctorSignature(docName, style.id, currentSigColor, currentSigVariation);
+            return `
+                <div class="sig-modal-card ${isActive ? 'active' : ''}" onclick="selectSigStyle(${style.id})" title="${style.name} - ${style.desc}">
+                    <span class="sig-card-check-badge">✓</span>
+                    <div class="sig-card-svg-wrap">
+                        <svg viewBox="15 15 210 90" preserveAspectRatio="xMidYMid meet">
+                            ${previewSvg}
+                        </svg>
+                    </div>
+                    <div class="sig-card-label">${style.name}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function handleSigUpload(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const layer = document.getElementById('carimboSigLayer');
+                if (layer) {
+                    layer.innerHTML = `<image href="${e.target.result}" x="20" y="20" width="190" height="90" preserveAspectRatio="xMidYMid meet" />`;
+                }
+                showToast('Assinatura médica atualizada!');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // ─── BASE DE DADOS COMPLETA DE CIDS ───
+    const CID_DATABASE = [
+        // Respiratório
+        { code: "J02.", desc: "Faringite aguda (dor de garganta / inflamação)", cat: "respiratorio" },
+        { code: "J00", desc: "Nasofaringite aguda (Resfriado comum)", cat: "respiratorio" },
+        { code: "J03.9", desc: "Amigdalite aguda não especificada", cat: "respiratorio" },
+        { code: "J01.9", desc: "Sinusite aguda não especificada", cat: "respiratorio" },
+        { code: "J06.9", desc: "Infecção aguda das vias aéreas superiores (IVAS)", cat: "respiratorio" },
+        { code: "J11.1", desc: "Gripe (Influenza) com manifestações respiratórias", cat: "respiratorio" },
+        { code: "J20.9", desc: "Bronquite aguda não especificada", cat: "respiratorio" },
+        { code: "J18.9", desc: "Pneumonia não especificada", cat: "respiratorio" },
+        { code: "J45.9", desc: "Asma não especificada (Crise asmática)", cat: "respiratorio" },
+
+        // Digestivo / Gastro
+        { code: "A09", desc: "Diarreia e gastroenterite infecciosa", cat: "digestivo" },
+        { code: "K52.9", desc: "Gastroenterite e colite não infecciosas", cat: "digestivo" },
+        { code: "K29.7", desc: "Gastrite não especificada", cat: "digestivo" },
+        { code: "K21.9", desc: "Doença de refluxo gastroesofágico", cat: "digestivo" },
+        { code: "R10.4", desc: "Outras dores abdominais (cólica abdominal)", cat: "digestivo" },
+        { code: "R11", desc: "Náusea e vômitos", cat: "digestivo" },
+        { code: "K80.2", desc: "Cálculo da vesícula biliar (pedra na vesícula)", cat: "digestivo" },
+
+        // Ortopédico / Muscular / Dores
+        { code: "M54.5", desc: "Dor lombar baixa (Lombalgia / dor na coluna)", cat: "muscular" },
+        { code: "M54.2", desc: "Cervicalgia (dor no pescoço / torcicolo)", cat: "muscular" },
+        { code: "M54.4", desc: "Lombociatalgia (dor no nervo ciático)", cat: "muscular" },
+        { code: "M79.1", desc: "Mialgia (dor muscular intensa)", cat: "muscular" },
+        { code: "M79.7", desc: "Fibromialgia", cat: "muscular" },
+        { code: "S93.4", desc: "Entorse e distensão do tornozelo", cat: "muscular" },
+        { code: "M25.5", desc: "Dor articular (Artralgia)", cat: "muscular" },
+        { code: "M62.6", desc: "Distensão muscular", cat: "muscular" },
+        { code: "G43.9", desc: "Enxaqueca sem especificação (Crise de enxaqueca)", cat: "muscular" },
+        { code: "G44.2", desc: "Cefaleia tensional (dor de cabeça forte)", cat: "muscular" },
+
+        // Infecciosas / Dengue
+        { code: "A90", desc: "Dengue clássica", cat: "infeccioso" },
+        { code: "A92.0", desc: "Febre de Chikungunya", cat: "infeccioso" },
+        { code: "B34.9", desc: "Infecção viral não especificada (Virose)", cat: "infeccioso" },
+        { code: "N39.0", desc: "Infecção do trato urinário (ITU)", cat: "infeccioso" },
+        { code: "N23", desc: "Cólica nefrética / renal (pedra nos rins)", cat: "infeccioso" },
+        { code: "B30.9", desc: "Conjuntivite viral", cat: "infeccioso" },
+        { code: "H10.9", desc: "Conjuntivite não especificada", cat: "infeccioso" },
+
+        // Odontológico
+        { code: "K08.8", desc: "Transtornos dos dentes (dor de dente aguda)", cat: "odontologico" },
+        { code: "K04.7", desc: "Abscesso periapical (abscesso dentário)", cat: "odontologico" },
+        { code: "K05.2", desc: "Periodontite aguda", cat: "odontologico" },
+        { code: "K01.1", desc: "Dente incluso (extração de dente siso)", cat: "odontologico" },
+
+        // Emocional / Estresse
+        { code: "F41.9", desc: "Transtorno de ansiedade (crise de ansiedade)", cat: "emocional" },
+        { code: "F43.0", desc: "Reação aguda ao estresse", cat: "emocional" },
+        { code: "F32.9", desc: "Episódio depressivo não especificado", cat: "emocional" },
+        { code: "Z73.0", desc: "Esgotamento (Síndrome de Burnout)", cat: "emocional" }
+    ];
+
+    let currentCidCategory = 'todos';
+
+    function openCidModal() {
+        const overlay = document.getElementById('cidModalOverlay');
+        if (overlay) {
+            overlay.classList.add('show');
+            const inp = document.getElementById('cidSearchInput');
+            if (inp) {
+                inp.value = '';
+                inp.focus();
+            }
+            renderCidList();
+        }
+    }
+
+    function closeCidModal() {
+        const overlay = document.getElementById('cidModalOverlay');
+        if (overlay) overlay.classList.remove('show');
+    }
+
+    function closeCidModalOnOverlay(e) {
+        if (e.target.id === 'cidModalOverlay') closeCidModal();
+    }
+
+    function setCidTab(cat, btn) {
+        currentCidCategory = cat;
+        document.querySelectorAll('.cid-tab-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        renderCidList();
+    }
+
+    function filterCidList() {
+        renderCidList();
+    }
+
+    function renderCidList() {
+        const container = document.getElementById('cidListContainer');
+        if (!container) return;
+
+        const query = (document.getElementById('cidSearchInput')?.value || '').toLowerCase().trim();
+
+        const filtered = CID_DATABASE.filter(item => {
+            if (currentCidCategory !== 'todos' && item.cat !== currentCidCategory) return false;
+            if (query) {
+                const matchCode = item.code.toLowerCase().includes(query);
+                const matchDesc = item.desc.toLowerCase().includes(query);
+                if (!matchCode && !matchDesc) return false;
+            }
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:13px;">Nenhum CID encontrado. Digite diretamente no formulário.</div>';
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(item => {
+            html += `
+                <div class="cid-item-row" onclick="selectCid('${item.code}', '${item.desc.replace(/'/g, "\\'")}')">
+                    <span class="cid-code-badge">${item.code}</span>
+                    <div class="cid-desc-box">
+                        <span class="cid-desc-title">${item.desc}</span>
+                        <span class="cid-desc-cat">Categoria: ${item.cat.toUpperCase()}</span>
+                    </div>
+                    <span class="cid-item-action">Selecionar &rarr;</span>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function selectCid(code, desc) {
+        const inp = document.getElementById('inp_cid');
+        if (inp) {
+            inp.value = code;
+        }
+
+        // Chama a sincronização para atualizar a folha e o preview
+        syncFromCheckout();
+
+        closeCidModal();
+        showToast(`CID ${code} selecionado: ${desc.split('(')[0]}`);
+    }
+
+    // ─── SALDO E USUÁRIO ───
+    function initUser() {
+        let loggedUser = null;
+        try {
+            loggedUser = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
+        } catch(e) {}
+        const saldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
+        const saldoEl = document.getElementById('userHeaderSaldo');
+        if (saldoEl) saldoEl.textContent = `Saldo R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+        const nome = loggedUser.nome || 'M';
+        const avEl = document.getElementById('userHeaderAvatar');
+        if (avEl) avEl.textContent = nome.trim()[0].toUpperCase();
+
+        const custo = parseFloat(localStorage.getItem('happynation_atestado_price')) || 20.00;
+        const cEl = document.getElementById('custoAtestadoDisplay');
+        window.addEventListener('mg_prices_synced', (ev) => {
+            var p = (ev && ev.detail && ev.detail.atestado_price) ? parseFloat(ev.detail.atestado_price) : (parseFloat(localStorage.getItem('happynation_atestado_price')) || 20.00);
+            var el = document.getElementById('custoAtestadoDisplay');
+            if (el) el.textContent = 'R$ ' + p.toFixed(2).replace('.', ',');
+        });
+        if (cEl) cEl.textContent = `R$ ${custo.toFixed(2).replace('.', ',')}`;
+
+        // Puxa preço atualizado configurado pelo Admin
+        fetch('api/config').then(r => r.json()).then(res => {
+            if (res && res.data && res.data.atestado_price) {
+                const svCusto = parseFloat(res.data.atestado_price);
+                localStorage.setItem('happynation_atestado_price', res.data.atestado_price);
+                if (cEl) cEl.textContent = `R$ ${svCusto.toFixed(2).replace('.', ',')}`;
+            }
+        }).catch(() => {});
+    }
+
+    // ─── CLONE DE ALTA PRECISÃO PARA RENDERIZAÇÃO DO PDF ───
+    async function buildCleanPrintClone(sheetEl) {
+        const clone = sheetEl.cloneNode(true);
+        clone.id = 'printCloneSheet';
+        clone.style.width = '794px';
+        clone.style.minHeight = '1123px';
+        clone.style.height = '1123px';
+        clone.style.maxHeight = '1123px';
+        clone.style.padding = '36px 48px';
+        clone.style.boxShadow = 'none';
+        clone.style.background = '#ffffff';
+        clone.style.boxSizing = 'border-box';
+        clone.style.overflow = 'hidden';
+
+        // Converte cada <input> em <span>
+        const origInputs = sheetEl.querySelectorAll('input');
+        const cloneInputs = clone.querySelectorAll('input');
+        cloneInputs.forEach((inp, idx) => {
+            const orig = origInputs[idx];
+            const span = document.createElement('span');
+            span.textContent = orig ? orig.value : inp.value;
+            span.className = inp.className;
+            
+            const cs = window.getComputedStyle(orig || inp);
+            span.style.fontFamily = cs.fontFamily;
+            span.style.fontSize = cs.fontSize;
+            span.style.fontWeight = cs.fontWeight;
+            span.style.color = cs.color;
+            span.style.textAlign = cs.textAlign;
+            span.style.textTransform = cs.textTransform;
+            span.style.letterSpacing = cs.letterSpacing;
+            span.style.display = 'inline-block';
+            span.style.lineHeight = '1.3';
+            span.style.padding = '0';
+            span.style.margin = '0';
+            span.style.border = 'none';
+            span.style.background = 'transparent';
+            span.style.verticalAlign = 'baseline';
+
+            if (inp.id === 'fld_medico_nome' || inp.id === 'fld_medico_crm') {
+                span.style.display = 'block';
+                span.style.width = '100%';
+                span.style.textAlign = 'center';
+            }
+
+            inp.parentNode.replaceChild(span, inp);
+        });
+
+        // Clona e estiliza o texto principal preservando negritos
+        const origTextBox = sheetEl.querySelector('#fld_texto_principal');
+        const cloneTextBox = clone.querySelector('#fld_texto_principal');
+        if (cloneTextBox) {
+            const div = document.createElement('div');
+            div.innerHTML = origTextBox ? origTextBox.innerHTML : cloneTextBox.innerHTML;
+            div.style.fontFamily = 'Arial, Helvetica, sans-serif';
+            div.style.fontSize = '14px';
+            div.style.lineHeight = '1.8';
+            div.style.textAlign = 'justify';
+            div.style.color = '#000000';
+            div.style.padding = '0';
+            div.style.margin = '0';
+            div.style.border = 'none';
+            div.style.background = 'transparent';
+            cloneTextBox.parentNode.replaceChild(div, cloneTextBox);
+        }
+
+        // Remove a marca d'água de prévia para que o PDF gerado seja 100% oficial e limpo
+        const wm = clone.querySelector('#previewWatermarkOverlay');
+        if (wm) wm.remove();
+
+        // Renderiza os QR Codes oficiais e reais apontando para validar-atestado.html
+        const valData = getAtestadoValidationUrl(window.currentAtestadoIdToGen, window.currentAtestadoAuthToGen);
+        const qrUrl = valData.url;
+
+        const qrHighResPng = await generateHighResQrDataUrl(qrUrl, 350);
+
+        const cloneHeaderQr = clone.querySelector('#headerQrBox');
+        if (cloneHeaderQr) {
+            cloneHeaderQr.innerHTML = '';
+            const imgH = document.createElement('img');
+            imgH.src = qrHighResPng;
+            imgH.alt = 'QR Code de Validação';
+            imgH.style.width = '130px';
+            imgH.style.height = '130px';
+            imgH.style.display = 'block';
+            imgH.style.margin = 'auto';
+            imgH.style.imageRendering = '-webkit-optimize-contrast';
+            cloneHeaderQr.appendChild(imgH);
+        }
+
+        const cloneFooterQr = clone.querySelector('#footerQrBox');
+        if (cloneFooterQr) {
+            cloneFooterQr.innerHTML = '';
+            const imgF = document.createElement('img');
+            imgF.src = qrHighResPng;
+            imgF.alt = 'QR Code Rodapé';
+            imgF.style.width = '70px';
+            imgF.style.height = '70px';
+            imgF.style.display = 'block';
+            imgF.style.margin = 'auto';
+            imgF.style.imageRendering = '-webkit-optimize-contrast';
+            cloneFooterQr.appendChild(imgF);
+        }
+
+        return clone;
+    }
+
+    // ─── GERAÇÃO OFICIAL DO PDF ───
+    async function gerarPdfAtestado() {
+        let loggedUser = null;
+        try {
+            loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+        } catch(e) {}
+        let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
+        const rawCustoAtestado = parseFloat(localStorage.getItem('happynation_atestado_price')) || 20.00;
+        const custoAtestado = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(rawCustoAtestado) : rawCustoAtestado;
+
+        if (custoAtestado > 0 && userSaldo < custoAtestado) {
+            alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do atestado custa R$ ${custoAtestado.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
+            window.location.href = 'recargas.html';
+            return;
+        }
+
+        const btnGen = document.getElementById('btnGerarPdf');
+        const origBtnText = btnGen.innerHTML;
+        btnGen.disabled = true;
+        btnGen.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Gerando PDF...';
+
+        try {
+            const sheet = document.getElementById('sheetDoc');
+            const nomePaciente = (document.getElementById('inp_nome').value || 'PACIENTE').trim();
+            const filename = `Atestado_Medico_${nomePaciente.replace(/\s+/g, '_')}.pdf`;
+
+            const existingId = new URLSearchParams(window.location.search).get('id');
+            const atId = existingId || ('AT-' + Math.floor(10000 + Math.random() * 90000));
+            const authHash = 'SUS-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-BR';
+            window.currentAtestadoIdToGen = atId;
+            window.currentAtestadoAuthToGen = authHash;
+
+            const valData = getAtestadoValidationUrl(atId, authHash);
+
+            const cleanClone = await buildCleanPrintClone(sheet);
+            const hiddenContainer = document.createElement('div');
+            hiddenContainer.style.position = 'fixed';
+            hiddenContainer.style.left = '-99999px';
+            hiddenContainer.style.top = '0';
+            hiddenContainer.style.width = '794px';
+            hiddenContainer.style.height = '1123px';
+            hiddenContainer.style.background = '#ffffff';
+            hiddenContainer.style.zIndex = '-9999';
+            hiddenContainer.appendChild(cleanClone);
+            document.body.appendChild(hiddenContainer);
+
+            await new Promise(r => setTimeout(r, 280));
+
+            const canvas = await html2canvas(cleanClone, {
+                scale: 3,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                width: 794,
+                height: 1123,
+                windowWidth: 794,
+                windowHeight: 1123
+            });
+
+            hiddenContainer.remove();
+
+            const JsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+            if (!JsPDF) throw new Error('Biblioteca jsPDF não carregada.');
+
+            const pdf = new JsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [794, 1123],
+                hotfixes: ['px_scaling']
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            pdf.addImage(imgData, 'JPEG', 0, 0, 794, 1123);
+
+            try {
+                const blob = pdf.output('blob');
+                const blobUrl = URL.createObjectURL(blob);
+                const dlLink = document.createElement('a');
+                dlLink.href = blobUrl;
+                dlLink.download = filename;
+                document.body.appendChild(dlLink);
+                dlLink.click();
+                setTimeout(() => { dlLink.remove(); URL.revokeObjectURL(blobUrl); }, 4000);
+            } catch(eBlob) {
+                pdf.save(filename);
+            }
+            showToast('✅ Atestado Médico gerado com sucesso! Download iniciado...');
+
+            // Remove a marca d'água do preview ao vivo após geração do PDF
+            const liveWm = document.getElementById('previewWatermarkOverlay');
+            if (liveWm) liveWm.remove();
+
+                        // Desconta o saldo do cliente no servidor e localmente
+            const uEmailDeduct = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : '';
+            const uIdDeduct = (loggedUser && loggedUser.id) ? loggedUser.id : 0;
+            if (window.MGSaldo) {
+                window.MGSaldo.update(-custoAtestado);
+            } else {
+                let u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                if (u && u.saldo !== undefined) {
+                    u.saldo = Math.max(0, parseFloat(u.saldo) - custoAtestado);
+                    localStorage.setItem('happynation_user', JSON.stringify(u));
+                }
+            }
+            if (window.MGSync) {
+                window.MGSync.push('happynation_user');
+                window.MGSync.push('happynation_admin_users');
+            }
+            try {
+                fetch('api/index.php?action=deduct_balance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: uIdDeduct, userEmail: uEmailDeduct, amount: custoAtestado, tipo: 'atestado' })
+                }).catch(() => {});
+            } catch(e) {}
+            initUser();
+
+            // Desbloqueia os QR Codes na prévia após a geração e desconto do saldo
+            isAtestadoEmitido = true;
+            generateQrCodes(true);
+
+            // Grava no histórico de atestados
+            let atRecord = null;
+            try {
+                const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
+                const atestadosKey = 'happynation_atestados_' + uEmail;
+                let atList = JSON.parse(localStorage.getItem(atestadosKey) || '[]');
+                
+                const existingId = new URLSearchParams(window.location.search).get('id');
+                const atId = existingId || window.currentAtestadoIdToGen || ('AT-' + Math.floor(10000 + Math.random() * 90000));
+
+                atRecord = {
+                    id: atId,
+                    auth_hash: authHash,
+                    validation_url: valData.url,
+                    paciente: nomePaciente,
+                    cns: document.getElementById('inp_cns').value,
+                    cid: document.getElementById('inp_cid').value,
+                    dias: currentDiasNum,
+                    unidade: document.getElementById('inp_unidade').value,
+                    medico: document.getElementById('inp_medico').value,
+                    crm: document.getElementById('inp_crm').value,
+                    data: document.getElementById('inp_data').value,
+                    hora: document.getElementById('inp_hora').value,
+                    end1: document.getElementById('inp_end1')?.value || '',
+                    end2: document.getElementById('inp_end2')?.value || '',
+                    end3: document.getElementById('inp_end3')?.value || '',
+                    status: 'Ativo',
+                    created_at: new Date().toISOString()
+                };
+
+                const idxFound = atList.findIndex(x => x.id === atId);
+                if (idxFound >= 0) {
+                    atList[idxFound] = Object.assign({}, atList[idxFound], atRecord);
+                } else {
+                    atList.unshift(atRecord);
+                }
+                localStorage.setItem(atestadosKey, JSON.stringify(atList));
+                localStorage.setItem('happynation_last_atestado', JSON.stringify(atRecord));
+
+                // Sincroniza diretamente com o banco de dados Supabase
+                if (window.MGSupabase && loggedUser && loggedUser.id) {
+                    window.MGSupabase.saveAtestado({
+                        id: atId,
+                        user_id: loggedUser.id,
+                        user_nome: loggedUser.nome || 'Cliente',
+                        paciente_nome: nomePaciente,
+                        cpf: document.getElementById('inp_cpf')?.value || null,
+                        cns: document.getElementById('inp_cns')?.value || null,
+                        medico_nome: document.getElementById('inp_medico')?.value || null,
+                        crm: document.getElementById('inp_crm')?.value || null,
+                        cid: document.getElementById('inp_cid')?.value || null,
+                        dias_repouso: currentDiasNum || 7,
+                        unidade_saude: document.getElementById('inp_unidade')?.value || 'UPA 24h',
+                        valor_cobrado: custoAtestado || 20.00,
+                        dados_json: atRecord
+                    }).catch(e => console.warn('Erro ao salvar atestado no Supabase:', e));
+
+                    window.MGSupabase.deductBalance(loggedUser.id, custoAtestado).catch(() => {});
+                }
+
+                // Feed de atividades do usuário
+                const actKey = 'happynation_activities_' + uEmail;
+                let acts = JSON.parse(localStorage.getItem(actKey) || '[]');
+                acts.unshift({
+                    title: 'ATESTADO MÉDICO - ' + nomePaciente.toUpperCase(),
+                    time: 'agora',
+                    created_at: new Date().toISOString(),
+                    val: '+1,00'
+                });
+                localStorage.setItem(actKey, JSON.stringify(acts));
+
+                // Feed de atividades do Admin
+                try {
+                    let adminActs = JSON.parse(localStorage.getItem('happynation_admin_activities') || '[]');
+                    const newAct = {
+                        id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                        tipo: 'atestado',
+                        descricao: nomePaciente.toUpperCase(),
+                        usuario: (loggedUser && loggedUser.nome) ? loggedUser.nome : 'Cliente',
+                        valor: 'R$ ' + custoAtestado.toFixed(2).replace('.', ','),
+                        status: 'concluido',
+                        created_at: new Date().toISOString()
+                    };
+                    adminActs.unshift(newAct);
+                    if (adminActs.length > 50) adminActs = adminActs.slice(0, 50);
+                    localStorage.setItem('happynation_admin_activities', JSON.stringify(adminActs));
+
+                    fetch('api/index.php?action=save_activity', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newAct)
+                    }).catch(() => {});
+                } catch(eAdmAct) {}
+
+                // Notifica instantaneamente o painel admin
+                try {
+                    if (typeof BroadcastChannel !== 'undefined') {
+                        const bc = new BroadcastChannel('happynation_live_sync');
+                        bc.postMessage({ type: 'activity_created', tipo: 'atestado', id: atId, paciente: nomePaciente });
+                        bc.close();
+                    }
+                    localStorage.setItem('happynation_last_sync_event', JSON.stringify({ type: 'activity_created', tipo: 'atestado', id: atId, time: Date.now() }));
+                    window.dispatchEvent(new Event('storage'));
+                } catch(eBc) {}
+            } catch(eHist) {}
+
+            // Redireciona para o ver-atestado.html com todos os dados e URL do validador
+            setTimeout(() => {
+                const targetUrl = 'ver-atestado.html?id=' + encodeURIComponent(atRecord ? atRecord.id : atId)
+                    + '&nome=' + encodeURIComponent(nomePaciente)
+                    + '&cns=' + encodeURIComponent(document.getElementById('inp_cns').value)
+                    + '&cid=' + encodeURIComponent(document.getElementById('inp_cid').value)
+                    + '&dias=' + encodeURIComponent(currentDiasNum)
+                    + '&unidade=' + encodeURIComponent(document.getElementById('inp_unidade').value)
+                    + '&medico=' + encodeURIComponent(document.getElementById('inp_medico').value)
+                    + '&crm=' + encodeURIComponent(document.getElementById('inp_crm').value)
+                    + '&data=' + encodeURIComponent(document.getElementById('inp_data').value)
+                    + '&hora=' + encodeURIComponent(document.getElementById('inp_hora').value)
+                    + '&auth=' + encodeURIComponent(authHash)
+                    + '&end1=' + encodeURIComponent(document.getElementById('inp_end1')?.value || '')
+                    + '&end2=' + encodeURIComponent(document.getElementById('inp_end2')?.value || '')
+                    + '&end3=' + encodeURIComponent(document.getElementById('inp_end3')?.value || '');
+                window.location.href = targetUrl;
+            }, 1800);
+
+        } catch(err) {
+            console.error('Erro ao gerar atestado:', err);
+            alert('Erro ao gerar PDF do Atestado Médico: ' + (err.message || err));
+        } finally {
+            btnGen.disabled = false;
+            btnGen.innerHTML = origBtnText;
+        }
+    }
+
+    // ─── INICIALIZAÇÃO ───
+    document.addEventListener('DOMContentLoaded', () => {
+        try { generateQrCodes(); } catch(e) {}
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        resetZoom();
+        try { generateQrCodes(); } catch(e) {}
+    });
+
+    window.addEventListener('load', () => {
+        resetZoom();
+        // Se disponível base64 do logo, injeta para renderização 100% segura e instantânea no canvas/pdf
+        if (window.LOGO_UPA_OFICIAL_B64) {
+            const tLogo = document.getElementById('upaLogoTopoImg');
+            if (tLogo) tLogo.src = window.LOGO_UPA_OFICIAL_B64;
+            const rLogo = document.getElementById('upaLogoRodapeImg');
+            if (rLogo) rLogo.src = window.LOGO_UPA_OFICIAL_B64;
+        }
+
+        // Modo de Edição / Visualização de Atestado Emitido
+        function loadAtestadoEditMode() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const atId = params.get('id');
+                const isEdit = !!(atId || params.get('edit') === 'true' || params.get('nome') || params.get('paciente'));
+                if (!isEdit) return false;
+
+                let record = null;
+                try {
+                    record = JSON.parse(localStorage.getItem('happynation_edit_atestado') || sessionStorage.getItem('happynation_edit_atestado') || 'null');
+                } catch(e) {}
+
+                if (!record && atId) {
+                    try {
+                        const loggedU = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                        const uMail = (loggedU && loggedU.email) ? loggedU.email.toLowerCase().trim() : 'cliente';
+                        const userList = JSON.parse(localStorage.getItem('happynation_atestados_' + uMail) || '[]');
+                        record = userList.find(x => String(x.id) === String(atId)) || null;
+
+                        if (!record) {
+                            for (let i = 0; i < localStorage.length; i++) {
+                                const k = localStorage.key(i);
+                                if (k && k.startsWith('happynation_atestados_')) {
+                                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                                    record = list.find(x => String(x.id) === String(atId)) || null;
+                                    if (record) break;
+                                }
+                            }
+                        }
+
+                        if (!record) {
+                            const adminList = JSON.parse(localStorage.getItem('happynation_admin_atestados') || '[]');
+                            record = adminList.find(x => String(x.id) === String(atId)) || null;
+                        }
+
+                        if (!record) {
+                            const last = JSON.parse(localStorage.getItem('happynation_last_atestado') || 'null');
+                            if (last && String(last.id) === String(atId)) record = last;
+                        }
+                    } catch(e) {}
+                }
+
+                if (!record && (params.get('nome') || params.get('paciente'))) {
+                    record = {
+                        id: atId || '',
+                        paciente: params.get('nome') || params.get('paciente') || '',
+                        cns: params.get('cns') || params.get('cpf') || '',
+                        cid: params.get('cid') || '',
+                        dias: params.get('dias') || '',
+                        medico: params.get('medico') || '',
+                        crm: params.get('crm') || ''
+                    };
+                }
+
+                if (!record) return false;
+
+                window.currentAtestadoIdToGen = record.id || atId || '';
+                const d = (record.dados && typeof record.dados === 'object') ? record.dados : record;
+
+                const setF = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null && val !== '') el.value = val;
+                };
+
+                setF('inp_nome', record.paciente || record.nome || d.paciente || d.nome);
+                setF('inp_cns', record.cns || record.cpf || d.cns || d.cpf);
+                setF('inp_cid', record.cid || d.cid);
+                setF('inp_unidade', record.unidade || d.unidade);
+                setF('inp_medico', record.medico || record.medico_nome || d.medico || d.medico_nome);
+                setF('inp_medico_esp', record.medico_esp || d.medico_esp);
+                setF('inp_crm', record.crm || d.crm);
+                setF('inp_data', record.data || d.data);
+                setF('inp_hora', record.hora || d.hora);
+                setF('inp_end1', record.end1 || d.end1);
+                setF('inp_end2', record.end2 || d.end2);
+                setF('inp_end3', record.end3 || d.end3);
+
+                const diasVal = record.dias || d.dias;
+                if (diasVal) {
+                    currentDiasNum = parseInt(diasVal, 10) || 1;
+                    const dEl = document.getElementById('diasContadorDisplay');
+                    if (dEl) dEl.textContent = currentDiasNum;
+                }
+
+                const sigVal = record.assinatura || d.assinatura;
+                if (sigVal) {
+                    const sImg = document.getElementById('docAssinaturaImg');
+                    if (sImg) { sImg.src = sigVal; sImg.style.display = 'block'; }
+                }
+
+                isAtestadoEmitido = true;
+                const liveWm = document.getElementById('previewWatermarkOverlay');
+                if (liveWm) liveWm.remove();
+
+                const btnTxt = document.getElementById('btnGerarTxt');
+                if (btnTxt) btnTxt.textContent = 'Salvar Alterações & Baixar PDF';
+
+                syncFromCheckout();
+                try { generateQrCodes(true); } catch(e) {}
+                return true;
+            } catch(err) {
+                console.error('Erro ao carregar dados do atestado:', err);
+                return false;
+            }
+        }
+
+        initUser();
+
+        const wasLoaded = loadAtestadoEditMode();
+        if (!wasLoaded) {
+            syncFromCheckout();
+        }
+
+        // Se estiver abrindo um atestado que já foi emitido anteriormente pelo cliente, desbloqueia
+        try {
+            const loggedU = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+            const uMail = (loggedU && loggedU.email) ? loggedU.email.toLowerCase().trim() : 'cliente';
+            const atHist = JSON.parse(localStorage.getItem('happynation_atestados_' + uMail) || '[]');
+            const paramId = new URLSearchParams(window.location.search).get('id');
+            if (paramId && atHist.some(item => item.id === paramId)) {
+                isAtestadoEmitido = true;
+                const liveWm = document.getElementById('previewWatermarkOverlay');
+                if (liveWm) liveWm.remove();
+            }
+        } catch(e) {}
+
+        generateQrCodes();
+        resetZoom();
+        syncFromCheckout();
+
+        // Escuta atualizações de preço em tempo real vindas do admin
+        if (typeof BroadcastChannel !== 'undefined') {
+            const atestadoPriceBc = new BroadcastChannel('happynation_live_sync');
+            atestadoPriceBc.onmessage = (ev) => {
+                if (ev.data && ev.data.type === 'price_update' && ev.data.chave === 'atestado_price') {
+                    localStorage.setItem('happynation_atestado_price', ev.data.valor);
+                    const cEl = document.getElementById('custoAtestadoDisplay');
+                    if (cEl) cEl.textContent = `R$ ${parseFloat(ev.data.valor).toFixed(2).replace('.', ',')}`;
+                }
+            };
+        }
+    });
+    </script>
+
+    <!-- ════════ MODAL DE SELEÇÃO DE ASSINATURAS FEITAS À MÃO (12 ESTILOS) ════════ -->
+    <div class="sig-modal-backdrop" id="sigModalBackdrop" onclick="handleSigModalBackdropClick(event)">
+        <div class="sig-modal-box">
+            <div class="sig-modal-header">
+                <div class="sig-modal-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    <span>Estilos de Assinatura Feita à Mão</span>
+                </div>
+                <button type="button" class="sig-modal-close" onclick="closeSigModal()" title="Fechar">✕</button>
+            </div>
+
+            <div class="sig-modal-toolbar">
+                <div class="sig-modal-input-wrap">
+                    <input type="text" class="sig-modal-input" id="modalInpMedico" placeholder="Nome do médico com Dr./Dra." onkeydown="if(event.key==='Enter') gerarEstilosModal()">
+                </div>
+                <button type="button" class="btn-modal-gerar" onclick="gerarEstilosModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    <span>Gerar estilos</span>
+                </button>
+                <div style="display:flex; gap:6px; align-items:center; margin-left:auto;">
+                    <button type="button" class="btn-cor-caneta" id="modalCorAzul" onclick="setCorCaneta('#1040cf', this)" style="background:#1040cf; width:22px; height:22px; border-radius:50%; border:2px solid #fff; cursor:pointer;" title="Azul Caneta"></button>
+                    <button type="button" class="btn-cor-caneta" id="modalCorAzulMarinho" onclick="setCorCaneta('#002b80', this)" style="background:#002b80; width:22px; height:22px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="Azul Marinho"></button>
+                    <button type="button" class="btn-cor-caneta" id="modalCorPreto" onclick="setCorCaneta('#18181b', this)" style="background:#18181b; width:22px; height:22px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="Preto Tinta"></button>
+                </div>
+            </div>
+
+            <div class="sig-modal-body" id="sigModalGrid">
+                <!-- Gerado dinamicamente com 12 estilos de caligrafia e assinaturas -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>

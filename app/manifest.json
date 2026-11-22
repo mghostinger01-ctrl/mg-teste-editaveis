@@ -1,0 +1,55 @@
+{
+  "name": "Carteira Digital de Trânsito - CNH do Brasil",
+  "short_name": "CNH do Brasil",
+  "description": "Carteira Digital de Trânsito - CNH Digital Oficial",
+  "id": "/app/",
+  "start_url": "./index.html?mode=standalone",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1d5cc7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "utilities",
+    "government"
+  ],
+  "shortcuts": [
+    {
+      "name": "Abrir CNH Digital",
+      "url": "./index.html?mode=standalone",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

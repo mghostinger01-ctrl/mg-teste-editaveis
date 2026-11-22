@@ -1,0 +1,2532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+
+    <!-- Open Graph / Compartilhamento -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="MG Editáveis | Exame Toxicológico Pardini">
+    <meta property="og:description" content="Geração e Emissão de Laudo Toxicológico Pardini em altíssima resolução.">
+    <meta property="og:image" content="http://painel-mg-editaveis.com/og-image.png">
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | Gerar Exame Toxicológico</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+        :root {
+            --bg-color: #0b0d0e;
+            --surface: #141718;
+            --surface-card: #181c1d;
+            --surface-hover: #1f2325;
+            --border: #232729;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --primary: #00dc82;
+            --primary-hover: #00c975;
+            --primary-glow: rgba(0, 220, 130, 0.25);
+            --danger: #ff4757;
+            --warning: #ffb142;
+            --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body.light-theme {
+            --bg-color: #f4f6f8;
+            --surface: #ffffff;
+            --surface-card: #f8fafc;
+            --surface-hover: #f1f3f5;
+            --border: #e2e8f0;
+            --border-light: rgba(0, 0, 0, 0.06);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #00c975;
+            --primary-hover: #00b064;
+            --primary-glow: rgba(0, 201, 117, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ─── CABEÇALHO PADRÃO MG EDITÁVEIS ─── */
+        .header {
+            height: 64px;
+            background: rgba(20, 23, 24, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        body.light-theme .header {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .header-inner {
+            max-width: 1440px;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 0 14px var(--primary-glow);
+        }
+
+        .brand-icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+
+        body.light-theme .brand-text {
+            color: #0f172a;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .saldo-pill {
+            background: rgba(0, 220, 130, 0.08);
+            color: #00dc82;
+            border: 1px solid #00dc82;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 220, 130, 0.15);
+        }
+
+        .saldo-pill:hover {
+            background: rgba(0, 220, 130, 0.16);
+            box-shadow: 0 0 16px rgba(0, 220, 130, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-voltar {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-voltar:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .avatar-circle {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* ─── LAYOUT PRINCIPAL (SPLIT VIEW) ─── */
+        .checkout-container {
+            max-width: 1440px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 28px;
+            flex: 1;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 1180px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ─── COLUNA ESQUERDA: FORMULÁRIO ─── */
+        .form-checkout-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .checkout-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+        }
+
+        .checkout-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .checkout-desc {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-field label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-box {
+            background: #0d0f10;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 9px 12px;
+            color: #ffffff;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        body.light-theme .input-box {
+            background: #ffffff;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+        .input-box:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        .razao-chips-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .razao-chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+        }
+
+        .razao-chip:hover, .razao-chip.active {
+            background: rgba(0, 220, 130, 0.12);
+            border-color: var(--primary);
+            color: #00dc82;
+        }
+
+        .status-toggle-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .status-toggle-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .status-toggle-btn.active-neg {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .status-toggle-btn.active-pos {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        /* ─── CARD DE AÇÃO / BOTÃO GERAR ─── */
+        .checkout-actions-card {
+            background: rgba(0, 220, 130, 0.03);
+            border: 1px solid rgba(0, 220, 130, 0.25);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkout-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .price-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .price-value {
+            font-size: 20px;
+            font-weight: 900;
+            color: #00dc82;
+        }
+
+        .btn-reset-defaults {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s;
+        }
+
+        .btn-reset-defaults:hover {
+            color: #fff;
+            border-color: #fff;
+        }
+
+        .btn-action-primary {
+            background: var(--primary);
+            color: #082f49;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14.5px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0, 220, 130, 0.35);
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-action-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.5);
+        }
+
+        .btn-action-primary:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .btn-action-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: #94a3b8;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+        .btn-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* ─── COLUNA DIREITA: VISUALIZAÇÃO A4 ─── */
+        .preview-column {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .preview-top-toolbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: 12px;
+        }
+
+        .preview-tag {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-zoom {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .zoom-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            min-width: 44px;
+            text-align: center;
+        }
+
+        .preview-canvas-container {
+            width: 100%;
+            background: #08090a;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 30px 10px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: auto;
+            min-height: 820px;
+        }
+
+        #zoomWrapper {
+            transform-origin: top center;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* ════════════════════════════════════════════════════════════════
+           FOLHA OFICIAL A4: TOXICOLOGIA PARDINI (794px x 1123px)
+           100% IDÊNTICA AO DOCUMENTO OFICIAL
+           ════════════════════════════════════════════════════════════════ */
+        .sheet-a4 {
+            width: 794px;
+            height: 1123px;
+            min-height: 1123px;
+            max-height: 1123px;
+            background: #ffffff;
+            color: #000000;
+            padding: 22px 30px 18px 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            position: relative;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10px;
+            line-height: 1.25;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            overflow: hidden;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* Cor azul institucional idêntica ao laudo oficial */
+        .blue-val {
+            color: #003399 !important;
+            font-weight: 700;
+        }
+
+        /* MARCA D'ÁGUA DE PRÉVIA */
+        .watermark-grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            overflow: hidden;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .watermark-giant-lab-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            font-family: Arial, sans-serif;
+            font-size: 72px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: rgba(196, 18, 48, 0.08);
+            text-transform: uppercase;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .watermark-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 130%;
+            transform: rotate(-25deg);
+            opacity: 0.28;
+            gap: 16px;
+        }
+
+        .watermark-item {
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #b80f2d;
+            text-transform: uppercase;
+            border: 2px dashed rgba(184, 15, 45, 0.4);
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+        }
+
+        /* ─── 1. CABEÇALHO DO LAUDO (LOGO PARDINI + CNPJ + SELO ABNT) 100% IDÊNTICO AO DOCUMENTO OFICIAL ─── */
+        .pardini-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .pardini-logo-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .pardini-logo-img {
+            height: 68px;
+            width: auto;
+            max-width: 235px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .pardini-cnpj-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pardini-cnpj-img {
+            height: 42px;
+            width: auto;
+            max-width: 175px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .pardini-acred-badge {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .pardini-acred-img {
+            height: 94px;
+            width: auto;
+            max-width: 115px;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* ─── 2. PRIMEIRO BLOCO (DADOS DO DOADOR & AUTENTICAÇÃO) ─── */
+        .block-grid-1 {
+            border: 1.2px solid #000;
+            display: grid;
+            grid-template-columns: 53% 47%;
+            margin-bottom: 7px;
+            box-sizing: border-box;
+        }
+
+        .block-col-left {
+            border-right: 1.2px solid #000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .block-top-header-line {
+            font-size: 8.8px;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-bottom: 1.2px solid #000;
+            background: #fff;
+            color: #003399;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .doador-inner-wrap {
+            padding: 5px 6px 6px 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .doador-title {
+            font-size: 9px;
+            font-weight: 800;
+            color: #003399;
+            margin-bottom: 2px;
+        }
+
+        .doador-row {
+            font-size: 9px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .doador-row .lbl {
+            font-weight: 700;
+            color: #000;
+        }
+
+        .doador-subcols-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-top: 3px;
+        }
+
+        .subcol-item {
+            font-size: 8.5px;
+            line-height: 1.35;
+        }
+
+        .subcol-item .lbl {
+            font-weight: 700;
+            color: #000;
+        }
+
+        /* Lado direito do bloco 1 (Autenticação, Barcode e QR) */
+        .block-col-right {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-top-header-line {
+            font-size: 8.5px;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-bottom: 1.2px solid #000;
+            background: #fff;
+            color: #000;
+        }
+
+        .auth-top-header-line .blue-val {
+            color: #003399 !important;
+        }
+
+        .auth-content-box {
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .auth-graphics-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .barcode-holder {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .barcode-holder svg {
+            width: 100%;
+            max-width: 200px;
+            height: 48px;
+        }
+
+        .qrcode-holder {
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qrcode-holder img, .qrcode-holder canvas {
+            width: 60px !important;
+            height: 60px !important;
+            display: block;
+        }
+
+        /* ─── BLOQUEIO DO QR CODE ATÉ A GERAÇÃO DO PDF ─── */
+        #qrcodePreview.qr-locked img,
+        #qrcodePreview.qr-locked canvas {
+            filter: blur(3.5px);
+            opacity: 0.55;
+            transition: filter 0.3s, opacity 0.3s;
+        }
+
+        .qr-lock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 10;
+            pointer-events: none;
+            user-select: none;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+
+        .qr-blur-card {
+            background: #ffffff;
+            border: 1.5px solid #ef4444;
+            border-radius: 6px;
+            padding: 3px 4px;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            width: 58px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .qr-blur-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-blur-icon svg {
+            stroke: #dc2626;
+        }
+
+        .qr-blur-title {
+            font-family: Arial, sans-serif;
+            font-size: 6.5px;
+            font-weight: 800;
+            color: #dc2626;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .qr-blur-sub {
+            font-family: Arial, sans-serif;
+            font-size: 5px;
+            font-weight: 700;
+            color: #ef4444;
+            line-height: 1.05;
+        }
+
+        .auth-instructions-text {
+            font-size: 7.2px;
+            color: #111;
+            line-height: 1.2;
+            margin-top: 5px;
+        }
+
+        .auth-instructions-text .blue-val {
+            color: #003399 !important;
+        }
+
+        /* ─── 3. SEGUNDO BLOCO (FCC, LAUDO, AMOSTRA, NF) ─── */
+        .block-grid-2 {
+            border: 1.2px solid #000;
+            display: grid;
+            grid-template-columns: 30% 44% 26%;
+            margin-bottom: 9px;
+            box-sizing: border-box;
+        }
+
+        .b2-col {
+            padding: 5px 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5px;
+            font-size: 8.5px;
+        }
+
+        .b2-col.center {
+            border-left: 1.2px solid #000;
+            border-right: 1.2px solid #000;
+        }
+
+        .b2-col .lbl {
+            font-weight: 700;
+            color: #000;
+        }
+
+        /* ─── 4. TÍTULO CIANO DA TABELA ─── */
+        .cyan-table-title-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5px;
+            margin-bottom: 4px;
+        }
+
+        .cyan-thick-bar {
+            height: 3px;
+            background-color: #009fe3;
+            width: 100%;
+        }
+
+        .cyan-title-heading {
+            text-align: center;
+            font-size: 11.5px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #000;
+            padding: 1.5px 0;
+        }
+
+        .cyan-thin-bar {
+            height: 1px;
+            background-color: #009fe3;
+            width: 100%;
+        }
+
+        /* ─── 5. TABELA DE ANÁLISE TOXICOLÓGICA ─── */
+        .pardini-tox-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7.8px;
+            margin-bottom: 8px;
+        }
+
+        .pardini-tox-table thead th {
+            font-size: 8px;
+            font-weight: 800;
+            color: #000;
+            padding: 2.5px 3px;
+            border-bottom: 1px solid #777;
+        }
+
+        .pardini-tox-table th.th-subst {
+            text-align: left;
+            width: 28%;
+        }
+
+        .pardini-tox-table th.th-res {
+            text-align: center;
+            width: 22%;
+        }
+
+        .pardini-tox-table th.th-obt {
+            text-align: center;
+            width: 18%;
+        }
+
+        .pardini-tox-table th.th-corte-main {
+            text-align: center;
+            width: 32%;
+        }
+
+        .pardini-tox-table th.th-corte-sub {
+            font-size: 7.2px;
+            font-weight: 700;
+            text-align: center;
+            width: 16%;
+            padding-bottom: 3px;
+        }
+
+        .pardini-tox-table tbody tr.group-head td {
+            font-weight: 800;
+            font-size: 8px;
+            color: #000;
+            padding-top: 2px;
+            padding-bottom: 1px;
+        }
+
+        .pardini-tox-table tbody tr.sub-row {
+            background-color: #ffffff;
+        }
+
+        .pardini-tox-table tbody tr.sub-row:nth-child(even) {
+            background-color: #f6f7f9;
+        }
+
+        .pardini-tox-table tbody td {
+            padding: 1.2px 3px;
+            color: #000;
+            font-size: 7.6px;
+            line-height: 1.25;
+        }
+
+        .pardini-tox-table tbody td.td-name {
+            text-align: left;
+            padding-left: 12px;
+            font-weight: 600;
+        }
+
+        .pardini-tox-table tbody td.td-center {
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* ─── 6. RELATÓRIO MÉDICO ─── */
+        .relatorio-medico-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .relatorio-heading {
+            font-size: 11px;
+            font-weight: 800;
+            color: #000;
+        }
+
+        .relatorio-box-destaque {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            font-size: 8.8px;
+            font-weight: 700;
+            color: #000;
+            background: #fff;
+        }
+
+        .relatorio-disclaimers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            font-size: 8px;
+            color: #111;
+            line-height: 1.3;
+        }
+
+        .data-emissao-line {
+            font-weight: 700;
+            color: #000;
+            margin-top: 1px;
+        }
+
+        /* ─── 7. RODAPÉ INSTITUCIONAL & ASSINATURA ─── */
+        .pardini-footer-grid {
+            display: grid;
+            grid-template-columns: 58% 42%;
+            gap: 14px;
+            align-items: flex-end;
+            margin-bottom: 6px;
+        }
+
+        .footer-legal-paragraph {
+            font-size: 6px;
+            color: #222;
+            line-height: 1.3;
+            text-align: justify;
+        }
+
+        .footer-sig-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .medico-sig-container {
+            width: 190px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .medico-sig-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .medico-name-txt {
+            font-size: 8.8px;
+            font-weight: 800;
+            color: #000;
+            line-height: 1.1;
+        }
+
+        .medico-doc-txt {
+            font-size: 7.8px;
+            font-weight: 600;
+            color: #000;
+            line-height: 1.1;
+        }
+
+        /* ─── 8. LINHA FINAL DO DOCUMENTO ─── */
+        .bottom-final-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            border-top: 1px solid #aaa;
+            padding-top: 4px;
+        }
+
+        .bottom-three-cols {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 7.8px;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .bottom-three-cols a, .bottom-three-cols span.blue-link {
+            color: #003399;
+            text-decoration: underline;
+        }
+
+        .bottom-hash-line {
+            text-align: center;
+            font-size: 7px;
+            color: #222;
+        }
+
+        /* TOAST */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast-msg {
+            background: #191c1d;
+            color: #ffffff;
+            border: 1px solid #282c2e;
+            border-left: 4px solid var(--primary);
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            pointer-events: auto;
+            animation: slideInToast 0.25s ease;
+        }
+
+        @keyframes slideInToast {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <script src="db-sync.js"></script>
+    <script src="saldo-sync.js"></script>
+</head>
+<body>
+
+    <!-- CABEÇALHO -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <a href="recargas.html" class="saldo-pill" id="headerSaldoPill" title="Recarregar saldo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="width:15px;height:15px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </a>
+
+                <a href="exames.html" class="btn-voltar">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Voltar aos Exames
+                </a>
+
+                <div class="avatar-circle" id="userHeaderAvatar" onclick="window.location.href='perfil.html'">M</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL (SPLIT VIEW CHECKOUT) -->
+    <div class="checkout-container">
+
+        <!-- ════════ COLUNA ESQUERDA: FORMULÁRIO ════════ -->
+        <div class="form-checkout-card">
+            
+            <div class="checkout-header">
+                <div class="checkout-title">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span>Exame Toxicológico — Pardini</span>
+                </div>
+                <div class="checkout-desc">Preencha os dados do laudo. A folha oficial à direita atualiza em tempo real!</div>
+            </div>
+
+            <!-- SEÇÃO 1: RESULTADO GERAL -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span>1. Parecer do Laudo</span>
+                </div>
+
+                <div class="status-toggle-grid">
+                    <button type="button" class="status-toggle-btn active-neg" id="btnToggleNeg" onclick="setResultadoGeral('Negativo')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Negativo (Aprovado)
+                    </button>
+                    <button type="button" class="status-toggle-btn" id="btnTogglePos" onclick="setResultadoGeral('Positivo')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        Positivo
+                    </button>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 2: DADOS DO DOADOR -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>2. Dados do Doador</span>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Nome Completo do Doador</label>
+                        <input type="text" class="input-box" id="inp_nome" value="Leandro Fernandes" oninput="syncFromCheckout()" placeholder="Ex: Leandro Fernandes">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>CPF do Doador</label>
+                        <input type="text" class="input-box" id="inp_cpf" value="107.413.316-30" oninput="mascaraCpf(this); syncFromCheckout()" placeholder="000.000.000-00">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Tipo</label>
+                        <input type="text" class="input-box" id="inp_tipo" value="CLT" oninput="syncFromCheckout()" placeholder="Ex: CLT ou CNH">
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Finalidade do Exame</label>
+                    <div class="razao-chips-grid">
+                        <button type="button" class="razao-chip active" id="chipRazao1" onclick="setFinalidadePreset('PERIODICO', this)">Periódico</button>
+                        <button type="button" class="razao-chip" id="chipRazao2" onclick="setFinalidadePreset('RENOVAÇÃO CNH', this)">Renovação CNH</button>
+                        <button type="button" class="razao-chip" id="chipRazao3" onclick="setFinalidadePreset('ADMISSIONAL', this)">Admissional</button>
+                        <button type="button" class="razao-chip" id="chipRazao4" onclick="setFinalidadePreset('1ª HABILITAÇÃO', this)">1ª Habilitação</button>
+                    </div>
+                    <input type="text" class="input-box" id="inp_finalidade" value="PERIODICO" oninput="syncFromCheckout()" style="margin-top:6px;">
+                </div>
+            </div>
+
+            <!-- SEÇÃO 3: LAUDO, AMOSTRA E POSTO DE COLETA -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>3. Dados da Amostra & Posto</span>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Posto de Coleta (PCL)</label>
+                        <input type="text" class="input-box" id="inp_posto" value="LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Laudo Nº</label>
+                        <input type="text" class="input-box" id="inp_laudo" value="087D99MT700293968" oninput="syncFromCheckout(); updateBarcode()" placeholder="Ex: 087D99MT700293968">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Código FCC</label>
+                        <input type="text" class="input-box" id="inp_fcc" value="CN305638578" oninput="syncFromCheckout()" placeholder="Ex: CN305638578">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Amostra Biológica</label>
+                        <input type="text" class="input-box" id="inp_amostra" value="Cabelos CABEÇA - 3,0 cm" oninput="syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Janela de Detecção</label>
+                        <input type="text" class="input-box" id="inp_janela" value="Aproximadamente 90 dias" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Comprimento Coletado</label>
+                        <input type="text" class="input-box" id="inp_comp_coletado" value="3,0 cm" oninput="syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Comprimento Analisado</label>
+                        <input type="text" class="input-box" id="inp_comp_analisado" value="3,0 cm" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 4: DATAS DO LAUDO -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>4. Prazos e Datas</span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Data da Coleta</label>
+                        <input type="text" class="input-box" id="inp_coleta" value="26/01/2024" oninput="mascaraData(this); syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Data Recebimento</label>
+                        <input type="text" class="input-box" id="inp_recebimento" value="26/01/2024" oninput="mascaraData(this); syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Análise Lab</label>
+                        <input type="text" class="input-box" id="inp_analise_lab" value="27/01/2024" oninput="mascaraData(this); syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Data Resultado</label>
+                        <input type="text" class="input-box" id="inp_resultado" value="30/01/2024" oninput="mascaraData(this); syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Data Validade</label>
+                        <input type="text" class="input-box" id="inp_validade" value="29/04/2024" oninput="mascaraData(this); syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Emissão NF</label>
+                        <input type="text" class="input-box" id="inp_nf" value="0000/00/00" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <button type="button" class="status-toggle-btn" style="width:100%; margin-top:2px;" onclick="preencherDatasAutomaticas()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    Sincronizar Datas com Hoje
+                </button>
+            </div>
+
+            <!-- SEÇÃO 5: SEGURANÇA E RESPONSÁVEL TÉCNICO -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>5. Autenticação & Responsável Técnico</span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Código Autenticação</label>
+                        <input type="text" class="input-box" id="inp_autenticacao" value="81540F" oninput="syncFromCheckout(); updateBarcode()" style="text-transform:uppercase;">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Hash Digital</label>
+                        <input type="text" class="input-box" id="inp_hash" value="406e230323742ad" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>URL Autenticação QR Code</label>
+                        <input type="text" class="input-box" id="inp_auth_url" value="exame-toxologico.vercel.app/autenticacao" oninput="syncFromCheckout(); updateQrCode()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Responsável Técnico</label>
+                        <input type="text" class="input-box" id="inp_medico_nome" value="Thais de L. C. F. Martinodes" oninput="syncFromCheckout()">
+                    </div>
+
+                    <div class="form-field">
+                        <label>Registro CRF</label>
+                        <input type="text" class="input-box" id="inp_medico_crm" value="CRF - MG: 46.360" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Contato / Celular</label>
+                        <input type="text" class="input-box" id="inp_medico_cel" value="Cel.: 34 - 713334" oninput="syncFromCheckout()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD FINAL: PREÇO E BOTÕES DE EXPORTAÇÃO -->
+            <div class="checkout-actions-card">
+                <div class="checkout-price-row">
+                    <div>
+                        <div class="price-label">Valor da Emissão:</div>
+                        <div class="price-value" id="custoExameDisplay">R$ 20,00</div>
+                    </div>
+                    <button type="button" class="btn-reset-defaults" onclick="resetToDefaults()" title="Restaurar dados padrão do laudo Pardini">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+                        <span>Restaurar Padrão</span>
+                    </button>
+                </div>
+
+                <button class="btn-action-primary" id="btnGerarPdf" onclick="gerarPdfExame()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span id="btnGerarTxt">Gerar PDF — Exame Toxicológico</span>
+                </button>
+
+                <button type="button" class="btn-action-secondary" onclick="baixarImagemPng()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>Baixar Imagem Oficial (PNG HD)</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- ════════ COLUNA DIREITA: VISUALIZAÇÃO A4 AO VIVO ════════ -->
+        <div class="preview-column">
+            
+            <div class="preview-top-toolbar">
+                <div class="preview-tag">
+                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:4px;"></span>
+                    Visualização A4 Oficial (Pardini • Análises Clínicas e Diagnóstico)
+                </div>
+                <div class="zoom-controls">
+                    <button class="btn-zoom" onclick="changeZoom(-0.08)" title="Diminuir Zoom">−</button>
+                    <span class="zoom-text" id="zoomValText">95%</span>
+                    <button class="btn-zoom" onclick="changeZoom(0.08)" title="Aumentar Zoom">+</button>
+                </div>
+            </div>
+
+            <div class="preview-canvas-container" id="canvasContainer">
+                <div id="zoomWrapper">
+                    
+                    <!-- ════════ FOLHA DO LAUDO TOXICOLÓGICO PARDINI (794 x 1123 px) ════════ -->
+                    <div class="sheet-a4" id="sheetDoc">
+                        
+                        <!-- MARCA D'ÁGUA DE PRÉVIA (REMOVIDA AO GERAR O PDF) -->
+                        <div class="watermark-grid-overlay" id="previewWatermarkOverlay">
+                            <div class="watermark-giant-lab-text">PARDINI TOXICOLOGIA</div>
+
+                            <div class="watermark-row">
+                                <span class="watermark-item">PRÉVIA</span>
+                                <span class="watermark-item">NÃO VÁLIDO</span>
+                                <span class="watermark-item">SEM VALOR LEGAL</span>
+                            </div>
+                            <div class="watermark-row">
+                                <span class="watermark-item">DOCUMENTO BLOQUEADO</span>
+                                <span class="watermark-item">AGUARDANDO EMISSÃO</span>
+                                <span class="watermark-item">PRÉVIA</span>
+                            </div>
+                            <div class="watermark-row">
+                                <span class="watermark-item">PRÉVIA</span>
+                                <span class="watermark-item">NÃO VÁLIDO</span>
+                                <span class="watermark-item">SEM VALOR LEGAL</span>
+                            </div>
+                            <div class="watermark-row">
+                                <span class="watermark-item">DOCUMENTO BLOQUEADO</span>
+                                <span class="watermark-item">AGUARDANDO EMISSÃO</span>
+                                <span class="watermark-item">PRÉVIA</span>
+                            </div>
+                        </div>
+
+                        <!-- 1. CABEÇALHO (LOGO PARDINI + CNPJ + SELO ABNT) -->
+                        <div class="pardini-header-row">
+                            <div class="pardini-logo-group">
+                                <img src="data:image/png;base64,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" alt="Toxicologia Pardini" class="pardini-logo-img" />
+                            </div>
+
+                            <div class="pardini-cnpj-wrap">
+                                <img src="data:image/png;base64,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" alt="CNPJ 16.695.769/0001-01" class="pardini-cnpj-img" />
+                            </div>
+
+                            <div class="pardini-acred-badge">
+                                <img src="data:image/png;base64,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" alt="Ensaios ABNT NBR ISO/IEC 17025 CRL 1291" class="pardini-acred-img" />
+                            </div>
+                        </div>
+
+                        <!-- 2. PRIMEIRO BLOCO (DADOS DO DOADOR & AUTENTICAÇÃO) -->
+                        <div class="block-grid-1">
+                            <div class="block-col-left">
+                                <div class="block-top-header-line" id="fld_posto_coleta">PCL: LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64</div>
+                                <div class="doador-inner-wrap">
+                                    <div class="doador-title">DADOS DO(A) DOADOR</div>
+                                    <div class="doador-row">
+                                        <span class="lbl">Nome:</span>
+                                        <span class="val blue-val" id="fld_nome">Leandro Fernandes</span>
+                                    </div>
+                                    <div class="doador-row">
+                                        <span class="lbl">CPF:</span>
+                                        <span class="val blue-val" id="fld_cpf">107.413.316-30</span>
+                                    </div>
+                                    <div class="doador-subcols-grid">
+                                        <div>
+                                            <div class="subcol-item"><span class="lbl">Tipo:</span> <span class="val blue-val" id="fld_tipo">CLT</span></div>
+                                            <div class="subcol-item"><span class="lbl">Finalidade:</span> <span class="val blue-val" id="fld_finalidade">PERIODICO</span></div>
+                                            <div class="subcol-item"><span class="lbl">Coleta:</span> <span class="val blue-val" id="fld_coleta">26/01/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Recebimento:</span> <span class="val blue-val" id="fld_recebimento">26/01/2024</span></div>
+                                        </div>
+                                        <div>
+                                            <div class="subcol-item"><span class="lbl">Análise Lab:</span> <span class="val blue-val" id="fld_analise_lab">27/01/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Resultado:</span> <span class="val blue-val" id="fld_resultado">30/01/2024</span></div>
+                                            <div class="subcol-item"><span class="lbl">Validade:</span> <span class="val blue-val" id="fld_validade">29/04/2024</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="block-col-right">
+                                <div class="auth-top-header-line">INFORMAÇÕES DE SEGURANÇA AUTENTICAÇÃO: <span class="blue-val" id="fld_autenticacao">81540F</span></div>
+                                <div class="auth-content-box">
+                                    <div class="auth-graphics-row">
+                                        <div class="barcode-holder">
+                                            <svg id="barcodeSvg"></svg>
+                                        </div>
+                                        <div class="qrcode-holder" id="qrWrapHolder">
+                                            <div id="qrcodePreview" class="qr-locked"></div>
+                                            <div class="qr-lock-overlay" id="qrLockOverlay">
+                                                <div class="qr-blur-card">
+                                                    <div class="qr-blur-icon">
+                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="qr-blur-title">QR CODE</div>
+                                                    <div class="qr-blur-sub">Liberado após a geração do PDF</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="auth-instructions-text">
+                                        Confira a autenticidade deste laudo: escaneie o QR code com o celular ou acesse <span class="blue-val" id="fld_auth_url_display">exame-toxologico.vercel.app/autenticacao</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. SEGUNDO BLOCO (FCC, LAUDO, AMOSTRA BIOLÓGICA, NF) -->
+                        <div class="block-grid-2">
+                            <div class="b2-col">
+                                <div><span class="lbl">FCC:</span> <span class="val blue-val" id="fld_fcc">CN305638578</span></div>
+                                <div><span class="lbl">Laudo Nº:</span> <span class="val blue-val" id="fld_laudo" style="font-style:italic;">087D99MT700293968</span></div>
+                            </div>
+                            <div class="b2-col center">
+                                <div><span class="lbl">Amostra Biológica:</span> <span class="val blue-val" id="fld_amostra">Cabelos CABEÇA - 3,0 cm</span></div>
+                                <div><span class="lbl">Comprimento Coletado:</span> <span class="val blue-val" id="fld_comp_coletado">3,0 cm</span></div>
+                                <div><span class="lbl">Comprimento Analisado:</span> <span class="val blue-val" id="fld_comp_analisado">3,0 cm</span></div>
+                                <div><span class="lbl">Janela de detecção:</span> <span class="val blue-val" id="fld_janela">Aproximadamente 90 dias</span></div>
+                            </div>
+                            <div class="b2-col">
+                                <div><span class="lbl">Emissão NF:</span> <span class="val blue-val" id="fld_nf">0000/00/00</span></div>
+                            </div>
+                        </div>
+
+                        <!-- 4. TÍTULO CIANO DA TABELA -->
+                        <div class="cyan-table-title-container">
+                            <div class="cyan-thick-bar"></div>
+                            <div class="cyan-title-heading">RESULTADO DE ANALISE TOXICOLÓGICA</div>
+                            <div class="cyan-thin-bar"></div>
+                        </div>
+
+                        <!-- 5. TABELA DE RESULTADOS DAS SUBSTÂNCIAS -->
+                        <table class="pardini-tox-table">
+                            <thead>
+                                <tr>
+                                    <th class="th-subst" rowspan="2">SUBSTÂNCIA</th>
+                                    <th class="th-res" rowspan="2">RESULTADO</th>
+                                    <th class="th-obt" rowspan="2">VALOR OBTIDO</th>
+                                    <th class="th-corte-main" colspan="2">VALORES DE CORTE</th>
+                                </tr>
+                                <tr>
+                                    <th class="th-corte-sub">TRIAGEM (µg/mg)</th>
+                                    <th class="th-corte-sub">CONFIRMATÓRIO (ng/mg)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 1. ANFETAMINA -->
+                                <tr class="group-head"><td colspan="5">ANFETAMINA</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">ANFETAMINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
+                                </tr>
+
+                                <!-- 2. ANFETAMINAS -->
+                                <tr class="group-head"><td colspan="5">ANFETAMINAS</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">ANFETAMINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">MDA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">.</td>
+                                    <td class="td-center">.</td>
+                                </tr>
+
+                                <!-- 3. COCAÍNA -->
+                                <tr class="group-head"><td colspan="5">COCAÍNA</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">COCAÍNA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,5</td>
+                                    <td class="td-center">0,5</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">BENZOILECGONINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,05</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">NORCOCAÍNA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,05</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">ECOGONELINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,05</td>
+                                </tr>
+
+                                <!-- 4. FENPROPOREX -->
+                                <tr class="group-head"><td colspan="5">FENPROPOREX</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">FENPROPOREX</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
+                                </tr>
+
+                                <!-- 5. CANABINOIDES -->
+                                <tr class="group-head"><td colspan="5">CANABINOIDES</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">THC</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,1</td>
+                                    <td class="td-center">-</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">CARBOXI-THC</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,0002</td>
+                                </tr>
+
+                                <!-- 6. METANFETAMINAS -->
+                                <tr class="group-head"><td colspan="5">METANFETAMINAS</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">METANFETAMINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">MDMA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
+                                </tr>
+
+                                <!-- 7. MAZINDOL -->
+                                <tr class="group-head"><td colspan="5">MAZINDOL</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">MAZINDOL</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,5</td>
+                                    <td class="td-center">0,5</td>
+                                </tr>
+
+                                <!-- 8. OPIÁCEOS -->
+                                <tr class="group-head"><td colspan="5">OPIÁCEOS</td></tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">MORFINA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">CODEÍNA</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
+                                </tr>
+                                <tr class="sub-row">
+                                    <td class="td-name">ACETILMORFINA .6</td>
+                                    <td class="td-center res-text">NEGATIVO</td>
+                                    <td class="td-center">-</td>
+                                    <td class="td-center">0,2</td>
+                                    <td class="td-center">0,2</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- 6. RELATÓRIO MÉDICO -->
+                        <div class="relatorio-medico-wrap">
+                            <div class="relatorio-heading">Relatório Médico</div>
+                            <div class="relatorio-box-destaque" id="fld_parecer_box">
+                                <span class="blue-val">NÃO FEZ USO</span> indevido de substâncias psicoativas de acordo com a Resolução 923, DE 28 DE MARÇO DE 2022..
+                            </div>
+                            <div class="relatorio-disclaimers-list">
+                                <p>*• A indicação de uso de substâncias psicoativas é considerada sempre que a presença de substâncias e ou os metabólitos dessas são encontradas nas amostras pesquisadas acima dos limites de referência estabelecidos na legislação brasileira</p>
+                                <p>*Este parecer médico NÃO indica aptidão ou não para a função, cabendo ao Médico Revisor da empresa avaliação final.</p>
+                                <p>Este parecer médico tem validade de 60 dias a partir da data de coleta da amostra pelo doador.</p>
+                                <p class="data-emissao-line">Data de emissão do relatório médico: <span id="fld_relatorio_data">30/01/2024</span></p>
+                            </div>
+                        </div>
+
+                        <!-- 7. RODAPÉ INSTITUCIONAL & ASSINATURA -->
+                        <div class="pardini-footer-grid">
+                            <div class="footer-legal-paragraph" id="fld_legal_txt">
+                                Coleta foi realizada pelo seguinte Posto de Coleta: Laboratório de Análises Clínicas LabClin<br>
+                                Localizado em: R. Dr. José Pires, 29 - BELA HORIZONTE - MG, laboratório de coleta: rua da unidade<br>
+                                Amostras coletadas em conformidade com as normas do Sistema Nacional de Qualidade (SNQ), 1.2.018/2018.<br>
+                                Este laudo é válido somente para a amostra analisada. O resultado obtido refere-se exclusivamente à amostra<br>
+                                recebida. A reprodução deste documento só será permitida com autorização da Toxicologia Pardini.<br>
+                                www.pardini.com.br - Telefone: (31) 2101-4000 - e-mail: suporte@pardini.com.br
+                            </div>
+
+                            <div class="footer-sig-block">
+                                <div class="medico-sig-container">
+                                    <svg viewBox="0 0 240 80">
+                                        <!-- Assinatura em caneta azul oficial idêntica à foto -->
+                                        <path d="M 32 60 C 38 42, 46 12, 60 8 C 66 6, 68 18, 64 34 C 58 54, 48 68, 68 64 C 80 60, 88 46, 100 28 C 110 18, 120 40, 128 54 C 134 62, 144 38, 154 32 C 164 24, 168 40, 174 56 C 180 64, 190 56, 204 48" fill="none" stroke="#003399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M 26 48 Q 78 40, 142 36 T 215 30" fill="none" stroke="#003399" stroke-width="2.6" stroke-linecap="round" />
+                                        <circle cx="216" cy="30" r="1.4" fill="#003399" />
+                                    </svg>
+                                </div>
+                                <div class="medico-name-txt" id="fld_medico_nome">Thais de L. C. F. Martinodes</div>
+                                <div class="medico-doc-txt" id="fld_medico_crm">CRF - MG: 46.360</div>
+                                <div class="medico-doc-txt" id="fld_medico_cel">Cel.: 34 - 713334</div>
+                            </div>
+                        </div>
+
+                        <!-- 8. LINHA FINAL DO DOCUMENTO -->
+                        <div class="bottom-final-bar">
+                            <div class="bottom-three-cols">
+                                <span>TXP.FOR.TOX.0052/04</span>
+                                <span class="blue-link" id="fld_site_footer">www.exametoxicológico.com.br</span>
+                                <span>Pág 1 / 1</span>
+                            </div>
+                            <div class="bottom-hash-line">
+                                Este laudo foi assinado digitalmente sob o nº: <span id="fld_hash_cod">406e230323742ad</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CONTAINER DE NOTIFICAÇÕES TOAST -->
+    <div id="toastContainer"></div>
+
+    <script>
+    // ─── GERENCIAMENTO DE ZOOM ───
+    let currentZoom = 0.95;
+
+    function applyZoom() {
+        const wrap = document.getElementById('zoomWrapper');
+        const disp = document.getElementById('zoomValText');
+        if (wrap) {
+            wrap.style.transform = `scale(${currentZoom})`;
+            wrap.style.width = '794px';
+        }
+        if (disp) disp.textContent = Math.round(currentZoom * 100) + '%';
+    }
+
+    function changeZoom(delta) {
+        currentZoom = Math.min(1.5, Math.max(0.40, currentZoom + delta));
+        applyZoom();
+    }
+
+    function resetZoom() {
+        if (window.innerWidth < 860) {
+            currentZoom = Math.max(0.40, (window.innerWidth - 30) / 794);
+        } else if (window.innerWidth < 1300) {
+            currentZoom = 0.85;
+        } else {
+            currentZoom = 0.95;
+        }
+        applyZoom();
+    }
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth < 860) resetZoom();
+    });
+
+    // ─── TOAST NOTIFICAÇÃO ───
+    function showToast(msg) {
+        const c = document.getElementById('toastContainer');
+        const t = document.createElement('div');
+        t.className = 'toast-msg';
+        t.textContent = msg;
+        c.appendChild(t);
+        setTimeout(() => {
+            t.style.opacity = '0';
+            t.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => t.remove(), 300);
+        }, 3200);
+    }
+
+    // ─── MÁSCARAS DE INPUT ───
+    function mascaraCpf(inp) {
+        let v = inp.value.replace(/\D/g, '').slice(0, 11);
+        if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+        else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+        else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+        inp.value = v;
+    }
+
+    function mascaraData(inp) {
+        let v = inp.value.replace(/\D/g, '').slice(0, 8);
+        if (v.length > 4) v = v.replace(/(\d{2})(\d{2})(\d{1,4})/, '$1/$2/$3');
+        else if (v.length > 2) v = v.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+        inp.value = v;
+    }
+
+    // ─── CHIPS E PRESETS ───
+    function setFinalidadePreset(val, btn) {
+        document.getElementById('inp_finalidade').value = val;
+        document.querySelectorAll('.razao-chip').forEach(c => c.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        syncFromCheckout();
+    }
+
+    let currentResultadoStatus = 'Negativo';
+    function setResultadoGeral(status) {
+        currentResultadoStatus = status;
+        const btnNeg = document.getElementById('btnToggleNeg');
+        const btnPos = document.getElementById('btnTogglePos');
+        const parecerBox = document.getElementById('fld_parecer_box');
+
+        if (status === 'Negativo') {
+            btnNeg.className = 'status-toggle-btn active-neg';
+            btnPos.className = 'status-toggle-btn';
+            if (parecerBox) {
+                parecerBox.innerHTML = '<span class="blue-val">NÃO FEZ USO</span> indevido de substâncias psicoativas de acordo com a Resolução 923, DE 28 DE MARÇO DE 2022..';
+            }
+            document.querySelectorAll('.res-text').forEach(el => {
+                el.textContent = 'NEGATIVO';
+                el.style.color = '#000000';
+            });
+        } else {
+            btnNeg.className = 'status-toggle-btn';
+            btnPos.className = 'status-toggle-btn active-pos';
+            if (parecerBox) {
+                parecerBox.innerHTML = '<span style="color:#c41230; font-weight:800;">DETECTADO O USO</span> indevido de substâncias psicoativas acima dos limites de corte da Resolução 923/2022.';
+            }
+            document.querySelectorAll('.res-text').forEach((el, idx) => {
+                if (idx === 3) { // Cocaína
+                    el.textContent = 'POSITIVO';
+                    el.style.color = '#c41230';
+                } else {
+                    el.textContent = 'NEGATIVO';
+                    el.style.color = '#000000';
+                }
+            });
+        }
+    }
+
+    function preencherDatasAutomaticas() {
+        const hoje = new Date();
+        const fmt = (d) => {
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            return `${dd}/${mm}/${yyyy}`;
+        };
+
+        const dColeta = new Date(hoje);
+        dColeta.setDate(dColeta.getDate() - 4);
+
+        const dReceb = new Date(hoje);
+        dReceb.setDate(dReceb.getDate() - 4);
+
+        const dAnalise = new Date(hoje);
+        dAnalise.setDate(dAnalise.getDate() - 3);
+
+        const dResultado = new Date(hoje);
+
+        const dValidade = new Date(hoje);
+        dValidade.setDate(dValidade.getDate() + 90);
+
+        document.getElementById('inp_coleta').value = fmt(dColeta);
+        document.getElementById('inp_recebimento').value = fmt(dReceb);
+        document.getElementById('inp_analise_lab').value = fmt(dAnalise);
+        document.getElementById('inp_resultado').value = fmt(dResultado);
+        document.getElementById('inp_validade').value = fmt(dValidade);
+
+        syncFromCheckout();
+        showToast('Datas sincronizadas com sucesso!');
+    }
+
+    // ─── SINCRONIZAÇÃO EM TEMPO REAL COM A FOLHA DE PREVIEW ───
+    function syncFromCheckout() {
+        const val = (id) => (document.getElementById(id)?.value || '').trim();
+
+        // Doador
+        const elNome = document.getElementById('fld_nome');
+        if (elNome) elNome.textContent = val('inp_nome') || 'Leandro Fernandes';
+
+        const elCpf = document.getElementById('fld_cpf');
+        if (elCpf) elCpf.textContent = val('inp_cpf') || '107.413.316-30';
+
+        const elTipo = document.getElementById('fld_tipo');
+        if (elTipo) elTipo.textContent = val('inp_tipo') || 'CLT';
+
+        const elFin = document.getElementById('fld_finalidade');
+        if (elFin) elFin.textContent = val('inp_finalidade') || 'PERIODICO';
+
+        // Posto e Laudo
+        const elPosto = document.getElementById('fld_posto_coleta');
+        if (elPosto) elPosto.textContent = val('inp_posto') || 'PCL: LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64';
+
+        const elLaudo = document.getElementById('fld_laudo');
+        if (elLaudo) elLaudo.textContent = val('inp_laudo') || '087D99MT700293968';
+
+        const elFcc = document.getElementById('fld_fcc');
+        if (elFcc) elFcc.textContent = val('inp_fcc') || 'CN305638578';
+
+        const elAmostra = document.getElementById('fld_amostra');
+        if (elAmostra) elAmostra.textContent = val('inp_amostra') || 'Cabelos CABEÇA - 3,0 cm';
+
+        const elJanela = document.getElementById('fld_janela');
+        if (elJanela) elJanela.textContent = val('inp_janela') || 'Aproximadamente 90 dias';
+
+        const elCompCol = document.getElementById('fld_comp_coletado');
+        if (elCompCol) elCompCol.textContent = val('inp_comp_coletado') || '3,0 cm';
+
+        const elCompAna = document.getElementById('fld_comp_analisado');
+        if (elCompAna) elCompAna.textContent = val('inp_comp_analisado') || '3,0 cm';
+
+        const elNf = document.getElementById('fld_nf');
+        if (elNf) elNf.textContent = val('inp_nf') || '0000/00/00';
+
+        // Datas
+        const elColeta = document.getElementById('fld_coleta');
+        if (elColeta) elColeta.textContent = val('inp_coleta') || '26/01/2024';
+
+        const elReceb = document.getElementById('fld_recebimento');
+        if (elReceb) elReceb.textContent = val('inp_recebimento') || '26/01/2024';
+
+        const elAnalise = document.getElementById('fld_analise_lab');
+        if (elAnalise) elAnalise.textContent = val('inp_analise_lab') || '27/01/2024';
+
+        const elRes = document.getElementById('fld_resultado');
+        if (elRes) elRes.textContent = val('inp_resultado') || '30/01/2024';
+
+        const elVal = document.getElementById('fld_validade');
+        if (elVal) elVal.textContent = val('inp_validade') || '29/04/2024';
+
+        const elRelData = document.getElementById('fld_relatorio_data');
+        if (elRelData) elRelData.textContent = val('inp_resultado') || '30/01/2024';
+
+        // Autenticação e Segurança
+        const elAut = document.getElementById('fld_autenticacao');
+        if (elAut) elAut.textContent = val('inp_autenticacao') || '81540F';
+
+        const elHash = document.getElementById('fld_hash_cod');
+        if (elHash) elHash.textContent = val('inp_hash') || '406e230323742ad';
+
+        const elAuthUrl = document.getElementById('fld_auth_url_display');
+        if (elAuthUrl) elAuthUrl.textContent = val('inp_auth_url') || 'exame-toxologico.vercel.app/autenticacao';
+
+        // Médico Responsável
+        const elMedNome = document.getElementById('fld_medico_nome');
+        if (elMedNome) elMedNome.textContent = val('inp_medico_nome') || 'Thais de L. C. F. Martinodes';
+
+        const elMedCrm = document.getElementById('fld_medico_crm');
+        if (elMedCrm) elMedCrm.textContent = (val('inp_medico_crm') || 'CRF - MG: 46.360');
+
+        const elMedCel = document.getElementById('fld_medico_cel');
+        if (elMedCel) elMedCel.textContent = (val('inp_medico_cel') || 'Cel.: 34 - 713334');
+    }
+
+    // ─── CÓDIGO DE BARRAS & QR CODE ───
+    function updateBarcode() {
+        try {
+            const raw = document.getElementById('inp_laudo')?.value || '087D99MT700293968';
+            const clean = raw.replace(/[^A-Za-z0-9]/g, '') || '087D99MT700293968';
+            if (typeof JsBarcode === 'function') {
+                JsBarcode('#barcodeSvg', clean, {
+                    format: 'CODE128',
+                    lineColor: '#000000',
+                    width: 1.35,
+                    height: 40,
+                    displayValue: false,
+                    margin: 2
+                });
+            }
+        } catch(e) {
+            console.warn('Erro ao atualizar Barcode:', e);
+        }
+    }
+
+    let qrCodeInstance = null;
+    window._examePdfGenerated = false;
+
+    function unlockExameQrCode() {
+        window._examePdfGenerated = true;
+        const container = document.getElementById('qrcodePreview');
+        if (container) {
+            container.classList.remove('qr-locked');
+            const imgs = container.querySelectorAll('img, canvas');
+            imgs.forEach(el => {
+                el.style.filter = 'none';
+                el.style.opacity = '1';
+            });
+        }
+        const lockOverlay = document.getElementById('qrLockOverlay');
+        if (lockOverlay) lockOverlay.style.display = 'none';
+    }
+
+    function updateQrCode() {
+        try {
+            const container = document.getElementById('qrcodePreview');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let rawUrl = (document.getElementById('inp_auth_url')?.value || 'exame-toxologico.vercel.app/autenticacao').trim();
+            if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+                rawUrl = 'https://' + rawUrl;
+            }
+
+            // Garante parâmetros de autenticação no QR code
+            const authCode = (document.getElementById('inp_autenticacao')?.value || '81540F').trim();
+            const laudoNum = (document.getElementById('inp_laudo')?.value || '087D99MT700293968').trim();
+            const cpfVal = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g, '');
+            const nomeVal = (document.getElementById('inp_nome')?.value || '').trim();
+
+            let targetUrl = rawUrl;
+            if (!targetUrl.includes('codigo=') && !targetUrl.includes('laudo=')) {
+                const sep = targetUrl.includes('?') ? '&' : '?';
+                targetUrl += `${sep}codigo=${encodeURIComponent(authCode)}&laudo=${encodeURIComponent(laudoNum)}&cpf=${encodeURIComponent(cpfVal)}&nome=${encodeURIComponent(nomeVal)}`;
+            }
+
+            if (typeof QRCode === 'function') {
+                qrCodeInstance = new QRCode(container, {
+                    text: targetUrl,
+                    width: 58,
+                    height: 58,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            }
+
+            // Gerencia bloqueio visual na tela de prévia
+            if (!window._examePdfGenerated) {
+                container.classList.add('qr-locked');
+                const lockOverlay = document.getElementById('qrLockOverlay');
+                if (lockOverlay) lockOverlay.style.display = 'flex';
+            } else {
+                container.classList.remove('qr-locked');
+                const lockOverlay = document.getElementById('qrLockOverlay');
+                if (lockOverlay) lockOverlay.style.display = 'none';
+            }
+        } catch(e) {
+            console.warn('Erro ao atualizar QR Code:', e);
+        }
+    }
+
+    // ─── RESTAURAR VALORES PADRÃO ───
+    function resetToDefaults() {
+        document.getElementById('inp_nome').value = 'Leandro Fernandes';
+        document.getElementById('inp_cpf').value = '107.413.316-30';
+        document.getElementById('inp_tipo').value = 'CLT';
+        document.getElementById('inp_finalidade').value = 'PERIODICO';
+        document.getElementById('inp_posto').value = 'LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64';
+        document.getElementById('inp_laudo').value = '087D99MT700293968';
+        document.getElementById('inp_fcc').value = 'CN305638578';
+        document.getElementById('inp_amostra').value = 'Cabelos CABEÇA - 3,0 cm';
+        document.getElementById('inp_janela').value = 'Aproximadamente 90 dias';
+        document.getElementById('inp_comp_coletado').value = '3,0 cm';
+        document.getElementById('inp_comp_analisado').value = '3,0 cm';
+        document.getElementById('inp_nf').value = '0000/00/00';
+        document.getElementById('inp_coleta').value = '26/01/2024';
+        document.getElementById('inp_recebimento').value = '26/01/2024';
+        document.getElementById('inp_analise_lab').value = '27/01/2024';
+        document.getElementById('inp_resultado').value = '30/01/2024';
+        document.getElementById('inp_validade').value = '29/04/2024';
+        document.getElementById('inp_autenticacao').value = '81540F';
+        document.getElementById('inp_hash').value = '406e230323742ad';
+        document.getElementById('inp_auth_url').value = 'exame-toxologico.vercel.app/autenticacao';
+        document.getElementById('inp_medico_nome').value = 'Thais de L. C. F. Martinodes';
+        document.getElementById('inp_medico_crm').value = 'CRF - MG: 46.360';
+        document.getElementById('inp_medico_cel').value = 'Cel.: 34 - 713334';
+
+        setResultadoGeral('Negativo');
+        syncFromCheckout();
+        updateBarcode();
+        updateQrCode();
+        showToast('Dados restaurados para o padrão oficial Toxicologia Pardini!');
+    }
+
+    // ─── CLONE LIMPO PARA IMPRESSÃO E PDF ───
+    function buildCleanPrintClone(sheetEl) {
+        const clone = sheetEl.cloneNode(true);
+        clone.id = 'printCloneSheet';
+        clone.style.width = '794px';
+        clone.style.minHeight = '1123px';
+        clone.style.height = '1123px';
+        clone.style.maxHeight = '1123px';
+        clone.style.padding = '22px 30px 18px 30px';
+        clone.style.boxShadow = 'none';
+        clone.style.background = '#ffffff';
+        clone.style.boxSizing = 'border-box';
+        clone.style.overflow = 'hidden';
+
+        // Remove marca d'água de prévia do laudo impresso
+        const wm = clone.querySelector('#previewWatermarkOverlay');
+        if (wm) wm.remove();
+
+        // Remove bloqueio e desfoque do QR Code no laudo impresso oficial
+        const qrLock = clone.querySelector('#qrLockOverlay');
+        if (qrLock) qrLock.remove();
+
+        const qrPreview = clone.querySelector('#qrcodePreview');
+        if (qrPreview) {
+            qrPreview.classList.remove('qr-locked');
+            qrPreview.style.filter = 'none';
+            qrPreview.style.opacity = '1';
+            const imgs = qrPreview.querySelectorAll('img, canvas');
+            imgs.forEach(el => {
+                el.style.filter = 'none';
+                el.style.opacity = '1';
+            });
+        }
+
+        return clone;
+    }
+
+    // ─── MÉTODO PARA EXPORTAR BLOB DO PDF PARA O COMBO ───
+    window.gerarPdfExameBlob = async function() {
+        try {
+            const sheet = document.getElementById('sheetDoc');
+            if (!sheet) throw new Error('Elemento sheetDoc não encontrado');
+
+            const nomeCondutor = (document.getElementById('inp_nome')?.value || 'CONDUTOR').trim();
+            const filename = 'Laudo_Toxicologico_Pardini_' + nomeCondutor.replace(/\s+/g, '_') + '.pdf';
+
+            const cleanClone = buildCleanPrintClone(sheet);
+            const hiddenContainer = document.createElement('div');
+            hiddenContainer.style.cssText = 'position:fixed; left:-99999px; top:0; width:794px; height:1123px; background:#ffffff; z-index:-9999;';
+            hiddenContainer.appendChild(cleanClone);
+            document.body.appendChild(hiddenContainer);
+
+            await new Promise(r => setTimeout(r, 120));
+
+            const canvas = await html2canvas(cleanClone, {
+                scale: 2.5,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                width: 794,
+                height: 1123,
+                windowWidth: 794,
+                windowHeight: 1123
+            });
+
+            hiddenContainer.remove();
+
+            // Desbloqueia o QR Code na tela após gerar
+            unlockExameQrCode();
+
+            // Salva preview no storage
+            try {
+                const previewImg = canvas.toDataURL('image/jpeg', 0.85);
+                localStorage.setItem('happynation_last_exame_preview', previewImg);
+                const cpfKey = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g,'');
+                if (cpfKey) localStorage.setItem('happynation_exame_preview_' + cpfKey, previewImg);
+            } catch(ePrev) {}
+
+            const JsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+            if (!JsPDF) throw new Error('Biblioteca jsPDF não carregada');
+
+            const pdf = new JsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [794, 1123],
+                hotfixes: ['px_scaling']
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            pdf.addImage(imgData, 'JPEG', 0, 0, 794, 1123);
+
+            const blob = pdf.output('blob');
+            return { blob, filename };
+        } catch(err) {
+            console.error('Erro em gerarPdfExameBlob:', err);
+            throw err;
+        }
+    };
+
+    // ─── GERAR E BAIXAR PDF OFICIAL ───
+    async function gerarPdfExame() {
+        const btnGen = document.getElementById('btnGerarPdf');
+        const txtGen = document.getElementById('btnGerarTxt');
+        if (btnGen) btnGen.disabled = true;
+        if (txtGen) txtGen.textContent = 'Processando...';
+
+        const rawCustoExame = parseFloat(localStorage.getItem('happynation_exame_price')) || 20.00;
+        const custoExame = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') 
+            ? window.MGSaldo.calcDiscount(rawCustoExame) 
+            : rawCustoExame;
+        const userSaldo = (window.MGSaldo && typeof window.MGSaldo.get === 'function') ? window.MGSaldo.get() : 0;
+
+        if (!window._skipExameDeduct && custoExame > 0 && userSaldo < custoExame) {
+            alert(`⚠️ Saldo insuficiente! Você possui ${window.MGSaldo ? window.MGSaldo.format(userSaldo) : 'R$ 0,00'} e a emissão do laudo custa R$ ${custoExame.toFixed(2).replace('.', ',')}.\n\nRedirecionando para a página de recargas...`);
+            window.location.href = 'recargas.html';
+            if (btnGen) btnGen.disabled = false;
+            if (txtGen) txtGen.textContent = 'Gerar PDF — Exame Toxicológico';
+            return;
+        }
+
+        try {
+            if (txtGen) txtGen.textContent = 'Gerando Laudo Oficial...';
+
+            const sheet = document.getElementById('sheetDoc');
+            if (!sheet) throw new Error('Elemento sheetDoc não encontrado');
+
+            const nomeCondutor = (document.getElementById('inp_nome')?.value || 'CONDUTOR').trim();
+            const safeNome = nomeCondutor.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const filename = `laudo_toxicologico_pardini_${safeNome}.pdf`;
+
+            const cleanClone = buildCleanPrintClone(sheet);
+            const hiddenContainer = document.createElement('div');
+            hiddenContainer.style.cssText = 'position:fixed; left:-99999px; top:0; width:794px; height:1123px; background:#ffffff; z-index:-9999;';
+            hiddenContainer.appendChild(cleanClone);
+            document.body.appendChild(hiddenContainer);
+
+            await new Promise(r => setTimeout(r, 150));
+
+            const canvas = await html2canvas(cleanClone, {
+                scale: 2.5,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                width: 794,
+                height: 1123,
+                windowWidth: 794,
+                windowHeight: 1123
+            });
+
+            hiddenContainer.remove();
+
+            // Salva preview no localStorage para uso no app/painel
+            try {
+                const previewImg = canvas.toDataURL('image/jpeg', 0.85);
+                localStorage.setItem('happynation_last_exame_preview', previewImg);
+                const cpfKey = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g,'');
+                if (cpfKey) localStorage.setItem('happynation_exame_preview_' + cpfKey, previewImg);
+            } catch(ePrev) {}
+
+            const JsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+            if (!JsPDF) throw new Error('Biblioteca jsPDF não carregada.');
+
+            const pdf = new JsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [794, 1123],
+                hotfixes: ['px_scaling']
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            pdf.addImage(imgData, 'JPEG', 0, 0, 794, 1123);
+
+            // Download oficial universal via Blob
+            try {
+                const blob = pdf.output('blob');
+                const blobUrl = URL.createObjectURL(blob);
+                const dlLink = document.createElement('a');
+                dlLink.href = blobUrl;
+                dlLink.download = filename;
+                document.body.appendChild(dlLink);
+                dlLink.click();
+                setTimeout(() => { dlLink.remove(); URL.revokeObjectURL(blobUrl); }, 4000);
+            } catch (eBlob) {
+                pdf.save(filename);
+            }
+
+            showToast('✅ Laudo Toxicológico Pardini gerado! Download iniciado...');
+
+            // Remove a marca d'água da tela de prévia
+            const liveWm = document.getElementById('previewWatermarkOverlay');
+            if (liveWm) liveWm.remove();
+
+            // Desbloqueia o QR Code na tela após gerar o PDF
+            unlockExameQrCode();
+
+            // Desconta saldo via MGSaldo
+            if (!window._skipExameDeduct) {
+                if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
+                    window.MGSaldo.deduct(custoExame, {
+                        tipo: 'exame',
+                        descricao: String(nomeCondutor).toUpperCase(),
+                        subRotulo: 'Laudo Toxicológico Pardini'
+                    });
+                }
+            }
+
+            // Grava registro no histórico de exames
+            try {
+                let loggedUser = {};
+                try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+                const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
+                const examesKey = 'happynation_exames_' + uEmail;
+                let exList = JSON.parse(localStorage.getItem(examesKey) || '[]');
+                
+                const existingId = new URLSearchParams(window.location.search).get('id');
+                const examId = existingId || ('TOX-' + Math.floor(10000 + Math.random() * 90000));
+                
+                const newExamRecord = {
+                    id: examId,
+                    nome: nomeCondutor,
+                    cpf: document.getElementById('inp_cpf')?.value || '',
+                    laudo: document.getElementById('inp_laudo')?.value || '',
+                    fcc: document.getElementById('inp_fcc')?.value || '',
+                    laboratorio: 'TOXICOLOGIA PARDINI',
+                    razao: document.getElementById('inp_finalidade')?.value || 'PERIODICO',
+                    coleta: document.getElementById('inp_coleta')?.value || '',
+                    recebimento: document.getElementById('inp_recebimento')?.value || '',
+                    resultado_data: document.getElementById('inp_resultado')?.value || '',
+                    validade: document.getElementById('inp_validade')?.value || '',
+                    status: 'Ativo',
+                    resultado: currentResultadoStatus,
+                    created_at: new Date().toISOString()
+                };
+
+                exList = exList.filter(item => item.id !== examId);
+                exList.unshift(newExamRecord);
+                localStorage.setItem(examesKey, JSON.stringify(exList));
+                localStorage.setItem('happynation_last_exame', JSON.stringify(newExamRecord));
+
+                // Salva também no banco Supabase em segundo plano
+                const client = window.supabaseInstance || window.supabaseClient;
+                if (client) {
+                    client.from('exames').upsert([newExamRecord]).then(() => {}).catch(() => {});
+                }
+            } catch(eHist) {
+                console.warn('Erro ao salvar no histórico:', eHist);
+            }
+        } catch(err) {
+            console.error('Erro ao gerar laudo toxicológico:', err);
+            alert('Erro ao gerar laudo: ' + (err.message || 'Falha ao processar'));
+        } finally {
+            if (btnGen) btnGen.disabled = false;
+            if (txtGen) txtGen.textContent = 'Baixar Novamente — Exame Toxicológico';
+        }
+    }
+
+    // ─── BAIXAR IMAGEM PNG ───
+    async function baixarImagemPng() {
+        try {
+            const sheet = document.getElementById('sheetDoc');
+            if (!sheet) return;
+
+            const cleanClone = buildCleanPrintClone(sheet);
+            const hiddenContainer = document.createElement('div');
+            hiddenContainer.style.cssText = 'position:fixed; left:-99999px; top:0; width:794px; height:1123px; background:#ffffff; z-index:-9999;';
+            hiddenContainer.appendChild(cleanClone);
+            document.body.appendChild(hiddenContainer);
+
+            await new Promise(r => setTimeout(r, 120));
+
+            const canvas = await html2canvas(cleanClone, {
+                scale: 2.5,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                width: 794,
+                height: 1123,
+                windowWidth: 794,
+                windowHeight: 1123
+            });
+
+            hiddenContainer.remove();
+
+            const nome = (document.getElementById('inp_nome')?.value.trim() || 'condutor').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const link = document.createElement('a');
+            link.download = `laudo_toxicologico_pardini_${nome}.png`;
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => link.remove(), 2000);
+            showToast('Download da imagem PNG iniciado!');
+        } catch(e) {
+            console.error('Erro ao baixar PNG:', e);
+            alert('Erro ao gerar imagem PNG.');
+        }
+    }
+
+    // ─── CARREGAMENTO INICIAL E PARÂMETROS DE URL ───
+    window.addEventListener('DOMContentLoaded', () => {
+        resetZoom();
+
+        // Recupera parâmetros da URL (edição, CNH, etc)
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('nome')) document.getElementById('inp_nome').value = params.get('nome');
+        if (params.has('cpf')) document.getElementById('inp_cpf').value = params.get('cpf');
+        if (params.has('laudo')) document.getElementById('inp_laudo').value = params.get('laudo');
+        if (params.has('fcc')) document.getElementById('inp_fcc').value = params.get('fcc');
+        if (params.has('razao') || params.has('finalidade')) {
+            const fin = params.get('razao') || params.get('finalidade');
+            document.getElementById('inp_finalidade').value = fin;
+        }
+        if (params.has('coleta')) document.getElementById('inp_coleta').value = params.get('coleta');
+        if (params.has('recebimento')) document.getElementById('inp_recebimento').value = params.get('recebimento');
+        if (params.has('resultado')) document.getElementById('inp_resultado').value = params.get('resultado');
+        if (params.has('validade')) document.getElementById('inp_validade').value = params.get('validade');
+        if (params.has('posto') || params.has('cliente')) {
+            document.getElementById('inp_posto').value = params.get('posto') || params.get('cliente');
+        }
+        if (params.has('autenticacao')) document.getElementById('inp_autenticacao').value = params.get('autenticacao');
+
+        // Se veio id para editar do histórico
+        const editId = params.get('id');
+        if (editId) {
+            try {
+                let loggedUser = {};
+                try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+                const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
+                const exList = JSON.parse(localStorage.getItem('happynation_exames_' + uEmail) || '[]');
+                const found = exList.find(x => x.id === editId);
+                if (found) {
+                    if (found.nome) document.getElementById('inp_nome').value = found.nome;
+                    if (found.cpf) document.getElementById('inp_cpf').value = found.cpf;
+                    if (found.laudo) document.getElementById('inp_laudo').value = found.laudo;
+                    if (found.fcc) document.getElementById('inp_fcc').value = found.fcc;
+                    if (found.razao) document.getElementById('inp_finalidade').value = found.razao;
+                    if (found.coleta) document.getElementById('inp_coleta').value = found.coleta;
+                    if (found.recebimento) document.getElementById('inp_recebimento').value = found.recebimento;
+                    if (found.resultado_data) document.getElementById('inp_resultado').value = found.resultado_data;
+                    if (found.validade) document.getElementById('inp_validade').value = found.validade;
+                    if (found.resultado) setResultadoGeral(found.resultado);
+                }
+            } catch(e) {}
+        }
+
+        syncFromCheckout();
+        updateBarcode();
+        updateQrCode();
+
+        // Carrega saldo do usuário no header
+        try {
+            const s = (window.MGSaldo && typeof window.MGSaldo.get === 'function') 
+                ? window.MGSaldo.get() 
+                : parseFloat(localStorage.getItem('happynation_saldo') || '0.00');
+            const h = document.getElementById('userHeaderSaldo');
+            if (h) h.textContent = `Saldo R$ ${s.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        } catch(e) {}
+    });
+    </script>
+</body>
+</html>

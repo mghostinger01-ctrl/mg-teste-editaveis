@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/dev-guard.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | DUT / ATPV-e (Transferência de Veículo)</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="saldo-sync.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&family=Roboto:wght@400;500;700;900&display=swap');
+
+        :root {
+            --bg-color: #0b0d0e;
+            --surface: #141718;
+            --border: #232729;
+            --text-main: #f3f4f6;
+            --primary: #f97316;
+            --font-ui: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-ui); }
+        body { background: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+
+        .header { height: 64px; background: rgba(20,23,24,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+        .header-inner { max-width: 1480px; height: 100%; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        .brand-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font-weight: 800; font-size: 17px; }
+        .brand-icon { width: 34px; height: 34px; border-radius: 9px; background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.35); display: flex; align-items: center; justify-content: center; color: #f97316; }
+        .badge-dev-admin { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; background: rgba(16,185,129,0.14); border: 1px solid rgba(16,185,129,0.35); color: #10b981; font-size: 11.5px; font-weight: 800; }
+        .btn-back-cat { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 9px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #94a3b8; font-size: 12.5px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+        .btn-back-cat:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+        .workspace { flex: 1; max-width: 1480px; width: 100%; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 460px 1fr; gap: 24px; }
+        @media(max-width: 1024px) { .workspace { grid-template-columns: 1fr; } }
+
+        .form-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; height: calc(100vh - 112px); overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+        .form-section-title { font-size: 13px; font-weight: 800; color: #f97316; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-label { font-size: 11.5px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.3px; }
+        .form-input { background: #0c0e10; border: 1px solid #23282b; border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 13px; outline: none; }
+        .form-input:focus { border-color: #f97316; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .btn-export { background: #f97316; color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 13.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(249,115,22,0.35); margin-top: auto; }
+
+        .preview-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-x: auto; }
+        .preview-header { width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+
+        /* ATPV-E / DUT A4 CANVAS */
+        .dut-page {
+            width: 720px;
+            min-height: 940px;
+            background: #ffffff;
+            color: #000;
+            border: 2px solid #333;
+            padding: 30px 36px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            font-family: 'Roboto', sans-serif;
+            position: relative;
+        }
+
+        .dut-header-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 18px; }
+        .dut-rep-title { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+        .dut-sec-title { font-size: 10px; font-weight: 700; color: #333; text-transform: uppercase; }
+        .dut-main-badge { background: #000; color: #fff; padding: 6px 14px; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; border-radius: 2px; }
+
+        .dut-block { border: 1px solid #444; margin-bottom: 14px; }
+        .dut-block-title { background: #f1f3f5; border-bottom: 1px solid #444; padding: 5px 10px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+        .dut-block-content { padding: 10px; display: grid; gap: 8px; font-size: 12px; }
+        .dut-field-val { font-family: var(--font-mono); font-weight: 700; color: #000; }
+        .dut-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .dut-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .dut-cartorio-box { margin-top: auto; border: 1px solid #444; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 11px; }
+        .cartorio-sig-box { border-top: 1px dashed #666; padding-top: 6px; text-align: center; }
+    
+        /* Card Resumo / Ações de Checkout Padrão */
+        .checkout-actions-card {
+            background: rgba(0, 220, 130, 0.05);
+            border: 1px solid rgba(0, 220, 130, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .checkout-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .price-label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .price-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: #00dc82;
+        }
+
+        .btn-reset-defaults {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 7px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-reset-defaults:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-action-primary {
+            background: #00dc82;
+            color: #062517;
+            font-weight: 800;
+            font-size: 13.5px;
+            padding: 13px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(0, 220, 130, 0.25);
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 100%;
+        }
+
+        .btn-action-primary:hover {
+            background: #00f590;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.35);
+        }
+</style>
+<script>
+function resetToDefaults() {
+    if (confirm('Deseja restaurar os dados padrão do DUT / ATPV-e?')) {
+        window.location.href = window.location.pathname;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const cEl = document.getElementById('custoDutDisplay');
+        const custo = parseFloat(localStorage.getItem('happynation_dut_price')) || 25.00;
+        if (cEl) cEl.textContent = 'R$ ' + custo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        window.addEventListener('mg_prices_synced', function(ev) {
+            var p = (ev && ev.detail && ev.detail.dut_price) ? parseFloat(ev.detail.dut_price) : (parseFloat(localStorage.getItem('happynation_dut_price')) || 25.00);
+            if (cEl) cEl.textContent = 'R$ ' + p.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        });
+    } catch(e) {}
+});
+</script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-brand" style="display:inline-flex; align-items:center; gap:10px; text-decoration:none;">
+                <div class="brand-logo" style="width:32px; height:32px; border-radius:9px; overflow:hidden; flex-shrink:0;">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img" style="width:100%; height:100%; object-fit:cover; display:block;">
+                </div>
+                <span class="brand-text" style="font-size:18px; font-weight:800; color:#ffffff; letter-spacing:-0.3px;">MG Editáveis</span>
+            </a>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span class="badge-dev-admin">👑 MODO DESENVOLVIMENTO (ADMIN)</span>
+                <span id="userHeaderSaldo" style="font-size:12.5px; font-weight:700; color:#10b981;">Saldo R$ 0,00</span>
+                <a href="index.html" class="btn-voltar" title="Voltar ao Início" style="display:inline-flex; align-items:center; gap:6px; color:#94a3b8; text-decoration:none; font-size:13px; font-weight:600; padding:6px 14px; border:1px solid rgba(255,255,255,0.1); border-radius:8px; background:rgba(255,255,255,0.05);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span>Voltar</span>
+    </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="workspace">
+        <div class="form-panel">
+            <div class="form-section-title">🚗 Dados do Veículo</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Placa do Veículo</label>
+                    <input type="text" class="form-input" id="inpPlaca" value="BRA2E19" oninput="updateDut()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Código RENAVAM</label>
+                    <input type="text" class="form-input" id="inpRenavam" value="01184920391" oninput="updateDut()">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Chassi</label>
+                    <input type="text" class="form-input" id="inpChassi" value="9BWAA05U2FP084219" oninput="updateDut()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Marca / Modelo</label>
+                    <input type="text" class="form-input" id="inpModelo" value="VW/GOL 1.6L MB5" oninput="updateDut()">
+                </div>
+            </div>
+
+            <div class="form-section-title">👤 Dados do Vendedor</div>
+            <div class="form-group">
+                <label class="form-label">Nome Completo do Vendedor</label>
+                <input type="text" class="form-input" id="inpVendNome" value="MARCOS VINICIUS PEREIRA" oninput="updateDut()">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">CPF / CNPJ</label>
+                    <input type="text" class="form-input" id="inpVendCpf" value="194.820.418-20" maxlength="14" placeholder="000.000.000-00" oninput="mascaraCpf(this); updateDut()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Município / UF</label>
+                    <input type="text" class="form-input" id="inpVendUf" value="Campinas - SP" oninput="updateDut()">
+                </div>
+            </div>
+
+            <div class="form-section-title">🤝 Dados do Comprador</div>
+            <div class="form-group">
+                <label class="form-label">Nome Completo do Comprador</label>
+                <input type="text" class="form-input" id="inpCompNome" value="JULIANA ALVES CAVALCANTE" oninput="updateDut()">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">CPF / CNPJ Comprador</label>
+                    <input type="text" class="form-input" id="inpCompCpf" value="284.910.378-55" maxlength="14" placeholder="000.000.000-00" oninput="mascaraCpf(this); updateDut()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Valor da Venda (R$)</label>
+                    <input type="text" class="form-input" id="inpValor" value="48.500,00" oninput="updateDut()">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Endereço do Comprador</label>
+                <input type="text" class="form-input" id="inpCompEnd" value="Rua das Palmeiras, 450 - Jd. Europa, Campinas - SP" oninput="updateDut()">
+            </div>
+
+            <!-- CARD FINAL DE CHECKOUT: PREÇO E BOTÃO GERAR PDF -->
+            <div class="checkout-actions-card">
+                <div class="checkout-price-row">
+                    <div>
+                        <div class="price-label">Valor da Emissão:</div>
+                        <div class="price-value" id="custoDutDisplay">R$ 25,00</div>
+                    </div>
+                    <button type="button" class="btn-reset-defaults" onclick="resetToDefaults()" title="Restaurar dados padrão do DUT">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+                        <span>Restaurar Padrão</span>
+                    </button>
+                </div>
+
+                <button type="button" class="btn-action-primary btn-gerar" onclick="exportDutPdf()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span id="btnGerarTxt">Gerar PDF — DUT / ATPV-e</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="preview-panel">
+            <div class="preview-header">
+                <div style="font-size:14px; font-weight:800; color:#fff;">Espelho Oficial SENATRAN / DETRAN • ATPV-e</div>
+                <span style="font-size:12px; color:#9ca3af;">Formato A4 Oficial para Cartório</span>
+            </div>
+
+            <div class="dut-page" id="dutCanvas">
+                <div class="dut-header-bar">
+                    <div>
+                        <div class="dut-rep-title">REPÚBLICA FEDERATIVA DO BRASIL</div>
+                        <div class="dut-sec-title">MINISTÉRIO DOS TRANSPORTES • SENATRAN • DETRAN</div>
+                    </div>
+                    <div class="dut-main-badge">ATPV-e / DUT</div>
+                </div>
+
+                <div style="text-align:center; font-weight:900; font-size:14px; margin-bottom:14px;">
+                    AUTORIZAÇÃO PARA TRANSFERÊNCIA DE PROPRIEDADE DE VEÍCULO - DIGITAL
+                </div>
+
+                <!-- BLOCO VEÍCULO -->
+                <div class="dut-block">
+                    <div class="dut-block-title">DADOS DO VEÍCULO</div>
+                    <div class="dut-block-content dut-grid-3">
+                        <div>PLACA: <span class="dut-field-val" id="outPlaca">BRA2E19</span></div>
+                        <div>RENAVAM: <span class="dut-field-val" id="outRenavam">01184920391</span></div>
+                        <div>EXERCÍCIO: <span class="dut-field-val">2025</span></div>
+                    </div>
+                    <div class="dut-block-content dut-grid-2" style="padding-top:0;">
+                        <div>MARCA / MODELO: <span class="dut-field-val" id="outModelo">VW/GOL 1.6L MB5</span></div>
+                        <div>CHASSI: <span class="dut-field-val" id="outChassi">9BWAA05U2FP084219</span></div>
+                    </div>
+                </div>
+
+                <!-- BLOCO VENDEDOR -->
+                <div class="dut-block">
+                    <div class="dut-block-title">DADOS DO PROPRIETÁRIO VENDEDOR</div>
+                    <div class="dut-block-content">
+                        <div>NOME: <span class="dut-field-val" id="outVendNome">MARCOS VINICIUS PEREIRA</span></div>
+                        <div class="dut-grid-2">
+                            <div>CPF/CNPJ: <span class="dut-field-val" id="outVendCpf">194.820.418-20</span></div>
+                            <div>MUNICÍPIO / UF: <span class="dut-field-val" id="outVendUf">Campinas - SP</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOCO COMPRADOR -->
+                <div class="dut-block">
+                    <div class="dut-block-title">DADOS DO COMPRADOR</div>
+                    <div class="dut-block-content">
+                        <div>NOME: <span class="dut-field-val" id="outCompNome">JULIANA ALVES CAVALCANTE</span></div>
+                        <div class="dut-grid-2">
+                            <div>CPF/CNPJ: <span class="dut-field-val" id="outCompCpf">284.910.378-55</span></div>
+                            <div>VALOR DA VENDA: R$ <span class="dut-field-val" id="outValor">48.500,00</span></div>
+                        </div>
+                        <div>ENDEREÇO: <span class="dut-field-val" id="outCompEnd">Rua das Palmeiras, 450 - Jd. Europa, Campinas - SP</span></div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0;">
+                    <div id="dutQrCode" style="width:76px; height:76px;"></div>
+                    <div style="font-size:10px; color:#555; text-align:right; line-height:1.4;">
+                        Documento emitido eletronicamente via sistema oficial SENATRAN.<br>
+                        Valide a autenticidade pelo QR Code oficial de segurança.
+                    </div>
+                </div>
+
+                <div class="dut-cartorio-box">
+                    <div class="cartorio-sig-box">
+                        <div style="margin-bottom:24px;">Local e Data: ______________, ___/___/2025</div>
+                        <strong>ASSINATURA DO VENDEDOR</strong>
+                        <div style="font-size:9px; color:#666;">(Reconhecer firma por autenticidade)</div>
+                    </div>
+                    <div class="cartorio-sig-box">
+                        <div style="margin-bottom:24px;">Local e Data: ______________, ___/___/2025</div>
+                        <strong>ASSINATURA DO COMPRADOR</strong>
+                        <div style="font-size:9px; color:#666;">(Reconhecer firma por autenticidade)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function updateDut() {
+            const g = id => {
+                const el = document.getElementById(id);
+                return el ? (el.value.trim() || el.dataset.sampleVal || '') : '';
+            };
+            document.getElementById('outPlaca').textContent = g('inpPlaca');
+            document.getElementById('outRenavam').textContent = g('inpRenavam');
+            document.getElementById('outChassi').textContent = g('inpChassi');
+            document.getElementById('outModelo').textContent = g('inpModelo');
+            document.getElementById('outVendNome').textContent = g('inpVendNome');
+            document.getElementById('outVendCpf').textContent = g('inpVendCpf');
+            document.getElementById('outVendUf').textContent = g('inpVendUf');
+            document.getElementById('outCompNome').textContent = g('inpCompNome');
+            document.getElementById('outCompCpf').textContent = g('inpCompCpf');
+            document.getElementById('outValor').textContent = g('inpValor');
+            document.getElementById('outCompEnd').textContent = g('inpCompEnd');
+        }
+
+        let isDutLiberado = false;
+
+        function updateDutQr(forceReal = false) {
+            const qrEl = document.getElementById('dutQrCode');
+            if (!qrEl || typeof QRCode === 'undefined') return;
+            qrEl.innerHTML = '';
+            qrEl.style.position = 'relative';
+
+            const shouldLock = !isDutLiberado && !forceReal;
+
+            const qrWrap = document.createElement('div');
+            qrWrap.style.width = '76px';
+            qrWrap.style.height = '76px';
+            qrWrap.style.display = 'flex';
+            qrWrap.style.alignItems = 'center';
+            qrWrap.style.justifyContent = 'center';
+
+            new QRCode(qrWrap, {
+                text: 'https://portalsenatran.serpro.gov.br/atpve/valida?doc=' + Math.random().toString(36).substring(2, 12).toUpperCase(),
+                width: 76,
+                height: 76,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            if (shouldLock) {
+                qrWrap.style.filter = 'blur(3.5px)';
+                qrWrap.style.opacity = '0.38';
+                qrWrap.style.pointerEvents = 'none';
+
+                const wmOverlay = document.createElement('div');
+                wmOverlay.className = 'qr-lock-overlay';
+                wmOverlay.style.cssText = 'position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,0.45); pointer-events:none; z-index:10;';
+                wmOverlay.innerHTML = `
+                    <div style="background:#ffffff; border:1px solid #ef4444; border-radius:6px; padding:2px 4px; box-shadow:0 2px 8px rgba(239,68,68,0.22); display:flex; flex-direction:column; align-items:center; gap:1px; text-align:center;">
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span style="font-size:6px; font-weight:900; color:#dc2626; text-transform:uppercase; line-height:1;">BLOQUEADO</span>
+                    </div>
+                `;
+                qrEl.appendChild(qrWrap);
+                qrEl.appendChild(wmOverlay);
+            } else {
+                qrWrap.style.filter = 'none';
+                qrWrap.style.opacity = '1';
+                qrEl.appendChild(qrWrap);
+            }
+        }
+
+        let editDutId = null;
+
+        function loadDutEditMode() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const queryId = params.get('id');
+
+                let editData = null;
+                const sess = sessionStorage.getItem('happynation_edit_dut');
+                const loc = localStorage.getItem('happynation_edit_dut');
+
+                if (sess) {
+                    try { editData = JSON.parse(sess); } catch(e) {}
+                }
+                if (!editData && loc) {
+                    try { editData = JSON.parse(loc); } catch(e) {}
+                }
+
+                if (!editData && queryId) {
+                    let uEmail = 'cliente';
+                    try { uEmail = (JSON.parse(localStorage.getItem('happynation_user')||'{}').email||'cliente').toLowerCase().trim(); } catch(e){}
+                    const duts = JSON.parse(localStorage.getItem('happynation_duts_' + uEmail) || localStorage.getItem('happynation_dut_history') || '[]');
+                    editData = duts.find(d => d.id === queryId || d.placa === queryId);
+                }
+
+                if (!editData && params.has('placa')) {
+                    editData = {
+                        placa: params.get('placa'),
+                        renavam: params.get('renavam'),
+                        chassi: params.get('chassi'),
+                        modelo: params.get('modelo'),
+                        vendNome: params.get('vendNome') || params.get('vendedor'),
+                        vendCpf: params.get('vendCpf'),
+                        vendUf: params.get('vendUf'),
+                        compNome: params.get('compNome') || params.get('comprador'),
+                        compCpf: params.get('compCpf'),
+                        valor: params.get('valor'),
+                        compEnd: params.get('compEnd')
+                    };
+                }
+
+                if (editData) {
+                    editDutId = editData.id || queryId || ('DUT-' + Math.floor(1000 + Math.random()*9000));
+                    isDutLiberado = true;
+
+                    const setVal = (id, val) => {
+                        const el = document.getElementById(id);
+                        if (el && val !== undefined && val !== null && String(val).trim() !== '') {
+                            el.value = val;
+                        }
+                    };
+
+                    setVal('inpPlaca', editData.placa || editData.outPlaca);
+                    setVal('inpRenavam', editData.renavam || editData.outRenavam);
+                    setVal('inpChassi', editData.chassi || editData.outChassi);
+                    setVal('inpModelo', editData.modelo || editData.outModelo);
+                    setVal('inpVendNome', editData.vendNome || editData.vendedor || editData.outVendNome);
+                    setVal('inpVendCpf', editData.vendCpf || editData.outVendCpf);
+                    setVal('inpVendUf', editData.vendUf || editData.outVendUf);
+                    setVal('inpCompNome', editData.compNome || editData.comprador || editData.outCompNome);
+                    setVal('inpCompCpf', editData.compCpf || editData.outCompCpf);
+                    setVal('inpValor', editData.valor || editData.outValor);
+                    setVal('inpCompEnd', editData.compEnd || editData.endereco || editData.outCompEnd);
+
+                    const btn = document.querySelector('.btn-export');
+                    if (btn) {
+                        btn.innerHTML = '<span>💾 Salvar Alterações & Baixar PDF</span>';
+                    }
+                }
+            } catch(e) {
+                console.error('Erro ao carregar DUT para edição:', e);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDutEditMode();
+            updateDut();
+            updateDutQr(isDutLiberado);
+
+            try {
+                let user = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                let saldo = (user && user.saldo !== undefined) ? parseFloat(user.saldo) : 0;
+                const el = document.getElementById('userHeaderSaldo');
+                if (el) el.textContent = `Saldo R$ ${saldo.toFixed(2).replace('.', ',')}`;
+            } catch(e) {}
+        });
+
+        async function exportDutPdf() {
+            let loggedUser = {};
+            try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e) {}
+            const rawPrecoDut = parseFloat(localStorage.getItem('happynation_dut_price')) || 25.00;
+            const precoDut = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(rawPrecoDut) : rawPrecoDut;
+            let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
+
+            if (precoDut > 0 && userSaldo < precoDut) {
+                alert(`⚠️ Saldo insuficiente! Você possui R$ ${userSaldo.toFixed(2).replace('.', ',')} e a emissão do DUT custa R$ ${precoDut.toFixed(2).replace('.', ',')}.\n\nRedirecionando para recargas...`);
+                window.location.href = 'recargas.html';
+                return;
+            }
+
+            const btn = document.querySelector('.btn-export');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<span>⏳ Gerando DUT em PDF...</span>';
+            btn.disabled = true;
+
+            try {
+                // Libera QR Code oficial sem marca d'água para renderização no PDF
+                isDutLiberado = true;
+                updateDutQr(true);
+                await new Promise(r => setTimeout(r, 120));
+
+                const sheet = document.getElementById('dutSheet');
+                const canvas = await html2canvas(sheet, {
+                    scale: 3,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                const JsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+                const pdf = new JsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const a4W = 210;
+                const a4H = 297;
+                const ratio = Math.min((a4W - 10) / (canvas.width / 3), (a4H - 10) / (canvas.height / 3));
+                const renderW = (canvas.width / 3) * ratio;
+                const renderH = (canvas.height / 3) * ratio;
+                const posX = (a4W - renderW) / 2;
+                const posY = (a4H - renderH) / 2;
+
+                const img = canvas.toDataURL('image/jpeg', 0.98);
+                pdf.addImage(img, 'JPEG', posX, posY, renderW, renderH);
+
+                const placa = (document.getElementById('inpPlaca').value || 'VEICULO').trim().replace(/\s+/g, '_');
+                pdf.save(`DUT_ATPVE_${placa}.pdf`);
+
+                // Salva no histórico para re-edição 100% fiel
+                try {
+                    let uEmail = 'cliente';
+                    try { uEmail = (JSON.parse(localStorage.getItem('happynation_user')||'{}').email||'cliente').toLowerCase().trim(); } catch(e){}
+                    const dRecord = {
+                        id: editDutId || ('DUT-' + Math.floor(1000 + Math.random()*9000)),
+                        placa: document.getElementById('inpPlaca').value,
+                        renavam: document.getElementById('inpRenavam').value,
+                        chassi: document.getElementById('inpChassi').value,
+                        modelo: document.getElementById('inpModelo').value,
+                        vendNome: document.getElementById('inpVendNome').value,
+                        vendCpf: document.getElementById('inpVendCpf').value,
+                        vendUf: document.getElementById('inpVendUf').value,
+                        compNome: document.getElementById('inpCompNome').value,
+                        compCpf: document.getElementById('inpCompCpf').value,
+                        valor: document.getElementById('inpValor').value,
+                        compEnd: document.getElementById('inpCompEnd').value,
+                        updated_at: new Date().toISOString()
+                    };
+                    const hKey = 'happynation_duts_' + uEmail;
+                    let hList = JSON.parse(localStorage.getItem(hKey) || localStorage.getItem('happynation_dut_history') || '[]');
+                    const existingIdx = hList.findIndex(x => x.id === dRecord.id || x.placa === dRecord.placa);
+                    if (existingIdx >= 0) {
+                        hList[existingIdx] = Object.assign({}, hList[existingIdx], dRecord);
+                    } else {
+                        hList.unshift(dRecord);
+                    }
+                    localStorage.setItem(hKey, JSON.stringify(hList));
+                    localStorage.setItem('happynation_dut_history', JSON.stringify(hList));
+                    sessionStorage.setItem('happynation_edit_dut', JSON.stringify(dRecord));
+                    localStorage.setItem('happynation_edit_dut', JSON.stringify(dRecord));
+                } catch(eHist) {}
+
+                // Dedução de Saldo
+                const precoDut = parseFloat(localStorage.getItem('happynation_dut_price')) || 25.00;
+                if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
+                    await window.MGSaldo.deduct(precoDut, {
+                        tipo: 'dut',
+                        descricao: document.getElementById('inpPlaca').value || 'Transferência Veicular',
+                        subRotulo: 'DUT / ATPV-e Digital',
+                        tagClass: 'badge-crlv',
+                        tagText: 'DUT'
+                    });
+                }
+            } catch(e) {
+                alert('Erro ao gerar DUT: ' + (e.message || e));
+            } finally {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

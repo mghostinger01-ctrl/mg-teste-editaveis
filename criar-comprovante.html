@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | Comprovante Mercado Pago</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <!-- Bibliotecas de Renderização e Exportação -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="assets/mp-logo-base64.js"></script>
+    <script src="saldo-sync.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap');
+
+        :root {
+            --bg: #0b0d0e;
+            --surface: #141718;
+            --border: #232729;
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+            --primary: #00dc82;
+            --mp-blue: #009ee3;
+            --font-ui: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-receipt: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            font-family: var(--font-ui); 
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0d0e; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 999px; }
+
+        /* HEADER PADRÃO MG EDITÁVEIS */
+        .header { 
+            height: 64px; 
+            background: rgba(20, 23, 24, 0.88); 
+            backdrop-filter: blur(12px); 
+            border-bottom: 1px solid var(--border); 
+            position: sticky; 
+            top: 0; 
+            z-index: 50; 
+        }
+        .header-inner { 
+            max-width: 1440px; 
+            height: 100%; 
+            margin: 0 auto; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0 24px; 
+        }
+        .header-brand { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px; 
+            text-decoration: none; 
+        }
+        .brand-logo { 
+            width: 32px; 
+            height: 32px; 
+            background: var(--primary); 
+            border-radius: 9px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+            box-shadow: 0 0 14px rgba(0, 220, 130, 0.35); 
+        }
+        .brand-icon-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        .brand-text { 
+            font-size: 18px; 
+            font-weight: 800; 
+            color: #ffffff; 
+            letter-spacing: -0.3px; 
+        }
+        .header-right { 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+        }
+        .saldo-pill { 
+            background: rgba(0, 220, 130, 0.08); 
+            color: #00dc82; 
+            border: 1px solid #00dc82; 
+            font-weight: 700; 
+            font-size: 13px; 
+            padding: 6px 14px; 
+            border-radius: 20px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 7px; 
+            text-decoration: none; 
+            transition: all 0.2s ease; 
+        }
+        .saldo-pill:hover { 
+            background: rgba(0, 220, 130, 0.16); 
+            transform: translateY(-1px); 
+        }
+        .btn-header-voltar { 
+            color: var(--muted); 
+            font-size: 13px; 
+            font-weight: 600; 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            padding: 6px 12px; 
+            border-radius: 8px; 
+            transition: all 0.2s; 
+        }
+        .btn-header-voltar:hover { 
+            color: #fff; 
+            background: rgba(255, 255, 255, 0.05); 
+        }
+        .avatar-circle { 
+            width: 34px; 
+            height: 34px; 
+            border-radius: 50%; 
+            background: var(--primary); 
+            color: #062517; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 800; 
+            font-size: 14px; 
+        }
+
+        /* WORKSPACE GRID */
+        .workspace { 
+            flex: 1; 
+            max-width: 1520px; 
+            width: 100%; 
+            margin: 0 auto; 
+            padding: 24px; 
+            display: grid; 
+            grid-template-columns: 500px 1fr; 
+            gap: 28px; 
+            align-items: start; 
+        }
+        @media(max-width:1150px){ 
+            .workspace { grid-template-columns: 1fr; } 
+        }
+
+        @media (max-width: 900px) {
+            .header-inner { padding: 0 12px !important; }
+            .workspace {
+                padding: 12px 10px !important;
+                gap: 16px !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .form-checkout-card {
+                position: static !important;
+                max-height: none !important;
+                overflow: visible !important;
+                padding: 16px 14px !important;
+                width: 100% !important;
+            }
+            .form-row {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+            .doc-preview-card {
+                padding: 14px 6px !important;
+                width: 100% !important;
+                overflow-x: hidden !important;
+            }
+            .preview-controls-bar {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+            .zoom-pill {
+                align-self: center !important;
+            }
+            .receipt-viewport {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                width: 100% !important;
+                padding: 10px 0 !important;
+                justify-content: center !important;
+            }
+            .btn-action-primary, .btn-action-secondary {
+                padding: 14px 16px !important;
+                font-size: 14px !important;
+                touch-action: manipulation !important;
+            }
+        }
+
+        /* PAINEL DE FORMULÁRIO */
+        .form-checkout-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 84px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .checkout-header {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .checkout-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkout-desc {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        /* Botões de Ação Rápida */
+        .quick-actions-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-quick {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: #e2e8f0;
+        }
+
+        .btn-quick:hover {
+            background: rgba(255,255,255,0.09);
+            color: #fff;
+            border-color: rgba(255,255,255,0.18);
+        }
+
+        .btn-quick.primary {
+            background: rgba(0, 158, 227, 0.12);
+            border-color: rgba(0, 158, 227, 0.35);
+            color: #38bdf8;
+        }
+        .btn-quick.primary:hover {
+            background: rgba(0, 158, 227, 0.22);
+            border-color: #009ee3;
+            color: #fff;
+        }
+
+        /* Seções de Formulário */
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .form-section-title {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--mp-blue);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .form-row.single { grid-template-columns: 1fr; }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-field label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #cbd5e1;
+            letter-spacing: 0.2px;
+        }
+
+        .input-box {
+            background: #0c0e10;
+            border: 1px solid #23282b;
+            border-radius: 8px;
+            padding: 9px 12px;
+            color: #fff;
+            font-size: 12.5px;
+            outline: none;
+            transition: all 0.2s;
+            width: 100%;
+            font-family: var(--font-ui);
+        }
+
+        .input-box:focus {
+            border-color: var(--mp-blue);
+            box-shadow: 0 0 0 3px rgba(0, 158, 227, 0.2);
+        }
+
+        /* Card Resumo / Ações de Checkout */
+        .checkout-actions-card {
+            background: rgba(0, 158, 227, 0.05);
+            border: 1px solid rgba(0, 158, 227, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkout-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .checkout-price-label {
+            font-size: 12.5px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .checkout-price-val {
+            font-size: 18px;
+            font-weight: 800;
+            color: #38bdf8;
+        }
+
+        .btn-action-primary {
+            background: #009ee3;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 13.5px;
+            padding: 13px 18px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(0, 158, 227, 0.35);
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-action-primary:hover {
+            background: #0088c4;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(0, 158, 227, 0.45);
+        }
+
+        .btn-action-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            font-weight: 700;
+            font-size: 12.5px;
+            padding: 11px 16px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* PREVIEW AREA */
+        .preview-col { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 14px; 
+            align-items: center;
+        }
+        .preview-toolbar { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            width: 100%;
+            max-width: 600px;
+        }
+        .preview-label { 
+            font-size: 13px; 
+            font-weight: 800; 
+            color: #fff; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .zoom-wrap { 
+            display: flex; 
+            align-items: center; 
+            gap: 7px; 
+        }
+        .btn-zoom { 
+            background: rgba(255,255,255,0.08); 
+            border: 1px solid var(--border); 
+            color: var(--muted); 
+            border-radius: 7px; 
+            padding: 5px 10px; 
+            font-size: 12px; 
+            cursor: pointer; 
+            font-weight: 700;
+        }
+        .btn-zoom:hover { color: #fff; background: rgba(255,255,255,0.15); }
+        #zoomDisp { font-size: 12px; color: var(--muted); min-width: 36px; text-align: center; }
+
+        .canvas-wrap { 
+            overflow: auto; 
+            border-radius: 14px; 
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            padding: 10px 0;
+        }
+        #zoomBox { 
+            transform-origin: top center; 
+            display: inline-block; 
+            transition: transform 0.15s ease-out;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           DOCUMENTO MERCADO PAGO COMPROVANTE (RÉPLICA PIXEL-PERFECT EXATA)
+        ═══════════════════════════════════════════════════════════════════════ */
+        #mpReceiptDoc {
+            width: 580px;
+            background: #ffffff;
+            color: #2c2e33;
+            font-family: var(--font-receipt);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.65);
+            box-sizing: border-box;
+            padding: 38px 46px 42px 46px;
+            position: relative;
+            user-select: text;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* LOGO MERCADO PAGO NO TOPO ESQUERDA */
+        .mp-logo-box {
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+        }
+
+        .mp-logo-img {
+            width: 162px;
+            height: auto;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        /* TÍTULO PRINCIPAL: Comprovante de pagamento */
+        .mp-doc-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #2b2e33;
+            letter-spacing: -0.4px;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        /* DATA E HORA LOGO ABAIXO DO TÍTULO */
+        .mp-top-date {
+            font-size: 13px;
+            color: #72777f;
+            font-weight: 400;
+            letter-spacing: -0.1px;
+            margin-bottom: 20px;
+        }
+
+        /* LINHA DIVISÓRIA */
+        .mp-divider {
+            height: 1px;
+            background-color: #e8eaed;
+            width: 100%;
+            margin: 17px 0 18px 0;
+        }
+
+        /* SEÇÃO DO VALOR PRINCIPAL */
+        .mp-amount-wrap {
+            margin-bottom: 5px;
+            line-height: 1.05;
+        }
+
+        .mp-amount-text {
+            font-size: 38px;
+            font-weight: 700;
+            color: #24272c;
+            letter-spacing: -0.6px;
+            display: inline-flex;
+            align-items: baseline;
+        }
+
+        .mp-amount-cents {
+            font-size: 20px;
+            font-weight: 700;
+            vertical-align: super;
+            position: relative;
+            top: -12px;
+            margin-left: 1px;
+        }
+
+        /* SUBTÍTULO DO BENEFICIÁRIO */
+        .mp-beneficiary-sub {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2e3238;
+            text-transform: uppercase;
+            letter-spacing: 0.1px;
+            margin-top: 4px;
+            margin-bottom: 18px;
+        }
+
+        /* BLOCOS DE CAMPOS */
+        .mp-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .mp-field-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5px;
+        }
+
+        .mp-field-label {
+            font-size: 12.8px;
+            color: #72777f;
+            font-weight: 400;
+            letter-spacing: -0.05px;
+        }
+
+        .mp-field-value {
+            font-size: 14px;
+            color: #2d3137;
+            font-weight: 600;
+            letter-spacing: -0.05px;
+            word-break: break-word;
+            line-height: 1.35;
+        }
+
+        /* TEXTO LEGAL INFORMATIVO */
+        .mp-disclaimer-box {
+            font-size: 12px;
+            color: #7c828a;
+            line-height: 1.48;
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        .mp-disclaimer-box p + p {
+            margin-top: 7px;
+        }
+
+        /* RODAPÉ DO COMPROVANTE */
+        .mp-footer {
+            margin-top: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: #949aa2;
+            font-weight: 400;
+        }
+
+        /* ─── MARCA D'ÁGUA DE PRÉVIA (desaparece ao gerar PDF/PNG) ─── */
+        .mp-preview-watermark {
+            position: absolute;
+            inset: 0;
+            z-index: 25;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: inherit;
+        }
+        .mp-preview-watermark-inner {
+            position: absolute;
+            inset: -140px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 46px 36px;
+            transform: rotate(-28deg);
+            transform-origin: center center;
+        }
+        .mp-preview-watermark-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 40px 30px;
+            opacity: 0.32;
+            white-space: nowrap;
+            user-select: none;
+        }
+        .mp-preview-watermark-tile img {
+            width: 340px;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+        }
+        .mp-preview-watermark-tile span {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: #009ee3;
+            text-transform: uppercase;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .mp-preview-watermark-center-stamp {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-35deg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            z-index: 30;
+            pointer-events: none;
+            opacity: 0.36;
+            white-space: nowrap;
+        }
+        .mp-preview-watermark-center-stamp img {
+            width: 420px;
+            height: auto;
+            filter: drop-shadow(0 4px 14px rgba(0,0,0,0.25));
+        }
+        .mp-preview-watermark-center-stamp .stamp-text {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 6px;
+            color: #009ee3;
+            text-transform: uppercase;
+            border-top: 3px dashed #009ee3;
+            border-bottom: 3px dashed #009ee3;
+            padding: 8px 36px;
+        }
+        #mpReceiptDoc.generating .mp-preview-watermark {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO PADRÃO MG EDITÁVEIS -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <a href="recargas.html" class="saldo-pill" title="Clique para recarregar saldo">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </a>
+
+                <a href="editaveis.html" class="btn-header-voltar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+                    <span>Voltar</span>
+                </a>
+
+                <div class="avatar-circle" id="userHeaderAvatar">M</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ÁREA DE TRABALHO -->
+    <div class="workspace">
+        
+        <!-- FORMULÁRIO LATERAL -->
+        <div class="form-checkout-card">
+            
+            <div class="checkout-header">
+                <div class="checkout-title">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--mp-blue);">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    <span>Comprovante Mercado Pago</span>
+                </div>
+                <div class="checkout-desc">
+                    Emita comprovantes de pagamento de boleto bancário idênticos ao layout oficial com logo oficial, tipografia e detalhes originais.
+                </div>
+            </div>
+
+            <!-- BOTÕES DE PREENCHIMENTO RÁPIDO -->
+            <div class="quick-actions-bar">
+                <button type="button" class="btn-quick primary" onclick="fillExampleData()">
+                    ✨ Carregar Modelo Original
+                </button>
+                <button type="button" class="btn-quick" onclick="generateRandomData()">
+                    🎲 Gerar Dados Aleatórios
+                </button>
+            </div>
+
+            <!-- SEÇÃO: CABEÇALHO & LOGO -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    Cabeçalho &amp; Título do Comprovante
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Título do Documento</label>
+                        <input type="text" id="inpTitulo" class="input-box" value="Comprovante de pagamento" oninput="updateDoc()">
+                    </div>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>Data e Hora do Comprovante</label>
+                            <span style="font-size:10.5px; color:#38bdf8; cursor:pointer; font-weight:700;" onclick="fillNowDate()">Hoje Agora</span>
+                        </div>
+                        <input type="text" id="inpDataHora" class="input-box" value="terça-feira, 10 de novembro de 2026, 19:22." oninput="updateDoc()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: VALOR E OPERAÇÃO -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Valor &amp; Operação Mercado Pago
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Valor Total (R$)</label>
+                        <input type="text" id="inpValor" class="input-box" value="1000,00" placeholder="1000,00" oninput="updateDoc()">
+                    </div>
+                    <div class="form-field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>N.º Operação Mercado Pago</label>
+                            <span style="font-size:10.5px; color:#38bdf8; cursor:pointer; font-weight:700;" onclick="randomOperacao()">Gerar</span>
+                        </div>
+                        <input type="text" id="inpOperacao" class="input-box" value="180903117144" oninput="updateDoc()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: BENEFICIÁRIO & BOLETO -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Beneficiário &amp; Titular do Boleto
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Nome do Beneficiário (Razão Social)</label>
+                        <input type="text" id="inpBeneficiario" class="input-box" value="RV TECNOLOGIA E SISTEMAS S.A." oninput="updateDoc()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>CPF/CNPJ do Beneficiário</label>
+                        <input type="text" id="inpCnpjBeneficiario" class="input-box" value="05022353000106" oninput="updateDoc()">
+                    </div>
+                    <div class="form-field">
+                        <label>Banco Emissor</label>
+                        <input type="text" id="inpBanco" class="input-box" value="Caixa Econômica Federal" oninput="updateDoc()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Titular do Boleto (Sacado)</label>
+                        <input type="text" id="inpTitular" class="input-box" value="Marco Antonio Scarpelini" oninput="updateDoc()">
+                    </div>
+                    <div class="form-field">
+                        <label>CPF/CNPJ do Titular</label>
+                        <input type="text" id="inpCpfTitular" class="input-box" value="535.612.109-10" maxlength="14" placeholder="000.000.000-00" oninput="mascaraCpf(this); updateDoc()">
+                    </div>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Data de Vencimento do Boleto</label>
+                        <input type="text" id="inpVencimento" class="input-box" value="08/out/2026" placeholder="DD/mmm/AAAA" oninput="updateDoc()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: CÓDIGO DE BARRAS & NSU -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+                    Linha Digitável &amp; Autenticação (NSU)
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>Código de Barras / Linha Digitável</label>
+                            <span style="font-size:10.5px; color:#38bdf8; cursor:pointer; font-weight:700;" onclick="randomCodigoBarras()">Gerar Código</span>
+                        </div>
+                        <input type="text" id="inpCodigoBarras" class="input-box" value="10496.54971 21000.100046 05116.037804 3 16320000100000" oninput="updateDoc()">
+                    </div>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>NSU / ID da Transação</label>
+                            <span style="font-size:10.5px; color:#38bdf8; cursor:pointer; font-weight:700;" onclick="randomNsu()">Gerar UUID</span>
+                        </div>
+                        <input type="text" id="inpNsu" class="input-box" value="40196c0c-3039-42f5-8bb6-642b728d752a" oninput="updateDoc()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: PAGADOR & MEIO DE PAGAMENTO -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    Pessoa que Pagou &amp; Meio de Pagamento
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Pessoa que Pagou</label>
+                        <input type="text" id="inpPagador" class="input-box" value="Marco Antonio Scarpelini" oninput="updateDoc()">
+                    </div>
+                    <div class="form-field">
+                        <label>Meio de Pagamento</label>
+                        <select id="inpMeioPagamento" class="input-box" onchange="updateDoc()">
+                            <option value="Saldo em conta" selected>Saldo em conta</option>
+                            <option value="Cartão de crédito">Cartão de crédito</option>
+                            <option value="Linha de crédito">Linha de crédito</option>
+                            <option value="Pix">Pix</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: AVISOS LEGAIS -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    Avisos Legais &amp; Rodapé
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Correspondente &amp; Processamento</label>
+                        <input type="text" id="inpCorrespondente" class="input-box" value="Pago via aplicativo! Recebido por correspondente bancário digital e processado por Itaú Unibanco S.A." oninput="updateDoc()">
+                    </div>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Prazo de Compensação</label>
+                        <input type="text" id="inpCompensacao" class="input-box" value="O pagamento pode levar até 2 dias úteis para ser compensado após o boleto ter sido pago." oninput="updateDoc()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Rodapé Esquerda</label>
+                        <input type="text" id="inpFooterLeft" class="input-box" value="Comprovante de Pagamento" oninput="updateDoc()">
+                    </div>
+                    <div class="form-field">
+                        <label>Rodapé Direita</label>
+                        <input type="text" id="inpFooterRight" class="input-box" value="Página 1 de 1" oninput="updateDoc()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD DE CHECKOUT & AÇÕES -->
+            <div class="checkout-actions-card">
+                <div class="checkout-price-row">
+                    <div>
+                        <div class="price-label">Valor da Emissão:</div>
+                        <div class="price-value" id="custoDocDisplay">R$ 10,00</div>
+                    </div>
+                    <button type="button" class="btn-reset-defaults" onclick="resetToDefaults()" title="Restaurar dados padrão do comprovante">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+                        <span>Restaurar Padrão</span>
+                    </button>
+                </div>
+
+                <button type="button" class="btn-action-primary btn-gerar" id="btnDownloadPdf" onclick="gerarPdfComprovante()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span id="btnGerarTxt">Gerar PDF — Comprovante Bancário</span>
+                </button>
+
+                <button type="button" class="btn-action-secondary" id="btnDownloadPng" onclick="gerarImagemComprovante()" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; border-radius:10px; padding:10px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    <span>Salvar Imagem PNG (Ultra HD)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- PRÉ-VISUALIZAÇÃO EM TEMPO REAL -->
+        <div class="preview-col">
+            
+            <div class="preview-toolbar">
+                <div class="preview-label">
+                    <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#00dc82;"></span>
+                    <span>Pré-visualização Oficial Mercado Pago</span>
+                </div>
+
+                <div class="zoom-wrap">
+                    <button type="button" class="btn-zoom" onclick="changeZoom(-0.05)" title="Diminuir Zoom">−</button>
+                    <span id="zoomDisp">100%</span>
+                    <button type="button" class="btn-zoom" onclick="changeZoom(0.05)" title="Aumentar Zoom">+</button>
+                    <button type="button" class="btn-zoom" onclick="resetZoom()" title="Resetar">100%</button>
+                </div>
+            </div>
+
+            <div class="canvas-wrap">
+                <div id="zoomBox">
+                    
+                    <!-- O COMPROVANTE EXATO -->
+                    <div id="mpReceiptDoc">
+
+                        <!-- MARCA D'ÁGUA DE PRÉVIA - DESAPARECE AO GERAR PDF/IMAGEM -->
+                        <div class="mp-preview-watermark" aria-hidden="true">
+                            <div class="mp-preview-watermark-center-stamp">
+                                <img src="assets/logo-mercadopago-clean.png" alt="">
+                                <div class="stamp-text">PRÉVIA OFICIAL • NÃO VÁLIDO</div>
+                            </div>
+                            <div class="mp-preview-watermark-inner">
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                                <div class="mp-preview-watermark-tile"><img src="assets/logo-mercadopago-clean.png" alt=""><span>Prévia Oficial</span></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 1. LOGO OFICIAL MERCADO PAGO NO MESMO LOCAL -->
+                        <div class="mp-logo-box">
+                            <img id="imgLogoMp" class="mp-logo-img" alt="Mercado Pago" src="assets/logo-mercadopago-clean.png">
+                        </div>
+
+                        <!-- 2. TÍTULO: Comprovante de pagamento -->
+                        <div class="mp-doc-title" id="docTitulo">Comprovante de pagamento</div>
+
+                        <!-- 3. DATA E HORA -->
+                        <div class="mp-top-date" id="docDataHora">terça-feira, 10 de novembro de 2026, 19:22.</div>
+
+                        <!-- PRIMEIRA DIVISÓRIA -->
+                        <div class="mp-divider"></div>
+
+                        <!-- 4. VALOR PRINCIPAL -->
+                        <div class="mp-amount-wrap">
+                            <span class="mp-amount-text" id="docValor">R$ 1000<span class="mp-amount-cents">00</span></span>
+                        </div>
+
+                        <!-- 5. BENEFICIÁRIO SUBTÍTULO -->
+                        <div class="mp-beneficiary-sub" id="docBeneficiarioSub">RV TECNOLOGIA E SISTEMAS S.A.</div>
+
+                        <!-- SEGUNDA DIVISÓRIA -->
+                        <div class="mp-divider"></div>
+
+                        <!-- 6. N.º DE OPERAÇÃO -->
+                        <div class="mp-field-group">
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">N.º de operação do Mercado Pago</span>
+                                <span class="mp-field-value" id="docOperacao">180903117144</span>
+                            </div>
+                        </div>
+
+                        <!-- TERCEIRA DIVISÓRIA -->
+                        <div class="mp-divider"></div>
+
+                        <!-- 7. DETALHES DO BOLETO E BENEFICIÁRIO -->
+                        <div class="mp-field-group">
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">Beneficiário</span>
+                                <span class="mp-field-value" id="docBeneficiario">RV TECNOLOGIA E SISTEMAS S.A.</span>
+                            </div>
+
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">CPF/CNPJ do beneficiário</span>
+                                <span class="mp-field-value" id="docCnpjBeneficiario">05022353000106</span>
+                            </div>
+
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">Titular do boleto</span>
+                                <span class="mp-field-value" id="docTitular">Marco Antonio Scarpelini</span>
+                            </div>
+
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">CPF/CNPJ do titular do boleto</span>
+                                <span class="mp-field-value" id="docCpfTitular">535.612.109-10</span>
+                            </div>
+
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">Banco</span>
+                                <span class="mp-field-value" id="docBanco">Caixa Econômica Federal</span>
+                            </div>
+
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">Vencimento</span>
+                                <span class="mp-field-value" id="docVencimento">08/out/2026</span>
+                            </div>
+
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">Código de barras</span>
+                                <span class="mp-field-value" id="docCodigoBarras">10496.54971 21000.100046 05116.037804 3 16320000100000</span>
+                            </div>
+
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">Nsu</span>
+                                <span class="mp-field-value" id="docNsu">40196c0c-3039-42f5-8bb6-642b728d752a</span>
+                            </div>
+                        </div>
+
+                        <!-- QUARTA DIVISÓRIA -->
+                        <div class="mp-divider"></div>
+
+                        <!-- 8. PESSOA QUE PAGOU E MEIO DE PAGAMENTO -->
+                        <div class="mp-field-group">
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">Pessoa que pagou</span>
+                                <span class="mp-field-value" id="docPagador">Marco Antonio Scarpelini</span>
+                            </div>
+
+                            <div class="mp-field-item">
+                                <span class="mp-field-label">Meio de pagamento</span>
+                                <span class="mp-field-value" id="docMeioPagamento">Saldo em conta</span>
+                            </div>
+                        </div>
+
+                        <!-- QUINTA DIVISÓRIA -->
+                        <div class="mp-divider"></div>
+
+                        <!-- 9. TEXTOS DE COMPENSAÇÃO E PROCESSAMENTO -->
+                        <div class="mp-disclaimer-box">
+                            <p id="docCorrespondente">Pago via aplicativo! Recebido por correspondente bancário digital e processado por Itaú Unibanco S.A.</p>
+                            <p id="docCompensacao">O pagamento pode levar até 2 dias úteis para ser compensado após o boleto ter sido pago.</p>
+                        </div>
+
+                        <!-- 10. RODAPÉ -->
+                        <div class="mp-footer">
+                            <span id="docFooterLeft">Comprovante de Pagamento</span>
+                            <span id="docFooterRight">Página 1 de 1</span>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- SCRIPT DE INTERAÇÃO, FORMATAÇÃO E EXPORTAÇÃO -->
+    <script>
+        let currentZoom = 1.0;
+
+        function autoFitMobileZoom() {
+            if (window.innerWidth < 650) {
+                currentZoom = Math.min(Math.max(0.45, (window.innerWidth - 32) / 600), 1.0);
+            } else {
+                currentZoom = 1.0;
+            }
+            applyZoom();
+        }
+
+        function applyZoom() {
+            const zb = document.getElementById('zoomBox');
+            if (zb) zb.style.transform = `scale(${currentZoom})`;
+            const zd = document.getElementById('zoomDisp');
+            if (zd) zd.textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        function changeZoom(delta) {
+            currentZoom = Math.min(Math.max(0.4, currentZoom + delta), 1.8);
+            applyZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 1.0;
+            applyZoom();
+        }
+
+        // Formatação do valor em R$ com centavos em sobrescrito
+        function formatDisplayAmount(valStr) {
+            let clean = (valStr || '0').replace('R$', '').trim();
+            let parts = clean.split(',');
+            let intPart = parts[0] || '0';
+            let centPart = parts[1] !== undefined ? parts[1].padEnd(2, '0').slice(0, 2) : '00';
+
+            return `R$ ${intPart}<span class="mp-amount-cents">${centPart}</span>`;
+        }
+
+        // Atualização em Tempo Real
+        function updateDoc() {
+            const g = id => {
+                const el = document.getElementById(id);
+                return el ? (el.value.trim() || el.dataset.sampleVal || '') : '';
+            };
+            const titulo = g('inpTitulo') || 'Comprovante de pagamento';
+            const dataHora = g('inpDataHora');
+            const valor = g('inpValor') || '1000,00';
+            const beneficiario = g('inpBeneficiario') || 'RV TECNOLOGIA E SISTEMAS S.A.';
+            const operacao = g('inpOperacao') || '180903117144';
+            const cnpjBeneficiario = g('inpCnpjBeneficiario') || '05022353000106';
+            const banco = g('inpBanco') || 'Caixa Econômica Federal';
+            const titular = g('inpTitular') || 'Marco Antonio Scarpelini';
+            const cpfTitular = g('inpCpfTitular') || '535.612.109-10';
+            const vencimento = document.getElementById('inpVencimento').value;
+            const codigoBarras = document.getElementById('inpCodigoBarras').value;
+            const nsu = document.getElementById('inpNsu').value;
+            const pagador = document.getElementById('inpPagador').value;
+            const meioPagamento = document.getElementById('inpMeioPagamento').value;
+            const correspondente = document.getElementById('inpCorrespondente').value;
+            const compensacao = document.getElementById('inpCompensacao').value;
+            const footerLeft = document.getElementById('inpFooterLeft').value;
+            const footerRight = document.getElementById('inpFooterRight').value;
+
+            document.getElementById('docTitulo').textContent = titulo;
+            document.getElementById('docDataHora').textContent = dataHora;
+            document.getElementById('docValor').innerHTML = formatDisplayAmount(valor);
+            document.getElementById('docBeneficiarioSub').textContent = beneficiario.toUpperCase();
+            document.getElementById('docBeneficiario').textContent = beneficiario;
+            document.getElementById('docOperacao').textContent = operacao;
+            document.getElementById('docCnpjBeneficiario').textContent = cnpjBeneficiario;
+            document.getElementById('docBanco').textContent = banco;
+            document.getElementById('docTitular').textContent = titular;
+            document.getElementById('docCpfTitular').textContent = cpfTitular;
+            document.getElementById('docVencimento').textContent = vencimento;
+            document.getElementById('docCodigoBarras').textContent = codigoBarras;
+            document.getElementById('docNsu').textContent = nsu;
+            document.getElementById('docPagador').textContent = pagador;
+            document.getElementById('docMeioPagamento').textContent = meioPagamento;
+            document.getElementById('docCorrespondente').textContent = correspondente;
+            document.getElementById('docCompensacao').textContent = compensacao;
+            document.getElementById('docFooterLeft').textContent = footerLeft;
+            document.getElementById('docFooterRight').textContent = footerRight;
+        }
+
+        // Carregar Modelo Original (Exemplo da Imagem)
+        function fillExampleData() {
+            document.getElementById('inpTitulo').value = 'Comprovante de pagamento';
+            document.getElementById('inpDataHora').value = 'terça-feira, 10 de novembro de 2026, 19:22.';
+            document.getElementById('inpValor').value = '1000,00';
+            document.getElementById('inpBeneficiario').value = 'RV TECNOLOGIA E SISTEMAS S.A.';
+            document.getElementById('inpOperacao').value = '180903117144';
+            document.getElementById('inpCnpjBeneficiario').value = '05022353000106';
+            document.getElementById('inpBanco').value = 'Caixa Econômica Federal';
+            document.getElementById('inpTitular').value = 'Marco Antonio Scarpelini';
+            document.getElementById('inpCpfTitular').value = '53561210910';
+            document.getElementById('inpVencimento').value = '08/out/2026';
+            document.getElementById('inpCodigoBarras').value = '10496.54971 21000.100046 05116.037804 3 16320000100000';
+            document.getElementById('inpNsu').value = '40196c0c-3039-42f5-8bb6-642b728d752a';
+            document.getElementById('inpPagador').value = 'Marco Antonio Scarpelini';
+            document.getElementById('inpMeioPagamento').value = 'Saldo em conta';
+            document.getElementById('inpCorrespondente').value = 'Pago via aplicativo! Recebido por correspondente bancário digital e processado por Itaú Unibanco S.A.';
+            document.getElementById('inpCompensacao').value = 'O pagamento pode levar até 2 dias úteis para ser compensado após o boleto ter sido pago.';
+            document.getElementById('inpFooterLeft').value = 'Comprovante de Pagamento';
+            document.getElementById('inpFooterRight').value = 'Página 1 de 1';
+            updateDoc();
+        }
+
+        // Preenche com Data e Hora de Hoje
+        function fillNowDate() {
+            const diasSemana = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+            const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+            const now = new Date();
+            const diaSemana = diasSemana[now.getDay()];
+            const dia = now.getDate();
+            const mes = meses[now.getMonth()];
+            const ano = now.getFullYear();
+            const horas = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+
+            const formatted = `${diaSemana}, ${dia} de ${mes} de ${ano}, ${horas}:${mins}.`;
+            document.getElementById('inpDataHora').value = formatted;
+            updateDoc();
+        }
+
+        function randomOperacao() {
+            const op = Math.floor(100000000000 + Math.random() * 900000000000);
+            document.getElementById('inpOperacao').value = String(op);
+            updateDoc();
+        }
+
+        function randomNsu() {
+            const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+            const uuid = `${s4()}${s4()}-${s4()}-4${s4().substr(0,3)}-8${s4().substr(0,3)}-${s4()}${s4()}${s4()}`;
+            document.getElementById('inpNsu').value = uuid;
+            updateDoc();
+        }
+
+        function randomCodigoBarras() {
+            const b1 = Math.floor(10000 + Math.random() * 90000);
+            const b2 = Math.floor(10000 + Math.random() * 90000);
+            const b3 = Math.floor(10000 + Math.random() * 90000);
+            const b4 = Math.floor(100000 + Math.random() * 900000);
+            const b5 = Math.floor(10000 + Math.random() * 90000);
+            const b6 = Math.floor(100000 + Math.random() * 900000);
+            const b7 = Math.floor(1 + Math.random() * 9);
+            const b8 = Math.floor(10000000000000 + Math.random() * 90000000000000);
+
+            const cod = `${b1}.${b2} ${b3}.${b4} ${b5}.${b6} ${b7} ${b8}`;
+            document.getElementById('inpCodigoBarras').value = cod;
+            updateDoc();
+        }
+
+        // Gerar Dados Aleatórios Realistas
+        
+function resetToDefaults() {
+    if (confirm('Deseja restaurar os dados padrão do comprovante?')) {
+        window.location.href = window.location.pathname;
+    }
+}
+
+function generateRandomData() {
+            const nomes = [
+                'Lucas Gabriel Ferreira', 'Matheus Henrique Silveira', 'Gabriel Barbosa Santos', 
+                'Rafael Almeida Lima', 'Rodrigo Mendes Pereira', 'Bruno Carvalho Costa',
+                'Felipe Moreira Rocha', 'Eduardo Ramos Cardoso', 'Leonardo Martins Vieira',
+                'Thiago Nunes Teixeira', 'Camila Rodrigues de Souza', 'Juliana Castro Ribeiro'
+            ];
+            const empresas = [
+                'RV TECNOLOGIA E SISTEMAS S.A.', 'CIELO S.A. - INSTITUICAO DE PAGAMENTO',
+                'PAGSEGURO INTERNET S.A.', 'STONE PAGAMENTOS S.A.', 'MERCADOLIVRE.COM ATIVIDADES DE INTERNET LTDA.',
+                'CLARO S.A.', 'VIVO TELEFONICA BRASIL S.A.', 'ENEL DISTRIBUICAO S.A.', 'SABESP CIA DE SANEAMENTO BASICO'
+            ];
+            const bancos = [
+                'Caixa Econômica Federal', 'Banco do Brasil S.A.', 'Banco Bradesco S.A.',
+                'Itaú Unibanco S.A.', 'Banco Santander (Brasil) S.A.', 'Nu Pagamentos S.A. (Nubank)',
+                'Banco Inter S.A.', 'Banco Cooperativo Sicoob S.A.'
+            ];
+
+            const nomeRand = nomes[Math.floor(Math.random() * nomes.length)];
+            const empRand = empresas[Math.floor(Math.random() * empresas.length)];
+            const bancoRand = bancos[Math.floor(Math.random() * bancos.length)];
+
+            const randCpf = Array.from({length: 11}, () => Math.floor(Math.random() * 10)).join('');
+            const randCnpj = '050223530001' + Math.floor(10 + Math.random() * 89);
+            const valRand = (Math.floor(50 + Math.random() * 3200) + (Math.random() > 0.5 ? 0.00 : 0.50)).toFixed(2).replace('.', ',');
+
+            fillNowDate();
+            document.getElementById('inpValor').value = valRand;
+            document.getElementById('inpBeneficiario').value = empRand;
+            document.getElementById('inpCnpjBeneficiario').value = randCnpj;
+            document.getElementById('inpBanco').value = bancoRand;
+            document.getElementById('inpTitular').value = nomeRand;
+            document.getElementById('inpCpfTitular').value = randCpf;
+            document.getElementById('inpPagador').value = nomeRand;
+            
+            const dVenc = new Date();
+            dVenc.setDate(dVenc.getDate() + Math.floor(1 + Math.random() * 8));
+            const mesesAbrev = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+            document.getElementById('inpVencimento').value = `${String(dVenc.getDate()).padStart(2, '0')}/${mesesAbrev[dVenc.getMonth()]}/${dVenc.getFullYear()}`;
+
+            randomOperacao();
+            randomCodigoBarras();
+            randomNsu();
+            updateDoc();
+        }
+
+        function registrarAtividadeComprovante() {
+            try {
+                const ADMIN_ACTS_KEY = 'happynation_admin_activities';
+                let adminActs = [];
+                try { adminActs = JSON.parse(localStorage.getItem(ADMIN_ACTS_KEY) || '[]'); } catch(ex) {}
+                const actTimeIso = new Date().toISOString();
+                const u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                const userNameAct = u.nome || 'Cliente';
+                const pagador = (document.getElementById('inpPagador')?.value || document.getElementById('inpTitular')?.value || 'COMPROVANTE').toUpperCase();
+
+                adminActs.unshift({
+                    tipo: 'mp',
+                    subRotulo: 'Comprovante Mercado Pago',
+                    tagClass: 'badge-mp',
+                    tagText: 'MERCADO PAGO',
+                    cor: '#009ee3',
+                    descricao: pagador,
+                    usuario: userNameAct,
+                    valor: '- R$ ' + getValorComprovante().toFixed(2).replace('.', ','),
+                    status: 'concluido',
+                    created_at: actTimeIso
+                });
+                if (adminActs.length > 200) adminActs = adminActs.slice(0, 200);
+                localStorage.setItem(ADMIN_ACTS_KEY, JSON.stringify(adminActs));
+            } catch(eAct) {}
+        }
+
+        // ─── GERAÇÃO DE IMAGEM PNG ───
+        async function gerarImagemComprovante() {
+            const btn = document.getElementById('btnDownloadPng');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<span>Processando imagem...</span>';
+            btn.disabled = true;
+
+            try {
+                const doc = document.getElementById('mpReceiptDoc');
+                doc.classList.add('generating');
+                await new Promise(r => setTimeout(r, 60));
+
+                const prevTransform = document.getElementById('zoomBox').style.transform;
+                document.getElementById('zoomBox').style.transform = 'scale(1)';
+
+                const canvas = await html2canvas(doc, {
+                    scale: 3.0,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                });
+
+                doc.classList.remove('generating');
+                document.getElementById('zoomBox').style.transform = prevTransform;
+
+                const link = document.createElement('a');
+                link.download = `comprovante_mercadopago_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
+                    window.MGSaldo.deduct(getValorComprovante());
+                }
+                registrarAtividadeComprovante();
+
+                btn.innerHTML = '<span>Sucesso! Imagem Salva</span>';
+                setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+
+            } catch (err) {
+                document.getElementById('mpReceiptDoc')?.classList.remove('generating');
+                alert('Erro ao gerar imagem: ' + err.message);
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
+        }
+
+        // ─── GERAÇÃO DE PDF OFICIAL ───
+        async function gerarPdfComprovante() {
+            const btn = document.getElementById('btnDownloadPdf');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<span>Criando documento PDF...</span>';
+            btn.disabled = true;
+
+            try {
+                const doc = document.getElementById('mpReceiptDoc');
+                doc.classList.add('generating');
+                await new Promise(r => setTimeout(r, 60));
+
+                const prevTransform = document.getElementById('zoomBox').style.transform;
+                document.getElementById('zoomBox').style.transform = 'scale(1)';
+
+                const canvas = await html2canvas(doc, {
+                    scale: 3.0,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                });
+
+                doc.classList.remove('generating');
+                document.getElementById('zoomBox').style.transform = prevTransform;
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                const { jsPDF } = window.jspdf;
+                
+                const pdfWidth = 210;
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: [pdfWidth, Math.max(297, pdfHeight)]
+                });
+
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`comprovante_mercadopago_${Date.now()}.pdf`);
+
+                if (window.MGSaldo && typeof window.MGSaldo.deduct === 'function') {
+                    window.MGSaldo.deduct(getValorComprovante());
+                }
+                registrarAtividadeComprovante();
+
+                try {
+                    const compRecord = {
+                        id: 'MP-' + Math.floor(10000 + Math.random() * 90000),
+                        pagador: (document.getElementById('inpTitular')?.value || document.getElementById('inpPagador')?.value || 'COMPROVANTE').toUpperCase(),
+                        valor: document.getElementById('inpValor')?.value || '1000.00',
+                        banco: document.getElementById('inpBanco')?.value || 'Mercado Pago',
+                        operacao: document.getElementById('inpOperacao')?.value || '',
+                        status: 'Concluído',
+                        created_at: new Date().toISOString()
+                    };
+                    let uEmail = 'cliente';
+                    try { uEmail = (JSON.parse(localStorage.getItem('happynation_user')||'{}').email||'cliente').toLowerCase().trim(); } catch(e){}
+                    const ckc = 'happynation_comprovantes_' + uEmail;
+                    let cList = []; try { cList = JSON.parse(localStorage.getItem(ckc)||'[]'); } catch(e){}
+                    cList.unshift(compRecord); if(cList.length>200) cList=cList.slice(0,200);
+                    localStorage.setItem(ckc, JSON.stringify(cList));
+                } catch(eSave) {}
+
+                btn.innerHTML = '<span>PDF Gerado! Redirecionando...</span>';
+                setTimeout(() => {
+                    window.location.href = 'comprovantes.html';
+                }, 1200);
+
+            } catch (err) {
+                document.getElementById('mpReceiptDoc')?.classList.remove('generating');
+                alert('Erro ao gerar PDF: ' + err.message);
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
+        }
+
+        function loadComprovanteEditMode() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const compId = params.get('id');
+                const isEdit = !!(compId || params.get('edit') === 'true' || params.get('nome') || params.get('titular'));
+                if (!isEdit) return false;
+
+                let record = null;
+                try {
+                    record = JSON.parse(localStorage.getItem('happynation_edit_comprovante') || sessionStorage.getItem('happynation_edit_comprovante') || 'null');
+                } catch(e) {}
+
+                if (!record && compId) {
+                    try {
+                        const adminActs = JSON.parse(localStorage.getItem('happynation_admin_activities') || '[]');
+                        record = adminActs.find(a => String(a.id) === String(compId)) || null;
+
+                        if (!record) {
+                            for (let i = 0; i < localStorage.length; i++) {
+                                const k = localStorage.key(i);
+                                if (k && k.startsWith('happynation_comprovantes_')) {
+                                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                                    record = list.find(r => String(r.id) === String(compId)) || null;
+                                    if (record) break;
+                                }
+                            }
+                        }
+                    } catch(e) {}
+                }
+
+                if (!record && (params.get('nome') || params.get('titular'))) {
+                    record = {
+                        id: compId || '',
+                        titular: params.get('titular') || params.get('nome') || '',
+                        valor: params.get('valor') || ''
+                    };
+                }
+
+                if (!record) return false;
+
+                window.__editComprovanteId = record.id || compId || '';
+                const d = (record.dados && typeof record.dados === 'object') ? record.dados : record;
+
+                const setF = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null && val !== '') el.value = val;
+                };
+
+                setF('inpTitulo', record.titulo || d.titulo);
+                setF('inpDataHora', record.dataHora || d.dataHora || record.data);
+                setF('inpValor', record.valor || d.valor);
+                setF('inpOperacao', record.operacao || d.operacao);
+                setF('inpBeneficiario', record.beneficiario || d.beneficiario);
+                setF('inpCnpjBeneficiario', record.cnpjBeneficiario || d.cnpjBeneficiario);
+                setF('inpBanco', record.banco || d.banco);
+                setF('inpTitular', record.titular || d.titular || record.nome || d.nome);
+                setF('inpCpfTitular', record.cpfTitular || d.cpfTitular || record.cpf || d.cpf);
+                setF('inpVencimento', record.vencimento || d.vencimento);
+                setF('inpCodigoBarras', record.codigoBarras || d.codigoBarras);
+                setF('inpNsu', record.nsu || d.nsu);
+                setF('inpPagador', record.pagador || d.pagador || record.titular || d.titular);
+                setF('inpMeioPagamento', record.meioPagamento || d.meioPagamento);
+                setF('inpCorrespondente', record.correspondente || d.correspondente);
+                setF('inpCompensacao', record.compensacao || d.compensacao);
+                setF('inpFooterLeft', record.footerLeft || d.footerLeft);
+                setF('inpFooterRight', record.footerRight || d.footerRight);
+
+                const btnTxt = document.getElementById('btnGerarTxt');
+                if (btnTxt) btnTxt.textContent = 'Salvar Alterações & Baixar PDF';
+
+                updateDoc();
+                return true;
+            } catch(e) {
+                console.error('Erro ao carregar dados do comprovante:', e);
+                return false;
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            // Carregar logo via Base64 se disponível
+            if (window.MP_LOGO_B64) {
+                const logoEl = document.getElementById('imgLogoMp');
+                if (logoEl) logoEl.src = window.MP_LOGO_B64;
+            }
+
+            const wasEdit = loadComprovanteEditMode();
+            if (!wasEdit) {
+                updateDoc();
+            }
+            autoFitMobileZoom();
+            window.addEventListener('resize', autoFitMobileZoom);
+            window.addEventListener('orientationchange', () => setTimeout(autoFitMobileZoom, 200));
+
+            try {
+                const u = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
+                const saldo = (window.MGSaldo ? window.MGSaldo.get() : (u.saldo !== undefined ? parseFloat(u.saldo) : 0));
+                const el = document.getElementById('userHeaderSaldo');
+                if (el) el.textContent = `Saldo R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                
+                const nome = u.nome || 'M';
+                const avEl = document.getElementById('userHeaderAvatar');
+                if (avEl) avEl.textContent = nome.trim()[0].toUpperCase();
+            } catch(e) {}
+        });
+    </script>
+<script>
+// Preço configurado no painel admin (fonte única da verdade) — padrão R$ 10,00
+function getValorComprovante() { return parseFloat(localStorage.getItem('happynation_comprovante_price')) || 10.00; }
+(function () {
+    function show(p) {
+        var v = (p !== undefined && p !== null && !isNaN(parseFloat(p))) ? parseFloat(p) : getValorComprovante();
+        var el = document.getElementById('custoDocDisplay');
+        if (el) el.textContent = 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    show();
+    window.addEventListener('mg_prices_synced', function (ev) { show(ev && ev.detail && ev.detail.comprovante_price); });
+    window.addEventListener('storage', function () { show(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis — Informações do RG Digital (CIN)</title>
+
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --bg: #0e1112;
+            --surface: #141718;
+            --surface-card: #161a1b;
+            --surface-hover: #1b1f20;
+            --border: #232729;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --primary: #00dc82;
+            --primary-glow: rgba(0, 220, 130, 0.3);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body.light-theme {
+            --bg: #f4f6f8;
+            --surface: #ffffff;
+            --surface-card: #ffffff;
+            --surface-hover: #f1f3f5;
+            --border: #e2e8f0;
+            --border-light: rgba(0, 0, 0, 0.08);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px 16px 80px 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 820px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Top Action Bar */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .btn-voltar {
+            color: #cbd5e1;
+            font-size: 13.5px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.15s;
+            cursor: pointer;
+        }
+
+        .btn-voltar:hover {
+            color: #fff;
+        }
+
+        .top-page-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        body.light-theme .top-page-title {
+            color: #0f172a;
+        }
+
+        .btn-edit-top {
+            background: #191c1d;
+            border: 1px solid #2b3032;
+            color: #fff;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        body.light-theme .btn-edit-top {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        .btn-edit-top:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        /* Card Section */
+        .card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        body.light-theme .card {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 650px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        .info-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .info-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 800;
+            color: #ffffff;
+            word-break: break-all;
+        }
+
+        body.light-theme .info-value {
+            color: #0f172a;
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 220, 130, 0.12);
+            color: #00dc82;
+            border: 1px solid rgba(0, 220, 130, 0.35);
+            font-size: 11.5px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 20px;
+            width: fit-content;
+        }
+
+        /* Preview banner */
+        .preview-box {
+            background: #080a0b;
+            border: 1px solid #1f2427;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .preview-avatar {
+            width: 80px;
+            height: 104px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: #191c1d;
+        }
+
+        .preview-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .preview-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .preview-sub {
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+
+        .action-buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .action-buttons-grid { grid-template-columns: 1fr; }
+        }
+
+        .btn-green-full {
+            background: var(--primary);
+            color: #062517;
+            font-weight: 800;
+            font-size: 13.5px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px var(--primary-glow);
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            text-decoration: none;
+        }
+
+        .btn-green-full:hover {
+            background: #00c975;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(0, 220, 130, 0.45);
+        }
+
+        .btn-secondary-full {
+            background: #191c1d;
+            border: 1px solid #2b3032;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13.5px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+
+        .btn-secondary-full:hover {
+            border-color: #3e4649;
+            background: #232729;
+            color: #00dc82;
+        }
+
+        .message-box {
+            background: #111415;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            white-space: pre-wrap;
+            font-family: inherit;
+        }
+
+        body.light-theme .message-box {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #334155;
+        }
+
+        .btn-copy {
+            background: #1e2224;
+            border: 1px solid #2d3438;
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+            margin-left: auto;
+        }
+
+        body.light-theme .btn-copy {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        .btn-copy:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- TOP ACTIONS -->
+        <div class="top-bar">
+            <a href="rg.html" class="btn-voltar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                <span>Voltar</span>
+            </a>
+            <div class="top-page-title">Informações do RG Digital (CIN)</div>
+            <a href="criar-rg.html" class="btn-edit-top" id="btnEditRGTop">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span>Editar RG Digital</span>
+            </a>
+        </div>
+
+        <!-- 0. PREVIEW RESUMIDO -->
+        <div class="preview-box">
+            <img id="viewFoto" class="preview-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='104' fill='%232b3032'%3E%3Crect width='80' height='104'/%3E%3C/svg%3E" alt="Foto">
+            <div class="preview-info">
+                <div class="preview-title" id="viewNomeResumo">MELLYSSA DE JESUS MENINO</div>
+                <div class="preview-sub">CPF / Registro Geral: <strong id="viewCpfResumo" style="color:#fff;">526.534.158-79</strong></div>
+                <div class="preview-sub">UF / Órgão: <span id="viewUfResumo">SÃO PAULO / SSP</span></div>
+                <div style="margin-top:4px;">
+                    <span class="badge-status">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Documento Válido & Autêntico</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. DADOS DO RG DIGITAL -->
+        <div class="card">
+            <div class="card-header-title">DADOS DA CARTEIRA DE IDENTIDADE NACIONAL (CIN)</div>
+
+            <div class="grid-2">
+                <div class="info-group">
+                    <span class="info-label">Nome Completo</span>
+                    <span class="info-value" id="viewNome">MELLYSSA DE JESUS MENINO</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Nome Social</span>
+                    <span class="info-value" id="viewNomeSocial">-</span>
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="info-group">
+                    <span class="info-label">CPF (Registro Geral)</span>
+                    <span class="info-value" id="viewCpf" style="color:var(--primary);">526.534.158-79</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Sexo</span>
+                    <span class="info-value" id="viewSexo">Feminino</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Data de Nascimento</span>
+                    <span class="info-value" id="viewNascimento">12/03/2008</span>
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="info-group">
+                    <span class="info-label">Nacionalidade</span>
+                    <span class="info-value" id="viewNacionalidade">BRA</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Naturalidade</span>
+                    <span class="info-value" id="viewNaturalidade">BARUERI/SP</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Data de Validade</span>
+                    <span class="info-value" id="viewValidade">30/10/2035</span>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="info-group">
+                    <span class="info-label">Filiação (Mãe)</span>
+                    <span class="info-value" id="viewMae">MARIA APARECIDA DE JESUS</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Filiação (Pai)</span>
+                    <span class="info-value" id="viewPai">JOSÉ MENINO</span>
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="info-group">
+                    <span class="info-label">Órgão Expedidor</span>
+                    <span class="info-value" id="viewOrgao">SSP</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Estado / UF</span>
+                    <span class="info-value" id="viewUf">SÃO PAULO</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Data de Emissão</span>
+                    <span class="info-value" id="viewEmissao">30/10/2025</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. DOWNLOAD DO DOCUMENTO -->
+        <div class="card">
+            <div class="card-header-title">DOWNLOAD DO DOCUMENTO OFICIAL</div>
+            <p style="font-size:12.5px; color:var(--text-muted); margin-top:-6px;">Selecione o formato desejado para baixar seu RG Digital de alta fidelidade:</p>
+            
+            <div class="action-buttons-grid">
+                <button class="btn-green-full" onclick="downloadRgAction('card')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Baixar Cartão PDF (Frente + Verso)</span>
+                </button>
+                <button class="btn-secondary-full" onclick="downloadRgAction('a4')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span>Baixar Folha A4 PDF (Gov.br)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. MENSAGEM PARA O CLIENTE -->
+        <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div class="card-header-title">MENSAGEM PARA O CLIENTE</div>
+                <button class="btn-copy" onclick="copyClientMessage()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span>Copiar mensagem</span>
+                </button>
+            </div>
+
+            <div class="message-box" id="clientMsgPreview">Olá, <strong id="msgNome">MELLYSSA DE JESUS MENINO</strong>!
+
+Seu *RG Digital (Carteira de Identidade Nacional - CIN)* foi emitido com sucesso.
+
+📋 *Dados do Documento:*
+• *Nome:* <span id="msgNome2">MELLYSSA DE JESUS MENINO</span>
+• *CPF:* <span id="msgCpf">526.534.158-79</span>
+• *Nascimento:* <span id="msgNasc">12/03/2008</span>
+• *Validade:* <span id="msgVal">30/10/2035</span>
+• *Órgão Emissor:* <span id="msgOrgao">SSP/SP</span>
+
+O documento digital oficial em altíssima resolução com QR Code e assinatura já está pronto para uso e download!</div>
+        </div>
+
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+    let currentRecord = null;
+
+    function showToast(msg) {
+        let container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.style.cssText = 'background:#1a1d1e; border:1px solid #00dc82; border-radius:8px; padding:12px 18px; color:#fff; font-size:13px; font-weight:700; box-shadow:0 8px 24px rgba(0,0,0,0.7);';
+        toast.textContent = msg;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 2800);
+    }
+
+    function initPage() {
+        const params = new URLSearchParams(window.location.search);
+        const rgId = params.get('id');
+
+        let found = null;
+        try {
+            const u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+            const uEmail = (u && u.email) ? u.email.toLowerCase().trim() : '';
+            const rgList = JSON.parse(localStorage.getItem('happynation_rgs_' + uEmail) || localStorage.getItem('happynation_rgs') || '[]');
+            found = rgList.find(x => x.id === rgId);
+            if (!found) {
+                const last = JSON.parse(localStorage.getItem('happynation_last_rg') || '{}');
+                if (last && (last.id === rgId || !rgId)) found = last;
+            }
+        } catch(e) {}
+
+        const d = Object.assign({}, found || {});
+        if (params.get('nome')) d.nome = params.get('nome');
+        if (params.get('cpf')) d.cpf = params.get('cpf');
+
+        currentRecord = {
+            id: rgId || d.id || 'RG-' + Date.now(),
+            nome: d.nome || 'MELLYSSA DE JESUS MENINO',
+            nome_social: d.nome_social || '',
+            cpf: d.cpf || '526.534.158-79',
+            sexo: d.sexo || 'Feminino',
+            nascimento: d.nascimento || '12/03/2008',
+            nacionalidade: d.nacionalidade || 'BRA',
+            naturalidade: d.naturalidade || 'BARUERI/SP',
+            validade: d.validade || '30/10/2035',
+            mae: d.mae || 'MARIA APARECIDA DE JESUS',
+            pai: d.pai || 'JOSÉ MENINO',
+            orgao: d.orgao || 'SSP',
+            uf: d.uf || 'SÃO PAULO',
+            emissao: d.emissao || '30/10/2025',
+            foto: d.foto || localStorage.getItem('happynation_rg_foto_' + (rgId || d.id)) || ''
+        };
+
+        // Preenche campos da tela
+        document.getElementById('viewNomeResumo').textContent = currentRecord.nome.toUpperCase();
+        document.getElementById('viewCpfResumo').textContent = currentRecord.cpf;
+        document.getElementById('viewUfResumo').textContent = (currentRecord.uf || 'SÃO PAULO') + ' / ' + (currentRecord.orgao || 'SSP');
+
+        document.getElementById('viewNome').textContent = currentRecord.nome.toUpperCase();
+        document.getElementById('viewNomeSocial').textContent = currentRecord.nome_social ? currentRecord.nome_social.toUpperCase() : '-';
+        document.getElementById('viewCpf').textContent = currentRecord.cpf;
+        document.getElementById('viewSexo').textContent = currentRecord.sexo;
+        document.getElementById('viewNascimento').textContent = currentRecord.nascimento;
+        document.getElementById('viewNacionalidade').textContent = currentRecord.nacionalidade;
+        document.getElementById('viewNaturalidade').textContent = currentRecord.naturalidade;
+        document.getElementById('viewValidade').textContent = currentRecord.validade;
+        document.getElementById('viewMae').textContent = currentRecord.mae ? currentRecord.mae.toUpperCase() : '-';
+        document.getElementById('viewPai').textContent = currentRecord.pai ? currentRecord.pai.toUpperCase() : '-';
+        document.getElementById('viewOrgao').textContent = currentRecord.orgao;
+        document.getElementById('viewUf').textContent = currentRecord.uf;
+        document.getElementById('viewEmissao').textContent = currentRecord.emissao;
+
+        if (currentRecord.foto) {
+            document.getElementById('viewFoto').src = currentRecord.foto;
+        }
+
+        // Mensagem cliente
+        document.getElementById('msgNome').textContent = currentRecord.nome.toUpperCase();
+        document.getElementById('msgNome2').textContent = currentRecord.nome.toUpperCase();
+        document.getElementById('msgCpf').textContent = currentRecord.cpf;
+        document.getElementById('msgNasc').textContent = currentRecord.nascimento;
+        document.getElementById('msgVal').textContent = currentRecord.validade;
+        document.getElementById('msgOrgao').textContent = (currentRecord.orgao || 'SSP') + '/' + (currentRecord.uf ? currentRecord.uf.substring(0,2).toUpperCase() : 'SP');
+
+        // Configura botão de edição
+        const btnEdit = document.getElementById('btnEditRGTop');
+        if (btnEdit) {
+            btnEdit.onclick = function() {
+                try {
+                    localStorage.setItem('happynation_edit_rg', JSON.stringify(currentRecord));
+                    sessionStorage.setItem('happynation_edit_rg', JSON.stringify(currentRecord));
+                } catch(err) {}
+            };
+            const q = new URLSearchParams();
+            q.set('id', currentRecord.id);
+            if (currentRecord.nome) q.set('nome', currentRecord.nome);
+            if (currentRecord.cpf) q.set('cpf', currentRecord.cpf);
+            btnEdit.href = 'criar-rg.html?' + q.toString() + '&edit=true';
+        }
+    }
+
+    function downloadRgAction(format) {
+        if (!currentRecord) return;
+        const q = new URLSearchParams();
+        q.set('id', currentRecord.id);
+        q.set('nome', currentRecord.nome);
+        q.set('cpf', currentRecord.cpf);
+        q.set('autoDownload', format || 'card');
+        window.location.href = 'criar-rg.html?' + q.toString();
+    }
+
+    function copyClientMessage() {
+        const box = document.getElementById('clientMsgPreview');
+        if (box) {
+            navigator.clipboard.writeText(box.innerText).then(() => {
+                showToast('✅ Mensagem copiada com sucesso!');
+            }).catch(() => {
+                showToast('Mensagem selecionada. Use Ctrl+C para copiar.');
+            });
+        }
+    }
+
+    window.addEventListener('load', initPage);
+    </script>
+</body>
+</html>
