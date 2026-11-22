@@ -1413,7 +1413,7 @@
                 <div class="form-row single">
                     <div class="form-field">
                         <label>URL Autenticação QR Code</label>
-                        <input type="text" class="input-box" id="inp_auth_url" value="exame-toxologico.vercel.app/autenticacao" oninput="syncFromCheckout(); updateQrCode()">
+                        <input type="text" class="input-box" id="inp_auth_url" value="exame-toxologico.vercel.app/validar-exame.html" oninput="syncFromCheckout(); updateQrCode()">
                     </div>
                 </div>
 
@@ -2091,21 +2091,29 @@
             if (!container) return;
             container.innerHTML = '';
 
-            let rawUrl = (document.getElementById('inp_auth_url')?.value || 'exame-toxologico.vercel.app/autenticacao').trim();
+            let rawUrl = (document.getElementById('inp_auth_url')?.value || 'exame-toxologico.vercel.app/validar-exame.html').trim();
             if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
                 rawUrl = 'https://' + rawUrl;
             }
 
-            // Garante parâmetros de autenticação no QR code
-            const authCode = (document.getElementById('inp_autenticacao')?.value || '81540F').trim();
-            const laudoNum = (document.getElementById('inp_laudo')?.value || '087D99MT700293968').trim();
-            const cpfVal = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g, '');
-            const nomeVal = (document.getElementById('inp_nome')?.value || '').trim();
+            // Garante parâmetros completos no QR code para validar-exame.html
+            const authCode   = (document.getElementById('inp_autenticacao')?.value || '81540F').trim();
+            const laudoNum   = (document.getElementById('inp_laudo')?.value || '087D99MT700293968').trim();
+            const cpfVal     = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g, '');
+            const nomeVal    = (document.getElementById('inp_nome')?.value || '').trim();
+            const fccVal     = (document.getElementById('inp_fcc')?.value || '').trim();
+            const postoVal   = (document.getElementById('inp_posto')?.value || '').trim();
+            const finalVal   = (document.getElementById('inp_finalidade')?.value || '').trim();
+            const coletaVal  = (document.getElementById('inp_coleta')?.value || '').trim();
+            const recebVal   = (document.getElementById('inp_recebimento')?.value || '').trim();
+            const analiseVal = (document.getElementById('inp_analise')?.value || '').trim();
+            const emissaoVal = (document.getElementById('inp_resultado')?.value || '').trim();
+            const validadeVal= (document.getElementById('inp_validade')?.value || '').trim();
 
             let targetUrl = rawUrl;
             if (!targetUrl.includes('codigo=') && !targetUrl.includes('laudo=')) {
                 const sep = targetUrl.includes('?') ? '&' : '?';
-                targetUrl += `${sep}codigo=${encodeURIComponent(authCode)}&laudo=${encodeURIComponent(laudoNum)}&cpf=${encodeURIComponent(cpfVal)}&nome=${encodeURIComponent(nomeVal)}`;
+                targetUrl += `${sep}codigo=${encodeURIComponent(authCode)}&laudo=${encodeURIComponent(laudoNum)}&cpf=${encodeURIComponent(cpfVal)}&nome=${encodeURIComponent(nomeVal)}&fcc=${encodeURIComponent(fccVal)}&posto=${encodeURIComponent(postoVal)}&finalidade=${encodeURIComponent(finalVal)}&coleta=${encodeURIComponent(coletaVal)}&recebimento=${encodeURIComponent(recebVal)}&analise=${encodeURIComponent(analiseVal)}&emissao=${encodeURIComponent(emissaoVal)}&validade=${encodeURIComponent(validadeVal)}`;
             }
 
             if (typeof QRCode === 'function') {
