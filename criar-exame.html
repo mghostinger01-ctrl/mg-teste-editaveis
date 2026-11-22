@@ -2470,6 +2470,7 @@
             let loggedUser = {};
             try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
             const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
+            const uId = (loggedUser && (loggedUser.id || loggedUser.user_id)) ? String(loggedUser.id || loggedUser.user_id) : '1';
             const examesKey = 'happynation_exames_' + uEmail;
             let exList = JSON.parse(localStorage.getItem(examesKey) || '[]');
             
@@ -2481,6 +2482,8 @@
 
             const newExamRecord = {
                 id: examId,
+                user_email: uEmail,
+                user_id: uId,
                 nome: forcedNome || gv('inp_nome') || 'CONDUTOR',
                 cpf: gv('inp_cpf'),
                 tipo: gv('inp_tipo'),
@@ -2514,7 +2517,17 @@
 
             exList = exList.filter(item => item.id !== examId);
             exList.unshift(newExamRecord);
+            if (exList.length > 200) exList = exList.slice(0, 200);
             localStorage.setItem(examesKey, JSON.stringify(exList));
+            
+            try {
+                let genList = JSON.parse(localStorage.getItem('happynation_exames') || '[]');
+                genList = genList.filter(item => item.id !== examId);
+                genList.unshift(newExamRecord);
+                if (genList.length > 200) genList = genList.slice(0, 200);
+                localStorage.setItem('happynation_exames', JSON.stringify(genList));
+            } catch(eGen) {}
+
             localStorage.setItem('happynation_last_exame', JSON.stringify(newExamRecord));
             localStorage.setItem('happynation_edit_exame', JSON.stringify(newExamRecord));
 

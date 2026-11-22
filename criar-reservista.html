@@ -1854,9 +1854,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 try {
+                    let uEmail = 'cliente';
+                    let uId = '1';
+                    try {
+                        const lu = JSON.parse(localStorage.getItem('happynation_user')||'{}');
+                        uEmail = (lu.email || 'cliente').toLowerCase().trim();
+                        uId = String(lu.id || lu.user_id || '1');
+                    } catch(e){}
                     const gv = id => (document.getElementById(id)?.value || '').trim();
                     const resRecord = {
                         id: window.__editReservistaId || new URLSearchParams(window.location.search).get('id') || ('RES-' + Math.floor(10000 + Math.random() * 90000)),
+                        user_email: uEmail,
+                        user_id: uId,
                         nome: (gv('inpNome') || 'RESERVISTA').toUpperCase(),
                         ra: gv('inpRa') || '53696544',
                         incorporacao: gv('inpDataIncorp') || '',
@@ -1884,11 +1893,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             localExpedicaoVerso: gv('inpLocalExpedicaoVerso'),
                             dataIcp: gv('inpDataIcp'),
                             autoridadeNome: gv('inpAutoridadeNome'),
-                            autoridadeCargo: gv('inpAutoridadeCargo')
+                            autoridadeCargo: gv('inpAutoridadeCargo'),
+                            user_email: uEmail
                         }
                     };
-                    let uEmail = 'cliente';
-                    try { uEmail = (JSON.parse(localStorage.getItem('happynation_user')||'{}').email||'cliente').toLowerCase().trim(); } catch(e){}
                     const rk = 'happynation_reservistas_' + uEmail;
                     let rList = []; try { rList = JSON.parse(localStorage.getItem(rk)||'[]'); } catch(e){}
                     rList = rList.filter(x => x.id !== resRecord.id);

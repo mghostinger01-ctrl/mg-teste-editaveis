@@ -1713,11 +1713,14 @@ function loadUserAtestados(user) {
 }
 
 function loadUserReservistas(user) {
-    const clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
+    let clientCtx = window.DocIsolationGuard ? window.DocIsolationGuard.getClientContext() : {
         email: (user && user.email) ? user.email.toLowerCase().trim() : '',
         id: (user && user.id) ? String(user.id) : '',
         isAdmin: Boolean(user && user.role === 'admin')
     };
+    if (!clientCtx.email && user && user.email) {
+        clientCtx.email = user.email.toLowerCase().trim();
+    }
     const email = clientCtx.email;
     const isAdmin = clientCtx.isAdmin;
     const userKey = email ? ('happynation_reservistas_' + email) : '';
@@ -1726,10 +1729,16 @@ function loadUserReservistas(user) {
     const deletedList = JSON.parse(localStorage.getItem('happynation_deleted_reservistas') || '[]');
     const items = [];
 
-    const addIfValid = (item) => {
+    const addIfValid = (item, isUserKey) => {
         if (!item) return;
         const idStr = String(item.id || item.ra || ('RES-' + Math.floor(10000 + Math.random() * 90000)));
         if (seenIds.has(idStr) || deletedList.includes(idStr)) return;
+
+        if (email && (!item.user_email || isUserKey)) {
+            item.user_email = email;
+            if (clientCtx.id) item.user_id = clientCtx.id;
+            if (item.dados && typeof item.dados === 'object') item.dados.user_email = email;
+        }
 
         // Se for cliente comum, valida posse estrita e descarta mocks/fakes
         if (!isAdmin && window.DocIsolationGuard) {
@@ -1752,9 +1761,21 @@ function loadUserReservistas(user) {
     if (userKey) {
         try {
             const list = JSON.parse(localStorage.getItem(userKey) || '[]');
-            if (Array.isArray(list)) list.forEach(addIfValid);
+            if (Array.isArray(list)) list.forEach(item => addIfValid(item, true));
         } catch(e) {}
     }
+
+    // 2. Carrega da chave 'happynation_reservistas_cliente'
+    try {
+        const clienteList = JSON.parse(localStorage.getItem('happynation_reservistas_cliente') || '[]');
+        if (Array.isArray(clienteList)) clienteList.forEach(item => addIfValid(item, true));
+    } catch(e) {}
+
+    // 3. Carrega de 'happynation_last_reservista'
+    try {
+        const lastRes = JSON.parse(localStorage.getItem('happynation_last_reservista') || 'null');
+        if (lastRes) addIfValid(lastRes, true);
+    } catch(e) {}
 
     // 2. Apenas para ADMIN: permite carregar chaves legadas e atividades
     if (isAdmin) {
