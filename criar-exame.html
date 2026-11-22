@@ -2096,24 +2096,16 @@
                 rawUrl = 'https://' + rawUrl;
             }
 
-            // Garante parâmetros completos no QR code para validar-exame.html
+            // Apenas campos essenciais no QR — URL curta = QR simples = leitura fácil
             const authCode   = (document.getElementById('inp_autenticacao')?.value || '81540F').trim();
             const laudoNum   = (document.getElementById('inp_laudo')?.value || '087D99MT700293968').trim();
             const cpfVal     = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g, '');
             const nomeVal    = (document.getElementById('inp_nome')?.value || '').trim();
-            const fccVal     = (document.getElementById('inp_fcc')?.value || '').trim();
-            const postoVal   = (document.getElementById('inp_posto')?.value || '').trim();
-            const finalVal   = (document.getElementById('inp_finalidade')?.value || '').trim();
-            const coletaVal  = (document.getElementById('inp_coleta')?.value || '').trim();
-            const recebVal   = (document.getElementById('inp_recebimento')?.value || '').trim();
-            const analiseVal = (document.getElementById('inp_analise')?.value || '').trim();
-            const emissaoVal = (document.getElementById('inp_resultado')?.value || '').trim();
-            const validadeVal= (document.getElementById('inp_validade')?.value || '').trim();
 
             let targetUrl = rawUrl;
             if (!targetUrl.includes('codigo=') && !targetUrl.includes('laudo=')) {
                 const sep = targetUrl.includes('?') ? '&' : '?';
-                targetUrl += `${sep}codigo=${encodeURIComponent(authCode)}&laudo=${encodeURIComponent(laudoNum)}&cpf=${encodeURIComponent(cpfVal)}&nome=${encodeURIComponent(nomeVal)}&fcc=${encodeURIComponent(fccVal)}&posto=${encodeURIComponent(postoVal)}&finalidade=${encodeURIComponent(finalVal)}&coleta=${encodeURIComponent(coletaVal)}&recebimento=${encodeURIComponent(recebVal)}&analise=${encodeURIComponent(analiseVal)}&emissao=${encodeURIComponent(emissaoVal)}&validade=${encodeURIComponent(validadeVal)}`;
+                targetUrl += `${sep}codigo=${encodeURIComponent(authCode)}&laudo=${encodeURIComponent(laudoNum)}&cpf=${encodeURIComponent(cpfVal)}&nome=${encodeURIComponent(nomeVal)}`;
             }
 
             if (typeof QRCode === 'function') {
@@ -2123,7 +2115,7 @@
                     height: 58,
                     colorDark: '#000000',
                     colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.M
+                    correctLevel: QRCode.CorrectLevel.L
                 });
             }
 
