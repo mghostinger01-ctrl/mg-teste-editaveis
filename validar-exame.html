@@ -643,44 +643,44 @@
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
-                    <span id="txtAutenticacao">81540F</span>
+                    <span id="txtAutenticacao">—</span>
                 </div>
             </div>
 
             <div class="info-grid">
                 <div class="info-item">
                     <span class="info-item-label">Nome Completo do Doador</span>
-                    <span class="info-item-value highlight-blue" id="txtNomeDoador">LEANDRO FERNANDES</span>
+                    <span class="info-item-value highlight-blue" id="txtNomeDoador">—</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-item-label">CPF (Protegido por LGPD)</span>
-                    <span class="info-item-value mono" id="txtCpfDoador">107.***.***-30</span>
+                    <span class="info-item-value mono" id="txtCpfDoador">—</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-item-label">Número do Laudo</span>
-                    <span class="info-item-value highlight-blue mono" id="txtNumeroLaudo">087D99MT700293968</span>
+                    <span class="info-item-value highlight-blue mono" id="txtNumeroLaudo">—</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-item-label">Formulário Cadeia de Custódia (FCC)</span>
-                    <span class="info-item-value mono" id="txtFcc">CN305638578</span>
+                    <span class="info-item-value mono" id="txtFcc">—</span>
                 </div>
 
                 <div class="info-item full-width">
                     <span class="info-item-label">Posto de Coleta Laboratorial Credenciado (PCL)</span>
-                    <span class="info-item-value" id="txtPostoColeta">LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64</span>
+                    <span class="info-item-value" id="txtPostoColeta">—</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-item-label">Tipo de Contrato / Finalidade</span>
-                    <span class="info-item-value" id="txtFinalidade">CLT — Periódico / Habilitação CNH</span>
+                    <span class="info-item-value" id="txtFinalidade">—</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-item-label">Amostra Biológica Analisada</span>
-                    <span class="info-item-value" id="txtAmostra">Cabelos CABEÇA — 3,0 cm (Queratina)</span>
+                    <span class="info-item-value" id="txtAmostra">—</span>
                 </div>
 
                 <div class="info-item">
@@ -690,32 +690,32 @@
 
                 <div class="info-item">
                     <span class="info-item-label">Data da Coleta</span>
-                    <span class="info-item-value" id="txtDataColeta">26/01/2024</span>
+                    <span class="info-item-value" id="txtDataColeta">—</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-item-label">Recebimento no Laboratório</span>
-                    <span class="info-item-value" id="txtDataRecebimento">26/01/2024</span>
+                    <span class="info-item-value" id="txtDataRecebimento">—</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-item-label">Data da Análise Laboratorial</span>
-                    <span class="info-item-value" id="txtDataAnalise">27/01/2024</span>
+                    <span class="info-item-value" id="txtDataAnalise">—</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-item-label">Data de Emissão do Laudo</span>
-                    <span class="info-item-value" id="txtDataEmissao">30/01/2024</span>
+                    <span class="info-item-value" id="txtDataEmissao">—</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-item-label">Validade RENACH / DETRAN</span>
-                    <span class="info-item-value highlight-blue" id="txtDataValidade">29/04/2024</span>
+                    <span class="info-item-value highlight-blue" id="txtDataValidade">—</span>
                 </div>
 
                 <div class="info-item full-width">
                     <span class="info-item-label">Hash Criptográfico de Segurança (SHA-256)</span>
-                    <span class="info-item-value mono" style="font-size:12px; color:#475569;" id="txtHashDigital">406e230323742ad8f9a21b3e8c14d9987a12b</span>
+                    <span class="info-item-value mono" style="font-size:12px; color:#475569;" id="txtHashDigital">—</span>
                 </div>
             </div>
         </section>
@@ -860,20 +860,21 @@
             // Leitura de parâmetros de busca via URL
             const urlParams = new URLSearchParams(window.location.search);
 
-            const paramCodigo = (urlParams.get('codigo') || urlParams.get('autenticacao') || '81540F').trim();
-            const paramLaudo = (urlParams.get('laudo') || urlParams.get('numero') || '087D99MT700293968').trim();
-            const paramCpfRaw = (urlParams.get('cpf') || '107.413.316-30').trim();
-            const paramNome = (urlParams.get('nome') || 'LEANDRO FERNANDES').trim();
-            const paramFcc = (urlParams.get('fcc') || 'CN305638578').trim();
-            const paramPosto = (urlParams.get('posto') || 'LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64').trim();
-            const paramFinalidade = (urlParams.get('finalidade') || 'CLT — PERIODICO / Habilitação CNH').trim();
-            const paramColeta = (urlParams.get('coleta') || '26/01/2024').trim();
-            const paramRecebimento = (urlParams.get('recebimento') || '26/01/2024').trim();
-            const paramAnalise = (urlParams.get('analise') || '27/01/2024').trim();
-            const paramEmissao = (urlParams.get('emissao') || urlParams.get('resultado_data') || '30/01/2024').trim();
-            const paramValidade = (urlParams.get('validade') || '29/04/2024').trim();
-            const paramHash = (urlParams.get('hash') || '406e230323742ad8f9a21b3e8c14d9987a12b').trim();
-            const paramAmostra = (urlParams.get('amostra') || 'Cabelos CABEÇA — 3,0 cm (Queratina)').trim();
+            // Lê nomes curtos (QR) com fallback para nomes longos
+            const paramCodigo     = (urlParams.get('cd') || urlParams.get('codigo') || urlParams.get('autenticacao') || '').trim();
+            const paramLaudo      = (urlParams.get('ld') || urlParams.get('laudo') || urlParams.get('numero') || '').trim();
+            const paramCpfRaw     = (urlParams.get('cp') || urlParams.get('cpf') || '').trim();
+            const paramNome       = (urlParams.get('nm') || urlParams.get('nome') || '').trim();
+            const paramFcc        = (urlParams.get('fc') || urlParams.get('fcc') || '').trim();
+            const paramPosto      = (urlParams.get('ps') || urlParams.get('posto') || 'LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64').trim();
+            const paramFinalidade = (urlParams.get('fi') || urlParams.get('finalidade') || 'CLT — Periódico / Habilitação CNH').trim();
+            const paramColeta     = (urlParams.get('cl') || urlParams.get('coleta') || '').trim();
+            const paramRecebimento= (urlParams.get('rb') || urlParams.get('recebimento') || '').trim();
+            const paramAnalise    = (urlParams.get('an') || urlParams.get('analise') || '').trim();
+            const paramEmissao    = (urlParams.get('em') || urlParams.get('emissao') || urlParams.get('resultado_data') || '').trim();
+            const paramValidade   = (urlParams.get('vl') || urlParams.get('validade') || '').trim();
+            const paramHash       = (urlParams.get('hx') || urlParams.get('hash') || '406e230323742ad8f9a21b3e8c14d9987a12b').trim();
+            const paramAmostra    = (urlParams.get('am') || urlParams.get('amostra') || 'Cabelos CABEÇA — 3,0 cm (Queratina)').trim();
 
             // Mascaramento LGPD do CPF
             let maskedCpf = paramCpfRaw;
@@ -883,20 +884,20 @@
             }
 
             // Injeção nos elementos de visualização
-            document.getElementById('txtAutenticacao').textContent = paramCodigo.toUpperCase();
-            document.getElementById('txtNumeroLaudo').textContent = paramLaudo.toUpperCase();
-            document.getElementById('txtNomeDoador').textContent = paramNome.toUpperCase();
-            document.getElementById('txtCpfDoador').textContent = maskedCpf;
-            document.getElementById('txtFcc').textContent = paramFcc.toUpperCase();
-            document.getElementById('txtPostoColeta').textContent = paramPosto.toUpperCase();
-            document.getElementById('txtFinalidade').textContent = paramFinalidade;
-            document.getElementById('txtAmostra').textContent = paramAmostra;
-            document.getElementById('txtDataColeta').textContent = paramColeta;
-            document.getElementById('txtDataRecebimento').textContent = paramRecebimento;
-            document.getElementById('txtDataAnalise').textContent = paramAnalise;
-            document.getElementById('txtDataEmissao').textContent = paramEmissao;
-            document.getElementById('txtDataValidade').textContent = paramValidade;
-            document.getElementById('txtHashDigital').textContent = paramHash;
+            if (paramCodigo) document.getElementById('txtAutenticacao').textContent = paramCodigo.toUpperCase();
+            if (paramLaudo) document.getElementById('txtNumeroLaudo').textContent = paramLaudo.toUpperCase();
+            if (paramNome) document.getElementById('txtNomeDoador').textContent = paramNome.toUpperCase();
+            if (maskedCpf) document.getElementById('txtCpfDoador').textContent = maskedCpf;
+            if (paramFcc) document.getElementById('txtFcc').textContent = paramFcc.toUpperCase();
+            if (paramPosto) document.getElementById('txtPostoColeta').textContent = paramPosto.toUpperCase();
+            if (paramFinalidade) document.getElementById('txtFinalidade').textContent = paramFinalidade;
+            if (paramAmostra) document.getElementById('txtAmostra').textContent = paramAmostra;
+            if (paramColeta) document.getElementById('txtDataColeta').textContent = paramColeta;
+            if (paramRecebimento) document.getElementById('txtDataRecebimento').textContent = paramRecebimento;
+            if (paramAnalise) document.getElementById('txtDataAnalise').textContent = paramAnalise;
+            if (paramEmissao) document.getElementById('txtDataEmissao').textContent = paramEmissao;
+            if (paramValidade) document.getElementById('txtDataValidade').textContent = paramValidade;
+            if (paramHash) document.getElementById('txtHashDigital').textContent = paramHash;
 
             // Médico e CRF se passados
             if (urlParams.get('medico')) {

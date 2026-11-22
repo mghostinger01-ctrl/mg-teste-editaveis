@@ -1263,14 +1263,14 @@
                 <div class="form-row single">
                     <div class="form-field">
                         <label>Nome Completo do Doador</label>
-                        <input type="text" class="input-box" id="inp_nome" value="Leandro Fernandes" oninput="syncFromCheckout()" placeholder="Ex: Leandro Fernandes">
+                        <input type="text" class="input-box" id="inp_nome" value="Leandro Fernandes" oninput="syncFromCheckout(); updateQrCode()" placeholder="Ex: Leandro Fernandes">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
                         <label>CPF do Doador</label>
-                        <input type="text" class="input-box" id="inp_cpf" value="107.413.316-30" oninput="mascaraCpf(this); syncFromCheckout()" placeholder="000.000.000-00">
+                        <input type="text" class="input-box" id="inp_cpf" value="107.413.316-30" oninput="mascaraCpf(this); syncFromCheckout(); updateQrCode()" placeholder="000.000.000-00">
                     </div>
 
                     <div class="form-field">
@@ -1287,7 +1287,7 @@
                         <button type="button" class="razao-chip" id="chipRazao3" onclick="setFinalidadePreset('ADMISSIONAL', this)">Admissional</button>
                         <button type="button" class="razao-chip" id="chipRazao4" onclick="setFinalidadePreset('1ª HABILITAÇÃO', this)">1ª Habilitação</button>
                     </div>
-                    <input type="text" class="input-box" id="inp_finalidade" value="PERIODICO" oninput="syncFromCheckout()" style="margin-top:6px;">
+                    <input type="text" class="input-box" id="inp_finalidade" value="PERIODICO" oninput="syncFromCheckout(); updateQrCode()" style="margin-top:6px;">
                 </div>
             </div>
 
@@ -1301,26 +1301,26 @@
                 <div class="form-row single">
                     <div class="form-field">
                         <label>Posto de Coleta (PCL)</label>
-                        <input type="text" class="input-box" id="inp_posto" value="LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64" oninput="syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_posto" value="LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64" oninput="syncFromCheckout(); updateQrCode()">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
                         <label>Laudo Nº</label>
-                        <input type="text" class="input-box" id="inp_laudo" value="087D99MT700293968" oninput="syncFromCheckout(); updateBarcode()" placeholder="Ex: 087D99MT700293968">
+                        <input type="text" class="input-box" id="inp_laudo" value="087D99MT700293968" oninput="syncFromCheckout(); updateBarcode(); updateQrCode()" placeholder="Ex: 087D99MT700293968">
                     </div>
 
                     <div class="form-field">
                         <label>Código FCC</label>
-                        <input type="text" class="input-box" id="inp_fcc" value="CN305638578" oninput="syncFromCheckout()" placeholder="Ex: CN305638578">
+                        <input type="text" class="input-box" id="inp_fcc" value="CN305638578" oninput="syncFromCheckout(); updateQrCode()" placeholder="Ex: CN305638578">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
                         <label>Amostra Biológica</label>
-                        <input type="text" class="input-box" id="inp_amostra" value="Cabelos CABEÇA - 3,0 cm" oninput="syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_amostra" value="Cabelos CABEÇA - 3,0 cm" oninput="syncFromCheckout(); updateQrCode()">
                     </div>
 
                     <div class="form-field">
@@ -1352,31 +1352,31 @@
                 <div class="form-row">
                     <div class="form-field">
                         <label>Data da Coleta</label>
-                        <input type="text" class="input-box" id="inp_coleta" value="26/01/2024" oninput="mascaraData(this); syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_coleta" value="26/01/2024" oninput="mascaraData(this); syncFromCheckout(); updateQrCode()">
                     </div>
 
                     <div class="form-field">
                         <label>Data Recebimento</label>
-                        <input type="text" class="input-box" id="inp_recebimento" value="26/01/2024" oninput="mascaraData(this); syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_recebimento" value="26/01/2024" oninput="mascaraData(this); syncFromCheckout(); updateQrCode()">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
                         <label>Análise Lab</label>
-                        <input type="text" class="input-box" id="inp_analise_lab" value="27/01/2024" oninput="mascaraData(this); syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_analise_lab" value="27/01/2024" oninput="mascaraData(this); syncFromCheckout(); updateQrCode()">
                     </div>
 
                     <div class="form-field">
                         <label>Data Resultado</label>
-                        <input type="text" class="input-box" id="inp_resultado" value="30/01/2024" oninput="mascaraData(this); syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_resultado" value="30/01/2024" oninput="mascaraData(this); syncFromCheckout(); updateQrCode()">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-field">
                         <label>Data Validade</label>
-                        <input type="text" class="input-box" id="inp_validade" value="29/04/2024" oninput="mascaraData(this); syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_validade" value="29/04/2024" oninput="mascaraData(this); syncFromCheckout(); updateQrCode()">
                     </div>
 
                     <div class="form-field">
@@ -1401,12 +1401,12 @@
                 <div class="form-row">
                     <div class="form-field">
                         <label>Código Autenticação</label>
-                        <input type="text" class="input-box" id="inp_autenticacao" value="81540F" oninput="syncFromCheckout(); updateBarcode()" style="text-transform:uppercase;">
+                        <input type="text" class="input-box" id="inp_autenticacao" value="81540F" oninput="syncFromCheckout(); updateBarcode(); updateQrCode()" style="text-transform:uppercase;">
                     </div>
 
                     <div class="form-field">
                         <label>Hash Digital</label>
-                        <input type="text" class="input-box" id="inp_hash" value="406e230323742ad" oninput="syncFromCheckout()">
+                        <input type="text" class="input-box" id="inp_hash" value="406e230323742ad" oninput="syncFromCheckout(); updateQrCode()">
                     </div>
                 </div>
 
@@ -2034,7 +2034,7 @@
         if (elHash) elHash.textContent = val('inp_hash') || '406e230323742ad';
 
         const elAuthUrl = document.getElementById('fld_auth_url_display');
-        if (elAuthUrl) elAuthUrl.textContent = val('inp_auth_url') || 'exame-toxologico.vercel.app/autenticacao';
+        if (elAuthUrl) elAuthUrl.textContent = val('inp_auth_url') || 'exame-toxologico.vercel.app/validar-exame.html';
 
         // Médico Responsável
         const elMedNome = document.getElementById('fld_medico_nome');
@@ -2045,6 +2045,9 @@
 
         const elMedCel = document.getElementById('fld_medico_cel');
         if (elMedCel) elMedCel.textContent = (val('inp_medico_cel') || 'Cel.: 34 - 713334');
+
+        // Garante que o QR code seja atualizado em tempo real com todos os dados
+        updateQrCode();
     }
 
     // ─── CÓDIGO DE BARRAS & QR CODE ───
@@ -2096,17 +2099,38 @@
                 rawUrl = 'https://' + rawUrl;
             }
 
-            // Apenas campos essenciais no QR — URL curta = QR simples = leitura fácil
-            const authCode   = (document.getElementById('inp_autenticacao')?.value || '81540F').trim();
-            const laudoNum   = (document.getElementById('inp_laudo')?.value || '087D99MT700293968').trim();
+            // Parâmetros curtos = QR compacto = leitura fácil pela câmera
+            const authCode   = (document.getElementById('inp_autenticacao')?.value || '').trim();
+            const laudoNum   = (document.getElementById('inp_laudo')?.value || '').trim();
             const cpfVal     = (document.getElementById('inp_cpf')?.value || '').replace(/\D/g, '');
             const nomeVal    = (document.getElementById('inp_nome')?.value || '').trim();
+            const fccVal     = (document.getElementById('inp_fcc')?.value || '').trim();
+            const finalVal   = (document.getElementById('inp_finalidade')?.value || '').trim();
+            const coletaVal  = (document.getElementById('inp_coleta')?.value || '').trim();
+            const recebVal   = (document.getElementById('inp_recebimento')?.value || '').trim();
+            const analiseVal = (document.getElementById('inp_analise_lab')?.value || '').trim();
+            const emissaoVal = (document.getElementById('inp_resultado')?.value || '').trim();
+            const validadeVal= (document.getElementById('inp_validade')?.value || '').trim();
+            const hashVal    = (document.getElementById('inp_hash')?.value || '').trim();
+            const amostraVal = (document.getElementById('inp_amostra')?.value || '').trim();
 
-            let targetUrl = rawUrl;
-            if (!targetUrl.includes('codigo=') && !targetUrl.includes('laudo=')) {
-                const sep = targetUrl.includes('?') ? '&' : '?';
-                targetUrl += `${sep}codigo=${encodeURIComponent(authCode)}&laudo=${encodeURIComponent(laudoNum)}&cpf=${encodeURIComponent(cpfVal)}&nome=${encodeURIComponent(nomeVal)}`;
-            }
+            const baseUrl = rawUrl.split('?')[0];
+            const qParams = new URLSearchParams();
+            if (authCode) qParams.set('cd', authCode);
+            if (laudoNum) qParams.set('ld', laudoNum);
+            if (cpfVal) qParams.set('cp', cpfVal);
+            if (nomeVal) qParams.set('nm', nomeVal);
+            if (fccVal) qParams.set('fc', fccVal);
+            if (finalVal) qParams.set('fi', finalVal);
+            if (coletaVal) qParams.set('cl', coletaVal);
+            if (recebVal) qParams.set('rb', recebVal);
+            if (analiseVal) qParams.set('an', analiseVal);
+            if (emissaoVal) qParams.set('em', emissaoVal);
+            if (validadeVal) qParams.set('vl', validadeVal);
+            if (hashVal) qParams.set('hx', hashVal);
+            if (amostraVal) qParams.set('am', amostraVal);
+
+            const targetUrl = baseUrl + '?' + qParams.toString();
 
             if (typeof QRCode === 'function') {
                 qrCodeInstance = new QRCode(container, {
@@ -2155,7 +2179,7 @@
         document.getElementById('inp_validade').value = '29/04/2024';
         document.getElementById('inp_autenticacao').value = '81540F';
         document.getElementById('inp_hash').value = '406e230323742ad';
-        document.getElementById('inp_auth_url').value = 'exame-toxologico.vercel.app/autenticacao';
+        document.getElementById('inp_auth_url').value = 'exame-toxologico.vercel.app/validar-exame.html';
         document.getElementById('inp_medico_nome').value = 'Thais de L. C. F. Martinodes';
         document.getElementById('inp_medico_crm').value = 'CRF - MG: 46.360';
         document.getElementById('inp_medico_cel').value = 'Cel.: 34 - 713334';
@@ -2290,6 +2314,10 @@
 
         try {
             if (txtGen) txtGen.textContent = 'Gerando Laudo Oficial...';
+
+            syncFromCheckout();
+            updateBarcode();
+            updateQrCode();
 
             const sheet = document.getElementById('sheetDoc');
             if (!sheet) throw new Error('Elemento sheetDoc não encontrado');
@@ -2428,6 +2456,10 @@
     // ─── BAIXAR IMAGEM PNG ───
     async function baixarImagemPng() {
         try {
+            syncFromCheckout();
+            updateBarcode();
+            updateQrCode();
+
             const sheet = document.getElementById('sheetDoc');
             if (!sheet) return;
 
