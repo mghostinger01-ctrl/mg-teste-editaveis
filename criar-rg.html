@@ -502,7 +502,7 @@
             width: 100%;
             height: 100%;
             position: relative;
-            background-image: url('assets/cin_frente_template_oficial.png');
+            background-image: url('assets/cin_frente_limpa_oficial_v2.png?v=2');
             background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
@@ -1150,7 +1150,11 @@
                     <div id="viewOficialComposite" class="doc-cin-composite-view" style="display:flex;">
                         <!-- COLUNA ESQUERDA: CARTÃO FRENTE OFICIAL (559px × 355px) -->
                         <div class="composite-card-frame">
-                            <div id="compCardFrente" class="comp-card-inner">
+                            <!-- Cartão Base Idêntico à Segunda Foto Oficial quando padrão -->
+                            <img id="compCardBaseImg" src="assets/cin_card_segunda_foto_560x356.png?v=2" alt="Cartão Frente Oficial" style="width:100%; height:100%; object-fit:fill; display:block; position:absolute; top:0; left:0; z-index:1;">
+
+                            <!-- Camada Dinâmica (ativada quando o usuário edita dados) -->
+                            <div id="compCardDynamicLayer" class="comp-card-inner" style="display:none; position:relative; z-index:2; width:100%; height:100%;">
                                 <!-- Foto 3x4 Oficial -->
                                 <img id="compPhoto" src="assets/rayson_foto.png" alt="Foto">
 
@@ -1431,6 +1435,26 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
                     cSsp.style.display = 'block';
                 } else {
                     cSsp.style.display = 'none';
+                }
+            }
+
+            // Alternância inteligente entre modo padrão (Rayson idêntico à 2ª foto) e modo editado
+            const isDefaultRayson = (
+                nome.trim().toUpperCase() === DEFAULT_RAYSON.nome &&
+                cpf.trim() === DEFAULT_RAYSON.cpf &&
+                !isUserCustomPhoto &&
+                !isUserCustomSig
+            );
+
+            const baseImg = document.getElementById('compCardBaseImg');
+            const dynLayer = document.getElementById('compCardDynamicLayer');
+            if (baseImg && dynLayer) {
+                if (isDefaultRayson) {
+                    baseImg.style.display = 'block';
+                    dynLayer.style.display = 'none';
+                } else {
+                    baseImg.style.display = 'none';
+                    dynLayer.style.display = 'block';
                 }
             }
 
