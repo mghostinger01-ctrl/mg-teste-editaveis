@@ -1525,31 +1525,44 @@
                 let u = {};
                 try { u = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
                 const uEmail = (u.email || '').toLowerCase().trim();
+                const gv = id => (document.getElementById(id)?.value || '').trim();
+
+                const existingId = new URLSearchParams(window.location.search).get('id') || window.__currentArraisId;
+                const itemId = existingId || ('CHA' + Math.floor(100000 + Math.random() * 900000));
+                window.__currentArraisId = itemId;
 
                 const item = {
-                    id: 'CHA' + Math.floor(100000 + Math.random() * 900000),
+                    id: itemId,
                     user_email: uEmail,
                     user_id: u.id || 1,
-                    nome: document.getElementById('inpNome').value.trim(),
-                    cpf: document.getElementById('inpCpf').value.trim(),
-                    categoria: document.getElementById('inpCategoria').value.trim(),
-                    inscricao: document.getElementById('inpInscricao').value.trim(),
-                    validade: document.getElementById('inpDataValidade').value.trim(),
-                    orgao: document.getElementById('inpOrgao').value.trim(),
-                    dataEmissao: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    nome: gv('inpNome'),
+                    nasc: gv('inpDataNasc'),
+                    cpf: gv('inpCpf'),
+                    categoria: gv('inpCategoria'),
+                    categoriaIngles: gv('inpCategoriaIngles'),
+                    inscricao: gv('inpInscricao'),
+                    validade: gv('inpDataValidade'),
+                    limites: gv('inpLimites'),
+                    requisitos: gv('inpRequisitos'),
+                    orgao: gv('inpOrgao'),
+                    dataEmissao: gv('inpDataEmissao') || (new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })),
+                    qrUrl: gv('inpQrUrl'),
                     status: 'Regular (Oficial)',
                     valor: 'R$ 20,00'
                 };
 
                 if (uEmail) {
                     let userHist = JSON.parse(localStorage.getItem('happynation_arrais_history_' + uEmail) || '[]');
+                    userHist = userHist.filter(x => x.id !== itemId);
                     userHist.unshift(item);
                     localStorage.setItem('happynation_arrais_history_' + uEmail, JSON.stringify(userHist));
                 }
 
                 let hist = JSON.parse(localStorage.getItem('happynation_arrais_history') || '[]');
+                hist = hist.filter(x => x.id !== itemId);
                 hist.unshift(item);
                 localStorage.setItem('happynation_arrais_history', JSON.stringify(hist));
+                localStorage.setItem('happynation_edit_arrais', JSON.stringify(item));
             } catch(e) {
                 console.error('Erro ao salvar histórico local:', e);
             }
@@ -1608,8 +1621,57 @@
             } catch(e) {}
         }
 
+        // ─── CARREGAR DADOS DE EDIÇÃO ───
+        function carregarDadosEdicao() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const qId = params.get('id');
+                let found = null;
+                const rawEdit = localStorage.getItem('happynation_edit_arrais') || sessionStorage.getItem('happynation_edit_arrais');
+                if (rawEdit) {
+                    try {
+                        const p = JSON.parse(rawEdit);
+                        if (p && (!qId || String(p.id) === String(qId))) found = p;
+                    } catch(e){}
+                }
+
+                if (!found && qId) {
+                    let uEmail = '';
+                    try { uEmail = (JSON.parse(localStorage.getItem('happynation_user')||'{}').email||'').toLowerCase().trim(); } catch(e){}
+                    let hist = [];
+                    if (uEmail) hist = JSON.parse(localStorage.getItem('happynation_arrais_history_' + uEmail) || '[]');
+                    if (!hist.length) hist = JSON.parse(localStorage.getItem('happynation_arrais_history') || '[]');
+                    found = hist.find(x => String(x.id) === String(qId));
+                }
+
+                if (found) {
+                    window.__currentArraisId = found.id;
+                    const d = found.dados || found;
+                    const sv = (id, val) => {
+                        if (val !== undefined && val !== null && val !== '') {
+                            const el = document.getElementById(id);
+                            if (el) el.value = val;
+                        }
+                    };
+                    sv('inpNome', d.nome);
+                    sv('inpDataNasc', d.nasc || d.dataNasc);
+                    sv('inpCpf', d.cpf);
+                    sv('inpCategoria', d.categoria);
+                    sv('inpCategoriaIngles', d.categoriaIngles);
+                    sv('inpInscricao', d.inscricao);
+                    sv('inpDataValidade', d.validade || d.dataValidade);
+                    sv('inpLimites', d.limites);
+                    sv('inpRequisitos', d.requisitos);
+                    sv('inpOrgao', d.orgao);
+                    sv('inpDataEmissao', d.dataEmissao);
+                    sv('inpQrUrl', d.qrUrl);
+                }
+            } catch(e) {}
+        }
+
         // ─── INICIALIZAÇÃO ───
         document.addEventListener('DOMContentLoaded', () => {
+            carregarDadosEdicao();
             updateUserHeader();
             updateZoomUI();
             updateCha();

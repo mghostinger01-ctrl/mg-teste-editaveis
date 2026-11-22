@@ -2016,15 +2016,20 @@ function editarExame(examId) {
     } catch(e) {}
     const q = new URLSearchParams();
     q.set('id', c.id);
-    q.set('nome', c.nome);
-    q.set('cpf', c.cpf);
-    q.set('laudo', c.laudo || '');
-    q.set('razao', c.razao || '');
-    q.set('coleta', c.coleta || '');
-    q.set('resultado', c.resultado_data || '');
-    q.set('validade', c.validade || '');
-    q.set('res_texto', c.resultado_final || '');
     q.set('edit', 'true');
+    if (c.nome) q.set('nome', c.nome);
+    if (c.cpf) q.set('cpf', c.cpf);
+    if (c.laudo) q.set('laudo', c.laudo);
+    if (c.fcc) q.set('fcc', c.fcc);
+    if (c.razao || c.finalidade) q.set('razao', c.razao || c.finalidade);
+    if (c.coleta) q.set('coleta', c.coleta);
+    if (c.recebimento) q.set('recebimento', c.recebimento);
+    if (c.analise_lab) q.set('analise', c.analise_lab);
+    if (c.resultado_data) q.set('resultado', c.resultado_data);
+    if (c.validade) q.set('validade', c.validade);
+    if (c.posto) q.set('posto', c.posto);
+    if (c.autenticacao) q.set('autenticacao', c.autenticacao);
+    if (c.resultado_final) q.set('res_texto', c.resultado_final);
     window.location.href = 'criar-exame.html?' + q.toString();
 }
 

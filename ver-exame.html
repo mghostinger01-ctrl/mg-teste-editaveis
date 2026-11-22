@@ -636,28 +636,28 @@ Agradecemos pela preferência e estamos à disposição! 🚗💨
         if (params.get('validade')) dataObj.validade = params.get('validade');
         if (params.get('res_texto')) dataObj.resultado_texto = params.get('res_texto');
 
-        currentExam = {
+        currentExam = Object.assign({}, dataObj, {
             id: examId || dataObj.id || 'TOX-1001',
-            nome: dataObj.nome || 'JOAO ROSALINO MIRANDA SALES',
-            cpf: dataObj.cpf || '608.256.691-20',
-            laudo: dataObj.laudo || '31528116',
-            razao: dataObj.razao || '1ª Habilitação',
-            coleta: dataObj.coleta || '15/02/2025',
-            resultado_data: dataObj.resultado || '21/05/2026',
-            validade: dataObj.validade || '21/08/2026',
-            resultado_texto: dataObj.resultado_texto || 'Negativo para todas as drogas testadas.'
-        };
+            nome: dataObj.nome || '',
+            cpf: dataObj.cpf || '',
+            laudo: dataObj.laudo || '',
+            razao: dataObj.razao || dataObj.finalidade || '',
+            coleta: dataObj.coleta || '',
+            resultado_data: dataObj.resultado_data || dataObj.resultado || '',
+            validade: dataObj.validade || '',
+            resultado_texto: dataObj.resultado_texto || dataObj.resultado_final || 'Negativo para todas as drogas testadas.'
+        });
 
         // Preenche campos visuais
-        document.getElementById('viewNome').textContent = currentExam.nome.toUpperCase();
-        document.getElementById('viewCpf').textContent = currentExam.cpf;
-        document.getElementById('viewLaudo').textContent = currentExam.laudo;
-        document.getElementById('viewRazao').textContent = currentExam.razao;
-        document.getElementById('viewDataColeta').textContent = currentExam.coleta;
-        document.getElementById('viewDataResultado').textContent = currentExam.resultado_data;
-        document.getElementById('viewDataValidade').textContent = currentExam.validade;
+        document.getElementById('viewNome').textContent = (currentExam.nome || '—').toUpperCase();
+        document.getElementById('viewCpf').textContent = currentExam.cpf || '—';
+        document.getElementById('viewLaudo').textContent = currentExam.laudo || '—';
+        document.getElementById('viewRazao').textContent = currentExam.razao || '—';
+        document.getElementById('viewDataColeta').textContent = currentExam.coleta || '—';
+        document.getElementById('viewDataResultado').textContent = currentExam.resultado_data || '—';
+        document.getElementById('viewDataValidade').textContent = currentExam.validade || '—';
 
-        const isNeg = currentExam.resultado_texto.toLowerCase().includes('negativo');
+        const isNeg = (currentExam.resultado_texto || '').toLowerCase().includes('negativo');
         const badgeRes = document.getElementById('viewResultadoBadge');
         if (badgeRes) {
             badgeRes.className = isNeg ? 'badge-resultado-neg' : 'badge-resultado-pos';
@@ -665,10 +665,10 @@ Agradecemos pela preferência e estamos à disposição! 🚗💨
         }
 
         // Preenche mensagem do cliente
-        document.getElementById('msgNome').textContent = currentExam.nome.toUpperCase();
-        document.getElementById('msgCpf').textContent = currentExam.cpf;
-        document.getElementById('msgLaudo').textContent = currentExam.laudo;
-        document.getElementById('msgValidade').textContent = currentExam.validade;
+        document.getElementById('msgNome').textContent = (currentExam.nome || '—').toUpperCase();
+        document.getElementById('msgCpf').textContent = currentExam.cpf || '—';
+        document.getElementById('msgLaudo').textContent = currentExam.laudo || '—';
+        document.getElementById('msgValidade').textContent = currentExam.validade || '—';
 
         // Link de edição do topo
         const btnEdit = document.getElementById('btnEditExameTop');
@@ -683,15 +683,18 @@ Agradecemos pela preferência e estamos à disposição! 🚗💨
             };
             const editQuery = new URLSearchParams();
             editQuery.set('id', currentExam.id);
-            editQuery.set('nome', currentExam.nome);
-            editQuery.set('cpf', currentExam.cpf);
-            editQuery.set('laudo', currentExam.laudo);
-            editQuery.set('razao', currentExam.razao);
-            editQuery.set('coleta', currentExam.coleta);
-            editQuery.set('resultado', currentExam.resultado_data);
-            editQuery.set('validade', currentExam.validade);
-            editQuery.set('res_texto', currentExam.resultado_texto);
             editQuery.set('edit', 'true');
+            if (currentExam.nome) editQuery.set('nome', currentExam.nome);
+            if (currentExam.cpf) editQuery.set('cpf', currentExam.cpf);
+            if (currentExam.laudo) editQuery.set('laudo', currentExam.laudo);
+            if (currentExam.razao) editQuery.set('razao', currentExam.razao);
+            if (currentExam.coleta) editQuery.set('coleta', currentExam.coleta);
+            if (currentExam.recebimento) editQuery.set('recebimento', currentExam.recebimento);
+            if (currentExam.analise_lab) editQuery.set('analise', currentExam.analise_lab);
+            if (currentExam.resultado_data) editQuery.set('resultado', currentExam.resultado_data);
+            if (currentExam.validade) editQuery.set('validade', currentExam.validade);
+            if (currentExam.posto) editQuery.set('posto', currentExam.posto);
+            if (currentExam.autenticacao) editQuery.set('autenticacao', currentExam.autenticacao);
             btnEdit.href = 'criar-exame.html?' + editQuery.toString();
         }
     }

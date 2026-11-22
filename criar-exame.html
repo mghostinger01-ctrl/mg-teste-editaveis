@@ -2465,42 +2465,76 @@
                 const existingId = new URLSearchParams(window.location.search).get('id');
                 const examId = existingId || ('TOX-' + Math.floor(10000 + Math.random() * 90000));
                 
-                const newExamRecord = {
-                    id: examId,
-                    nome: nomeCondutor,
-                    cpf: document.getElementById('inp_cpf')?.value || '',
-                    laudo: document.getElementById('inp_laudo')?.value || '',
-                    fcc: document.getElementById('inp_fcc')?.value || '',
-                    laboratorio: 'TOXICOLOGIA PARDINI',
-                    razao: document.getElementById('inp_finalidade')?.value || 'PERIODICO',
-                    coleta: document.getElementById('inp_coleta')?.value || '',
-                    recebimento: document.getElementById('inp_recebimento')?.value || '',
-                    resultado_data: document.getElementById('inp_resultado')?.value || '',
-                    validade: document.getElementById('inp_validade')?.value || '',
-                    status: 'Ativo',
-                    resultado: currentResultadoStatus,
-                    created_at: new Date().toISOString()
-                };
-
-                exList = exList.filter(item => item.id !== examId);
-                exList.unshift(newExamRecord);
-                localStorage.setItem(examesKey, JSON.stringify(exList));
-                localStorage.setItem('happynation_last_exame', JSON.stringify(newExamRecord));
-
-                // Salva também no banco Supabase em segundo plano
-                const client = window.supabaseInstance || window.supabaseClient;
-                if (client) {
-                    client.from('exames').upsert([newExamRecord]).then(() => {}).catch(() => {});
-                }
-            } catch(eHist) {
-                console.warn('Erro ao salvar no histórico:', eHist);
-            }
+            // Salva registro completo com todos os campos no histórico
+            salvarExameNoHistorico(examId, nomeCondutor);
         } catch(err) {
             console.error('Erro ao gerar laudo toxicológico:', err);
             alert('Erro ao gerar laudo: ' + (err.message || 'Falha ao processar'));
         } finally {
             if (btnGen) btnGen.disabled = false;
             if (txtGen) txtGen.textContent = 'Baixar Novamente — Exame Toxicológico';
+        }
+    }
+
+    function salvarExameNoHistorico(forcedId, forcedNome) {
+        try {
+            let loggedUser = {};
+            try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+            const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
+            const examesKey = 'happynation_exames_' + uEmail;
+            let exList = JSON.parse(localStorage.getItem(examesKey) || '[]');
+            
+            const existingId = forcedId || new URLSearchParams(window.location.search).get('id') || window.__currentExamId;
+            const examId = existingId || ('TOX-' + Math.floor(10000 + Math.random() * 90000));
+            window.__currentExamId = examId;
+            
+            const gv = (id) => (document.getElementById(id)?.value || '').trim();
+
+            const newExamRecord = {
+                id: examId,
+                nome: forcedNome || gv('inp_nome') || 'CONDUTOR',
+                cpf: gv('inp_cpf'),
+                tipo: gv('inp_tipo'),
+                finalidade: gv('inp_finalidade'),
+                razao: gv('inp_finalidade') || 'PERIODICO',
+                posto: gv('inp_posto'),
+                laudo: gv('inp_laudo'),
+                fcc: gv('inp_fcc'),
+                amostra: gv('inp_amostra'),
+                janela: gv('inp_janela'),
+                comp_coletado: gv('inp_comp_coletado'),
+                comp_analisado: gv('inp_comp_analisado'),
+                nf: gv('inp_nf'),
+                coleta: gv('inp_coleta'),
+                recebimento: gv('inp_recebimento'),
+                analise_lab: gv('inp_analise_lab'),
+                resultado_data: gv('inp_resultado'),
+                validade: gv('inp_validade'),
+                autenticacao: gv('inp_autenticacao'),
+                hash: gv('inp_hash'),
+                auth_url: gv('inp_auth_url'),
+                medico_nome: gv('inp_medico_nome'),
+                medico_crm: gv('inp_medico_crm'),
+                medico_cel: gv('inp_medico_cel'),
+                laboratorio: 'TOXICOLOGIA PARDINI',
+                status: 'Ativo',
+                resultado: currentResultadoStatus,
+                resultado_final: currentResultadoStatus === 'Negativo' ? 'Negativo (Aprovado)' : 'Positivo',
+                created_at: new Date().toISOString()
+            };
+
+            exList = exList.filter(item => item.id !== examId);
+            exList.unshift(newExamRecord);
+            localStorage.setItem(examesKey, JSON.stringify(exList));
+            localStorage.setItem('happynation_last_exame', JSON.stringify(newExamRecord));
+            localStorage.setItem('happynation_edit_exame', JSON.stringify(newExamRecord));
+
+            const client = window.supabaseInstance || window.supabaseClient;
+            if (client) {
+                client.from('exames').upsert([newExamRecord]).then(() => {}).catch(() => {});
+            }
+        } catch(eHist) {
+            console.warn('Erro ao salvar no histórico:', eHist);
         }
     }
 
@@ -2545,6 +2579,7 @@
             document.body.appendChild(link);
             link.click();
             setTimeout(() => link.remove(), 2000);
+            salvarExameNoHistorico('', (document.getElementById('inp_nome')?.value || 'CONDUTOR').trim());
             showToast('Download da imagem PNG iniciado!');
         } catch(e) {
             console.error('Erro ao baixar PNG:', e);
@@ -2556,48 +2591,103 @@
     window.addEventListener('DOMContentLoaded', () => {
         resetZoom();
 
-        // Recupera parâmetros da URL (edição, CNH, etc)
         const params = new URLSearchParams(window.location.search);
-        if (params.has('nome')) document.getElementById('inp_nome').value = params.get('nome');
-        if (params.has('cpf')) document.getElementById('inp_cpf').value = params.get('cpf');
-        if (params.has('laudo')) document.getElementById('inp_laudo').value = params.get('laudo');
-        if (params.has('fcc')) document.getElementById('inp_fcc').value = params.get('fcc');
-        if (params.has('razao') || params.has('finalidade')) {
-            const fin = params.get('razao') || params.get('finalidade');
-            document.getElementById('inp_finalidade').value = fin;
-        }
-        if (params.has('coleta')) document.getElementById('inp_coleta').value = params.get('coleta');
-        if (params.has('recebimento')) document.getElementById('inp_recebimento').value = params.get('recebimento');
-        if (params.has('resultado')) document.getElementById('inp_resultado').value = params.get('resultado');
-        if (params.has('validade')) document.getElementById('inp_validade').value = params.get('validade');
-        if (params.has('posto') || params.has('cliente')) {
-            document.getElementById('inp_posto').value = params.get('posto') || params.get('cliente');
-        }
-        if (params.has('autenticacao')) document.getElementById('inp_autenticacao').value = params.get('autenticacao');
-
-        // Se veio id para editar do histórico
         const editId = params.get('id');
-        if (editId) {
+
+        // 1. Tenta carregar o registro salvo completo (localStorage/sessionStorage)
+        let found = null;
+        try {
+            const rawEdit = localStorage.getItem('happynation_edit_exame') || sessionStorage.getItem('happynation_edit_exame');
+            if (rawEdit) {
+                const parsed = JSON.parse(rawEdit);
+                if (parsed && (!editId || String(parsed.id) === String(editId))) {
+                    found = parsed;
+                }
+            }
+        } catch(e) {}
+
+        if (!found && editId) {
             try {
                 let loggedUser = {};
                 try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
                 const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
                 const exList = JSON.parse(localStorage.getItem('happynation_exames_' + uEmail) || '[]');
-                const found = exList.find(x => x.id === editId);
-                if (found) {
-                    if (found.nome) document.getElementById('inp_nome').value = found.nome;
-                    if (found.cpf) document.getElementById('inp_cpf').value = found.cpf;
-                    if (found.laudo) document.getElementById('inp_laudo').value = found.laudo;
-                    if (found.fcc) document.getElementById('inp_fcc').value = found.fcc;
-                    if (found.razao) document.getElementById('inp_finalidade').value = found.razao;
-                    if (found.coleta) document.getElementById('inp_coleta').value = found.coleta;
-                    if (found.recebimento) document.getElementById('inp_recebimento').value = found.recebimento;
-                    if (found.resultado_data) document.getElementById('inp_resultado').value = found.resultado_data;
-                    if (found.validade) document.getElementById('inp_validade').value = found.validade;
-                    if (found.resultado) setResultadoGeral(found.resultado);
+                found = exList.find(x => String(x.id) === String(editId));
+
+                if (!found) {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith('happynation_exames_')) {
+                            const l = JSON.parse(localStorage.getItem(k) || '[]');
+                            found = l.find(x => String(x.id) === String(editId));
+                            if (found) break;
+                        }
+                    }
                 }
             } catch(e) {}
         }
+
+        if (!found && params.get('edit') === 'true') {
+            try {
+                found = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null');
+            } catch(e) {}
+        }
+
+        // Se encontrou dados salvos, restaura rigorosamente todos os campos
+        if (found) {
+            const sv = (id, val) => {
+                if (val !== undefined && val !== null && val !== '') {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val;
+                }
+            };
+            sv('inp_nome', found.nome);
+            sv('inp_cpf', found.cpf);
+            sv('inp_tipo', found.tipo);
+            sv('inp_finalidade', found.finalidade || found.razao);
+            sv('inp_posto', found.posto);
+            sv('inp_laudo', found.laudo);
+            sv('inp_fcc', found.fcc);
+            sv('inp_amostra', found.amostra);
+            sv('inp_janela', found.janela);
+            sv('inp_comp_coletado', found.comp_coletado);
+            sv('inp_comp_analisado', found.comp_analisado);
+            sv('inp_nf', found.nf);
+            sv('inp_coleta', found.coleta);
+            sv('inp_recebimento', found.recebimento);
+            sv('inp_analise_lab', found.analise_lab || found.analise);
+            sv('inp_resultado', found.resultado_data || found.resultado);
+            sv('inp_validade', found.validade);
+            sv('inp_autenticacao', found.autenticacao || found.codigo);
+            sv('inp_hash', found.hash);
+            sv('inp_auth_url', found.auth_url);
+            sv('inp_medico_nome', found.medico_nome);
+            sv('inp_medico_crm', found.medico_crm);
+            sv('inp_medico_cel', found.medico_cel);
+            if (found.resultado) setResultadoGeral(found.resultado);
+        }
+
+        // Parâmetros explícitos da URL complementam ou sobrescrevem
+        if (params.has('nome')) document.getElementById('inp_nome').value = params.get('nome');
+        if (params.has('cpf')) document.getElementById('inp_cpf').value = params.get('cpf');
+        if (params.has('laudo')) document.getElementById('inp_laudo').value = params.get('laudo');
+        if (params.has('fcc')) document.getElementById('inp_fcc').value = params.get('fcc');
+        if (params.has('razao') || params.has('finalidade')) {
+            document.getElementById('inp_finalidade').value = params.get('razao') || params.get('finalidade');
+        }
+        if (params.has('coleta')) document.getElementById('inp_coleta').value = params.get('coleta');
+        if (params.has('recebimento')) document.getElementById('inp_recebimento').value = params.get('recebimento');
+        if (params.has('analise')) document.getElementById('inp_analise_lab').value = params.get('analise');
+        if (params.has('resultado')) document.getElementById('inp_resultado').value = params.get('resultado');
+        if (params.has('validade')) document.getElementById('inp_validade').value = params.get('validade');
+        if (params.has('posto') || params.has('cliente')) {
+            document.getElementById('inp_posto').value = params.get('posto') || params.get('cliente');
+        }
+        if (params.has('autenticacao') || params.has('codigo')) {
+            document.getElementById('inp_autenticacao').value = params.get('autenticacao') || params.get('codigo');
+        }
+        if (params.has('hash')) document.getElementById('inp_hash').value = params.get('hash');
+        if (params.has('amostra')) document.getElementById('inp_amostra').value = params.get('amostra');
 
         syncFromCheckout();
         updateBarcode();

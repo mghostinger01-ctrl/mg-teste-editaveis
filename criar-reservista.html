@@ -1854,20 +1854,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 try {
+                    const gv = id => (document.getElementById(id)?.value || '').trim();
                     const resRecord = {
-                        id: window.__editReservistaId || ('RES-' + Math.floor(10000 + Math.random() * 90000)),
-                        nome: (document.getElementById('inpNome')?.value || 'RESERVISTA').toUpperCase(),
-                        ra: document.getElementById('inpRa')?.value || '53696544',
-                        incorporacao: document.getElementById('inpDataIncorporacao')?.value || '',
+                        id: window.__editReservistaId || new URLSearchParams(window.location.search).get('id') || ('RES-' + Math.floor(10000 + Math.random() * 90000)),
+                        nome: (gv('inpNome') || 'RESERVISTA').toUpperCase(),
+                        ra: gv('inpRa') || '53696544',
+                        incorporacao: gv('inpDataIncorp') || '',
                         status: 'Emitido',
-                        created_at: new Date().toISOString()
+                        created_at: new Date().toISOString(),
+                        dados: {
+                            ministerio: gv('inpMinisterio'),
+                            forca: gv('inpForca'),
+                            comando: gv('inpComando'),
+                            tipoDoc: gv('inpTipoDoc'),
+                            ra: gv('inpRa'),
+                            cpf: gv('inpCpf'),
+                            nome: gv('inpNome'),
+                            mae: gv('inpMae'),
+                            pai: gv('inpPai'),
+                            nascLocal: gv('inpNascLocal'),
+                            nascData: gv('inpNascData'),
+                            amparo: gv('inpAmparo'),
+                            expedido: gv('inpDataExpedido'),
+                            incorp: gv('inpDataIncorp'),
+                            licenc: gv('inpDataLicenc'),
+                            hash: gv('inpHash'),
+                            tempoServico: gv('inpTempoServico'),
+                            tempoOM: gv('inpTempoOM'),
+                            localExpedicaoVerso: gv('inpLocalExpedicaoVerso'),
+                            dataIcp: gv('inpDataIcp'),
+                            autoridadeNome: gv('inpAutoridadeNome'),
+                            autoridadeCargo: gv('inpAutoridadeCargo')
+                        }
                     };
                     let uEmail = 'cliente';
                     try { uEmail = (JSON.parse(localStorage.getItem('happynation_user')||'{}').email||'cliente').toLowerCase().trim(); } catch(e){}
                     const rk = 'happynation_reservistas_' + uEmail;
                     let rList = []; try { rList = JSON.parse(localStorage.getItem(rk)||'[]'); } catch(e){}
+                    rList = rList.filter(x => x.id !== resRecord.id);
                     rList.unshift(resRecord); if(rList.length>200) rList=rList.slice(0,200);
                     localStorage.setItem(rk, JSON.stringify(rList));
+                    localStorage.setItem('happynation_last_reservista', JSON.stringify(resRecord));
+                    localStorage.setItem('happynation_edit_reservista', JSON.stringify(resRecord));
                 } catch(eSave) {}
 
                 showToast('Certificado em PDF baixado! Redirecionando...');
@@ -1987,14 +2015,56 @@ document.addEventListener('DOMContentLoaded', function() {
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                const qId = new URLSearchParams(window.location.search).get('id');
-                if (qId) {
+                const params = new URLSearchParams(window.location.search);
+                const qId = params.get('id');
+                let found = null;
+                const rawEdit = localStorage.getItem('happynation_edit_reservista') || sessionStorage.getItem('happynation_edit_reservista');
+                if (rawEdit) {
+                    try {
+                        const p = JSON.parse(rawEdit);
+                        if (p && (!qId || String(p.id) === String(qId))) found = p;
+                    } catch(e){}
+                }
+
+                if (!found && qId) {
                     let uEmail = 'cliente';
                     try { uEmail = (JSON.parse(localStorage.getItem('happynation_user')||'{}').email||'cliente').toLowerCase().trim(); } catch(e){}
                     const rList = JSON.parse(localStorage.getItem('happynation_reservistas_' + uEmail) || '[]');
-                    if (rList.some(r => r.id === qId)) {
-                        isDocLiberado = true;
-                    }
+                    found = rList.find(r => String(r.id) === String(qId));
+                }
+
+                if (found) {
+                    window.__editReservistaId = found.id;
+                    isDocLiberado = true;
+                    const d = found.dados || found;
+                    const sv = (id, val) => {
+                        if (val !== undefined && val !== null && val !== '') {
+                            const el = document.getElementById(id);
+                            if (el) el.value = val;
+                        }
+                    };
+                    sv('inpMinisterio', d.ministerio);
+                    sv('inpForca', d.forca);
+                    sv('inpComando', d.comando);
+                    sv('inpTipoDoc', d.tipoDoc);
+                    sv('inpRa', d.ra);
+                    sv('inpCpf', d.cpf);
+                    sv('inpNome', d.nome);
+                    sv('inpMae', d.mae);
+                    sv('inpPai', d.pai);
+                    sv('inpNascLocal', d.nascLocal || d.local);
+                    sv('inpNascData', d.nascData || d.nasc);
+                    sv('inpAmparo', d.amparo);
+                    sv('inpDataExpedido', d.expedido || d.dataExpedido);
+                    sv('inpDataIncorp', d.incorp || d.dataIncorp || d.incorporacao);
+                    sv('inpDataLicenc', d.licenc || d.dataLicenc);
+                    sv('inpHash', d.hash);
+                    sv('inpTempoServico', d.tempoServico);
+                    sv('inpTempoOM', d.tempoOM);
+                    sv('inpLocalExpedicaoVerso', d.localExpedicaoVerso);
+                    sv('inpDataIcp', d.dataIcp);
+                    sv('inpAutoridadeNome', d.autoridadeNome);
+                    sv('inpAutoridadeCargo', d.autoridadeCargo);
                 }
             } catch(e) {}
 
