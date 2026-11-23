@@ -165,10 +165,10 @@
         /* Brasão da República no Canto Superior Esquerdo */
         .frente-selo-img {
             position: absolute;
-            top: 52px;
-            left: 92px;
-            width: 72px;
-            height: 72px;
+            top: 56px;
+            left: 108px;
+            width: 82px;
+            height: 82px;
             object-fit: contain;
             z-index: 10;
         }
@@ -176,7 +176,7 @@
         /* Header Central: República / Ministério / Faculdade */
         .frente-header-block {
             position: absolute;
-            top: 48px;
+            top: 52px;
             left: 0;
             width: 100%;
             display: flex;
@@ -189,16 +189,16 @@
 
         .frente-header-rep {
             font-family: var(--font-serif);
-            font-size: 11px;
-            letter-spacing: 0.8px;
+            font-size: 11.2px;
+            letter-spacing: 0.6px;
             text-transform: uppercase;
             color: #111;
         }
 
         .frente-header-mec {
             font-family: var(--font-serif);
-            font-size: 9.5px;
-            letter-spacing: 0.8px;
+            font-size: 9.8px;
+            letter-spacing: 0.6px;
             text-transform: uppercase;
             color: #111;
             margin-top: 1px;
@@ -208,40 +208,54 @@
             font-family: var(--font-serif);
             font-size: 21.5px;
             font-weight: 700;
-            letter-spacing: 1.6px;
+            letter-spacing: 1.8px;
             text-transform: uppercase;
             color: #000;
             margin-top: 4px;
         }
 
-        /* Marca d'água Estácio Suave no Centro */
+        /* Marca d'água 3D Estácio Idêntica no Centro */
         .frente-watermark-center {
             position: absolute;
-            top: 152px;
-            left: 274px;
-            width: 220px;
-            height: 220px;
+            top: 104px;
+            left: 253px;
+            width: 262px;
+            height: 262px;
             display: flex;
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            opacity: 0.16;
+            opacity: 0.52;
             z-index: 5;
         }
+        .frente-watermark-center img, .frente-watermark-center svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
 
-        /* Parágrafo Principal Oficial da Frente (Justificado, Itálico, Sem Fantasmas) */
+        /* Parágrafo Principal Oficial da Frente (Justificado, Itálico, Idêntico) */
         .frente-text-block {
             position: absolute;
             top: 168px;
-            left: 74px;
-            right: 74px;
+            left: 82px;
+            right: 82px;
             font-family: var(--font-serif);
             font-style: italic;
-            font-size: 12.6px;
-            line-height: 1.64;
-            text-align: justify;
+            font-size: 12.8px;
+            line-height: 1.62;
             color: #000;
             z-index: 10;
+        }
+
+        .frente-text-body {
+            text-align: justify;
+            text-justify: inter-word;
+        }
+
+        .frente-text-closing {
+            text-align: center;
+            margin-top: 2px;
         }
 
         .frente-text-block b, .frente-text-block strong {
@@ -249,26 +263,28 @@
             font-style: italic;
         }
 
-        /* Logo Estácio no Rodapé (Canto Esquerdo-Centro) */
+        /* Logo Estácio no Rodapé Oficial */
         .frente-logo-rodape {
             position: absolute;
-            bottom: 68px;
-            left: 260px;
-            width: 155px;
+            top: 384px;
+            left: 282px;
+            width: 161px;
+            height: 42px;
             z-index: 10;
         }
         .frente-logo-rodape img {
             width: 100%;
-            height: auto;
+            height: 100%;
+            object-fit: contain;
             display: block;
         }
 
         /* Data, Rubrica e Assinatura da Direção (Canto Inferior Direito) */
         .frente-dir-block {
             position: absolute;
-            bottom: 58px;
-            right: 74px;
-            width: 236px;
+            top: 350px;
+            right: 82px;
+            width: 240px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -277,7 +293,7 @@
 
         .frente-date-line {
             font-family: var(--font-serif);
-            font-size: 11px;
+            font-size: 11.5px;
             color: #111;
             margin-bottom: 2px;
             text-align: right;
@@ -287,12 +303,12 @@
         .frente-sig-img {
             height: 22px;
             object-fit: contain;
-            margin-bottom: 1px;
+            margin-bottom: 2px;
             display: block;
         }
 
         .frente-sig-line {
-            width: 230px;
+            width: 236px;
             height: 1px;
             background: #000;
             margin-bottom: 3px;
@@ -319,7 +335,7 @@
         /* Rodapé de Validação Oficial (Perfeitamente espaçado e único) */
         .frente-footer-block {
             position: absolute;
-            bottom: 16px;
+            bottom: 32px;
             left: 0;
             width: 100%;
             text-align: center;
@@ -785,39 +801,72 @@
                             <div class="frente-header-fac" id="outInstituicaoHeader">FACULDADE ESTÁCIO DO PARÁ</div>
                         </div>
 
-                        <!-- Marca d'água 3D Estácio Central Suave -->
+                        <!-- Marca d'água 3D Estácio Oficial com Grid e Gradientes -->
                         <div class="frente-watermark-center">
-                            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                            <svg viewBox="0 0 300 300" width="100%" height="100%" style="display:block;">
                                 <defs>
-                                    <linearGradient id="wmGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#4ecbb1"/>
-                                        <stop offset="100%" stop-color="#3dbca2"/>
+                                    <linearGradient id="gradTop" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#9bf2dc"/>
+                                        <stop offset="50%" stop-color="#4ed7ba"/>
+                                        <stop offset="100%" stop-color="#24bfa0"/>
                                     </linearGradient>
-                                    <linearGradient id="wmGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#2aa8d6"/>
-                                        <stop offset="100%" stop-color="#1e88bc"/>
+                                    <linearGradient id="gradRight" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#42d0f5"/>
+                                        <stop offset="50%" stop-color="#1ea8db"/>
+                                        <stop offset="100%" stop-color="#077bb5"/>
                                     </linearGradient>
-                                    <linearGradient id="wmGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#1b6ca8"/>
-                                        <stop offset="100%" stop-color="#155182"/>
+                                    <linearGradient id="gradBottom" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#0c7ec4"/>
+                                        <stop offset="50%" stop-color="#055da3"/>
+                                        <stop offset="100%" stop-color="#013f75"/>
                                     </linearGradient>
-                                    <linearGradient id="wmGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#2ea896"/>
-                                        <stop offset="100%" stop-color="#1f8f7e"/>
+                                    <linearGradient id="gradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#34ccba"/>
+                                        <stop offset="50%" stop-color="#15a698"/>
+                                        <stop offset="100%" stop-color="#0d7a82"/>
                                     </linearGradient>
                                 </defs>
-                                <g transform="translate(50,50) rotate(45)">
-                                    <rect x="-42" y="-42" width="39" height="39" rx="3" fill="url(#wmGrad1)"/>
-                                    <rect x="3" y="-42" width="39" height="39" rx="3" fill="url(#wmGrad2)"/>
-                                    <rect x="-42" y="3" width="39" height="39" rx="3" fill="url(#wmGrad4)"/>
-                                    <rect x="3" y="3" width="39" height="39" rx="3" fill="url(#wmGrad3)"/>
+                                <g transform="translate(150, 150) rotate(45)">
+                                    <rect x="-97" y="-97" width="94" height="94" rx="2" fill="url(#gradTop)"/>
+                                    <rect x="3" y="-97" width="94" height="94" rx="2" fill="url(#gradRight)"/>
+                                    <rect x="3" y="3" width="94" height="94" rx="2" fill="url(#gradBottom)"/>
+                                    <rect x="-97" y="3" width="94" height="94" rx="2" fill="url(#gradLeft)"/>
+
+                                    <!-- Grid lines Top -->
+                                    <line x1="-66" y1="-97" x2="-66" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="-35" y1="-97" x2="-35" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="-97" y1="-66" x2="-3" y2="-66" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="-97" y1="-35" x2="-3" y2="-35" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+
+                                    <!-- Grid lines Right -->
+                                    <line x1="34" y1="-97" x2="34" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="65" y1="-97" x2="65" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="3" y1="-66" x2="97" y2="-66" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="3" y1="-35" x2="97" y2="-35" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+
+                                    <!-- Grid lines Bottom -->
+                                    <line x1="34" y1="3" x2="34" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="65" y1="3" x2="65" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="3" y1="34" x2="97" y2="34" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="3" y1="65" x2="97" y2="65" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+
+                                    <!-- Grid lines Left -->
+                                    <line x1="-66" y1="3" x2="-66" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="-35" y1="3" x2="-35" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="-97" y1="34" x2="-3" y2="34" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                                    <line x1="-97" y1="65" x2="-3" y2="65" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
                                 </g>
                             </svg>
                         </div>
 
-                        <!-- Parágrafo Principal Oficial da Frente (Justificado, Itálico, Perfeito) -->
+                        <!-- Parágrafo Principal Oficial da Frente (Justificado, Itálico, Idêntico) -->
                         <div class="frente-text-block">
-                            O(A) Diretor (a) da <b id="outInstituicaoFrente">FACULDADE ESTÁCIO DO PARÁ</b>, no uso de suas atribuições, tendo em vista a Conclusão do <b id="outCursoFrente">CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL</b> , na data de <b id="outDataConc">09/12/2022</b>, e a colação de grau na data De <b id="outDataCol">17/02/2023</b>, a <b id="outNome">KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS</b>, nacionalidade <b id="outNac">BRASILEIRO(A)</b>, natural de <b id="outNat">BELÉM-PA</b> nascido(a) em <b id="outNasc">06/05/1996</b>, Portador(a) da cédula de identidade <b id="outRg">7488140</b>, órgão expedidor <b id="outOrgaoRg">PC/PA</b>, e outorga-lhe o presente Diploma, a fim de que possa gozar de todos os direitos e prerrogativas legais.
+                            <div class="frente-text-body">
+                                O(A) Diretor (a) da <b id="outInstituicaoFrente">FACULDADE ESTÁCIO DO PARÁ</b>, no uso de suas atribuições, tendo em vista a Conclusão do <b id="outCursoFrente">CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL</b> , na data de <b id="outDataConc">09/12/2022</b>, e a colação de grau na data De <b id="outDataCol">17/02/2023</b>, a <b id="outNome">KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS</b>, nacionalidade <b id="outNac">BRASILEIRO(A)</b>, natural de <b id="outNat">BELÉM-PA</b> nascido(a) em <b id="outNasc">06/05/1996</b>, Portador(a) da cédula de identidade <b id="outRg">7488140</b>, órgão expedidor <b id="outOrgaoRg">PC/PA</b>, e outorga-lhe o presente
+                            </div>
+                            <div class="frente-text-closing">
+                                Diploma, a fim de que possa gozar de todos os direitos e prerrogativas legais.
+                            </div>
                         </div>
 
                         <!-- Logo Estácio no Rodapé Oficial -->
