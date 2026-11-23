@@ -2491,11 +2491,9 @@
         params.set('data', data);
         params.set('hora', hora);
         params.set('auth', authHash);
-        if (end1 && !end1.includes('Miguel Ignácio')) {
-            params.set('end1', end1);
-            params.set('end2', end2);
-            params.set('end3', end3);
-        }
+        if (end1) params.set('end1', end1);
+        if (end2) params.set('end2', end2);
+        if (end3) params.set('end3', end3);
 
         return {
             url: `${baseDomain}/validar-atestado.html?${params.toString()}`,
@@ -2640,16 +2638,6 @@
         currentDiasExt = ext;
         document.querySelectorAll('.dias-chip').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('end1')) {
-            const e1 = document.getElementById('inp_end1'); if (e1) e1.value = urlParams.get('end1');
-        }
-        if (urlParams.get('end2')) {
-            const e2 = document.getElementById('inp_end2'); if (e2) e2.value = urlParams.get('end2');
-        }
-        if (urlParams.get('end3')) {
-            const e3 = document.getElementById('inp_end3'); if (e3) e3.value = urlParams.get('end3');
-        }
         syncFromCheckout();
     }
 
@@ -3592,30 +3580,33 @@
             const liveWm = document.getElementById('previewWatermarkOverlay');
             if (liveWm) liveWm.remove();
 
-                        // Desconta o saldo do cliente no servidor e localmente
-            const uEmailDeduct = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : '';
-            const uIdDeduct = (loggedUser && loggedUser.id) ? loggedUser.id : 0;
-            if (window.MGSaldo) {
-                window.MGSaldo.update(-custoAtestado);
-            } else {
-                let u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
-                if (u && u.saldo !== undefined) {
-                    u.saldo = Math.max(0, parseFloat(u.saldo) - custoAtestado);
-                    localStorage.setItem('happynation_user', JSON.stringify(u));
+                        // Desconta o saldo do cliente no servidor e localmente (somente se não for edição de atestado já emitido)
+            const isEditingExisting = isAtestadoEmitido && (existingId || window.currentAtestadoIdToGen);
+            if (!isEditingExisting) {
+                const uEmailDeduct = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : '';
+                const uIdDeduct = (loggedUser && loggedUser.id) ? loggedUser.id : 0;
+                if (window.MGSaldo) {
+                    window.MGSaldo.update(-custoAtestado);
+                } else {
+                    let u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                    if (u && u.saldo !== undefined) {
+                        u.saldo = Math.max(0, parseFloat(u.saldo) - custoAtestado);
+                        localStorage.setItem('happynation_user', JSON.stringify(u));
+                    }
                 }
+                if (window.MGSync) {
+                    window.MGSync.push('happynation_user');
+                    window.MGSync.push('happynation_admin_users');
+                }
+                try {
+                    fetch('api/index.php?action=deduct_balance', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: uIdDeduct, userEmail: uEmailDeduct, amount: custoAtestado, tipo: 'atestado' })
+                    }).catch(() => {});
+                } catch(e) {}
+                initUser();
             }
-            if (window.MGSync) {
-                window.MGSync.push('happynation_user');
-                window.MGSync.push('happynation_admin_users');
-            }
-            try {
-                fetch('api/index.php?action=deduct_balance', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: uIdDeduct, userEmail: uEmailDeduct, amount: custoAtestado, tipo: 'atestado' })
-                }).catch(() => {});
-            } catch(e) {}
-            initUser();
 
             // Desbloqueia os QR Codes na prévia após a geração e desconto do saldo
             isAtestadoEmitido = true;
@@ -3628,7 +3619,6 @@
                 const atestadosKey = 'happynation_atestados_' + uEmail;
                 let atList = JSON.parse(localStorage.getItem(atestadosKey) || '[]');
                 
-                const existingId = new URLSearchParams(window.location.search).get('id');
                 const atId = existingId || window.currentAtestadoIdToGen || ('AT-' + Math.floor(10000 + Math.random() * 90000));
 
                 atRecord = {
@@ -3641,12 +3631,16 @@
                     dias: currentDiasNum,
                     unidade: document.getElementById('inp_unidade').value,
                     medico: document.getElementById('inp_medico').value,
+                    medico_esp: document.getElementById('inp_medico_esp')?.value || '',
                     crm: document.getElementById('inp_crm').value,
                     data: document.getElementById('inp_data').value,
                     hora: document.getElementById('inp_hora').value,
                     end1: document.getElementById('inp_end1')?.value || '',
                     end2: document.getElementById('inp_end2')?.value || '',
                     end3: document.getElementById('inp_end3')?.value || '',
+                    sig_style: currentSigStyleIndex,
+                    sig_color: currentSigColor,
+                    sig_variation: currentSigVariation,
                     status: 'Ativo',
                     created_at: new Date().toISOString()
                 };
@@ -3659,6 +3653,8 @@
                 }
                 localStorage.setItem(atestadosKey, JSON.stringify(atList));
                 localStorage.setItem('happynation_last_atestado', JSON.stringify(atRecord));
+                localStorage.setItem('happynation_edit_atestado', JSON.stringify(atRecord));
+                sessionStorage.setItem('happynation_edit_atestado', JSON.stringify(atRecord));
 
                 // Sincroniza diretamente com o banco de dados Supabase
                 if (window.MGSupabase && loggedUser && loggedUser.id) {
@@ -3736,6 +3732,7 @@
                     + '&dias=' + encodeURIComponent(currentDiasNum)
                     + '&unidade=' + encodeURIComponent(document.getElementById('inp_unidade').value)
                     + '&medico=' + encodeURIComponent(document.getElementById('inp_medico').value)
+                    + '&medico_esp=' + encodeURIComponent(document.getElementById('inp_medico_esp')?.value || '')
                     + '&crm=' + encodeURIComponent(document.getElementById('inp_crm').value)
                     + '&data=' + encodeURIComponent(document.getElementById('inp_data').value)
                     + '&hora=' + encodeURIComponent(document.getElementById('inp_hora').value)
@@ -3756,10 +3753,6 @@
     }
 
     // ─── INICIALIZAÇÃO ───
-    document.addEventListener('DOMContentLoaded', () => {
-        try { generateQrCodes(); } catch(e) {}
-    });
-
     document.addEventListener('DOMContentLoaded', () => {
         resetZoom();
         try { generateQrCodes(); } catch(e) {}
@@ -3788,45 +3781,63 @@
                     record = JSON.parse(localStorage.getItem('happynation_edit_atestado') || sessionStorage.getItem('happynation_edit_atestado') || 'null');
                 } catch(e) {}
 
-                if (!record && atId) {
+                // Se o registro em memória for de outro atestado diferente do ID solicitado na URL, descarta para não carregar errado
+                if (record && atId && record.id && String(record.id) !== String(atId)) {
+                    record = null;
+                }
+
+                // Busca o registro completo no histórico para garantir que nenhum dado (endereço, hora, data, etc.) seja perdido
+                if (atId) {
                     try {
                         const loggedU = JSON.parse(localStorage.getItem('happynation_user') || '{}');
                         const uMail = (loggedU && loggedU.email) ? loggedU.email.toLowerCase().trim() : 'cliente';
                         const userList = JSON.parse(localStorage.getItem('happynation_atestados_' + uMail) || '[]');
-                        record = userList.find(x => String(x.id) === String(atId)) || null;
+                        let foundInHistory = userList.find(x => String(x.id) === String(atId)) || null;
 
-                        if (!record) {
+                        if (!foundInHistory) {
                             for (let i = 0; i < localStorage.length; i++) {
                                 const k = localStorage.key(i);
                                 if (k && k.startsWith('happynation_atestados_')) {
                                     const list = JSON.parse(localStorage.getItem(k) || '[]');
-                                    record = list.find(x => String(x.id) === String(atId)) || null;
-                                    if (record) break;
+                                    foundInHistory = list.find(x => String(x.id) === String(atId)) || null;
+                                    if (foundInHistory) break;
                                 }
                             }
                         }
 
-                        if (!record) {
+                        if (!foundInHistory) {
                             const adminList = JSON.parse(localStorage.getItem('happynation_admin_atestados') || '[]');
-                            record = adminList.find(x => String(x.id) === String(atId)) || null;
+                            foundInHistory = adminList.find(x => String(x.id) === String(atId)) || null;
                         }
 
-                        if (!record) {
+                        if (!foundInHistory) {
                             const last = JSON.parse(localStorage.getItem('happynation_last_atestado') || 'null');
-                            if (last && String(last.id) === String(atId)) record = last;
+                            if (last && String(last.id) === String(atId)) foundInHistory = last;
+                        }
+
+                        if (foundInHistory) {
+                            const rawHist = (foundInHistory.dados && typeof foundInHistory.dados === 'object') ? foundInHistory.dados : foundInHistory;
+                            record = Object.assign({}, rawHist, foundInHistory, record || {});
                         }
                     } catch(e) {}
                 }
 
-                if (!record && (params.get('nome') || params.get('paciente'))) {
+                if (!record && (params.get('nome') || params.get('paciente') || params.get('edit') === 'true')) {
                     record = {
                         id: atId || '',
                         paciente: params.get('nome') || params.get('paciente') || '',
                         cns: params.get('cns') || params.get('cpf') || '',
                         cid: params.get('cid') || '',
                         dias: params.get('dias') || '',
+                        unidade: params.get('unidade') || '',
                         medico: params.get('medico') || '',
-                        crm: params.get('crm') || ''
+                        medico_esp: params.get('medico_esp') || params.get('esp') || '',
+                        crm: params.get('crm') || '',
+                        data: params.get('data') || '',
+                        hora: params.get('hora') || '',
+                        end1: params.get('end1') || '',
+                        end2: params.get('end2') || '',
+                        end3: params.get('end3') || ''
                     };
                 }
 
@@ -3840,24 +3851,59 @@
                     if (el && val !== undefined && val !== null && val !== '') el.value = val;
                 };
 
-                setF('inp_nome', record.paciente || record.nome || d.paciente || d.nome);
-                setF('inp_cns', record.cns || record.cpf || d.cns || d.cpf);
-                setF('inp_cid', record.cid || d.cid);
-                setF('inp_unidade', record.unidade || d.unidade);
-                setF('inp_medico', record.medico || record.medico_nome || d.medico || d.medico_nome);
-                setF('inp_medico_esp', record.medico_esp || d.medico_esp);
-                setF('inp_crm', record.crm || d.crm);
-                setF('inp_data', record.data || d.data);
-                setF('inp_hora', record.hora || d.hora);
-                setF('inp_end1', record.end1 || d.end1);
-                setF('inp_end2', record.end2 || d.end2);
-                setF('inp_end3', record.end3 || d.end3);
+                const valNome = params.get('nome') || params.get('paciente') || record.paciente || record.nome || d.paciente || d.nome;
+                const valCns = params.get('cns') || params.get('cpf') || record.cns || record.cpf || d.cns || d.cpf;
+                const valCid = params.get('cid') || record.cid || d.cid;
+                const valUnidade = params.get('unidade') || record.unidade || d.unidade;
+                const valMedico = params.get('medico') || record.medico || record.medico_nome || d.medico || d.medico_nome;
+                const valMedicoEsp = params.get('medico_esp') || params.get('esp') || record.medico_esp || d.medico_esp;
+                const valCrm = params.get('crm') || record.crm || d.crm;
+                const valData = params.get('data') || record.data || d.data;
+                const valHora = params.get('hora') || record.hora || d.hora;
+                const valEnd1 = params.get('end1') || record.end1 || d.end1;
+                const valEnd2 = params.get('end2') || record.end2 || d.end2;
+                const valEnd3 = params.get('end3') || record.end3 || d.end3;
 
-                const diasVal = record.dias || d.dias;
+                setF('inp_nome', valNome);
+                setF('inp_cns', valCns);
+                setF('inp_cid', valCid);
+                setF('inp_unidade', valUnidade);
+                setF('inp_medico', valMedico);
+                setF('inp_medico_esp', valMedicoEsp);
+                setF('inp_crm', valCrm);
+                setF('inp_data', valData);
+                setF('inp_hora', valHora);
+                setF('inp_end1', valEnd1);
+                setF('inp_end2', valEnd2);
+                setF('inp_end3', valEnd3);
+
+                const diasVal = params.get('dias') || record.dias || d.dias;
                 if (diasVal) {
                     currentDiasNum = parseInt(diasVal, 10) || 1;
+                    const extensoMap = {
+                        1: 'um', 2: 'dois', 3: 'três', 4: 'quatro', 5: 'cinco',
+                        6: 'seis', 7: 'sete', 8: 'oito', 9: 'nove', 10: 'dez',
+                        14: 'quatorze', 15: 'quinze'
+                    };
+                    currentDiasExt = extensoMap[currentDiasNum] || String(currentDiasNum);
                     const dEl = document.getElementById('diasContadorDisplay');
                     if (dEl) dEl.textContent = currentDiasNum;
+
+                    document.querySelectorAll('.dias-chip').forEach(b => {
+                        b.classList.remove('active');
+                        const chipNum = parseInt(b.textContent, 10);
+                        if (chipNum === currentDiasNum) b.classList.add('active');
+                    });
+                }
+
+                if (record.sig_style !== undefined || d.sig_style !== undefined) {
+                    currentSigStyleIndex = parseInt(record.sig_style !== undefined ? record.sig_style : d.sig_style, 10) || 0;
+                }
+                if (record.sig_color || d.sig_color) {
+                    currentSigColor = record.sig_color || d.sig_color;
+                }
+                if (record.sig_variation !== undefined || d.sig_variation !== undefined) {
+                    currentSigVariation = parseInt(record.sig_variation !== undefined ? record.sig_variation : d.sig_variation, 10) || 0;
                 }
 
                 const sigVal = record.assinatura || d.assinatura;
@@ -3875,6 +3921,14 @@
 
                 syncFromCheckout();
                 try { generateQrCodes(true); } catch(e) {}
+
+                // Se houver autoDownload na URL, dispara o download automático
+                if (params.get('autoDownload') === 'true') {
+                    setTimeout(() => {
+                        try { gerarAtestadoPDF(); } catch(e) {}
+                    }, 800);
+                }
+
                 return true;
             } catch(err) {
                 console.error('Erro ao carregar dados do atestado:', err);

@@ -434,34 +434,59 @@ O documento digital em PDF com assinatura eletrônica e QR Code de autenticidade
             const u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
             const uEmail = (u && u.email) ? u.email.toLowerCase().trim() : '';
             const atList = JSON.parse(localStorage.getItem('happynation_atestados_' + uEmail) || '[]');
-            found = atList.find(x => x.id === atId);
+            found = atList.find(x => String(x.id) === String(atId));
+            if (!found) {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('happynation_atestados_')) {
+                        const list = JSON.parse(localStorage.getItem(k) || '[]');
+                        found = list.find(x => String(x.id) === String(atId));
+                        if (found) break;
+                    }
+                }
+            }
             if (!found) {
                 const last = JSON.parse(localStorage.getItem('happynation_last_atestado') || '{}');
-                if (last && (last.id === atId || !atId)) found = last;
+                if (last && (String(last.id) === String(atId) || !atId)) found = last;
             }
         } catch(e) {}
 
-        const dObj = Object.assign({}, found || {});
+        const rawFound = found ? ((found.dados && typeof found.dados === 'object') ? found.dados : found) : {};
+        const dObj = Object.assign({}, rawFound, found || {});
         if (params.get('nome')) dObj.paciente = params.get('nome');
         if (params.get('cns')) dObj.cns = params.get('cns');
+        if (params.get('cpf')) dObj.cpf = params.get('cpf');
         if (params.get('cid')) dObj.cid = params.get('cid');
         if (params.get('dias')) dObj.dias = params.get('dias');
         if (params.get('unidade')) dObj.unidade = params.get('unidade');
         if (params.get('medico')) dObj.medico = params.get('medico');
+        if (params.get('medico_esp') || params.get('esp')) dObj.medico_esp = params.get('medico_esp') || params.get('esp');
         if (params.get('crm')) dObj.crm = params.get('crm');
+        if (params.get('data')) dObj.data = params.get('data');
+        if (params.get('hora')) dObj.hora = params.get('hora');
+        if (params.get('end1')) dObj.end1 = params.get('end1');
+        if (params.get('end2')) dObj.end2 = params.get('end2');
+        if (params.get('end3')) dObj.end3 = params.get('end3');
+        if (params.get('auth')) dObj.auth_hash = params.get('auth');
 
-        currentRecord = {
+        currentRecord = Object.assign({}, dObj, {
             id: atId || dObj.id || 'AT-1001',
-            paciente: dObj.paciente || 'TATIANI RODRIGUES MOR',
-            cns: dObj.cns || '801440458570767',
+            paciente: dObj.paciente || dObj.nome || 'TATIANI RODRIGUES MOR',
+            cns: dObj.cns || dObj.cpf || '801440458570767',
             cid: dObj.cid || 'J02.',
             dias: dObj.dias || 3,
             unidade: dObj.unidade || 'UPA 24h Itaquera - Consultórios',
-            medico: dObj.medico || 'Dra. Flávia Nunes Maruyama',
-            crm: dObj.crm || 'CRM 216997'
-        };
+            medico: dObj.medico || dObj.medico_nome || 'Dra. Flávia Nunes Maruyama',
+            medico_esp: dObj.medico_esp || '',
+            crm: dObj.crm || 'CRM 216997',
+            data: dObj.data || '',
+            hora: dObj.hora || '',
+            end1: dObj.end1 || '',
+            end2: dObj.end2 || '',
+            end3: dObj.end3 || ''
+        });
 
-                const nomeUpper = (currentRecord.paciente || '').toUpperCase();
+        const nomeUpper = (currentRecord.paciente || '').toUpperCase();
         const cpfFormatado = formatarCpf(currentRecord.cns || currentRecord.cpf);
         const diasFormatados = obterTextoDias(currentRecord.dias);
         const undFormatada = (currentRecord.unidade || 'UPA 24h').split(' - ')[0].trim();
@@ -499,26 +524,45 @@ O documento digital em PDF com assinatura eletrônica e QR Code de autenticidade
             const targetPage = isUnimed ? 'criar-unimed.html' : 'criar-atestado.html';
             const q = new URLSearchParams();
             q.set('id', currentRecord.id);
+            q.set('edit', 'true');
             if (currentRecord.paciente || currentRecord.nome) q.set('nome', currentRecord.paciente || currentRecord.nome);
             if (currentRecord.cns || currentRecord.cpf) q.set('cns', currentRecord.cns || currentRecord.cpf);
             if (currentRecord.cid) q.set('cid', currentRecord.cid);
             if (currentRecord.dias) q.set('dias', currentRecord.dias);
+            if (currentRecord.unidade) q.set('unidade', currentRecord.unidade);
             if (currentRecord.medico) q.set('medico', currentRecord.medico);
+            if (currentRecord.medico_esp) q.set('medico_esp', currentRecord.medico_esp);
             if (currentRecord.crm) q.set('crm', currentRecord.crm);
-            btnEdit.href = targetPage + '?' + q.toString() + '&edit=true';
+            if (currentRecord.data) q.set('data', currentRecord.data);
+            if (currentRecord.hora) q.set('hora', currentRecord.hora);
+            if (currentRecord.end1) q.set('end1', currentRecord.end1);
+            if (currentRecord.end2) q.set('end2', currentRecord.end2);
+            if (currentRecord.end3) q.set('end3', currentRecord.end3);
+            btnEdit.href = targetPage + '?' + q.toString();
         }
     }
 
     function reDownloadPdf() {
         if (!currentRecord) return;
+        const isUnimed = currentRecord.tipo === 'unimed' || (currentRecord.unidade && currentRecord.unidade.toLowerCase().includes('unimed'));
+        const targetPage = isUnimed ? 'criar-unimed.html' : 'criar-atestado.html';
         const q = new URLSearchParams();
         q.set('id', currentRecord.id);
-        q.set('nome', currentRecord.paciente);
-        q.set('cns', currentRecord.cns);
-        q.set('cid', currentRecord.cid);
-        q.set('dias', currentRecord.dias);
+        if (currentRecord.paciente || currentRecord.nome) q.set('nome', currentRecord.paciente || currentRecord.nome);
+        if (currentRecord.cns || currentRecord.cpf) q.set('cns', currentRecord.cns || currentRecord.cpf);
+        if (currentRecord.cid) q.set('cid', currentRecord.cid);
+        if (currentRecord.dias) q.set('dias', currentRecord.dias);
+        if (currentRecord.unidade) q.set('unidade', currentRecord.unidade);
+        if (currentRecord.medico) q.set('medico', currentRecord.medico);
+        if (currentRecord.medico_esp) q.set('medico_esp', currentRecord.medico_esp);
+        if (currentRecord.crm) q.set('crm', currentRecord.crm);
+        if (currentRecord.data) q.set('data', currentRecord.data);
+        if (currentRecord.hora) q.set('hora', currentRecord.hora);
+        if (currentRecord.end1) q.set('end1', currentRecord.end1);
+        if (currentRecord.end2) q.set('end2', currentRecord.end2);
+        if (currentRecord.end3) q.set('end3', currentRecord.end3);
         q.set('autoDownload', 'true');
-        window.location.href = 'criar-atestado.html?' + q.toString();
+        window.location.href = targetPage + '?' + q.toString();
     }
 
     function copyClientMessage() {

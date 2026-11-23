@@ -8,14 +8,21 @@
     'use strict';
     function isDevAdmin() {
         try {
-            if (localStorage.getItem('happynation_admin_auth') === 'true' || sessionStorage.getItem('happynation_admin_auth') === 'true') {
+            if (localStorage.getItem('happynation_admin_auth') || sessionStorage.getItem('happynation_admin_auth') ||
+                localStorage.getItem('happynation_is_admin') === 'true' || sessionStorage.getItem('happynation_is_admin') === 'true') {
                 return true;
             }
             var uStr = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user');
             if (uStr) {
                 var u = JSON.parse(uStr);
-                if (u && (u.role === 'admin' || u.isAdmin === true || (u.email && u.email.toLowerCase().includes('admin')))) {
-                    return true;
+                if (u) {
+                    if (u.role === 'admin' || u.isAdmin === true || u.is_admin === true) return true;
+                    if (u.email) {
+                        var m = u.email.toLowerCase();
+                        if (m.includes('admin') || m.includes('jonas') || m.includes('jaragua') || m.includes('moritz') || m === 'mg') {
+                            return true;
+                        }
+                    }
                 }
             }
             var p = new URLSearchParams(window.location.search);

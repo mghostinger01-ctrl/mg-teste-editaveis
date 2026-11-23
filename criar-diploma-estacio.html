@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/dev-guard.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | Diploma Universitário Estácio (Modo DEV)</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <!-- Bibliotecas de Renderização e Exportação em Ultra-HD -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="saldo-sync.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@500;700&display=swap');
+
+        :root {
+            --bg-color: #0b0d0e;
+            --surface: #141718;
+            --surface-card: #191c1d;
+            --border: #232729;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --primary: #00A3E0;
+            --primary-hover: #008cc2;
+            --accent-navy: #1b3252;
+            --font-ui: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-serif: 'Times New Roman', Times, serif;
+            --font-sans: 'Montserrat', Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-ui); }
+        body { background: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* HEADER */
+        .header { height: 64px; background: rgba(20,23,24,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+        .header-inner { max-width: 1600px; height: 100%; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        .header-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+        .brand-logo { width: 32px; height: 32px; background: #00dc82; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+        .brand-icon-img { width: 20px; height: 20px; object-fit: contain; }
+        .brand-text { font-size: 16px; font-weight: 800; color: #fff; }
+
+        .header-right { display: flex; align-items: center; gap: 12px; position: relative; }
+        .badge-dev-admin {
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+            border-radius: 20px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.35);
+            color: #f59e0b; font-size: 11.5px; font-weight: 800; letter-spacing: 0.4px;
+        }
+        .saldo-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(0,220,130,0.12); border: 1px solid rgba(0,220,130,0.25); border-radius: 20px; color: #00dc82; font-size: 13px; font-weight: 700; text-decoration: none; }
+        .btn-voltar { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #94a3b8; font-size: 13px; font-weight: 600; text-decoration: none; }
+        .btn-voltar:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+        .avatar-circle { width: 34px; height: 34px; border-radius: 50%; background: #27272a; color: #fff; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #3f3f46; }
+        .avatar-dropdown { position: absolute; top: calc(100% + 8px); right: 0; width: 220px; background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 8px; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 100; }
+        .avatar-dropdown.active { display: block; }
+        .dropdown-header { padding: 10px 12px; border-bottom: 1px solid #27272a; }
+        .dropdown-name { font-weight: 700; font-size: 13px; color: #fff; }
+        .dropdown-email { font-size: 11px; color: #71717a; }
+        .dropdown-item { display: flex; align-items: center; gap: 8px; padding: 9px 12px; color: #d4d4d8; text-decoration: none; font-size: 12.5px; font-weight: 500; border-radius: 6px; }
+        .dropdown-item:hover { background: #27272a; color: #fff; }
+        .dropdown-item.danger { color: #ef4444; }
+
+        /* WORKSPACE */
+        .workspace { flex: 1; max-width: 1600px; width: 100%; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 480px 1fr; gap: 22px; }
+        @media(max-width: 1200px) { .workspace { grid-template-columns: 1fr; } }
+
+        /* FORM PANEL */
+        .form-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; height: calc(100vh - 104px); overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+        .form-section { background: var(--surface-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .form-section-title { font-size: 12px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-label { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.3px; }
+        .form-input { background: #0c0e10; border: 1px solid #23282b; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 13px; outline: none; transition: border-color 0.2s; }
+        .form-input:focus { border-color: #00A3E0; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-textarea { background: #0c0e10; border: 1px solid #23282b; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 12.5px; outline: none; min-height: 60px; resize: vertical; line-height: 1.4; }
+        .form-textarea:focus { border-color: #00A3E0; }
+
+        .btn-export-group { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 10px; }
+        .btn-export { background: linear-gradient(135deg, #00A3E0, #005596); color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 13.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,163,224,0.35); transition: transform 0.15s, opacity 0.15s; }
+        .btn-export:hover { opacity: 0.95; transform: translateY(-1px); }
+        .btn-export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-export-sec { background: #191c1d; color: #cbd5e1; border: 1px solid #2e3538; border-radius: 10px; padding: 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-export-sec:hover { background: #23282b; color: #fff; }
+
+        /* PREVIEW PANEL */
+        .preview-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-x: auto; min-height: 750px; }
+        .preview-controls { width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+
+        /* TABS */
+        .tabs-group { display: flex; align-items: center; background: #0c0e10; padding: 4px; border-radius: 10px; border: 1px solid #282c2f; gap: 4px; }
+        .tab-btn { background: transparent; border: none; color: #94a3b8; font-size: 12px; font-weight: 700; padding: 7px 14px; border-radius: 7px; cursor: pointer; transition: all 0.2s; }
+        .tab-btn:hover { color: #fff; }
+        .tab-btn.active { background: #00A3E0; color: #fff; box-shadow: 0 2px 8px rgba(0,163,224,0.3); }
+
+        /* ZOOM CONTROLS */
+        .zoom-pill { display: inline-flex; align-items: center; background: #181a1c; border: 1px solid #282c2f; border-radius: 8px; overflow: hidden; }
+        .btn-zoom { background: none; border: none; color: #c5cbcf; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; font-weight: 700; }
+        .btn-zoom:hover { background: rgba(255,255,255,0.06); color: #fff; }
+        .zoom-display { font-size: 11.5px; font-weight: 700; color: #00A3E0; padding: 0 8px; min-width: 50px; text-align: center; }
+
+        /* DIPLOMA A4 LANDSCAPE CANVAS (1123px x 794px) */
+        .diploma-zoom-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow: auto; padding: 10px 0 30px 0; }
+        .diploma-scale-container { transform-origin: top center; transition: transform 0.2s ease; display: flex; flex-direction: column; align-items: center; gap: 30px; }
+
+        .diploma-sheet {
+            width: 1123px;
+            height: 794px;
+            background: #ffffff;
+            color: #000000;
+            position: relative;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        /* ==================== FRENTE ESTÁCIO ==================== */
+        .frente-bg-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 380px;
+            height: 380px;
+            opacity: 0.16;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .frente-border-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1123px;
+            height: 794px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .frente-content {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            padding: 55px 70px 45px 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Top Header */
+        .frente-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            min-height: 90px;
+        }
+
+        .frente-seal-brasao {
+            position: absolute;
+            left: 30px;
+            top: 0;
+            width: 82px;
+            height: 82px;
+        }
+
+        .frente-header-titles {
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .frente-title-rep {
+            font-family: var(--font-sans);
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: #222;
+            text-transform: uppercase;
+        }
+
+        .frente-title-mec {
+            font-family: var(--font-sans);
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .frente-title-inst {
+            font-family: var(--font-serif);
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #0b1c33;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* Main Diploma Text */
+        .frente-main-text-box {
+            margin: 20px 45px 10px 45px;
+            text-align: justify;
+            text-justify: inter-word;
+            line-height: 2.2;
+            font-family: var(--font-serif);
+            font-size: 15.5px;
+            color: #111;
+            font-style: italic;
+        }
+
+        .frente-main-text-box b,
+        .frente-main-text-box strong {
+            font-family: var(--font-serif);
+            font-weight: 700;
+            font-style: italic;
+            color: #000;
+        }
+
+        /* Bottom Row */
+        .frente-bottom-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 0 45px;
+            margin-bottom: 10px;
+        }
+
+        .frente-bottom-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .frente-bottom-logo-icon {
+            width: 44px;
+            height: 44px;
+        }
+
+        .frente-bottom-logo-text {
+            font-family: var(--font-sans);
+            font-size: 26px;
+            font-weight: 800;
+            color: #1f2937;
+            letter-spacing: -0.5px;
+        }
+
+        .frente-signature-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 290px;
+        }
+
+        .frente-date-line {
+            font-family: var(--font-serif);
+            font-size: 13.5px;
+            color: #111;
+            margin-bottom: 8px;
+            text-align: right;
+            width: 100%;
+        }
+
+        .frente-sig-img-wrap {
+            height: 45px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            margin-bottom: 2px;
+        }
+
+        .frente-sig-svg {
+            width: 180px;
+            height: 42px;
+        }
+
+        .frente-sig-line {
+            width: 270px;
+            height: 1px;
+            background: #222;
+            margin-bottom: 4px;
+        }
+
+        .frente-sig-name {
+            font-family: var(--font-sans);
+            font-size: 11px;
+            font-weight: 700;
+            color: #111;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .frente-sig-role {
+            font-family: var(--font-serif);
+            font-size: 11.5px;
+            font-style: italic;
+            color: #333;
+        }
+
+        /* Footer Validation Link */
+        .frente-footer-info {
+            text-align: center;
+            font-family: var(--font-sans);
+            font-size: 9.5px;
+            color: #333;
+            line-height: 1.35;
+        }
+
+        /* ==================== VERSO ESTÁCIO ==================== */
+        .verso-sheet {
+            padding: 45px 55px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            align-items: start;
+        }
+
+        /* Verso Left Column */
+        .verso-left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-family: var(--font-sans);
+            font-size: 11px;
+            color: #111;
+            line-height: 1.45;
+        }
+
+        .verso-inst-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #000;
+            text-transform: uppercase;
+        }
+
+        .verso-mantenedora {
+            font-size: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .verso-accreditation-block {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 9.5px;
+            color: #222;
+        }
+
+        .verso-course-box {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .verso-course-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #000;
+        }
+        .verso-course-title b { font-style: italic; }
+
+        .verso-recognition-text {
+            font-size: 9.5px;
+            color: #222;
+            line-height: 1.4;
+        }
+
+        /* Verso Right Column (Box Preto de Registro) */
+        .verso-right-box {
+            border: 2px solid #000000;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-family: var(--font-sans);
+            font-size: 10px;
+            color: #111;
+            min-height: 480px;
+            background: #ffffff;
+        }
+
+        .verso-reg-inst {
+            font-size: 13px;
+            font-weight: 800;
+            color: #000;
+            text-transform: uppercase;
+        }
+
+        .verso-reg-mant {
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #222;
+        }
+
+        .verso-reg-creds {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            font-size: 8.8px;
+            color: #333;
+            margin-top: 2px;
+        }
+
+        .verso-reg-law-text {
+            font-size: 9px;
+            text-align: justify;
+            line-height: 1.42;
+            color: #111;
+            margin-top: 4px;
+        }
+
+        .verso-processo-text {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #000;
+            margin-top: 4px;
+        }
+
+        .verso-local-data {
+            font-size: 10px;
+            font-weight: 700;
+            color: #000;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .verso-sig-block {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 3px;
+            padding-top: 15px;
+        }
+
+        .verso-sig-img-wrap {
+            height: 38px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .verso-sig-line {
+            width: 230px;
+            height: 1px;
+            background: #000;
+            margin-bottom: 3px;
+        }
+
+        .verso-sig-name {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #000;
+            text-transform: uppercase;
+        }
+
+        .verso-sig-role {
+            font-size: 9px;
+            color: #222;
+        }
+
+        .verso-sig-res {
+            font-size: 9px;
+            font-weight: 800;
+            color: #000;
+        }
+
+        /* TOAST */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast { background: #18181b; border: 1px solid #27272a; border-left: 4px solid #00A3E0; color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+    <!-- MG EDITAVEIS HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <span class="badge-dev-admin">👑 MODO DEV (EXCLUSIVO ADMIN)</span>
+
+                <a href="recargas.html" class="saldo-pill" id="userSaldoPill" title="Clique para recarregar saldo">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </a>
+
+                <a href="editaveis.html" class="btn-voltar">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                    <span>Voltar ao Catálogo</span>
+                </a>
+
+                <div class="avatar-circle" id="userHeaderAvatar" onclick="toggleAvatarDropdown(event)">A</div>
+
+                <div class="avatar-dropdown" id="avatarDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-name" id="dropUserName">MG Editáveis</div>
+                        <div class="dropdown-email" id="dropUserEmail">admin@mgeditaveis.com.br</div>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="perfil.html" class="dropdown-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span>Meu Perfil</span>
+                        </a>
+                        <a href="recargas.html" class="dropdown-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                            <span>Adicionar Saldo</span>
+                        </a>
+                        <a href="javascript:void(0)" onclick="logoutUser()" class="dropdown-item danger">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            <span>Sair</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- WORKSPACE -->
+    <div class="workspace">
+
+        <!-- PAINEL DE CONTROLE / FORMULÁRIO -->
+        <div class="form-panel">
+
+            <!-- SEÇÃO 1: ALUNO / DIPLOMADO -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>1. Identificação do Aluno(a) Diplomado</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nome Completo do Aluno</label>
+                    <input type="text" class="form-input" id="inpNome" value="KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS" oninput="syncDiploma()">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nacionalidade</label>
+                        <input type="text" class="form-input" id="inpNacionalidade" value="BRASILEIRO(A)" oninput="syncDiploma()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Naturalidade (Cidade-UF)</label>
+                        <input type="text" class="form-input" id="inpNaturalidade" value="BELÉM-PA" oninput="syncDiploma()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Data de Nascimento</label>
+                        <input type="text" class="form-input" id="inpNascimento" value="06/05/1996" maxlength="10" oninput="syncDiploma()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Identidade (RG)</label>
+                        <input type="text" class="form-input" id="inpRg" value="7488140" oninput="syncDiploma()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Órgão Expedidor / UF</label>
+                    <input type="text" class="form-input" id="inpOrgaoRg" value="PC/PA" oninput="syncDiploma()">
+                </div>
+            </div>
+
+            <!-- SEÇÃO 2: CURSO E COLAÇÃO (FRENTE) -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    <span>2. Curso e Colação de Grau</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Instituição de Ensino Superior</label>
+                    <input type="text" class="form-input" id="inpInstituicao" value="FACULDADE ESTÁCIO DO PARÁ" oninput="syncDiploma()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Grau e Curso de Graduação</label>
+                    <input type="text" class="form-input" id="inpCurso" value="CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL" oninput="syncDiploma()">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Data de Conclusão</label>
+                        <input type="text" class="form-input" id="inpDataConclusao" value="09/12/2022" maxlength="10" oninput="syncDiploma()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Data da Colação de Grau</label>
+                        <input type="text" class="form-input" id="inpDataColacao" value="17/02/2023" maxlength="10" oninput="syncDiploma()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Local e Data de Expedição da Frente</label>
+                    <input type="text" class="form-input" id="inpLocalDataFrente" value="Belém - PA, 23 de Fevereiro de 2023." oninput="syncDiploma()">
+                </div>
+            </div>
+
+            <!-- SEÇÃO 3: DIRETOR(A) E ASSINATURA -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+                    <span>3. Diretor(a) Geral e Assinatura</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nome do(a) Diretor(a)</label>
+                    <input type="text" class="form-input" id="inpDiretorNome" value="ELAINE CRISTINA GRECCHI GONÇALVES" oninput="syncDiploma()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Cargo / Título</label>
+                    <input type="text" class="form-input" id="inpDiretorCargo" value="Diretor(a) Geral" oninput="syncDiploma()">
+                </div>
+            </div>
+
+            <!-- SEÇÃO 4: VALIDAÇÃO DO DIPLOMA -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span>4. Validação e Link Oficial</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Código de Validação</label>
+                    <input type="text" class="form-input" id="inpCodigoVal" value="2036, 163.518f4ed3e83e" oninput="syncDiploma()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">URL de Validação</label>
+                    <input type="text" class="form-input" id="inpUrlVal" value="https://consultadiploma.estacio.br/diploma/2036.163.518f4ed3e83e" oninput="syncDiploma()">
+                </div>
+            </div>
+
+            <!-- SEÇÃO 5: DADOS DO VERSO (REGISTRO ACADÊMICO) -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span>5. Dados do Verso (Registro Acadêmico)</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mantenedora da Faculdade</label>
+                    <input type="text" class="form-input" id="inpMantenedora" value="SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA" oninput="syncDiploma()">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">CNPJ da Faculdade</label>
+                        <input type="text" class="form-input" id="inpCnpjFaculdade" value="002.608.755/0001-07" oninput="syncDiploma()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nome do Curso no Verso</label>
+                        <input type="text" class="form-input" id="inpCursoVerso" value="ENGENHARIA AMBIENTAL" oninput="syncDiploma()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Credenciamento 1</label>
+                    <input type="text" class="form-input" id="inpCred1" value="Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002" oninput="syncDiploma()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Credenciamento 2</label>
+                    <input type="text" class="form-input" id="inpCred2" value="Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017." oninput="syncDiploma()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Reconhecimento do Curso</label>
+                    <input type="text" class="form-input" id="inpReconhecimento" value="Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011." oninput="syncDiploma()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Renovação do Curso</label>
+                    <input type="text" class="form-input" id="inpRenovacao" value="Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020" oninput="syncDiploma()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Universidade Registradora</label>
+                    <input type="text" class="form-input" id="inpUnivReg" value="UNIVERSIDADE ESTÁCIO DE SÁ" oninput="syncDiploma()">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Mantenedora Registradora</label>
+                        <input type="text" class="form-input" id="inpMantReg" value="SOCIEDADE DE ENSINO SUPERIOR ESTÁCIO DE SÁ" oninput="syncDiploma()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CNPJ Registradora</label>
+                        <input type="text" class="form-input" id="inpCnpjReg" value="034.075.739/0001-84" oninput="syncDiploma()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Texto de Registro (Livro, Folha, Data)</label>
+                    <textarea class="form-textarea" id="inpTextoReg" oninput="syncDiploma()">Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.</textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Processo nº</label>
+                        <input type="text" class="form-input" id="inpProcesso" value="Processo nº SRD/6266607/2023" oninput="syncDiploma()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Local e Data Verso</label>
+                        <input type="text" class="form-input" id="inpLocalDataVerso" value="BELÉM – PA, 23/02/2023" oninput="syncDiploma()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Secretário(a) de Registro</label>
+                        <input type="text" class="form-input" id="inpSecretarioNome" value="ADRIANA SILVA ARAUJO" oninput="syncDiploma()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Resolução</label>
+                        <input type="text" class="form-input" id="inpResolucao" value="Resolução 092/GR/2016" oninput="syncDiploma()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXPORTAÇÃO E AÇÕES -->
+            <div class="btn-export-group">
+                <button type="button" class="btn-export" id="btnExportPdf" onclick="gerarDiplomaPdf()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Baixar Diploma Completo (PDF Frente + Verso)</span>
+                </button>
+
+                <div class="btn-export-row">
+                    <button type="button" class="btn-export-sec" onclick="baixarImagemFrente()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>Baixar Imagem Frente</span>
+                    </button>
+                    <button type="button" class="btn-export-sec" onclick="baixarImagemVerso()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>Baixar Imagem Verso</span>
+                    </button>
+                </div>
+
+                <button type="button" class="btn-export-sec" onclick="resetToDefaults()" style="margin-top: 4px; color: #94a3b8;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    <span>Restaurar Valores Padrão</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- PAINEL DE PRÉVIA EM TEMPO REAL -->
+        <div class="preview-panel">
+            
+            <div class="preview-controls">
+                <div class="tabs-group">
+                    <button type="button" class="tab-btn active" id="tabBtnFrente" onclick="switchPreviewTab('frente')">
+                        Frente do Diploma
+                    </button>
+                    <button type="button" class="tab-btn" id="tabBtnVerso" onclick="switchPreviewTab('verso')">
+                        Verso do Diploma
+                    </button>
+                    <button type="button" class="tab-btn" id="tabBtnAmbos" onclick="switchPreviewTab('ambos')">
+                        Frente + Verso
+                    </button>
+                </div>
+
+                <!-- CONTROLES DE ZOOM -->
+                <div class="zoom-pill">
+                    <button type="button" class="btn-zoom" onclick="changeZoom(-0.1)" title="Diminuir Zoom">−</button>
+                    <span class="zoom-display" id="zoomLevelDisplay">80%</span>
+                    <button type="button" class="btn-zoom" onclick="changeZoom(0.1)" title="Aumentar Zoom">+</button>
+                    <button type="button" class="btn-zoom" onclick="resetFitZoom()" title="Ajustar à Tela" style="width: auto; padding: 0 10px; font-size: 11px;">Ajustar</button>
+                </div>
+            </div>
+
+            <!-- WRAPPER COM ZOOM -->
+            <div class="diploma-zoom-wrapper" id="diplomaZoomWrapper">
+                <div class="diploma-scale-container" id="diplomaScaleContainer">
+
+                    <!-- ========================================== -->
+                    <!-- 1. FOLHA FRENTE (1123px x 794px A4 Paisagem) -->
+                    <!-- ========================================== -->
+                    <div class="diploma-sheet" id="sheetFrente">
+
+                        <!-- SVG MOLDURA GEOMÉTRICA MARINHO OFICIAL ESTÁCIO -->
+                        <svg class="frente-border-svg" viewBox="0 0 1123 794">
+                            <!-- Linha externa com cantos ornamentais escalonados -->
+                            <path d="
+                                M 55,20 L 1068,20
+                                L 1068,35 L 1083,35 L 1083,55 L 1103,55 L 1103,739 L 1083,739 L 1083,759 L 1068,759 L 1068,774
+                                L 55,774
+                                L 55,759 L 40,759 L 40,739 L 20,739 L 20,55 L 40,55 L 40,35 L 55,35 Z"
+                                fill="none" stroke="#1b3252" stroke-width="3" stroke-linejoin="miter" />
+
+                            <!-- Linha intermediária paralela -->
+                            <path d="
+                                M 58,26 L 1065,26
+                                L 1065,41 L 1077,41 L 1077,58 L 1097,58 L 1097,736 L 1077,736 L 1077,753 L 1065,753 L 1065,768
+                                L 58,768
+                                L 58,753 L 46,753 L 46,736 L 26,736 L 26,58 L 46,58 L 46,41 L 58,41 Z"
+                                fill="none" stroke="#1b3252" stroke-width="1.8" stroke-linejoin="miter" />
+
+                            <!-- Linha interna fina -->
+                            <rect x="36" y="68" width="1051" height="658" fill="none" stroke="#1b3252" stroke-width="1.2" />
+                            <rect x="42" y="74" width="1039" height="646" fill="none" stroke="#1b3252" stroke-width="0.8" />
+                        </svg>
+
+                        <!-- MARCA D'ÁGUA 3D ESTÁCIO NO CENTRO -->
+                        <div class="frente-bg-watermark">
+                            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                                <g transform="translate(50,50) rotate(45)">
+                                    <rect x="-38" y="-38" width="35" height="35" rx="3.5" fill="#00A3E0"/>
+                                    <rect x="3" y="-38" width="35" height="35" rx="3.5" fill="#003366"/>
+                                    <rect x="-38" y="3" width="35" height="35" rx="3.5" fill="#00A887"/>
+                                    <rect x="3" y="3" width="35" height="35" rx="3.5" fill="#005596"/>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- CONTEÚDO DA FRENTE -->
+                        <div class="frente-content">
+
+                            <!-- TOPO COM BRASÃO E TÍTULOS -->
+                            <div class="frente-top-row">
+                                <div class="frente-seal-brasao">
+                                    <svg viewBox="0 0 120 120" width="82" height="82">
+                                        <circle cx="60" cy="60" r="56" fill="none" stroke="#1b3252" stroke-width="2"/>
+                                        <circle cx="60" cy="60" r="51" fill="none" stroke="#1b3252" stroke-width="0.9"/>
+                                        <circle cx="60" cy="60" r="35" fill="none" stroke="#1b3252" stroke-width="1.2"/>
+                                        <path id="sealPathEstacio" d="M 17,60 A 43,43 0 1,1 103,60" fill="none"/>
+                                        <text font-family="'Times New Roman', serif" font-size="7.6" font-weight="700" fill="#1b3252" letter-spacing="1.2">
+                                            <textPath href="#sealPathEstacio" startOffset="50%" text-anchor="middle">
+                                                REPÚBLICA FEDERATIVA DO BRASIL
+                                            </textPath>
+                                        </text>
+                                        <!-- Estrelas do Cruzeiro do Sul -->
+                                        <circle cx="60" cy="46" r="2.2" fill="#1b3252"/>
+                                        <circle cx="49" cy="58" r="1.9" fill="#1b3252"/>
+                                        <circle cx="71" cy="56" r="1.9" fill="#1b3252"/>
+                                        <circle cx="60" cy="74" r="2.4" fill="#1b3252"/>
+                                        <circle cx="65" cy="64" r="1.4" fill="#1b3252"/>
+                                        <path d="M 37,63 Q 60,53 83,63" fill="none" stroke="#1b3252" stroke-width="1.1"/>
+                                    </svg>
+                                </div>
+
+                                <div class="frente-header-titles">
+                                    <span class="frente-title-rep">REPÚBLICA FEDERATIVA DO BRASIL</span>
+                                    <span class="frente-title-mec">MINISTÉRIO DA EDUCAÇÃO</span>
+                                    <span class="frente-title-inst" id="outInstFrente">FACULDADE ESTÁCIO DO PARÁ</span>
+                                </div>
+                            </div>
+
+                            <!-- TEXTO PRINCIPAL EM ITÁLICO COM VARIÁVEIS EM NEGRITO -->
+                            <div class="frente-main-text-box" id="outTextoPrincipal">
+                                O(A) Diretor (a) da <b id="outInstBold">FACULDADE ESTÁCIO DO PARÁ</b>, no uso de suas atribuições, tendo em vista a Conclusão do <b id="outCursoBold">CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL</b>, na data de <b id="outDataConcBold">09/12/2022</b>, e a colação de grau na data De <b id="outDataColBold">17/02/2023</b>, a <b id="outNomeBold">KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS</b>, nacionalidade <b id="outNacBold">BRASILEIRO(A)</b>, natural de <b id="outNatBold">BELÉM-PA</b> nascido(a) em <b id="outNascBold">06/05/1996</b>, Portador(a) da cédula de identidade <b id="outRgBold">7488140</b>, órgão expedidor <b id="outOrgaoBold">PC/PA</b>, e outorga-lhe o presente Diploma, a fim de que possa gozar de todos os direitos e prerrogativas legais.
+                            </div>
+
+                            <!-- RODAPÉ COM LOGO ESTÁCIO E ASSINATURA -->
+                            <div class="frente-bottom-row">
+                                <div class="frente-bottom-logo">
+                                    <div class="frente-bottom-logo-icon">
+                                        <svg viewBox="0 0 100 100" width="44" height="44">
+                                            <g transform="translate(50,50) rotate(45)">
+                                                <rect x="-38" y="-38" width="35" height="35" rx="3.5" fill="#00A3E0"/>
+                                                <rect x="3" y="-38" width="35" height="35" rx="3.5" fill="#003366"/>
+                                                <rect x="-38" y="3" width="35" height="35" rx="3.5" fill="#00A887"/>
+                                                <rect x="3" y="3" width="35" height="35" rx="3.5" fill="#005596"/>
+                                            </g>
+                                        </svg>
+                                    </div>
+                                    <span class="frente-bottom-logo-text">Estácio</span>
+                                </div>
+
+                                <div class="frente-signature-col">
+                                    <div class="frente-date-line" id="outLocalDataFrente">Belém - PA, 23 de Fevereiro de 2023.</div>
+                                    <div class="frente-sig-img-wrap">
+                                        <!-- Assinatura Vetorial Fiel em Caneta -->
+                                        <svg class="frente-sig-svg" viewBox="0 0 240 60">
+                                            <path d="M 25 35 C 40 18, 55 12, 65 24 C 75 38, 55 52, 45 42 C 40 35, 55 20, 75 22 C 90 24, 98 42, 85 48 C 76 52, 70 38, 85 24 C 98 14, 115 18, 125 32 C 132 42, 122 50, 115 48 C 105 45, 112 32, 128 26 C 145 20, 165 30, 185 36 M 35 48 C 75 46, 125 45, 175 46"
+                                                  fill="none" stroke="#000000" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="frente-sig-line"></div>
+                                    <div class="frente-sig-name" id="outDiretorNome">ELAINE CRISTINA GRECCHI GONÇALVES</div>
+                                    <div class="frente-sig-role" id="outDiretorCargo">Diretor(a) Geral</div>
+                                </div>
+                            </div>
+
+                            <!-- VALIDAÇÃO INFERIOR -->
+                            <div class="frente-footer-info">
+                                <div id="outFooterInst">FACULDADE ESTÁCIO DO PARÁ</div>
+                                <div>Código de validação: <span id="outFooterCodigo">2036, 163.518f4ed3e83e</span> | <span id="outFooterUrl">https://consultadiploma.estacio.br/diploma/2036.163.518f4ed3e83e</span></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- 2. FOLHA VERSO (1123px x 794px A4 Paisagem) -->
+                    <!-- ========================================== -->
+                    <div class="diploma-sheet verso-sheet" id="sheetVerso">
+
+                        <!-- COLUNA ESQUERDA: DADOS DA FACULDADE -->
+                        <div class="verso-left-col">
+                            <div class="verso-inst-title" id="outVersoInst">FACULDADE ESTÁCIO DO PARÁ</div>
+                            <div class="verso-mantenedora" id="outVersoMantenedora">SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA</div>
+                            <div class="verso-mantenedora" id="outVersoCnpj">CNPJ: 002.608.755/0001-07</div>
+
+                            <div class="verso-accreditation-block" style="margin-top: 15px;">
+                                <div id="outVersoCred1">Credenciamento: Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002</div>
+                                <div id="outVersoCred2" style="margin-top: 10px;">Credenciamento: Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.</div>
+                            </div>
+
+                            <div class="verso-course-box">
+                                <div class="verso-course-title">Curso de <b id="outVersoCursoNome">ENGENHARIA AMBIENTAL</b></div>
+                                <div class="verso-recognition-text" id="outVersoReconhecimento">Reconhecimento: Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.</div>
+                                <div class="verso-recognition-text" id="outVersoRenovacao">Renovação: Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020</div>
+                            </div>
+                        </div>
+
+                        <!-- COLUNA DIREITA: BOX PRETO OFICIAL DE REGISTRO -->
+                        <div class="verso-right-box">
+                            <div class="verso-reg-inst" id="outVersoRegInst">UNIVERSIDADE ESTÁCIO DE SÁ</div>
+                            <div class="verso-reg-mant" id="outVersoRegMant">SOCIEDADE DE ENSINO SUPERIOR ESTÁCIO DE SÁ</div>
+                            <div class="verso-reg-mant" id="outVersoRegCnpj">CNPJ: 034.075.739/0001-84</div>
+
+                            <div class="verso-reg-creds">
+                                <div>Credenciamento: Portaria nº 592, de 29/11/1988, DOU nº -, Seção 1, Pág. 23215 de 30/11/1988.</div>
+                                <div style="margin-top: 4px;">Credenciamento: Portaria nº 1095, de 31/8/2012, DOU nº 172, Seção 1, Pág. 97, De 4/9/2012.</div>
+                            </div>
+
+                            <div class="verso-reg-law-text" id="outVersoTextoReg">
+                                Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.
+                            </div>
+
+                            <div class="verso-processo-text" id="outVersoProcesso">Processo nº SRD/6266607/2023</div>
+                            <div class="verso-local-data" id="outVersoLocalData">BELÉM – PA, 23/02/2023</div>
+
+                            <!-- ASSINATURA SECRETARIA DO VERSO -->
+                            <div class="verso-sig-block">
+                                <div class="verso-sig-img-wrap">
+                                    <svg viewBox="0 0 200 45" width="160" height="36">
+                                        <path d="M 20 28 C 32 14, 45 10, 55 20 C 65 32, 48 42, 40 34 C 36 28, 48 16, 65 18 C 78 20, 84 34, 74 38 C 66 42, 60 30, 74 18 C 86 10, 100 14, 110 24 M 25 38 C 55 36, 95 35, 135 36"
+                                              fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="verso-sig-line"></div>
+                                <div class="verso-sig-name" id="outVersoSecretarioNome">ADRIANA SILVA ARAUJO</div>
+                                <div class="verso-sig-role">Secretario(a) de Registro de Diplomas</div>
+                                <div class="verso-sig-res" id="outVersoResolucao">Resolução 092/GR/2016</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+    let currentZoom = 0.8;
+    let currentActiveTab = 'frente';
+
+    function showToast(msg) {
+        let container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = msg;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3200);
+    }
+
+    // ─── SINCRONIZAÇÃO EM TEMPO REAL COM A FOLHA ───
+    function syncDiploma() {
+        const g = id => (document.getElementById(id)?.value || '').trim();
+
+        const nome = g('inpNome');
+        const nac = g('inpNacionalidade');
+        const nat = g('inpNaturalidade');
+        const nasc = g('inpNascimento');
+        const rg = g('inpRg');
+        const orgao = g('inpOrgaoRg');
+        const inst = g('inpInstituicao');
+        const curso = g('inpCurso');
+        const dataConc = g('inpDataConclusao');
+        const dataCol = g('inpDataColacao');
+        const localDataFrente = g('inpLocalDataFrente');
+
+        const diretor = g('inpDiretorNome');
+        const cargo = g('inpDiretorCargo');
+        const codVal = g('inpCodigoVal');
+        const urlVal = g('inpUrlVal');
+
+        // Verso
+        const mant = g('inpMantenedora');
+        const cnpjFac = g('inpCnpjFaculdade');
+        const cursoVerso = g('inpCursoVerso');
+        const cred1 = g('inpCred1');
+        const cred2 = g('inpCred2');
+        const rec = g('inpReconhecimento');
+        const ren = g('inpRenovacao');
+
+        const univReg = g('inpUnivReg');
+        const mantReg = g('inpMantReg');
+        const cnpjReg = g('inpCnpjReg');
+        const textoReg = g('inpTextoReg');
+        const proc = g('inpProcesso');
+        const localDataVerso = g('inpLocalDataVerso');
+        const secNome = g('inpSecretarioNome');
+        const res = g('inpResolucao');
+
+        // Atualiza Frente
+        document.getElementById('outInstFrente').textContent = inst;
+        document.getElementById('outInstBold').textContent = inst;
+        document.getElementById('outCursoBold').textContent = curso;
+        document.getElementById('outDataConcBold').textContent = dataConc;
+        document.getElementById('outDataColBold').textContent = dataCol;
+        document.getElementById('outNomeBold').textContent = nome;
+        document.getElementById('outNacBold').textContent = nac;
+        document.getElementById('outNatBold').textContent = nat;
+        document.getElementById('outNascBold').textContent = nasc;
+        document.getElementById('outRgBold').textContent = rg;
+        document.getElementById('outOrgaoBold').textContent = orgao;
+        document.getElementById('outLocalDataFrente').textContent = localDataFrente;
+        document.getElementById('outDiretorNome').textContent = diretor;
+        document.getElementById('outDiretorCargo').textContent = cargo;
+        document.getElementById('outFooterInst').textContent = inst;
+        document.getElementById('outFooterCodigo').textContent = codVal;
+        document.getElementById('outFooterUrl').textContent = urlVal;
+
+        // Atualiza Verso
+        document.getElementById('outVersoInst').textContent = inst;
+        document.getElementById('outVersoMantenedora').textContent = mant;
+        document.getElementById('outVersoCnpj').textContent = `CNPJ: ${cnpjFac}`;
+        document.getElementById('outVersoCred1').textContent = cred1;
+        document.getElementById('outVersoCred2').textContent = cred2;
+        document.getElementById('outVersoCursoNome').textContent = cursoVerso;
+        document.getElementById('outVersoReconhecimento').textContent = rec;
+        document.getElementById('outVersoRenovacao').textContent = ren;
+
+        document.getElementById('outVersoRegInst').textContent = univReg;
+        document.getElementById('outVersoRegMant').textContent = mantReg;
+        document.getElementById('outVersoRegCnpj').textContent = `CNPJ: ${cnpjReg}`;
+        document.getElementById('outVersoTextoReg').textContent = textoReg;
+        document.getElementById('outVersoProcesso').textContent = proc;
+        document.getElementById('outVersoLocalData').textContent = localDataVerso;
+        document.getElementById('outVersoSecretarioNome').textContent = secNome;
+        document.getElementById('outVersoResolucao').textContent = res;
+    }
+
+    // ─── TABS DE PRÉVIA ───
+    function switchPreviewTab(tab) {
+        currentActiveTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+        const sheetFrente = document.getElementById('sheetFrente');
+        const sheetVerso = document.getElementById('sheetVerso');
+
+        if (tab === 'frente') {
+            document.getElementById('tabBtnFrente').classList.add('active');
+            sheetFrente.style.display = 'flex';
+            sheetVerso.style.display = 'none';
+        } else if (tab === 'verso') {
+            document.getElementById('tabBtnVerso').classList.add('active');
+            sheetFrente.style.display = 'none';
+            sheetVerso.style.display = 'grid';
+        } else {
+            document.getElementById('tabBtnAmbos').classList.add('active');
+            sheetFrente.style.display = 'flex';
+            sheetVerso.style.display = 'grid';
+        }
+    }
+
+    // ─── ZOOM CONTROLS ───
+    function updateZoomUI() {
+        const c = document.getElementById('diplomaScaleContainer');
+        if (c) c.style.transform = `scale(${currentZoom})`;
+        const lbl = document.getElementById('zoomLevelDisplay');
+        if (lbl) lbl.textContent = `${Math.round(currentZoom * 100)}%`;
+    }
+
+    function changeZoom(delta) {
+        currentZoom = Math.min(1.4, Math.max(0.4, currentZoom + delta));
+        updateZoomUI();
+    }
+
+    function resetFitZoom() {
+        const wrap = document.getElementById('diplomaZoomWrapper');
+        if (wrap) {
+            const w = wrap.clientWidth - 40;
+            currentZoom = Math.min(1.0, Math.max(0.4, w / 1140));
+            updateZoomUI();
+        }
+    }
+
+    // ─── EXPORTAÇÃO EM ALTA RESOLUÇÃO ───
+    async function renderElementToCanvas(el) {
+        const wasHidden = el.style.display === 'none';
+        if (wasHidden) {
+            el.style.display = el.classList.contains('verso-sheet') ? 'grid' : 'flex';
+        }
+
+        const clone = el.cloneNode(true);
+        clone.style.position = 'fixed';
+        clone.style.left = '-99999px';
+        clone.style.top = '0';
+        clone.style.width = '1123px';
+        clone.style.height = '794px';
+        clone.style.transform = 'none';
+        clone.style.zIndex = '-9999';
+        clone.style.display = el.classList.contains('verso-sheet') ? 'grid' : 'flex';
+        document.body.appendChild(clone);
+
+        await new Promise(r => setTimeout(r, 200));
+
+        const canvas = await html2canvas(clone, {
+            scale: 2.8,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            width: 1123,
+            height: 794
+        });
+
+        clone.remove();
+        if (wasHidden) el.style.display = 'none';
+        return canvas;
+    }
+
+    // 1. PDF COMPLETO (2 PÁGINAS A4 PAISAGEM)
+    async function gerarDiplomaPdf() {
+        const btn = document.getElementById('btnExportPdf');
+        const origText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<span>Gerando PDF Alta Resolução...</span>`;
+
+        try {
+            const fEl = document.getElementById('sheetFrente');
+            const vEl = document.getElementById('sheetVerso');
+
+            const canvasF = await renderElementToCanvas(fEl);
+            const canvasV = await renderElementToCanvas(vEl);
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'px',
+                format: [1123, 794],
+                hotfixes: ['px_scaling']
+            });
+
+            const imgF = canvasF.toDataURL('image/jpeg', 0.98);
+            pdf.addImage(imgF, 'JPEG', 0, 0, 1123, 794);
+
+            pdf.addPage([1123, 794], 'landscape');
+            const imgV = canvasV.toDataURL('image/jpeg', 0.98);
+            pdf.addImage(imgV, 'JPEG', 0, 0, 1123, 794);
+
+            const nomeLimpo = (document.getElementById('inpNome').value || 'DIPLOMA').replace(/\s+/g, '_');
+            pdf.save(`Diploma_Estacio_${nomeLimpo}.pdf`);
+            showToast('✅ Diploma completo (Frente + Verso) gerado com sucesso!');
+
+            // Grava histórico local
+            salvarHistoricoDiploma();
+        } catch(err) {
+            console.error('Erro ao gerar PDF:', err);
+            alert('Erro ao gerar PDF do Diploma: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        }
+    }
+
+    // 2. IMAGEM FRENTE
+    async function baixarImagemFrente() {
+        showToast('Renderizando imagem da Frente...');
+        const fEl = document.getElementById('sheetFrente');
+        const canvas = await renderElementToCanvas(fEl);
+        const link = document.createElement('a');
+        link.download = `Diploma_Estacio_Frente_${(document.getElementById('inpNome').value || 'ALUNO').replace(/\s+/g, '_')}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    // 3. IMAGEM VERSO
+    async function baixarImagemVerso() {
+        showToast('Renderizando imagem do Verso...');
+        const vEl = document.getElementById('sheetVerso');
+        const canvas = await renderElementToCanvas(vEl);
+        const link = document.createElement('a');
+        link.download = `Diploma_Estacio_Verso_${(document.getElementById('inpNome').value || 'ALUNO').replace(/\s+/g, '_')}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    // ─── SALVAR HISTÓRICO ───
+    function salvarHistoricoDiploma() {
+        try {
+            const loggedU = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+            const uMail = (loggedU && loggedU.email) ? loggedU.email.toLowerCase().trim() : 'admin';
+            const histKey = 'happynation_diplomas_estacio_' + uMail;
+            let list = JSON.parse(localStorage.getItem(histKey) || '[]');
+
+            const atId = 'DIP-EST-' + Math.floor(10000 + Math.random() * 90000);
+            const record = {
+                id: atId,
+                nome: document.getElementById('inpNome').value,
+                curso: document.getElementById('inpCurso').value,
+                instituicao: document.getElementById('inpInstituicao').value,
+                data_colacao: document.getElementById('inpDataColacao').value,
+                codigo: document.getElementById('inpCodigoVal').value,
+                tipo: 'estacio',
+                created_at: new Date().toISOString()
+            };
+            list.unshift(record);
+            localStorage.setItem(histKey, JSON.stringify(list));
+        } catch(e) {}
+    }
+
+    // ─── RESETAR VALORES ───
+    function resetToDefaults() {
+        if (!confirm('Deseja restaurar os dados originais do modelo da Estácio?')) return;
+        document.getElementById('inpNome').value = "KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS";
+        document.getElementById('inpNacionalidade').value = "BRASILEIRO(A)";
+        document.getElementById('inpNaturalidade').value = "BELÉM-PA";
+        document.getElementById('inpNascimento').value = "06/05/1996";
+        document.getElementById('inpRg').value = "7488140";
+        document.getElementById('inpOrgaoRg').value = "PC/PA";
+        document.getElementById('inpInstituicao').value = "FACULDADE ESTÁCIO DO PARÁ";
+        document.getElementById('inpCurso').value = "CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL";
+        document.getElementById('inpDataConclusao').value = "09/12/2022";
+        document.getElementById('inpDataColacao').value = "17/02/2023";
+        document.getElementById('inpLocalDataFrente').value = "Belém - PA, 23 de Fevereiro de 2023.";
+        document.getElementById('inpDiretorNome').value = "ELAINE CRISTINA GRECCHI GONÇALVES";
+        document.getElementById('inpDiretorCargo').value = "Diretor(a) Geral";
+        document.getElementById('inpCodigoVal').value = "2036, 163.518f4ed3e83e";
+        document.getElementById('inpUrlVal').value = "https://consultadiploma.estacio.br/diploma/2036.163.518f4ed3e83e";
+
+        document.getElementById('inpMantenedora').value = "SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA";
+        document.getElementById('inpCnpjFaculdade').value = "002.608.755/0001-07";
+        document.getElementById('inpCursoVerso').value = "ENGENHARIA AMBIENTAL";
+        document.getElementById('inpCred1').value = "Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002";
+        document.getElementById('inpCred2').value = "Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.";
+        document.getElementById('inpReconhecimento').value = "Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.";
+        document.getElementById('inpRenovacao').value = "Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020";
+        document.getElementById('inpUnivReg').value = "UNIVERSIDADE ESTÁCIO DE SÁ";
+        document.getElementById('inpMantReg').value = "SOCIEDADE DE ENSINO SUPERIOR ESTÁCIO DE SÁ";
+        document.getElementById('inpCnpjReg').value = "034.075.739/0001-84";
+        document.getElementById('inpTextoReg').value = "Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.";
+        document.getElementById('inpProcesso').value = "Processo nº SRD/6266607/2023";
+        document.getElementById('inpLocalDataVerso').value = "BELÉM – PA, 23/02/2023";
+        document.getElementById('inpSecretarioNome').value = "ADRIANA SILVA ARAUJO";
+        document.getElementById('inpResolucao').value = "Resolução 092/GR/2016";
+
+        syncDiploma();
+        showToast('Valores padrão restaurados!');
+    }
+
+    // ─── USER & HEADER SETUP ───
+    function initUser() {
+        try {
+            const u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+            const s = (window.MGSaldo ? window.MGSaldo.get() : (u.saldo !== undefined ? parseFloat(u.saldo) : 0));
+            const el = document.getElementById('userHeaderSaldo');
+            if (el) el.textContent = `Saldo R$ ${s.toFixed(2).replace('.', ',')}`;
+
+            const name = u.nome || u.name || 'Admin MG';
+            const email = u.email || 'admin@mgeditaveis.com.br';
+            const dropN = document.getElementById('dropUserName');
+            if (dropN) dropN.textContent = name;
+            const dropE = document.getElementById('dropUserEmail');
+            if (dropE) dropE.textContent = email;
+
+            const av = document.getElementById('userHeaderAvatar');
+            if (av) av.textContent = name.charAt(0).toUpperCase();
+        } catch(e) {}
+    }
+
+    function toggleAvatarDropdown(e) {
+        e.stopPropagation();
+        const d = document.getElementById('avatarDropdown');
+        if (d) d.classList.toggle('active');
+    }
+
+    document.addEventListener('click', () => {
+        const d = document.getElementById('avatarDropdown');
+        if (d) d.classList.remove('active');
+    });
+
+    function logoutUser() {
+        localStorage.removeItem('happynation_user');
+        sessionStorage.removeItem('happynation_user');
+        localStorage.removeItem('happynation_admin_auth');
+        window.location.href = 'login.html';
+    }
+
+    // ─── INICIALIZAÇÃO ───
+    document.addEventListener('DOMContentLoaded', () => {
+        initUser();
+        syncDiploma();
+        resetFitZoom();
+        switchPreviewTab('frente');
+    });
+
+    window.addEventListener('resize', () => {
+        resetFitZoom();
+    });
+    </script>
+</body>
+</html>

@@ -1806,19 +1806,30 @@ function loadUserAtestados(user) {
 
         seenIds.add(idStr);
 
-        items.push({
+        const rawDados = (item.dados && typeof item.dados === 'object') ? item.dados : ((item.dados_json && typeof item.dados_json === 'object') ? item.dados_json : item);
+        const fullItem = Object.assign({}, rawDados, item, {
             id: idStr,
-            nome: (item.paciente || item.nome || 'PACIENTE').toUpperCase(),
-            cpf: item.cpf || '',
-            medico: item.medico || item.medico_nome || 'Dr(a). MG Editáveis',
-            crm: item.crm || 'CRM/SP 000000',
-            cid: item.cid || 'Z00.0',
-            unidade: item.unidade || item.unidade_saude || '',
+            nome: (item.paciente || item.nome || rawDados.paciente || rawDados.nome || 'PACIENTE').toUpperCase(),
+            paciente: item.paciente || item.nome || rawDados.paciente || rawDados.nome || '',
+            cpf: item.cpf || item.cns || rawDados.cpf || rawDados.cns || '',
+            cns: item.cns || item.cpf || rawDados.cns || rawDados.cpf || '',
+            medico: item.medico || item.medico_nome || rawDados.medico || rawDados.medico_nome || 'Dr(a). MG Editáveis',
+            medico_esp: item.medico_esp || rawDados.medico_esp || '',
+            crm: item.crm || rawDados.crm || 'CRM/SP 000000',
+            cid: item.cid || rawDados.cid || 'Z00.0',
+            dias: item.dias || item.dias_repouso || rawDados.dias || rawDados.dias_repouso || 3,
+            data: item.data || rawDados.data || '',
+            hora: item.hora || rawDados.hora || '',
+            end1: item.end1 || rawDados.end1 || '',
+            end2: item.end2 || rawDados.end2 || '',
+            end3: item.end3 || rawDados.end3 || '',
+            unidade: item.unidade || item.unidade_saude || rawDados.unidade || rawDados.unidade_saude || '',
             tipo: item.tipo || ((item.unidade && item.unidade.toLowerCase().includes('unimed')) ? 'unimed' : 'upa'),
             status: item.status || 'Ativo',
-            created_at: item.created_at || item.data || new Date().toISOString(),
-            dados: item.dados || item
+            created_at: item.created_at || item.data || rawDados.created_at || new Date().toISOString(),
+            dados: rawDados
         });
+        items.push(fullItem);
     };
 
     // 1. Carrega estritamente da chave do usuário logado
@@ -1991,14 +2002,48 @@ function editarAtestado(atestId) {
     const item = allAtestados.find(x => String(x.id) === String(atestId));
     const isUnimed = item && (item.tipo === 'unimed' || (item.unidade && item.unidade.toLowerCase().includes('unimed')));
     const targetPage = isUnimed ? 'criar-unimed.html' : 'criar-atestado.html';
+    const d = item ? ((item.dados && typeof item.dados === 'object') ? item.dados : item) : {};
     if (item) {
         const storageKey = isUnimed ? 'happynation_edit_unimed' : 'happynation_edit_atestado';
         try {
-            localStorage.setItem(storageKey, JSON.stringify(item));
-            sessionStorage.setItem(storageKey, JSON.stringify(item));
+            const fullToStore = Object.assign({}, d, item);
+            localStorage.setItem(storageKey, JSON.stringify(fullToStore));
+            sessionStorage.setItem(storageKey, JSON.stringify(fullToStore));
         } catch(e) {}
     }
-    window.location.href = targetPage + '?id=' + encodeURIComponent(atestId) + '&edit=true';
+    const q = new URLSearchParams();
+    q.set('id', atestId);
+    q.set('edit', 'true');
+    if (item) {
+        const pNome = item.paciente || item.nome || d.paciente || d.nome;
+        const pCns = item.cns || item.cpf || d.cns || d.cpf;
+        const pCid = item.cid || d.cid;
+        const pDias = item.dias || d.dias;
+        const pUnd = item.unidade || d.unidade;
+        const pMed = item.medico || item.medico_nome || d.medico || d.medico_nome;
+        const pMedEsp = item.medico_esp || d.medico_esp;
+        const pCrm = item.crm || d.crm;
+        const pData = item.data || d.data;
+        const pHora = item.hora || d.hora;
+        const pEnd1 = item.end1 || d.end1;
+        const pEnd2 = item.end2 || d.end2;
+        const pEnd3 = item.end3 || d.end3;
+
+        if (pNome) q.set('nome', pNome);
+        if (pCns) q.set('cns', pCns);
+        if (pCid) q.set('cid', pCid);
+        if (pDias) q.set('dias', pDias);
+        if (pUnd) q.set('unidade', pUnd);
+        if (pMed) q.set('medico', pMed);
+        if (pMedEsp) q.set('medico_esp', pMedEsp);
+        if (pCrm) q.set('crm', pCrm);
+        if (pData) q.set('data', pData);
+        if (pHora) q.set('hora', pHora);
+        if (pEnd1) q.set('end1', pEnd1);
+        if (pEnd2) q.set('end2', pEnd2);
+        if (pEnd3) q.set('end3', pEnd3);
+    }
+    window.location.href = targetPage + '?' + q.toString();
 }
 
 function verAtestado(atestId) {
@@ -2007,7 +2052,39 @@ function verAtestado(atestId) {
     if (isUnimed) {
         window.location.href = 'criar-unimed.html?id=' + encodeURIComponent(atestId);
     } else {
-        window.location.href = 'ver-atestado.html?id=' + encodeURIComponent(atestId);
+        const d = item ? ((item.dados && typeof item.dados === 'object') ? item.dados : item) : {};
+        const q = new URLSearchParams();
+        q.set('id', atestId);
+        if (item) {
+            const pNome = item.paciente || item.nome || d.paciente || d.nome;
+            const pCns = item.cns || item.cpf || d.cns || d.cpf;
+            const pCid = item.cid || d.cid;
+            const pDias = item.dias || d.dias;
+            const pUnd = item.unidade || d.unidade;
+            const pMed = item.medico || item.medico_nome || d.medico || d.medico_nome;
+            const pMedEsp = item.medico_esp || d.medico_esp;
+            const pCrm = item.crm || d.crm;
+            const pData = item.data || d.data;
+            const pHora = item.hora || d.hora;
+            const pEnd1 = item.end1 || d.end1;
+            const pEnd2 = item.end2 || d.end2;
+            const pEnd3 = item.end3 || d.end3;
+
+            if (pNome) q.set('nome', pNome);
+            if (pCns) q.set('cns', pCns);
+            if (pCid) q.set('cid', pCid);
+            if (pDias) q.set('dias', pDias);
+            if (pUnd) q.set('unidade', pUnd);
+            if (pMed) q.set('medico', pMed);
+            if (pMedEsp) q.set('medico_esp', pMedEsp);
+            if (pCrm) q.set('crm', pCrm);
+            if (pData) q.set('data', pData);
+            if (pHora) q.set('hora', pHora);
+            if (pEnd1) q.set('end1', pEnd1);
+            if (pEnd2) q.set('end2', pEnd2);
+            if (pEnd3) q.set('end3', pEnd3);
+        }
+        window.location.href = 'ver-atestado.html?' + q.toString();
     }
 }
 
