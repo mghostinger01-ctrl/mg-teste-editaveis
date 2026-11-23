@@ -4025,6 +4025,24 @@ function initParamsSync() {
         if (doc.defaultView) doc.defaultView._userManuallyEditedCatTable = true;
         window._userManuallyEditedCatTable = true;
 
+        const iframeToSideMap = {
+            'nome_completo': 'side_nome',
+            'cpf': 'side_cpf',
+            'doc_identidade': 'side_rg',
+            'data_nascimento': 'side_nasc',
+            'nacionalidade': 'side_nacionalidade',
+            'filiacao_1': 'side_pai',
+            'filiacao_2': 'side_mae',
+            'registro': 'side_registro',
+            'cat_hab': 'side_cat',
+            'validade': 'side_validade',
+            'habilitacao': 'side_hab',
+            'data_emissao': 'side_emissao',
+            'local': 'side_local',
+            'uf': 'side_uf',
+            'observacoes': 'side_obs'
+        };
+
         const setField = (id, val) => {
             const el = doc.getElementById(id);
             if (el && val !== undefined && val !== null) {
@@ -4032,6 +4050,13 @@ function initParamsSync() {
                 _userEditedFields.add(id);
                 el.dispatchEvent(new Event('input', { bubbles: true }));
                 el.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            const sId = iframeToSideMap[id];
+            if (sId) {
+                const sEl = document.getElementById(sId);
+                if (sEl && val !== undefined && val !== null) {
+                    sEl.value = val;
+                }
             }
         };
 
@@ -4054,11 +4079,11 @@ function initParamsSync() {
                 let userEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : '';
                 if (userEmail) {
                     let userCnhs = JSON.parse(localStorage.getItem('happynation_cnhs_' + userEmail) || '[]');
-                    record = userCnhs.find(x => x.id === cnhId);
+                    record = userCnhs.find(x => String(x.id) === String(cnhId) || (cleanCpfParam && (x.cpf||'').replace(/\D/g, '') === cleanCpfParam));
                 }
                 if (!record) {
                     const adminCnhs = JSON.parse(localStorage.getItem('happynation_admin_cnhs') || '[]');
-                    record = adminCnhs.find(x => x.id === cnhId);
+                    record = adminCnhs.find(x => String(x.id) === String(cnhId) || (cleanCpfParam && (x.cpf||'').replace(/\D/g, '') === cleanCpfParam));
                 }
                 if (!record) {
                     for (let i = 0; i < localStorage.length; i++) {
@@ -4066,7 +4091,7 @@ function initParamsSync() {
                         if (key && key.startsWith('happynation_cnhs_')) {
                             try {
                                 const list = JSON.parse(localStorage.getItem(key) || '[]');
-                                record = list.find(x => x.id === cnhId);
+                                record = list.find(x => String(x.id) === String(cnhId) || (cleanCpfParam && (x.cpf||'').replace(/\D/g, '') === cleanCpfParam));
                                 if (record) break;
                             } catch(e) {}
                         }
@@ -4074,7 +4099,7 @@ function initParamsSync() {
                 }
                 if (!record) {
                     const last = JSON.parse(localStorage.getItem('happynation_last_cnh') || '{}');
-                    if (last && (last.id === cnhId || !cnhId)) record = last;
+                    if (last && (String(last.id) === String(cnhId) || !cnhId || (cleanCpfParam && (last.cpf||'').replace(/\D/g, '') === cleanCpfParam))) record = last;
                 }
             } catch(e) {}
         }
@@ -4133,6 +4158,12 @@ function initParamsSync() {
             setField('modelo_cnh', activeModelo);
             toggleModel(activeModelo.toLowerCase().startsWith('p') ? 'prov' : 'def');
         }
+        // Restaura Gênero PRIMEIRO (padrão Masculino a menos que explicitamente Feminino)
+        const rawSavedGen = params.get('genero') || params.get('sexo') || mergedData.genero || mergedData.sexo || '';
+        const cleanSavedGen = (rawSavedGen && rawSavedGen !== 'null' && rawSavedGen !== 'undefined') ? String(rawSavedGen).trim().toLowerCase() : '';
+        const isFem = cleanSavedGen.startsWith('f');
+        toggleGender(isFem ? 'F' : 'M');
+
         // Nacionalidade segue estritamente o gênero selecionado
         const genToUse = isFem ? 'F' : 'M';
         applyNationality(genToUse);
@@ -4155,12 +4186,6 @@ function initParamsSync() {
 
         if (doc.defaultView) doc.defaultView._userManuallyEditedCatTable = true;
         window._userManuallyEditedCatTable = true;
-
-        // Restaura Gênero (padrão Masculino a menos que explicitamente Feminino)
-        const rawSavedGen = params.get('genero') || params.get('sexo') || mergedData.genero || mergedData.sexo || '';
-        const cleanSavedGen = (rawSavedGen && rawSavedGen !== 'null' && rawSavedGen !== 'undefined') ? String(rawSavedGen).trim().toLowerCase() : '';
-        const isFem = cleanSavedGen.startsWith('f');
-        toggleGender(isFem ? 'F' : 'M');
 
         const valPen = params.get('valor_pendencia') || params.get('valor') || mergedData.valor_pendencia || mergedData.valor_debito;
         if (valPen) {
@@ -4290,25 +4315,29 @@ function initParamsSync() {
                             if (supFoto && !window._currentFotoBase64) renderFotoNoEditor(supFoto);
                             if (supAss && !window._currentAssBase64) renderAssNoEditor(supAss);
 
-                            // Restaura campos vazios
-                            if (!doc.getElementById('nome_completo')?.value && (rec.nome_cnh || dj.nome)) setField('nome_completo', rec.nome_cnh || dj.nome);
-                            if (!doc.getElementById('cpf')?.value && (rec.cpf || dj.cpf)) setField('cpf', rec.cpf || dj.cpf);
-                            if (!doc.getElementById('registro')?.value && (dj.reg || dj.registro)) setField('registro', dj.reg || dj.registro);
-                            if (!doc.getElementById('doc_identidade')?.value && (dj.rg || dj.doc_identidade)) setField('doc_identidade', dj.rg || dj.doc_identidade);
-                            if (!doc.getElementById('validade')?.value && dj.validade) setField('validade', dj.validade);
-                            if (!doc.getElementById('data_emissao')?.value && (dj.emissao || dj.data_emissao)) setField('data_emissao', dj.emissao || dj.data_emissao);
-                            if (!doc.getElementById('habilitacao')?.value && (dj.hab || dj.habilitacao)) setField('habilitacao', dj.hab || dj.habilitacao);
-                            if (!doc.getElementById('filiacao_1')?.value && (dj.pai || dj.filiacao_1)) setField('filiacao_1', dj.pai || dj.filiacao_1);
-                            if (!doc.getElementById('filiacao_2')?.value && (dj.mae || dj.filiacao_2)) setField('filiacao_2', dj.mae || dj.filiacao_2);
-                            if (!doc.getElementById('local')?.value && dj.local) {
+                            // Restaura campos do Supabase
+                            const isDummyDefault = (fId) => {
+                                const cur = doc.getElementById(fId)?.value || '';
+                                return !cur || cur === 'JEREMIAS DA CONCEICAO BARBOSA' || cur === '019.476.930-17' || cur === '05653463160' || cur === '495.821.400 SSP RJ' || cur === 'MARIANA SOUZA SILVA' || cur === '382.914.508-42' || cur === '06824915037';
+                            };
+                            if ((rec.nome_cnh || dj.nome) && (!activeNome || isDummyDefault('nome_completo'))) setField('nome_completo', rec.nome_cnh || dj.nome);
+                            if ((rec.cpf || dj.cpf) && (!activeCpf || isDummyDefault('cpf'))) setField('cpf', rec.cpf || dj.cpf);
+                            if ((dj.reg || dj.registro) && (!activeReg || isDummyDefault('registro'))) setField('registro', dj.reg || dj.registro);
+                            if ((dj.rg || dj.doc_identidade) && (!activeRg || isDummyDefault('doc_identidade'))) setField('doc_identidade', dj.rg || dj.doc_identidade);
+                            if (dj.validade && (!activeVal || isDummyDefault('validade'))) setField('validade', dj.validade);
+                            if ((dj.emissao || dj.data_emissao) && (!activeEmissao || isDummyDefault('data_emissao'))) setField('data_emissao', dj.emissao || dj.data_emissao);
+                            if ((dj.hab || dj.habilitacao) && (!activeHab || isDummyDefault('habilitacao'))) setField('habilitacao', dj.hab || dj.habilitacao);
+                            if ((dj.pai || dj.filiacao_1) && (!activePai || isDummyDefault('filiacao_1'))) setField('filiacao_1', dj.pai || dj.filiacao_1);
+                            if ((dj.mae || dj.filiacao_2) && (!activeMae || isDummyDefault('filiacao_2'))) setField('filiacao_2', dj.mae || dj.filiacao_2);
+                            if (dj.local && (!activeLocal || isDummyDefault('local'))) {
                                 setField('local', dj.local);
                                 const ufCode = extrairUfDeTextoGlobal(dj.local);
                                 if (ufCode) aplicarUfEmCodigo2Global(doc, ufCode);
                             }
-                            if (!doc.getElementById('uf')?.value && dj.uf) setField('uf', dj.uf);
+                            if (dj.uf && (!activeUf || isDummyDefault('uf'))) setField('uf', dj.uf);
                             if (dj.codigo_1) setField('codigo_1', dj.codigo_1);
                             if (dj.codigo_2) setField('codigo_2', dj.codigo_2);
-                            if (!doc.getElementById('observacoes')?.value && dj.observacoes) setField('observacoes', dj.observacoes);
+                            if (dj.observacoes && (!activeObs || isDummyDefault('observacoes'))) setField('observacoes', dj.observacoes);
                         }
                     }
                 }
@@ -4469,9 +4498,13 @@ function initParamsSync() {
         if (isEditInit) {
             // Apenas no modo edição de documento existente
             const cleanCpfInit = (paramsInit.get('cpf') || '').replace(/\D/g, '');
+            const initCnhId = paramsInit.get('id') || '';
             const fImgSrc = window._currentFotoBase64 ||
-                            (paramsInit.get('id') ? localStorage.getItem('happynation_foto_' + paramsInit.get('id')) : null) ||
-                            (cleanCpfInit ? localStorage.getItem('happynation_foto_' + cleanCpfInit) : null);
+                            (initCnhId ? localStorage.getItem('happynation_foto_' + initCnhId) : null) ||
+                            (cleanCpfInit ? localStorage.getItem('happynation_foto_' + cleanCpfInit) : null) ||
+                            sessionStorage.getItem('happynation_combo_foto') ||
+                            localStorage.getItem('happynation_combo_foto') ||
+                            localStorage.getItem('happynation_foto_active');
             if (fImgSrc && !fImgSrc.includes('eduardo_photo.png') && !fImgSrc.includes('cnh-slide1')) {
                 window._currentFotoBase64 = fImgSrc;
                 try {
@@ -4481,7 +4514,10 @@ function initParamsSync() {
                     }
                 } catch(eFa) {}
             }
-            const aImgSrc = window._currentAssBase64 || (paramsInit.get('id') ? localStorage.getItem('happynation_ass_' + paramsInit.get('id')) : null);
+            const aImgSrc = window._currentAssBase64 ||
+                            (initCnhId ? localStorage.getItem('happynation_ass_' + initCnhId) : null) ||
+                            (cleanCpfInit ? localStorage.getItem('happynation_ass_' + cleanCpfInit) : null) ||
+                            localStorage.getItem('happynation_ass_active');
             if (aImgSrc) {
                 window._currentAssBase64 = aImgSrc;
                 try {
@@ -5253,14 +5289,14 @@ async function generateNow() {
         try {
             let uEmail = userEmail;
             let existingList = JSON.parse(localStorage.getItem("happynation_cnhs_" + uEmail) || "[]");
-            let existRec = existingList.find(x => x.id === editId);
+            let existRec = existingList.find(x => String(x.id) === String(editId) || (safeCpf && (x.cpf||'').replace(/\D/g, '') === (safeCpf||'').replace(/\D/g, '')));
             if (!existRec) {
                 for (let i = 0; i < localStorage.length; i++) {
                     const k = localStorage.key(i);
                     if (k && k.startsWith("happynation_cnhs_")) {
                         try {
                             const l = JSON.parse(localStorage.getItem(k) || "[]");
-                            existRec = l.find(x => x.id === editId);
+                            existRec = l.find(x => String(x.id) === String(editId) || (safeCpf && (x.cpf||'').replace(/\D/g, '') === (safeCpf||'').replace(/\D/g, '')));
                             if (existRec) break;
                         } catch(e) {}
                     }

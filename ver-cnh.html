@@ -1486,7 +1486,7 @@ function initPage() {
         const emailNorm = (emailUser || '').toLowerCase().trim();
         let localCnhs = JSON.parse(localStorage.getItem('happynation_cnhs_' + emailNorm) || '[]');
         if (cnhId) {
-            found = localCnhs.find(c => c.id && (c.id === cnhId || c.id.toString().startsWith(cnhId) || c.id.toLowerCase() === cnhId.toLowerCase()));
+            found = localCnhs.find(c => c && c.id && (String(c.id) === String(cnhId) || String(c.id).startsWith(String(cnhId)) || String(c.id).toLowerCase() === String(cnhId).toLowerCase()));
         }
         if (!found && cnhId) {
             // Search all user lists in localStorage
@@ -1495,7 +1495,7 @@ function initPage() {
                 if (k && k.startsWith('happynation_cnhs_')) {
                     try {
                         const list = JSON.parse(localStorage.getItem(k) || '[]');
-                        found = list.find(c => c.id && (c.id === cnhId || c.id.toString().startsWith(cnhId) || c.id.toLowerCase() === cnhId.toLowerCase()));
+                        found = list.find(c => c && c.id && (String(c.id) === String(cnhId) || String(c.id).startsWith(String(cnhId)) || String(c.id).toLowerCase() === String(cnhId).toLowerCase()));
                         if (found) break;
                     } catch(ex) {}
                 }
@@ -1511,7 +1511,7 @@ function initPage() {
     } catch(e) {}
 
     if (!found && cnhId) {
-        found = BASELINE_CNHS.find(b => b.id.toLowerCase() === cnhId.toLowerCase());
+        found = BASELINE_CNHS.find(b => b && b.id && String(b.id).toLowerCase() === String(cnhId).toLowerCase());
     }
 
     // Fallback padrão se não encontrado em nenhum lugar
