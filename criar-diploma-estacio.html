@@ -31,7 +31,6 @@
             --text-muted: #9ca3af;
             --primary: #00A3E0;
             --primary-hover: #008cc2;
-            --accent-navy: #1b3252;
             --font-ui: 'Plus Jakarta Sans', -apple-system, sans-serif;
             --font-serif: 'Times New Roman', Times, serif;
             --font-sans: 'Montserrat', Arial, sans-serif;
@@ -55,8 +54,6 @@
             color: #f59e0b; font-size: 11.5px; font-weight: 800; letter-spacing: 0.4px;
         }
         .saldo-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(0,220,130,0.12); border: 1px solid rgba(0,220,130,0.25); border-radius: 20px; color: #00dc82; font-size: 13px; font-weight: 700; text-decoration: none; }
-        .header-link { display: inline-flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 13px; font-weight: 600; text-decoration: none; }
-        .header-link:hover { color: #fff; }
         .btn-voltar { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #94a3b8; font-size: 13px; font-weight: 600; text-decoration: none; }
         .btn-voltar:hover { background: rgba(255,255,255,0.12); color: #fff; }
 
@@ -96,70 +93,31 @@
             gap: 12px;
             margin-top: 14px;
         }
-        .checkout-price-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        .checkout-price-row { display: flex; align-items: center; justify-content: space-between; }
         .price-label { font-size: 12px; color: #94a3b8; font-weight: 600; }
         .price-value { font-size: 18px; font-weight: 800; color: #00A3E0; }
 
         .btn-reset-defaults {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #94a3b8;
-            font-size: 11.5px;
-            font-weight: 700;
-            padding: 7px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8; font-size: 11.5px; font-weight: 700; padding: 7px 12px;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s;
         }
-        .btn-reset-defaults:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: #ffffff;
-            transform: translateY(-1px);
-        }
+        .btn-reset-defaults:hover { background: rgba(255, 255, 255, 0.12); color: #ffffff; }
 
         .btn-action-primary {
             background: linear-gradient(135deg, #00A3E0, #005596);
-            color: #fff;
-            font-weight: 800;
-            font-size: 13.5px;
-            padding: 13px 20px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 18px rgba(0, 163, 224, 0.35);
-            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-            width: 100%;
+            color: #fff; font-weight: 800; font-size: 13.5px; padding: 13px 20px;
+            border-radius: 10px; border: none; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 18px rgba(0, 163, 224, 0.35); transition: all 0.2s; width: 100%;
         }
-        .btn-action-primary:hover {
-            opacity: 0.95;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 24px rgba(0, 163, 224, 0.45);
-        }
+        .btn-action-primary:hover { opacity: 0.95; transform: translateY(-1px); }
+
         .btn-export-sec {
-            background: #191c1d;
-            color: #cbd5e1;
-            border: 1px solid #2e3538;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 12.5px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
+            background: #191c1d; color: #cbd5e1; border: 1px solid #2e3538;
+            border-radius: 10px; padding: 10px; font-size: 12.5px; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
         }
         .btn-export-sec:hover { background: #23282b; color: #fff; }
 
@@ -168,61 +126,15 @@
         .preview-controls { width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
 
         /* ZOOM CONTROLS */
-        .zoom-pill {
-            display: inline-flex;
-            align-items: center;
-            background: #181a1c;
-            border: 1px solid #282c2f;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .btn-zoom {
-            background: none;
-            border: none;
-            color: #c5cbcf;
-            font-size: 16px;
-            font-weight: 700;
-            width: 32px;
-            height: 28px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s, color 0.15s;
-        }
+        .zoom-pill { display: inline-flex; align-items: center; background: #181a1c; border: 1px solid #282c2f; border-radius: 8px; overflow: hidden; }
+        .btn-zoom { background: none; border: none; color: #c5cbcf; font-size: 16px; font-weight: 700; width: 32px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-zoom:hover { background: #282c2f; color: #fff; }
-        .zoom-val {
-            font-size: 11.5px;
-            font-weight: 700;
-            color: #00A3E0;
-            padding: 0 10px;
-            min-width: 48px;
-            text-align: center;
-            border-left: 1px solid #282c2f;
-            border-right: 1px solid #282c2f;
-            line-height: 28px;
-        }
-        .btn-fit-screen {
-            background: none;
-            border: none;
-            color: #c5cbcf;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 0 10px;
-            height: 28px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s, color 0.15s;
-        }
+        .zoom-val { font-size: 11.5px; font-weight: 700; color: #00A3E0; padding: 0 10px; min-width: 48px; text-align: center; border-left: 1px solid #282c2f; border-right: 1px solid #282c2f; line-height: 28px; }
+        .btn-fit-screen { background: none; border: none; color: #c5cbcf; font-size: 11px; font-weight: 700; padding: 0 10px; height: 28px; cursor: pointer; }
         .btn-fit-screen:hover { background: #282c2f; color: #fff; }
 
         /* ==========================================================================
-           FOLHA A4 EM PÉ (794px x 1123px) - IGUAL AO DIPLOMA UNINTER
-           Metade superior: Frente do Diploma (768px x 545px)
-           Divisor central: Linha preta (height: 9px)
-           Metade inferior: Verso do Diploma (768px x 545px)
+           FOLHA A4 OFICIAL EM PÉ (794px x 1123px) - EXATAMENTE IGUAL AO DIPLOMA UNINTER
            ========================================================================== */
         .a4-sheet {
             width: 794px;
@@ -244,7 +156,7 @@
             height: 545px;
             position: relative;
             background-color: #ffffff;
-            background-image: url('assets/estacio_frente_768x545.jpg');
+            background-image: url('assets/estacio_frente_pristine_bg.png');
             background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
@@ -252,81 +164,106 @@
             overflow: hidden;
         }
 
-        /* Bloco Branco Central que cobre o texto anterior e recebe o texto dinâmico sobre a marca d'água */
-        .frente-text-overlay {
+        /* Header Central: República / Ministério / Faculdade */
+        .frente-header-block {
             position: absolute;
-            top: 31.8%;
-            left: 10.5%;
-            width: 79.0%;
-            height: 33.6%;
-            background: rgba(255, 255, 255, 0.93);
+            top: 48px;
+            left: 200px;
+            right: 120px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            text-align: justify;
-            font-family: var(--font-serif);
-            color: #000;
+            text-align: center;
             z-index: 10;
-            line-height: 1.58;
-            padding: 4px 14px;
-            box-sizing: border-box;
-            font-size: 13.2px;
-            font-style: italic;
         }
 
-        .frente-text-overlay strong, .frente-text-overlay b {
+        .frente-header-rep {
+            font-family: var(--font-serif);
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #111;
+        }
+
+        .frente-header-mec {
+            font-family: var(--font-serif);
+            font-size: 9.5px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #111;
+            margin-top: 1px;
+        }
+
+        .frente-header-fac {
+            font-family: var(--font-serif);
+            font-size: 21px;
             font-weight: 700;
-            font-style: italic;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #000;
+            margin-top: 3px;
         }
 
-        /* Marca d'água 3D interna para a caixa de texto */
-        .frente-overlay-watermark {
+        /* Marca d'água 3D Estácio no centro */
+        .frente-watermark-center {
             position: absolute;
-            inset: 0;
+            top: 140px;
+            left: 260px;
+            width: 248px;
+            height: 248px;
             display: flex;
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            opacity: 0.32;
-            z-index: -1;
+            opacity: 0.38;
+            z-index: 5;
         }
 
-        /* Overlay dinâmico para a data e assinatura da Direção (canto inferior direito) */
-        .frente-dir-overlay {
+        /* Parágrafo Central Oficial Justificado */
+        .frente-text-block {
             position: absolute;
-            bottom: 44px;
-            right: 68px;
-            width: 280px;
+            top: 165px;
+            left: 80px;
+            right: 80px;
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 12.8px;
+            line-height: 1.62;
+            text-align: justify;
+            color: #000;
+            z-index: 10;
+        }
+
+        .frente-text-block b, .frente-text-block strong {
+            font-weight: 700;
+            font-style: italic;
+        }
+
+        /* Data, Linha e Assinatura da Direção (Canto Inferior Direito) */
+        .frente-dir-block {
+            position: absolute;
+            bottom: 40px;
+            right: 70px;
+            width: 250px;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
+            align-items: center;
             z-index: 10;
-            background: #ffffff;
-            padding-left: 6px;
         }
 
         .frente-date-line {
             font-family: var(--font-serif);
-            font-size: 12.5px;
+            font-size: 12px;
             color: #111;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             text-align: right;
             width: 100%;
         }
 
-        .frente-sig-wrap {
-            height: 38px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            margin-bottom: -4px;
-            width: 250px;
-        }
-
         .frente-sig-img {
-            max-height: 36px;
+            height: 32px;
             object-fit: contain;
+            margin-bottom: -3px;
         }
 
         .frente-sig-line {
@@ -337,14 +274,13 @@
         }
 
         .frente-sig-name {
-            font-family: var(--font-sans);
+            font-family: var(--font-serif);
             font-size: 10.5px;
             font-weight: 700;
             color: #111;
             text-transform: uppercase;
             letter-spacing: 0.3px;
             text-align: center;
-            width: 250px;
         }
 
         .frente-sig-role {
@@ -353,20 +289,18 @@
             font-style: italic;
             color: #222;
             text-align: center;
-            width: 250px;
         }
 
-        /* Overlay do rodapé de validação oficial */
-        .frente-footer-overlay {
+        /* Rodapé Oficial de Validação */
+        .frente-footer-block {
             position: absolute;
-            bottom: 22px;
+            bottom: 18px;
             left: 50%;
             transform: translateX(-50%);
             width: 620px;
-            background: #ffffff;
             text-align: center;
-            font-family: var(--font-sans);
-            font-size: 8.8px;
+            font-family: var(--font-serif);
+            font-size: 8.6px;
             color: #222;
             line-height: 1.35;
             z-index: 10;
@@ -395,7 +329,7 @@
             background-color: #ffffff;
             box-sizing: border-box;
             overflow: hidden;
-            padding: 30px 42px;
+            padding: 30px 45px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 28px;
@@ -448,7 +382,7 @@
             font-size: 11.5px;
             font-style: italic;
         }
-        .verso-course-title strong {
+        .verso-course-title b {
             font-size: 12px;
             font-weight: 700;
             font-style: italic;
@@ -464,7 +398,7 @@
         /* Verso Coluna Direita: Box com Borda Grossa da Universidade */
         .verso-right-box {
             border: 2px solid #000000;
-            padding: 14px 16px;
+            padding: 14px 18px;
             background: #ffffff;
             display: flex;
             flex-direction: column;
@@ -525,16 +459,16 @@
         }
 
         .vbox-sig-img {
-            max-height: 32px;
+            height: 30px;
             object-fit: contain;
-            margin-bottom: -4px;
+            margin-bottom: -3px;
         }
 
         .vbox-sig-line {
             width: 220px;
             height: 1px;
             background: #000;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .vbox-signer-name {
@@ -816,54 +750,59 @@
                     <!-- ─── METADE SUPERIOR: FRENTE (768px x 545px) ─── -->
                     <div class="frente-container" id="frenteContainer">
 
-                        <!-- Overlay dinâmico do Texto Principal do Diretor e Aluno sobre a marca d'água -->
-                        <div class="frente-text-overlay">
-                            <!-- Marca d'água 3D interna Estácio -->
-                            <div class="frente-overlay-watermark">
-                                <svg viewBox="0 0 100 100" width="220" height="220">
-                                    <defs>
-                                        <linearGradient id="wmGTop" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stop-color="#4ef2bb"/>
-                                            <stop offset="100%" stop-color="#00bcd4"/>
-                                        </linearGradient>
-                                        <linearGradient id="wmGRight" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stop-color="#00b4d8"/>
-                                            <stop offset="100%" stop-color="#0077b6"/>
-                                        </linearGradient>
-                                        <linearGradient id="wmGBottom" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stop-color="#0077b6"/>
-                                            <stop offset="100%" stop-color="#023e8a"/>
-                                        </linearGradient>
-                                        <linearGradient id="wmGLeft" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stop-color="#00c9a7"/>
-                                            <stop offset="100%" stop-color="#009688"/>
-                                        </linearGradient>
-                                    </defs>
-                                    <g transform="translate(50,50) rotate(45)">
-                                        <rect x="-42" y="-42" width="38" height="38" rx="2" fill="url(#wmGTop)"/>
-                                        <rect x="4" y="-42" width="38" height="38" rx="2" fill="url(#wmGRight)"/>
-                                        <rect x="-42" y="4" width="38" height="38" rx="2" fill="url(#wmGLeft)"/>
-                                        <rect x="4" y="4" width="38" height="38" rx="2" fill="url(#wmGBottom)"/>
-                                    </g>
-                                </svg>
-                            </div>
-
-                            O(A) Diretor (a) da <strong id="outInstituicaoFrente">FACULDADE ESTÁCIO DO PARÁ</strong>, no uso de suas atribuições, tendo em vista a Conclusão do <strong id="outCursoFrente">CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL</strong> , na data de <strong id="outDataConc">09/12/2022</strong>, e a colação de grau na data De <strong id="outDataCol">17/02/2023</strong>, a <strong id="outNome">KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS</strong>, nacionalidade <strong id="outNac">BRASILEIRO(A)</strong>, natural de <strong id="outNat">BELÉM-PA</strong> nascido(a) em <strong id="outNasc">06/05/1996</strong>, Portador(a) da cédula de identidade <strong id="outRg">7488140</strong>, órgão expedidor <strong id="outOrgaoRg">PC/PA</strong>, e outorga-lhe o presente Diploma, a fim de que possa gozar de todos os direitos e prerrogativas legais.
+                        <!-- Header Central -->
+                        <div class="frente-header-block">
+                            <div class="frente-header-rep">REPÚBLICA FEDERATIVA DO BRASIL</div>
+                            <div class="frente-header-mec">MINISTÉRIO DA EDUCAÇÃO</div>
+                            <div class="frente-header-fac" id="outInstituicaoHeader">FACULDADE ESTÁCIO DO PARÁ</div>
                         </div>
 
-                        <!-- Overlay dinâmico para a data e assinatura da Direção -->
-                        <div class="frente-dir-overlay">
+                        <!-- Marca d'água 3D Estácio Central -->
+                        <div class="frente-watermark-center">
+                            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                                <defs>
+                                    <linearGradient id="wmGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#4ef2bb"/>
+                                        <stop offset="100%" stop-color="#00bcd4"/>
+                                    </linearGradient>
+                                    <linearGradient id="wmGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#00b4d8"/>
+                                        <stop offset="100%" stop-color="#0077b6"/>
+                                    </linearGradient>
+                                    <linearGradient id="wmGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#0077b6"/>
+                                        <stop offset="100%" stop-color="#023e8a"/>
+                                    </linearGradient>
+                                    <linearGradient id="wmGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#00c9a7"/>
+                                        <stop offset="100%" stop-color="#009688"/>
+                                    </linearGradient>
+                                </defs>
+                                <g transform="translate(50,50) rotate(45)">
+                                    <rect x="-42" y="-42" width="38" height="38" rx="2" fill="url(#wmGrad1)"/>
+                                    <rect x="4" y="-42" width="38" height="38" rx="2" fill="url(#wmGrad2)"/>
+                                    <rect x="-42" y="4" width="38" height="38" rx="2" fill="url(#wmGrad4)"/>
+                                    <rect x="4" y="4" width="38" height="38" rx="2" fill="url(#wmGrad3)"/>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- Parágrafo Principal Oficial da Frente (Único, Justificado e Sem Fantasmas) -->
+                        <div class="frente-text-block">
+                            O(A) Diretor (a) da <b id="outInstituicaoFrente">FACULDADE ESTÁCIO DO PARÁ</b>, no uso de suas atribuições, tendo em vista a Conclusão do <b id="outCursoFrente">CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL</b> , na data de <b id="outDataConc">09/12/2022</b>, e a colação de grau na data De <b id="outDataCol">17/02/2023</b>, a <b id="outNome">KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS</b>, nacionalidade <b id="outNac">BRASILEIRO(A)</b>, natural de <b id="outNat">BELÉM-PA</b> nascido(a) em <b id="outNasc">06/05/1996</b>, Portador(a) da cédula de identidade <b id="outRg">7488140</b>, órgão expedidor <b id="outOrgaoRg">PC/PA</b>, e outorga-lhe o presente Diploma, a fim de que possa gozar de todos os direitos e prerrogativas legais.
+                        </div>
+
+                        <!-- Data, Assinatura e Cargo da Direção (Canto Inferior Direito) -->
+                        <div class="frente-dir-block">
                             <div class="frente-date-line" id="outDataExp">Belém - PA, 23 de Fevereiro de 2023.</div>
-                            <div class="frente-sig-wrap">
-                                <img src="assets/estacio_sig_elaine.png" class="frente-sig-img" alt="Assinatura">
-                            </div>
+                            <img src="assets/estacio_sig_elaine_clean.png" class="frente-sig-img" alt="Assinatura">
                             <div class="frente-sig-line"></div>
                             <div class="frente-sig-name" id="outDiretorNome">ELAINE CRISTINA GRECCHI GONÇALVES</div>
                             <div class="frente-sig-role" id="outDiretorCargo">Diretor(a) Geral</div>
                         </div>
 
-                        <!-- Overlay do rodapé de validação oficial -->
-                        <div class="frente-footer-overlay">
+                        <!-- Rodapé de Validação Oficial -->
+                        <div class="frente-footer-block">
                             <div id="outInstFooter" style="font-weight:600; margin-bottom:1px;">FACULDADE ESTÁCIO DO PARÁ</div>
                             <div>Código de validação: <span id="outCodigoVal">2036, 163.518f4ed3e83e</span> | <span id="outUrlVal">https://consultadiploma.Estacio.br/diploma/2036.163.518f4ed3e83e</span></div>
                         </div>
@@ -888,7 +827,7 @@
                             <div class="verso-cred" id="outCred2">Credenciamento: Portal nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.</div>
 
                             <div class="verso-course-box">
-                                <div class="verso-course-title">Curso de <strong id="outCursoVerso">ENGENHARIA AMBIENTAL</strong></div>
+                                <div class="verso-course-title">Curso de <b id="outCursoVerso">ENGENHARIA AMBIENTAL</b></div>
                                 <div class="verso-course-detail" id="outReconhecimento">Reconhecimento: Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.</div>
                                 <div class="verso-course-detail" id="outRenovacao">Renovação: Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020</div>
                             </div>
@@ -900,8 +839,8 @@
                             <div class="vbox-mantenedora" id="outMantReg">SOCIEDADE DE ENSINO SUPERIOR ESTÁCIO DE SÁ</div>
                             <div class="vbox-cnpj" id="outCnpjReg">CNPJ: 034.075.739/0001-84</div>
 
-                            <div class="vbox-cred">Credenciamento: Portaria nº 592, de 29/11/1988, DOU nº -, Seção 1, Pág. 23215 de 30/11/1988.</div>
-                            <div class="vbox-cred">Credenciamento: Portaria nº 1095, de 31/8/2012, DOU nº 172, Seção 1, Pág. 97, De 4/9/2012.</div>
+                            <div class="vbox-cred" id="outUnivCred1">Credenciamento: Portaria nº 592, de 29/11/1988, DOU nº -, Seção 1, Pág. 23215 de 30/11/1988.</div>
+                            <div class="vbox-cred" id="outUnivCred2">Credenciamento: Portaria nº 1095, de 31/8/2012, DOU nº 172, Seção 1, Pág. 97, De 4/9/2012.</div>
 
                             <div class="vbox-reg-text" id="outTextoReg">Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.</div>
 
@@ -909,7 +848,7 @@
                             <div class="vbox-local-data" id="outLocalDataVerso">BELÉM – PA, 23/02/2023</div>
 
                             <div class="vbox-sig-zone">
-                                <img src="assets/estacio_sig_adriana.png" class="vbox-sig-img" alt="Assinatura Adriana">
+                                <img src="assets/estacio_sig_adriana_clean.png" class="vbox-sig-img" alt="Assinatura Adriana">
                                 <div class="vbox-sig-line"></div>
                                 <div class="vbox-signer-name" id="outSecretarioNome">ADRIANA SILVA ARAUJO</div>
                                 <div class="vbox-signer-role">Secretario(a) de Registro de Diplomas</div>
@@ -998,6 +937,7 @@
             setTxt('outNasc', nasc);
             setTxt('outRg', rg);
             setTxt('outOrgaoRg', orgaoRg);
+            setTxt('outInstituicaoHeader', inst);
             setTxt('outInstituicaoFrente', inst);
             setTxt('outCursoFrente', curso);
             setTxt('outDataConc', dataConc);
@@ -1015,7 +955,8 @@
             // Atualiza Verso
             setTxt('outInstVerso', inst);
             setTxt('outMantVerso', g('inpMantenedora', 'SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA'));
-            setTxt('outCnpjVerso', 'CNPJ: ' + g('inpCnpjFaculdade', '002.608.755/0001-07'));
+            const cnpjVal = g('inpCnpjFaculdade', '002.608.755/0001-07');
+            setTxt('outCnpjVerso', (cnpjVal.startsWith('CNP') ? cnpjVal : 'CNPJ: ' + cnpjVal));
             setTxt('outCred1', g('inpCred1', 'Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002'));
             setTxt('outCred2', g('inpCred2', 'Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.'));
             setTxt('outCursoVerso', g('inpCursoVerso', 'ENGENHARIA AMBIENTAL'));
