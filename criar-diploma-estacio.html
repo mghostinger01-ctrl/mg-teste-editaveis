@@ -9,7 +9,7 @@
     <script src="js/dev-guard.js"></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MG Editáveis | Diploma Universitário Estácio (Modo DEV)</title>
+    <title>MG Editáveis | Diploma Universitário Estácio (Folha A4)</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
@@ -42,7 +42,7 @@
 
         /* HEADER */
         .header { height: 64px; background: rgba(20,23,24,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
-        .header-inner { max-width: 1600px; height: 100%; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        .header-inner { max-width: 1560px; height: 100%; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
         .header-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
         .brand-logo { width: 32px; height: 32px; background: #00dc82; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
         .brand-icon-img { width: 20px; height: 20px; object-fit: contain; }
@@ -55,6 +55,8 @@
             color: #f59e0b; font-size: 11.5px; font-weight: 800; letter-spacing: 0.4px;
         }
         .saldo-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(0,220,130,0.12); border: 1px solid rgba(0,220,130,0.25); border-radius: 20px; color: #00dc82; font-size: 13px; font-weight: 700; text-decoration: none; }
+        .header-link { display: inline-flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 13px; font-weight: 600; text-decoration: none; }
+        .header-link:hover { color: #fff; }
         .btn-voltar { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #94a3b8; font-size: 13px; font-weight: 600; text-decoration: none; }
         .btn-voltar:hover { background: rgba(255,255,255,0.12); color: #fff; }
 
@@ -69,430 +71,496 @@
         .dropdown-item.danger { color: #ef4444; }
 
         /* WORKSPACE */
-        .workspace { flex: 1; max-width: 1600px; width: 100%; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 480px 1fr; gap: 22px; }
-        @media(max-width: 1200px) { .workspace { grid-template-columns: 1fr; } }
+        .workspace { flex: 1; max-width: 1560px; width: 100%; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 460px 1fr; gap: 20px; }
+        @media(max-width: 1100px) { .workspace { grid-template-columns: 1fr; } }
 
         /* FORM PANEL */
         .form-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; height: calc(100vh - 104px); overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
-        .form-section { background: var(--surface-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-        .form-section-title { font-size: 12px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px; }
+        .form-section-title { font-size: 12px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px; margin-top: 6px; }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-label { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.3px; }
         .form-input { background: #0c0e10; border: 1px solid #23282b; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 13px; outline: none; transition: border-color 0.2s; }
         .form-input:focus { border-color: #00A3E0; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .form-textarea { background: #0c0e10; border: 1px solid #23282b; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 12.5px; outline: none; min-height: 60px; resize: vertical; line-height: 1.4; }
+        .form-textarea { background: #0c0e10; border: 1px solid #23282b; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 12px; outline: none; min-height: 56px; resize: vertical; line-height: 1.4; }
         .form-textarea:focus { border-color: #00A3E0; }
 
-        .btn-export-group { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 10px; }
-        .btn-export { background: linear-gradient(135deg, #00A3E0, #005596); color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 13.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,163,224,0.35); transition: transform 0.15s, opacity 0.15s; }
-        .btn-export:hover { opacity: 0.95; transform: translateY(-1px); }
-        .btn-export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn-export-sec { background: #191c1d; color: #cbd5e1; border: 1px solid #2e3538; border-radius: 10px; padding: 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        /* CARD DE AÇÕES E CHECKOUT */
+        .checkout-actions-card {
+            background: rgba(0, 163, 224, 0.05);
+            border: 1px solid rgba(0, 163, 224, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 14px;
+        }
+        .checkout-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .price-label { font-size: 12px; color: #94a3b8; font-weight: 600; }
+        .price-value { font-size: 18px; font-weight: 800; color: #00A3E0; }
+
+        .btn-reset-defaults {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 7px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-reset-defaults:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-action-primary {
+            background: linear-gradient(135deg, #00A3E0, #005596);
+            color: #fff;
+            font-weight: 800;
+            font-size: 13.5px;
+            padding: 13px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(0, 163, 224, 0.35);
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 100%;
+        }
+        .btn-action-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(0, 163, 224, 0.45);
+        }
+        .btn-export-sec {
+            background: #191c1d;
+            color: #cbd5e1;
+            border: 1px solid #2e3538;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
         .btn-export-sec:hover { background: #23282b; color: #fff; }
 
         /* PREVIEW PANEL */
-        .preview-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-x: auto; min-height: 750px; }
+        .preview-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-x: auto; min-height: 700px; }
         .preview-controls { width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
 
-        /* TABS */
-        .tabs-group { display: flex; align-items: center; background: #0c0e10; padding: 4px; border-radius: 10px; border: 1px solid #282c2f; gap: 4px; }
-        .tab-btn { background: transparent; border: none; color: #94a3b8; font-size: 12px; font-weight: 700; padding: 7px 14px; border-radius: 7px; cursor: pointer; transition: all 0.2s; }
-        .tab-btn:hover { color: #fff; }
-        .tab-btn.active { background: #00A3E0; color: #fff; box-shadow: 0 2px 8px rgba(0,163,224,0.3); }
-
         /* ZOOM CONTROLS */
-        .zoom-pill { display: inline-flex; align-items: center; background: #181a1c; border: 1px solid #282c2f; border-radius: 8px; overflow: hidden; }
-        .btn-zoom { background: none; border: none; color: #c5cbcf; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; font-weight: 700; }
-        .btn-zoom:hover { background: rgba(255,255,255,0.06); color: #fff; }
-        .zoom-display { font-size: 11.5px; font-weight: 700; color: #00A3E0; padding: 0 8px; min-width: 50px; text-align: center; }
-
-        /* DIPLOMA A4 LANDSCAPE CANVAS (1123px x 794px) */
-        .diploma-zoom-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow: auto; padding: 10px 0 30px 0; }
-        .diploma-scale-container { transform-origin: top center; transition: transform 0.2s ease; display: flex; flex-direction: column; align-items: center; gap: 30px; }
-
-        .diploma-sheet {
-            width: 1123px;
-            height: 794px;
-            background: #ffffff;
-            color: #000000;
-            position: relative;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        .zoom-pill {
+            display: inline-flex;
+            align-items: center;
+            background: #181a1c;
+            border: 1px solid #282c2f;
+            border-radius: 8px;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            user-select: none;
         }
-
-        /* ==================== FRENTE ESTÁCIO ==================== */
-        .frente-bg-watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 380px;
-            height: 380px;
-            opacity: 0.16;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .frente-border-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 1123px;
-            height: 794px;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .frente-content {
-            position: relative;
-            z-index: 3;
-            width: 100%;
-            height: 100%;
-            padding: 55px 70px 45px 70px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        /* Top Header */
-        .frente-top-row {
+        .btn-zoom {
+            background: none;
+            border: none;
+            color: #c5cbcf;
+            font-size: 16px;
+            font-weight: 700;
+            width: 32px;
+            height: 28px;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            position: relative;
-            min-height: 90px;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
         }
-
-        .frente-seal-brasao {
-            position: absolute;
-            left: 30px;
-            top: 0;
-            width: 82px;
-            height: 82px;
-        }
-
-        .frente-header-titles {
-            width: 100%;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .frente-title-rep {
-            font-family: var(--font-sans);
+        .btn-zoom:hover { background: #282c2f; color: #fff; }
+        .zoom-val {
             font-size: 11.5px;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            color: #222;
-            text-transform: uppercase;
-        }
-
-        .frente-title-mec {
-            font-family: var(--font-sans);
-            font-size: 10.5px;
-            font-weight: 600;
-            letter-spacing: 1.2px;
-            color: #333;
-            text-transform: uppercase;
-        }
-
-        .frente-title-inst {
-            font-family: var(--font-serif);
-            font-size: 26px;
             font-weight: 700;
-            letter-spacing: 2px;
-            color: #0b1c33;
-            text-transform: uppercase;
-            margin-top: 4px;
+            color: #00A3E0;
+            padding: 0 10px;
+            min-width: 48px;
+            text-align: center;
+            border-left: 1px solid #282c2f;
+            border-right: 1px solid #282c2f;
+            line-height: 28px;
         }
-
-        /* Main Diploma Text */
-        .frente-main-text-box {
-            margin: 20px 45px 10px 45px;
-            text-align: justify;
-            text-justify: inter-word;
-            line-height: 2.2;
-            font-family: var(--font-serif);
-            font-size: 15.5px;
-            color: #111;
-            font-style: italic;
-        }
-
-        .frente-main-text-box b,
-        .frente-main-text-box strong {
-            font-family: var(--font-serif);
+        .btn-fit-screen {
+            background: none;
+            border: none;
+            color: #c5cbcf;
+            font-size: 11px;
             font-weight: 700;
-            font-style: italic;
-            color: #000;
-        }
-
-        /* Bottom Row */
-        .frente-bottom-row {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            padding: 0 45px;
-            margin-bottom: 10px;
-        }
-
-        .frente-bottom-logo {
+            padding: 0 10px;
+            height: 28px;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
         }
+        .btn-fit-screen:hover { background: #282c2f; color: #fff; }
 
-        .frente-bottom-logo-icon {
-            width: 44px;
-            height: 44px;
-        }
-
-        .frente-bottom-logo-text {
-            font-family: var(--font-sans);
-            font-size: 26px;
-            font-weight: 800;
-            color: #1f2937;
-            letter-spacing: -0.5px;
-        }
-
-        .frente-signature-col {
+        /* ==========================================================================
+           FOLHA A4 EM PÉ (794px x 1123px) - IGUAL AO DIPLOMA UNINTER
+           Metade superior: Frente do Diploma (768px x 545px)
+           Divisor central: Linha preta (height: 9px)
+           Metade inferior: Verso do Diploma (768px x 545px)
+           ========================================================================== */
+        .a4-sheet {
+            width: 794px;
+            height: 1123px;
+            background: #ffffff;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            padding: 12px 13px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-width: 290px;
+            justify-content: space-between;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* ─── METADE SUPERIOR: FRENTE DO DIPLOMA (768px x 545px) ─── */
+        .frente-container {
+            width: 768px;
+            height: 545px;
+            position: relative;
+            background-color: #ffffff;
+            background-image: url('assets/estacio_frente_768x545.jpg');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* Bloco Branco Central que cobre o texto anterior e recebe o texto dinâmico sobre a marca d'água */
+        .frente-text-overlay {
+            position: absolute;
+            top: 31.8%;
+            left: 10.5%;
+            width: 79.0%;
+            height: 33.6%;
+            background: rgba(255, 255, 255, 0.93);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: justify;
+            font-family: var(--font-serif);
+            color: #000;
+            z-index: 10;
+            line-height: 1.58;
+            padding: 4px 14px;
+            box-sizing: border-box;
+            font-size: 13.2px;
+            font-style: italic;
+        }
+
+        .frente-text-overlay strong, .frente-text-overlay b {
+            font-weight: 700;
+            font-style: italic;
+        }
+
+        /* Marca d'água 3D interna para a caixa de texto */
+        .frente-overlay-watermark {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0.32;
+            z-index: -1;
+        }
+
+        /* Overlay dinâmico para a data e assinatura da Direção (canto inferior direito) */
+        .frente-dir-overlay {
+            position: absolute;
+            bottom: 44px;
+            right: 68px;
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            z-index: 10;
+            background: #ffffff;
+            padding-left: 6px;
         }
 
         .frente-date-line {
             font-family: var(--font-serif);
-            font-size: 13.5px;
+            font-size: 12.5px;
             color: #111;
-            margin-bottom: 8px;
+            margin-bottom: 2px;
             text-align: right;
             width: 100%;
         }
 
-        .frente-sig-img-wrap {
-            height: 45px;
+        .frente-sig-wrap {
+            height: 38px;
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            margin-bottom: 2px;
+            margin-bottom: -4px;
+            width: 250px;
         }
 
-        .frente-sig-svg {
-            width: 180px;
-            height: 42px;
+        .frente-sig-img {
+            max-height: 36px;
+            object-fit: contain;
         }
 
         .frente-sig-line {
-            width: 270px;
+            width: 250px;
             height: 1px;
-            background: #222;
-            margin-bottom: 4px;
+            background: #000;
+            margin-bottom: 3px;
         }
 
         .frente-sig-name {
             font-family: var(--font-sans);
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 700;
             color: #111;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
+            text-align: center;
+            width: 250px;
         }
 
         .frente-sig-role {
             font-family: var(--font-serif);
-            font-size: 11.5px;
+            font-size: 11px;
             font-style: italic;
-            color: #333;
+            color: #222;
+            text-align: center;
+            width: 250px;
         }
 
-        /* Footer Validation Link */
-        .frente-footer-info {
+        /* Overlay do rodapé de validação oficial */
+        .frente-footer-overlay {
+            position: absolute;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 620px;
+            background: #ffffff;
             text-align: center;
             font-family: var(--font-sans);
-            font-size: 9.5px;
-            color: #333;
+            font-size: 8.8px;
+            color: #222;
             line-height: 1.35;
+            z-index: 10;
         }
 
-        /* ==================== VERSO ESTÁCIO ==================== */
-        .verso-sheet {
-            padding: 45px 55px;
+        /* ─── DIVISOR CENTRAL ENTRE AS DUAS METADES ─── */
+        .sheet-divider-zone {
+            width: 100%;
+            height: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .sheet-divider-line {
+            width: 100%;
+            height: 1.5px;
+            background: #000000;
+        }
+
+        /* ─── METADE INFERIOR: VERSO DO DIPLOMA (768px x 545px) ─── */
+        .verso-container {
+            width: 768px;
+            height: 545px;
+            position: relative;
+            background-color: #ffffff;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: 30px 42px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 35px;
+            gap: 28px;
             align-items: start;
         }
 
-        /* Verso Left Column */
+        /* Verso Coluna Esquerda: Faculdade */
         .verso-left-col {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            font-family: var(--font-sans);
-            font-size: 11px;
-            color: #111;
-            line-height: 1.45;
+            gap: 4px;
+            font-family: var(--font-serif);
+            color: #000;
+            line-height: 1.4;
         }
 
         .verso-inst-title {
             font-size: 13.5px;
             font-weight: 800;
-            color: #000;
             text-transform: uppercase;
+            letter-spacing: 0.2px;
+            margin-bottom: 2px;
         }
 
         .verso-mantenedora {
-            font-size: 10px;
-            font-weight: 600;
-            color: #333;
+            font-size: 9.8px;
+            line-height: 1.35;
+            color: #111;
         }
 
-        .verso-accreditation-block {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 9.5px;
-            color: #222;
+        .verso-cnpj {
+            font-size: 9.8px;
+            margin-bottom: 8px;
+        }
+
+        .verso-cred {
+            font-size: 9.8px;
+            line-height: 1.4;
+            margin-bottom: 6px;
         }
 
         .verso-course-box {
             margin-top: 10px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 3px;
         }
 
         .verso-course-title {
+            font-size: 11.5px;
+            font-style: italic;
+        }
+        .verso-course-title strong {
             font-size: 12px;
-            font-weight: 800;
-            color: #000;
-        }
-        .verso-course-title b { font-style: italic; }
-
-        .verso-recognition-text {
-            font-size: 9.5px;
-            color: #222;
-            line-height: 1.4;
-        }
-
-        /* Verso Right Column (Box Preto de Registro) */
-        .verso-right-box {
-            border: 2px solid #000000;
-            padding: 20px 22px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            font-family: var(--font-sans);
-            font-size: 10px;
-            color: #111;
-            min-height: 480px;
-            background: #ffffff;
-        }
-
-        .verso-reg-inst {
-            font-size: 13px;
-            font-weight: 800;
-            color: #000;
+            font-weight: 700;
+            font-style: italic;
             text-transform: uppercase;
         }
 
-        .verso-reg-mant {
-            font-size: 9.5px;
-            font-weight: 600;
-            color: #222;
-        }
-
-        .verso-reg-creds {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-            font-size: 8.8px;
-            color: #333;
+        .verso-course-detail {
+            font-size: 9.6px;
+            line-height: 1.4;
             margin-top: 2px;
         }
 
-        .verso-reg-law-text {
-            font-size: 9px;
-            text-align: justify;
-            line-height: 1.42;
-            color: #111;
-            margin-top: 4px;
-        }
-
-        .verso-processo-text {
-            font-size: 10.5px;
-            font-weight: 600;
+        /* Verso Coluna Direita: Box com Borda Grossa da Universidade */
+        .verso-right-box {
+            border: 2px solid #000000;
+            padding: 14px 16px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-family: var(--font-serif);
             color: #000;
-            margin-top: 4px;
+            box-sizing: border-box;
         }
 
-        .verso-local-data {
+        .vbox-univ-title {
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        .vbox-mantenedora {
+            font-size: 9.6px;
+            line-height: 1.35;
+        }
+
+        .vbox-cnpj {
+            font-size: 9.6px;
+            margin-bottom: 6px;
+        }
+
+        .vbox-cred {
+            font-size: 9.2px;
+            line-height: 1.35;
+            margin-bottom: 4px;
+        }
+
+        .vbox-reg-text {
+            font-size: 9.2px;
+            line-height: 1.4;
+            margin-top: 6px;
+            text-align: justify;
+        }
+
+        .vbox-processo {
             font-size: 10px;
             font-weight: 700;
-            color: #000;
-            text-transform: uppercase;
-            margin-top: 4px;
+            margin-top: 6px;
         }
 
-        .verso-sig-block {
-            margin-top: auto;
+        .vbox-local-data {
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .vbox-sig-zone {
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;
-            gap: 3px;
-            padding-top: 15px;
+            margin-top: 10px;
         }
 
-        .verso-sig-img-wrap {
-            height: 38px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
+        .vbox-sig-img {
+            max-height: 32px;
+            object-fit: contain;
+            margin-bottom: -4px;
         }
 
-        .verso-sig-line {
-            width: 230px;
+        .vbox-sig-line {
+            width: 220px;
             height: 1px;
             background: #000;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
 
-        .verso-sig-name {
-            font-size: 10.5px;
-            font-weight: 800;
-            color: #000;
+        .vbox-signer-name {
+            font-size: 10.8px;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
-        .verso-sig-role {
-            font-size: 9px;
+        .vbox-signer-role {
+            font-size: 9.5px;
             color: #222;
         }
 
-        .verso-sig-res {
-            font-size: 9px;
-            font-weight: 800;
-            color: #000;
+        .vbox-resolucao {
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 1px;
         }
-
-        /* TOAST */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-        .toast { background: #18181b; border: 1px solid #27272a; border-left: 4px solid #00A3E0; color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
-
-    <!-- MG EDITAVEIS HEADER -->
+    <!-- HEADER -->
     <header class="header">
         <div class="header-inner">
-            <a href="index.html" class="header-brand">
+            <a href="editaveis.html" class="header-brand">
                 <div class="brand-logo">
                     <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
                 </div>
@@ -500,473 +568,352 @@
             </a>
 
             <div class="header-right">
-                <span class="badge-dev-admin">👑 MODO DEV (EXCLUSIVO ADMIN)</span>
+                <span class="badge-dev-admin">👑 MODO DEV (ADMIN)</span>
 
-                <a href="recargas.html" class="saldo-pill" id="userSaldoPill" title="Clique para recarregar saldo">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <a href="recargas.html" class="saldo-pill" title="Seu Saldo Atual">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                     <span id="userHeaderSaldo">Saldo R$ 0,00</span>
                 </a>
 
-                <a href="editaveis.html" class="btn-voltar">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-                    <span>Voltar ao Catálogo</span>
+                <a href="editaveis.html" class="btn-voltar" title="Voltar ao Catálogo">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Catálogo
                 </a>
 
-                <div class="avatar-circle" id="userHeaderAvatar" onclick="toggleAvatarDropdown(event)">A</div>
+                <div class="avatar-circle" id="userHeaderAvatar" onclick="toggleAvatarDropdown(event)">M</div>
 
                 <div class="avatar-dropdown" id="avatarDropdown">
                     <div class="dropdown-header">
-                        <div class="dropdown-name" id="dropUserName">MG Editáveis</div>
+                        <div class="dropdown-name" id="dropUserName">Admin MG</div>
                         <div class="dropdown-email" id="dropUserEmail">admin@mgeditaveis.com.br</div>
                     </div>
                     <div class="dropdown-menu">
-                        <a href="perfil.html" class="dropdown-item">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                            <span>Meu Perfil</span>
-                        </a>
-                        <a href="recargas.html" class="dropdown-item">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                            <span>Adicionar Saldo</span>
-                        </a>
-                        <a href="javascript:void(0)" onclick="logoutUser()" class="dropdown-item danger">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                            <span>Sair</span>
-                        </a>
+                        <a href="perfil.html" class="dropdown-item">Perfil</a>
+                        <a href="recargas.html" class="dropdown-item">Recargas</a>
+                        <a href="login.html" class="dropdown-item danger" onclick="logoutUser()">Sair</a>
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- WORKSPACE -->
-    <div class="workspace">
-
-        <!-- PAINEL DE CONTROLE / FORMULÁRIO -->
+    <main class="workspace">
+        <!-- FORMULÁRIO DE EDIÇÃO LATERAL -->
         <div class="form-panel">
+            <div class="form-section-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>1. Dados do Diplomado</span>
+            </div>
 
-            <!-- SEÇÃO 1: ALUNO / DIPLOMADO -->
-            <div class="form-section">
-                <div class="form-section-title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span>1. Identificação do Aluno(a) Diplomado</span>
-                </div>
+            <div class="form-group">
+                <label class="form-label">Nome Completo</label>
+                <input type="text" class="form-input" id="inpNome" value="KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS" oninput="syncDiploma()">
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Nome Completo do Aluno</label>
-                    <input type="text" class="form-input" id="inpNome" value="KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS" oninput="syncDiploma()">
+                    <label class="form-label">Nacionalidade</label>
+                    <input type="text" class="form-input" id="inpNac" value="BRASILEIRO(A)" oninput="syncDiploma()">
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Nacionalidade</label>
-                        <input type="text" class="form-input" id="inpNacionalidade" value="BRASILEIRO(A)" oninput="syncDiploma()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Naturalidade (Cidade-UF)</label>
-                        <input type="text" class="form-input" id="inpNaturalidade" value="BELÉM-PA" oninput="syncDiploma()">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Data de Nascimento</label>
-                        <input type="text" class="form-input" id="inpNascimento" value="06/05/1996" maxlength="10" oninput="syncDiploma()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Identidade (RG)</label>
-                        <input type="text" class="form-input" id="inpRg" value="7488140" oninput="syncDiploma()">
-                    </div>
-                </div>
-
                 <div class="form-group">
-                    <label class="form-label">Órgão Expedidor / UF</label>
+                    <label class="form-label">Naturalidade / UF</label>
+                    <input type="text" class="form-input" id="inpNat" value="BELÉM-PA" oninput="syncDiploma()">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Data de Nascimento</label>
+                    <input type="text" class="form-input" id="inpNasc" value="06/05/1996" oninput="syncDiploma()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">RG e Órgão</label>
+                    <input type="text" class="form-input" id="inpRg" value="7488140" oninput="syncDiploma()">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Órgão Expedidor</label>
                     <input type="text" class="form-input" id="inpOrgaoRg" value="PC/PA" oninput="syncDiploma()">
                 </div>
-            </div>
-
-            <!-- SEÇÃO 2: CURSO E COLAÇÃO (FRENTE) -->
-            <div class="form-section">
-                <div class="form-section-title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                    <span>2. Curso e Colação de Grau</span>
-                </div>
-
                 <div class="form-group">
-                    <label class="form-label">Instituição de Ensino Superior</label>
+                    <label class="form-label">Instituição (Frente)</label>
                     <input type="text" class="form-input" id="inpInstituicao" value="FACULDADE ESTÁCIO DO PARÁ" oninput="syncDiploma()">
                 </div>
+            </div>
 
+            <div class="form-section-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>
+                <span>2. Dados do Curso &amp; Colação</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Curso de Graduação</label>
+                <input type="text" class="form-input" id="inpCurso" value="CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL" oninput="syncDiploma()">
+            </div>
+
+            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Grau e Curso de Graduação</label>
-                    <input type="text" class="form-input" id="inpCurso" value="CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL" oninput="syncDiploma()">
+                    <label class="form-label">Data Conclusão</label>
+                    <input type="text" class="form-input" id="inpDataConc" value="09/12/2022" oninput="syncDiploma()">
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Data de Conclusão</label>
-                        <input type="text" class="form-input" id="inpDataConclusao" value="09/12/2022" maxlength="10" oninput="syncDiploma()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Data da Colação de Grau</label>
-                        <input type="text" class="form-input" id="inpDataColacao" value="17/02/2023" maxlength="10" oninput="syncDiploma()">
-                    </div>
-                </div>
-
                 <div class="form-group">
-                    <label class="form-label">Local e Data de Expedição da Frente</label>
-                    <input type="text" class="form-input" id="inpLocalDataFrente" value="Belém - PA, 23 de Fevereiro de 2023." oninput="syncDiploma()">
+                    <label class="form-label">Data Colação de Grau</label>
+                    <input type="text" class="form-input" id="inpDataCol" value="17/02/2023" oninput="syncDiploma()">
                 </div>
             </div>
 
-            <!-- SEÇÃO 3: DIRETOR(A) E ASSINATURA -->
-            <div class="form-section">
-                <div class="form-section-title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
-                    <span>3. Diretor(a) Geral e Assinatura</span>
-                </div>
+            <div class="form-group">
+                <label class="form-label">Local e Data de Expedição (Frente)</label>
+                <input type="text" class="form-input" id="inpDataExp" value="Belém - PA, 23 de Fevereiro de 2023." oninput="syncDiploma()">
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Nome do(a) Diretor(a)</label>
+                    <label class="form-label">Diretor(a) Geral</label>
                     <input type="text" class="form-input" id="inpDiretorNome" value="ELAINE CRISTINA GRECCHI GONÇALVES" oninput="syncDiploma()">
                 </div>
-
                 <div class="form-group">
-                    <label class="form-label">Cargo / Título</label>
+                    <label class="form-label">Cargo Diretor</label>
                     <input type="text" class="form-input" id="inpDiretorCargo" value="Diretor(a) Geral" oninput="syncDiploma()">
                 </div>
             </div>
 
-            <!-- SEÇÃO 4: VALIDAÇÃO DO DIPLOMA -->
-            <div class="form-section">
-                <div class="form-section-title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                    <span>4. Validação e Link Oficial</span>
-                </div>
+            <div class="form-section-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                <span>3. Dados do Verso (Registros)</span>
+            </div>
 
-                <div class="form-group">
-                    <label class="form-label">Código de Validação</label>
-                    <input type="text" class="form-input" id="inpCodigoVal" value="2036, 163.518f4ed3e83e" oninput="syncDiploma()">
-                </div>
+            <div class="form-group">
+                <label class="form-label">Mantenedora Faculdade</label>
+                <input type="text" class="form-input" id="inpMantenedora" value="SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA" oninput="syncDiploma()">
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">URL de Validação</label>
-                    <input type="text" class="form-input" id="inpUrlVal" value="https://consultadiploma.estacio.br/diploma/2036.163.518f4ed3e83e" oninput="syncDiploma()">
+                    <label class="form-label">CNPJ Faculdade</label>
+                    <input type="text" class="form-input" id="inpCnpjFaculdade" value="002.608.755/0001-07" oninput="syncDiploma()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nome Curso Verso</label>
+                    <input type="text" class="form-input" id="inpCursoVerso" value="ENGENHARIA AMBIENTAL" oninput="syncDiploma()">
                 </div>
             </div>
 
-            <!-- SEÇÃO 5: DADOS DO VERSO (REGISTRO ACADÊMICO) -->
-            <div class="form-section">
-                <div class="form-section-title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    <span>5. Dados do Verso (Registro Acadêmico)</span>
-                </div>
+            <div class="form-group">
+                <label class="form-label">Credenciamento 1</label>
+                <input type="text" class="form-input" id="inpCred1" value="Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002" oninput="syncDiploma()">
+            </div>
 
+            <div class="form-group">
+                <label class="form-label">Credenciamento 2</label>
+                <input type="text" class="form-input" id="inpCred2" value="Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017." oninput="syncDiploma()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Reconhecimento MEC</label>
+                <input type="text" class="form-input" id="inpReconhecimento" value="Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011." oninput="syncDiploma()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Renovação MEC</label>
+                <input type="text" class="form-input" id="inpRenovacao" value="Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020" oninput="syncDiploma()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Universidade Registradora</label>
+                <input type="text" class="form-input" id="inpUnivReg" value="UNIVERSIDADE ESTÁCIO DE SÁ" oninput="syncDiploma()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Texto de Registro / Livro / Folha</label>
+                <textarea class="form-textarea" id="inpTextoReg" oninput="syncDiploma()">Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.</textarea>
+            </div>
+
+            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Mantenedora da Faculdade</label>
-                    <input type="text" class="form-input" id="inpMantenedora" value="SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA" oninput="syncDiploma()">
+                    <label class="form-label">Processo</label>
+                    <input type="text" class="form-input" id="inpProcesso" value="Processo nº SRD/6266607/2023" oninput="syncDiploma()">
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">CNPJ da Faculdade</label>
-                        <input type="text" class="form-input" id="inpCnpjFaculdade" value="002.608.755/0001-07" oninput="syncDiploma()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nome do Curso no Verso</label>
-                        <input type="text" class="form-input" id="inpCursoVerso" value="ENGENHARIA AMBIENTAL" oninput="syncDiploma()">
-                    </div>
-                </div>
-
                 <div class="form-group">
-                    <label class="form-label">Credenciamento 1</label>
-                    <input type="text" class="form-input" id="inpCred1" value="Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002" oninput="syncDiploma()">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Credenciamento 2</label>
-                    <input type="text" class="form-input" id="inpCred2" value="Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017." oninput="syncDiploma()">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Reconhecimento do Curso</label>
-                    <input type="text" class="form-input" id="inpReconhecimento" value="Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011." oninput="syncDiploma()">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Renovação do Curso</label>
-                    <input type="text" class="form-input" id="inpRenovacao" value="Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020" oninput="syncDiploma()">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Universidade Registradora</label>
-                    <input type="text" class="form-input" id="inpUnivReg" value="UNIVERSIDADE ESTÁCIO DE SÁ" oninput="syncDiploma()">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Mantenedora Registradora</label>
-                        <input type="text" class="form-input" id="inpMantReg" value="SOCIEDADE DE ENSINO SUPERIOR ESTÁCIO DE SÁ" oninput="syncDiploma()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">CNPJ Registradora</label>
-                        <input type="text" class="form-input" id="inpCnpjReg" value="034.075.739/0001-84" oninput="syncDiploma()">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Texto de Registro (Livro, Folha, Data)</label>
-                    <textarea class="form-textarea" id="inpTextoReg" oninput="syncDiploma()">Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.</textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Processo nº</label>
-                        <input type="text" class="form-input" id="inpProcesso" value="Processo nº SRD/6266607/2023" oninput="syncDiploma()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Local e Data Verso</label>
-                        <input type="text" class="form-input" id="inpLocalDataVerso" value="BELÉM – PA, 23/02/2023" oninput="syncDiploma()">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Secretário(a) de Registro</label>
-                        <input type="text" class="form-input" id="inpSecretarioNome" value="ADRIANA SILVA ARAUJO" oninput="syncDiploma()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Resolução</label>
-                        <input type="text" class="form-input" id="inpResolucao" value="Resolução 092/GR/2016" oninput="syncDiploma()">
-                    </div>
+                    <label class="form-label">Local e Data Verso</label>
+                    <input type="text" class="form-input" id="inpLocalDataVerso" value="BELÉM – PA, 23/02/2023" oninput="syncDiploma()">
                 </div>
             </div>
 
-            <!-- EXPORTAÇÃO E AÇÕES -->
-            <div class="btn-export-group">
-                <button type="button" class="btn-export" id="btnExportPdf" onclick="gerarDiplomaPdf()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    <span>Baixar Diploma Completo (PDF Frente + Verso)</span>
-                </button>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Secretário(a) de Registro</label>
+                    <input type="text" class="form-input" id="inpSecretarioNome" value="ADRIANA SILVA ARAUJO" oninput="syncDiploma()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Resolução GR</label>
+                    <input type="text" class="form-input" id="inpResolucao" value="Resolução 092/GR/2016" oninput="syncDiploma()">
+                </div>
+            </div>
 
-                <div class="btn-export-row">
-                    <button type="button" class="btn-export-sec" onclick="baixarImagemFrente()">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        <span>Baixar Imagem Frente</span>
-                    </button>
-                    <button type="button" class="btn-export-sec" onclick="baixarImagemVerso()">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        <span>Baixar Imagem Verso</span>
+            <div class="form-section-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                <span>4. Autenticidade &amp; Validação</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Código de Validação</label>
+                <input type="text" class="form-input" id="inpCodigoVal" value="2036, 163.518f4ed3e83e" oninput="syncDiploma()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">URL Oficial de Validação</label>
+                <input type="text" class="form-input" id="inpUrlVal" value="https://consultadiploma.Estacio.br/diploma/2036.163.518f4ed3e83e" oninput="syncDiploma()">
+            </div>
+
+            <!-- CHECKOUT E BOTÕES DE EXPORTAÇÃO -->
+            <div class="checkout-actions-card">
+                <div class="checkout-price-row">
+                    <div>
+                        <div class="price-label">Valor da Emissão:</div>
+                        <div class="price-value" id="custoDiplomaDisplay">R$ 35,00</div>
+                    </div>
+                    <button type="button" class="btn-reset-defaults" onclick="resetToDefaults()" title="Restaurar dados originais da Estácio">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+                        <span>Restaurar Padrão</span>
                     </button>
                 </div>
 
-                <button type="button" class="btn-export-sec" onclick="resetToDefaults()" style="margin-top: 4px; color: #94a3b8;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                    <span>Restaurar Valores Padrão</span>
+                <button type="button" class="btn-action-primary" id="btnExportPdf" onclick="exportA4SheetPdf()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Gerar PDF — Folha A4 Estácio</span>
+                </button>
+
+                <button type="button" class="btn-export-sec" onclick="exportA4SheetPng()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>Baixar Imagem PNG (A4)</span>
                 </button>
             </div>
-
         </div>
 
-        <!-- PAINEL DE PRÉVIA EM TEMPO REAL -->
+        <!-- PAINEL DE VISUALIZAÇÃO: FOLHA A4 COMPLETA COM ZOOM (+ - Fit) -->
         <div class="preview-panel">
-            
             <div class="preview-controls">
-                <div class="tabs-group">
-                    <button type="button" class="tab-btn active" id="tabBtnFrente" onclick="switchPreviewTab('frente')">
-                        Frente do Diploma
-                    </button>
-                    <button type="button" class="tab-btn" id="tabBtnVerso" onclick="switchPreviewTab('verso')">
-                        Verso do Diploma
-                    </button>
-                    <button type="button" class="tab-btn" id="tabBtnAmbos" onclick="switchPreviewTab('ambos')">
-                        Frente + Verso
-                    </button>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:13.5px; font-weight:800; color:#fff;">Folha A4 Oficial Estácio</span>
+                    <span style="font-size:11.5px; color:#9ca3af;">• Frente Superior &amp; Verso Inferior</span>
                 </div>
-
-                <!-- CONTROLES DE ZOOM -->
+                <!-- CONTROLES DE ZOOM PADRÃO -->
                 <div class="zoom-pill">
-                    <button type="button" class="btn-zoom" onclick="changeZoom(-0.1)" title="Diminuir Zoom">−</button>
-                    <span class="zoom-display" id="zoomLevelDisplay">80%</span>
-                    <button type="button" class="btn-zoom" onclick="changeZoom(0.1)" title="Aumentar Zoom">+</button>
-                    <button type="button" class="btn-zoom" onclick="resetFitZoom()" title="Ajustar à Tela" style="width: auto; padding: 0 10px; font-size: 11px;">Ajustar</button>
+                    <button type="button" class="btn-zoom" onclick="zoomDoc(-0.1)" title="Diminuir Zoom">−</button>
+                    <span class="zoom-val" id="zoomLevelDisplay">85%</span>
+                    <button type="button" class="btn-zoom" onclick="zoomDoc(0.1)" title="Aumentar Zoom">+</button>
+                    <button type="button" class="btn-fit-screen" id="btnFitScreen" onclick="resetZoom()" title="Ajustar tela">Fit</button>
                 </div>
             </div>
 
-            <!-- WRAPPER COM ZOOM -->
-            <div class="diploma-zoom-wrapper" id="diplomaZoomWrapper">
-                <div class="diploma-scale-container" id="diplomaScaleContainer">
+            <!-- ZOOM WRAPPER QUE RESPONDE AOS CONTROLES (+ - Fit) -->
+            <div id="zoomWrapper" style="transition: transform 0.15s ease-out; transform-origin: top center; width: 100%; display: flex; justify-content: center;">
+                <div class="a4-sheet" id="diplomaA4Sheet" style="position:relative;">
 
-                    <!-- ========================================== -->
-                    <!-- 1. FOLHA FRENTE (1123px x 794px A4 Paisagem) -->
-                    <!-- ========================================== -->
-                    <div class="diploma-sheet" id="sheetFrente">
+                    <!-- ─── METADE SUPERIOR: FRENTE (768px x 545px) ─── -->
+                    <div class="frente-container" id="frenteContainer">
 
-                        <!-- SVG MOLDURA GEOMÉTRICA MARINHO OFICIAL ESTÁCIO -->
-                        <svg class="frente-border-svg" viewBox="0 0 1123 794">
-                            <!-- Linha externa com cantos ornamentais escalonados -->
-                            <path d="
-                                M 55,20 L 1068,20
-                                L 1068,35 L 1083,35 L 1083,55 L 1103,55 L 1103,739 L 1083,739 L 1083,759 L 1068,759 L 1068,774
-                                L 55,774
-                                L 55,759 L 40,759 L 40,739 L 20,739 L 20,55 L 40,55 L 40,35 L 55,35 Z"
-                                fill="none" stroke="#1b3252" stroke-width="3" stroke-linejoin="miter" />
+                        <!-- Overlay dinâmico do Texto Principal do Diretor e Aluno sobre a marca d'água -->
+                        <div class="frente-text-overlay">
+                            <!-- Marca d'água 3D interna Estácio -->
+                            <div class="frente-overlay-watermark">
+                                <svg viewBox="0 0 100 100" width="220" height="220">
+                                    <defs>
+                                        <linearGradient id="wmGTop" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#4ef2bb"/>
+                                            <stop offset="100%" stop-color="#00bcd4"/>
+                                        </linearGradient>
+                                        <linearGradient id="wmGRight" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#00b4d8"/>
+                                            <stop offset="100%" stop-color="#0077b6"/>
+                                        </linearGradient>
+                                        <linearGradient id="wmGBottom" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#0077b6"/>
+                                            <stop offset="100%" stop-color="#023e8a"/>
+                                        </linearGradient>
+                                        <linearGradient id="wmGLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#00c9a7"/>
+                                            <stop offset="100%" stop-color="#009688"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <g transform="translate(50,50) rotate(45)">
+                                        <rect x="-42" y="-42" width="38" height="38" rx="2" fill="url(#wmGTop)"/>
+                                        <rect x="4" y="-42" width="38" height="38" rx="2" fill="url(#wmGRight)"/>
+                                        <rect x="-42" y="4" width="38" height="38" rx="2" fill="url(#wmGLeft)"/>
+                                        <rect x="4" y="4" width="38" height="38" rx="2" fill="url(#wmGBottom)"/>
+                                    </g>
+                                </svg>
+                            </div>
 
-                            <!-- Linha intermediária paralela -->
-                            <path d="
-                                M 58,26 L 1065,26
-                                L 1065,41 L 1077,41 L 1077,58 L 1097,58 L 1097,736 L 1077,736 L 1077,753 L 1065,753 L 1065,768
-                                L 58,768
-                                L 58,753 L 46,753 L 46,736 L 26,736 L 26,58 L 46,58 L 46,41 L 58,41 Z"
-                                fill="none" stroke="#1b3252" stroke-width="1.8" stroke-linejoin="miter" />
-
-                            <!-- Linha interna fina -->
-                            <rect x="36" y="68" width="1051" height="658" fill="none" stroke="#1b3252" stroke-width="1.2" />
-                            <rect x="42" y="74" width="1039" height="646" fill="none" stroke="#1b3252" stroke-width="0.8" />
-                        </svg>
-
-                        <!-- MARCA D'ÁGUA 3D ESTÁCIO NO CENTRO -->
-                        <div class="frente-bg-watermark">
-                            <svg viewBox="0 0 100 100" width="100%" height="100%">
-                                <g transform="translate(50,50) rotate(45)">
-                                    <rect x="-38" y="-38" width="35" height="35" rx="3.5" fill="#00A3E0"/>
-                                    <rect x="3" y="-38" width="35" height="35" rx="3.5" fill="#003366"/>
-                                    <rect x="-38" y="3" width="35" height="35" rx="3.5" fill="#00A887"/>
-                                    <rect x="3" y="3" width="35" height="35" rx="3.5" fill="#005596"/>
-                                </g>
-                            </svg>
+                            O(A) Diretor (a) da <strong id="outInstituicaoFrente">FACULDADE ESTÁCIO DO PARÁ</strong>, no uso de suas atribuições, tendo em vista a Conclusão do <strong id="outCursoFrente">CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL</strong> , na data de <strong id="outDataConc">09/12/2022</strong>, e a colação de grau na data De <strong id="outDataCol">17/02/2023</strong>, a <strong id="outNome">KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS</strong>, nacionalidade <strong id="outNac">BRASILEIRO(A)</strong>, natural de <strong id="outNat">BELÉM-PA</strong> nascido(a) em <strong id="outNasc">06/05/1996</strong>, Portador(a) da cédula de identidade <strong id="outRg">7488140</strong>, órgão expedidor <strong id="outOrgaoRg">PC/PA</strong>, e outorga-lhe o presente Diploma, a fim de que possa gozar de todos os direitos e prerrogativas legais.
                         </div>
 
-                        <!-- CONTEÚDO DA FRENTE -->
-                        <div class="frente-content">
-
-                            <!-- TOPO COM BRASÃO E TÍTULOS -->
-                            <div class="frente-top-row">
-                                <div class="frente-seal-brasao">
-                                    <svg viewBox="0 0 120 120" width="82" height="82">
-                                        <circle cx="60" cy="60" r="56" fill="none" stroke="#1b3252" stroke-width="2"/>
-                                        <circle cx="60" cy="60" r="51" fill="none" stroke="#1b3252" stroke-width="0.9"/>
-                                        <circle cx="60" cy="60" r="35" fill="none" stroke="#1b3252" stroke-width="1.2"/>
-                                        <path id="sealPathEstacio" d="M 17,60 A 43,43 0 1,1 103,60" fill="none"/>
-                                        <text font-family="'Times New Roman', serif" font-size="7.6" font-weight="700" fill="#1b3252" letter-spacing="1.2">
-                                            <textPath href="#sealPathEstacio" startOffset="50%" text-anchor="middle">
-                                                REPÚBLICA FEDERATIVA DO BRASIL
-                                            </textPath>
-                                        </text>
-                                        <!-- Estrelas do Cruzeiro do Sul -->
-                                        <circle cx="60" cy="46" r="2.2" fill="#1b3252"/>
-                                        <circle cx="49" cy="58" r="1.9" fill="#1b3252"/>
-                                        <circle cx="71" cy="56" r="1.9" fill="#1b3252"/>
-                                        <circle cx="60" cy="74" r="2.4" fill="#1b3252"/>
-                                        <circle cx="65" cy="64" r="1.4" fill="#1b3252"/>
-                                        <path d="M 37,63 Q 60,53 83,63" fill="none" stroke="#1b3252" stroke-width="1.1"/>
-                                    </svg>
-                                </div>
-
-                                <div class="frente-header-titles">
-                                    <span class="frente-title-rep">REPÚBLICA FEDERATIVA DO BRASIL</span>
-                                    <span class="frente-title-mec">MINISTÉRIO DA EDUCAÇÃO</span>
-                                    <span class="frente-title-inst" id="outInstFrente">FACULDADE ESTÁCIO DO PARÁ</span>
-                                </div>
+                        <!-- Overlay dinâmico para a data e assinatura da Direção -->
+                        <div class="frente-dir-overlay">
+                            <div class="frente-date-line" id="outDataExp">Belém - PA, 23 de Fevereiro de 2023.</div>
+                            <div class="frente-sig-wrap">
+                                <img src="assets/estacio_sig_elaine.png" class="frente-sig-img" alt="Assinatura">
                             </div>
-
-                            <!-- TEXTO PRINCIPAL EM ITÁLICO COM VARIÁVEIS EM NEGRITO -->
-                            <div class="frente-main-text-box" id="outTextoPrincipal">
-                                O(A) Diretor (a) da <b id="outInstBold">FACULDADE ESTÁCIO DO PARÁ</b>, no uso de suas atribuições, tendo em vista a Conclusão do <b id="outCursoBold">CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL</b>, na data de <b id="outDataConcBold">09/12/2022</b>, e a colação de grau na data De <b id="outDataColBold">17/02/2023</b>, a <b id="outNomeBold">KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS</b>, nacionalidade <b id="outNacBold">BRASILEIRO(A)</b>, natural de <b id="outNatBold">BELÉM-PA</b> nascido(a) em <b id="outNascBold">06/05/1996</b>, Portador(a) da cédula de identidade <b id="outRgBold">7488140</b>, órgão expedidor <b id="outOrgaoBold">PC/PA</b>, e outorga-lhe o presente Diploma, a fim de que possa gozar de todos os direitos e prerrogativas legais.
-                            </div>
-
-                            <!-- RODAPÉ COM LOGO ESTÁCIO E ASSINATURA -->
-                            <div class="frente-bottom-row">
-                                <div class="frente-bottom-logo">
-                                    <div class="frente-bottom-logo-icon">
-                                        <svg viewBox="0 0 100 100" width="44" height="44">
-                                            <g transform="translate(50,50) rotate(45)">
-                                                <rect x="-38" y="-38" width="35" height="35" rx="3.5" fill="#00A3E0"/>
-                                                <rect x="3" y="-38" width="35" height="35" rx="3.5" fill="#003366"/>
-                                                <rect x="-38" y="3" width="35" height="35" rx="3.5" fill="#00A887"/>
-                                                <rect x="3" y="3" width="35" height="35" rx="3.5" fill="#005596"/>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                    <span class="frente-bottom-logo-text">Estácio</span>
-                                </div>
-
-                                <div class="frente-signature-col">
-                                    <div class="frente-date-line" id="outLocalDataFrente">Belém - PA, 23 de Fevereiro de 2023.</div>
-                                    <div class="frente-sig-img-wrap">
-                                        <!-- Assinatura Vetorial Fiel em Caneta -->
-                                        <svg class="frente-sig-svg" viewBox="0 0 240 60">
-                                            <path d="M 25 35 C 40 18, 55 12, 65 24 C 75 38, 55 52, 45 42 C 40 35, 55 20, 75 22 C 90 24, 98 42, 85 48 C 76 52, 70 38, 85 24 C 98 14, 115 18, 125 32 C 132 42, 122 50, 115 48 C 105 45, 112 32, 128 26 C 145 20, 165 30, 185 36 M 35 48 C 75 46, 125 45, 175 46"
-                                                  fill="none" stroke="#000000" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </div>
-                                    <div class="frente-sig-line"></div>
-                                    <div class="frente-sig-name" id="outDiretorNome">ELAINE CRISTINA GRECCHI GONÇALVES</div>
-                                    <div class="frente-sig-role" id="outDiretorCargo">Diretor(a) Geral</div>
-                                </div>
-                            </div>
-
-                            <!-- VALIDAÇÃO INFERIOR -->
-                            <div class="frente-footer-info">
-                                <div id="outFooterInst">FACULDADE ESTÁCIO DO PARÁ</div>
-                                <div>Código de validação: <span id="outFooterCodigo">2036, 163.518f4ed3e83e</span> | <span id="outFooterUrl">https://consultadiploma.estacio.br/diploma/2036.163.518f4ed3e83e</span></div>
-                            </div>
-
+                            <div class="frente-sig-line"></div>
+                            <div class="frente-sig-name" id="outDiretorNome">ELAINE CRISTINA GRECCHI GONÇALVES</div>
+                            <div class="frente-sig-role" id="outDiretorCargo">Diretor(a) Geral</div>
                         </div>
+
+                        <!-- Overlay do rodapé de validação oficial -->
+                        <div class="frente-footer-overlay">
+                            <div id="outInstFooter" style="font-weight:600; margin-bottom:1px;">FACULDADE ESTÁCIO DO PARÁ</div>
+                            <div>Código de validação: <span id="outCodigoVal">2036, 163.518f4ed3e83e</span> | <span id="outUrlVal">https://consultadiploma.Estacio.br/diploma/2036.163.518f4ed3e83e</span></div>
+                        </div>
+
                     </div>
 
-                    <!-- ========================================== -->
-                    <!-- 2. FOLHA VERSO (1123px x 794px A4 Paisagem) -->
-                    <!-- ========================================== -->
-                    <div class="diploma-sheet verso-sheet" id="sheetVerso">
+                    <!-- ─── ESPAÇAMENTO COM LINHA DIVISÓRIA (PADRÃO UNINTER) ─── -->
+                    <div class="sheet-divider-zone">
+                        <div class="sheet-divider-line"></div>
+                    </div>
 
-                        <!-- COLUNA ESQUERDA: DADOS DA FACULDADE -->
+                    <!-- ─── METADE INFERIOR: VERSO (768px x 545px) ─── -->
+                    <div class="verso-container" id="versoContainer">
+
+                        <!-- COLUNA ESQUERDA: FACULDADE -->
                         <div class="verso-left-col">
-                            <div class="verso-inst-title" id="outVersoInst">FACULDADE ESTÁCIO DO PARÁ</div>
-                            <div class="verso-mantenedora" id="outVersoMantenedora">SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA</div>
-                            <div class="verso-mantenedora" id="outVersoCnpj">CNPJ: 002.608.755/0001-07</div>
+                            <div class="verso-inst-title" id="outInstVerso">FACULDADE ESTÁCIO DO PARÁ</div>
+                            <div class="verso-mantenedora" id="outMantVerso">SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA</div>
+                            <div class="verso-cnpj" id="outCnpjVerso">CNP: 002.608.755/0001-07</div>
 
-                            <div class="verso-accreditation-block" style="margin-top: 15px;">
-                                <div id="outVersoCred1">Credenciamento: Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002</div>
-                                <div id="outVersoCred2" style="margin-top: 10px;">Credenciamento: Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.</div>
-                            </div>
+                            <div class="verso-cred" id="outCred1">Credenciamento: Portal nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002</div>
+                            <div class="verso-cred" id="outCred2">Credenciamento: Portal nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.</div>
 
                             <div class="verso-course-box">
-                                <div class="verso-course-title">Curso de <b id="outVersoCursoNome">ENGENHARIA AMBIENTAL</b></div>
-                                <div class="verso-recognition-text" id="outVersoReconhecimento">Reconhecimento: Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.</div>
-                                <div class="verso-recognition-text" id="outVersoRenovacao">Renovação: Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020</div>
+                                <div class="verso-course-title">Curso de <strong id="outCursoVerso">ENGENHARIA AMBIENTAL</strong></div>
+                                <div class="verso-course-detail" id="outReconhecimento">Reconhecimento: Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.</div>
+                                <div class="verso-course-detail" id="outRenovacao">Renovação: Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020</div>
                             </div>
                         </div>
 
-                        <!-- COLUNA DIREITA: BOX PRETO OFICIAL DE REGISTRO -->
+                        <!-- COLUNA DIREITA: BOX UNIVERSIDADE ESTÁCIO DE SÁ -->
                         <div class="verso-right-box">
-                            <div class="verso-reg-inst" id="outVersoRegInst">UNIVERSIDADE ESTÁCIO DE SÁ</div>
-                            <div class="verso-reg-mant" id="outVersoRegMant">SOCIEDADE DE ENSINO SUPERIOR ESTÁCIO DE SÁ</div>
-                            <div class="verso-reg-mant" id="outVersoRegCnpj">CNPJ: 034.075.739/0001-84</div>
+                            <div class="vbox-univ-title" id="outUnivReg">UNIVERSIDADE ESTÁCIO DE SÁ</div>
+                            <div class="vbox-mantenedora" id="outMantReg">SOCIEDADE DE ENSINO SUPERIOR ESTÁCIO DE SÁ</div>
+                            <div class="vbox-cnpj" id="outCnpjReg">CNPJ: 034.075.739/0001-84</div>
 
-                            <div class="verso-reg-creds">
-                                <div>Credenciamento: Portaria nº 592, de 29/11/1988, DOU nº -, Seção 1, Pág. 23215 de 30/11/1988.</div>
-                                <div style="margin-top: 4px;">Credenciamento: Portaria nº 1095, de 31/8/2012, DOU nº 172, Seção 1, Pág. 97, De 4/9/2012.</div>
-                            </div>
+                            <div class="vbox-cred">Credenciamento: Portaria nº 592, de 29/11/1988, DOU nº -, Seção 1, Pág. 23215 de 30/11/1988.</div>
+                            <div class="vbox-cred">Credenciamento: Portaria nº 1095, de 31/8/2012, DOU nº 172, Seção 1, Pág. 97, De 4/9/2012.</div>
 
-                            <div class="verso-reg-law-text" id="outVersoTextoReg">
-                                Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.
-                            </div>
+                            <div class="vbox-reg-text" id="outTextoReg">Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.</div>
 
-                            <div class="verso-processo-text" id="outVersoProcesso">Processo nº SRD/6266607/2023</div>
-                            <div class="verso-local-data" id="outVersoLocalData">BELÉM – PA, 23/02/2023</div>
+                            <div class="vbox-processo" id="outProcesso">Processo nº SRD/6266607/2023</div>
+                            <div class="vbox-local-data" id="outLocalDataVerso">BELÉM – PA, 23/02/2023</div>
 
-                            <!-- ASSINATURA SECRETARIA DO VERSO -->
-                            <div class="verso-sig-block">
-                                <div class="verso-sig-img-wrap">
-                                    <svg viewBox="0 0 200 45" width="160" height="36">
-                                        <path d="M 20 28 C 32 14, 45 10, 55 20 C 65 32, 48 42, 40 34 C 36 28, 48 16, 65 18 C 78 20, 84 34, 74 38 C 66 42, 60 30, 74 18 C 86 10, 100 14, 110 24 M 25 38 C 55 36, 95 35, 135 36"
-                                              fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </div>
-                                <div class="verso-sig-line"></div>
-                                <div class="verso-sig-name" id="outVersoSecretarioNome">ADRIANA SILVA ARAUJO</div>
-                                <div class="verso-sig-role">Secretario(a) de Registro de Diplomas</div>
-                                <div class="verso-sig-res" id="outVersoResolucao">Resolução 092/GR/2016</div>
+                            <div class="vbox-sig-zone">
+                                <img src="assets/estacio_sig_adriana.png" class="vbox-sig-img" alt="Assinatura Adriana">
+                                <div class="vbox-sig-line"></div>
+                                <div class="vbox-signer-name" id="outSecretarioNome">ADRIANA SILVA ARAUJO</div>
+                                <div class="vbox-signer-role">Secretario(a) de Registro de Diplomas</div>
+                                <div class="vbox-resolucao" id="outResolucao">Resolução 092/GR/2016</div>
                             </div>
                         </div>
 
@@ -974,362 +921,268 @@
 
                 </div>
             </div>
-
         </div>
+    </main>
 
-    </div>
-
-    <div id="toast-container"></div>
-
+    <!-- SCRIPT DE SINCRONIZAÇÃO, ZOOM E EXPORTAÇÃO A4 -->
     <script>
-    let currentZoom = 0.8;
-    let currentActiveTab = 'frente';
+        // CONTROLES DE ZOOM PADRÃO
+        let currentZoom = 0.85;
 
-    function showToast(msg) {
-        let container = document.getElementById('toast-container');
-        if (!container) return;
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.textContent = msg;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3200);
-    }
-
-    // ─── SINCRONIZAÇÃO EM TEMPO REAL COM A FOLHA ───
-    function syncDiploma() {
-        const g = id => (document.getElementById(id)?.value || '').trim();
-
-        const nome = g('inpNome');
-        const nac = g('inpNacionalidade');
-        const nat = g('inpNaturalidade');
-        const nasc = g('inpNascimento');
-        const rg = g('inpRg');
-        const orgao = g('inpOrgaoRg');
-        const inst = g('inpInstituicao');
-        const curso = g('inpCurso');
-        const dataConc = g('inpDataConclusao');
-        const dataCol = g('inpDataColacao');
-        const localDataFrente = g('inpLocalDataFrente');
-
-        const diretor = g('inpDiretorNome');
-        const cargo = g('inpDiretorCargo');
-        const codVal = g('inpCodigoVal');
-        const urlVal = g('inpUrlVal');
-
-        // Verso
-        const mant = g('inpMantenedora');
-        const cnpjFac = g('inpCnpjFaculdade');
-        const cursoVerso = g('inpCursoVerso');
-        const cred1 = g('inpCred1');
-        const cred2 = g('inpCred2');
-        const rec = g('inpReconhecimento');
-        const ren = g('inpRenovacao');
-
-        const univReg = g('inpUnivReg');
-        const mantReg = g('inpMantReg');
-        const cnpjReg = g('inpCnpjReg');
-        const textoReg = g('inpTextoReg');
-        const proc = g('inpProcesso');
-        const localDataVerso = g('inpLocalDataVerso');
-        const secNome = g('inpSecretarioNome');
-        const res = g('inpResolucao');
-
-        // Atualiza Frente
-        document.getElementById('outInstFrente').textContent = inst;
-        document.getElementById('outInstBold').textContent = inst;
-        document.getElementById('outCursoBold').textContent = curso;
-        document.getElementById('outDataConcBold').textContent = dataConc;
-        document.getElementById('outDataColBold').textContent = dataCol;
-        document.getElementById('outNomeBold').textContent = nome;
-        document.getElementById('outNacBold').textContent = nac;
-        document.getElementById('outNatBold').textContent = nat;
-        document.getElementById('outNascBold').textContent = nasc;
-        document.getElementById('outRgBold').textContent = rg;
-        document.getElementById('outOrgaoBold').textContent = orgao;
-        document.getElementById('outLocalDataFrente').textContent = localDataFrente;
-        document.getElementById('outDiretorNome').textContent = diretor;
-        document.getElementById('outDiretorCargo').textContent = cargo;
-        document.getElementById('outFooterInst').textContent = inst;
-        document.getElementById('outFooterCodigo').textContent = codVal;
-        document.getElementById('outFooterUrl').textContent = urlVal;
-
-        // Atualiza Verso
-        document.getElementById('outVersoInst').textContent = inst;
-        document.getElementById('outVersoMantenedora').textContent = mant;
-        document.getElementById('outVersoCnpj').textContent = `CNPJ: ${cnpjFac}`;
-        document.getElementById('outVersoCred1').textContent = cred1;
-        document.getElementById('outVersoCred2').textContent = cred2;
-        document.getElementById('outVersoCursoNome').textContent = cursoVerso;
-        document.getElementById('outVersoReconhecimento').textContent = rec;
-        document.getElementById('outVersoRenovacao').textContent = ren;
-
-        document.getElementById('outVersoRegInst').textContent = univReg;
-        document.getElementById('outVersoRegMant').textContent = mantReg;
-        document.getElementById('outVersoRegCnpj').textContent = `CNPJ: ${cnpjReg}`;
-        document.getElementById('outVersoTextoReg').textContent = textoReg;
-        document.getElementById('outVersoProcesso').textContent = proc;
-        document.getElementById('outVersoLocalData').textContent = localDataVerso;
-        document.getElementById('outVersoSecretarioNome').textContent = secNome;
-        document.getElementById('outVersoResolucao').textContent = res;
-    }
-
-    // ─── TABS DE PRÉVIA ───
-    function switchPreviewTab(tab) {
-        currentActiveTab = tab;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-        const sheetFrente = document.getElementById('sheetFrente');
-        const sheetVerso = document.getElementById('sheetVerso');
-
-        if (tab === 'frente') {
-            document.getElementById('tabBtnFrente').classList.add('active');
-            sheetFrente.style.display = 'flex';
-            sheetVerso.style.display = 'none';
-        } else if (tab === 'verso') {
-            document.getElementById('tabBtnVerso').classList.add('active');
-            sheetFrente.style.display = 'none';
-            sheetVerso.style.display = 'grid';
-        } else {
-            document.getElementById('tabBtnAmbos').classList.add('active');
-            sheetFrente.style.display = 'flex';
-            sheetVerso.style.display = 'grid';
-        }
-    }
-
-    // ─── ZOOM CONTROLS ───
-    function updateZoomUI() {
-        const c = document.getElementById('diplomaScaleContainer');
-        if (c) c.style.transform = `scale(${currentZoom})`;
-        const lbl = document.getElementById('zoomLevelDisplay');
-        if (lbl) lbl.textContent = `${Math.round(currentZoom * 100)}%`;
-    }
-
-    function changeZoom(delta) {
-        currentZoom = Math.min(1.4, Math.max(0.4, currentZoom + delta));
-        updateZoomUI();
-    }
-
-    function resetFitZoom() {
-        const wrap = document.getElementById('diplomaZoomWrapper');
-        if (wrap) {
-            const w = wrap.clientWidth - 40;
-            currentZoom = Math.min(1.0, Math.max(0.4, w / 1140));
-            updateZoomUI();
-        }
-    }
-
-    // ─── EXPORTAÇÃO EM ALTA RESOLUÇÃO ───
-    async function renderElementToCanvas(el) {
-        const wasHidden = el.style.display === 'none';
-        if (wasHidden) {
-            el.style.display = el.classList.contains('verso-sheet') ? 'grid' : 'flex';
+        function updateZoomDisplay() {
+            const wrapper = document.getElementById('zoomWrapper');
+            const display = document.getElementById('zoomLevelDisplay');
+            if (wrapper) wrapper.style.transform = `scale(${currentZoom})`;
+            if (display) display.textContent = `${Math.round(currentZoom * 100)}%`;
         }
 
-        const clone = el.cloneNode(true);
-        clone.style.position = 'fixed';
-        clone.style.left = '-99999px';
-        clone.style.top = '0';
-        clone.style.width = '1123px';
-        clone.style.height = '794px';
-        clone.style.transform = 'none';
-        clone.style.zIndex = '-9999';
-        clone.style.display = el.classList.contains('verso-sheet') ? 'grid' : 'flex';
-        document.body.appendChild(clone);
+        function zoomDoc(delta) {
+            currentZoom = Math.min(1.8, Math.max(0.4, Math.round((currentZoom + delta) * 100) / 100));
+            updateZoomDisplay();
+        }
 
-        await new Promise(r => setTimeout(r, 200));
+        function resetZoom() {
+            const panel = document.querySelector('.preview-panel');
+            if (panel) {
+                const w = panel.clientWidth - 48;
+                currentZoom = Math.min(1.0, Math.max(0.4, Math.round((w / 820) * 100) / 100));
+            } else {
+                currentZoom = 0.85;
+            }
+            updateZoomDisplay();
+        }
 
-        const canvas = await html2canvas(clone, {
-            scale: 2.8,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff',
-            width: 1123,
-            height: 794
+        // MENU AVATAR
+        function toggleAvatarDropdown(e) {
+            e.stopPropagation();
+            const dd = document.getElementById('avatarDropdown');
+            if (dd) dd.classList.toggle('active');
+        }
+        document.addEventListener('click', () => {
+            const dd = document.getElementById('avatarDropdown');
+            if (dd) dd.classList.remove('active');
         });
 
-        clone.remove();
-        if (wasHidden) el.style.display = 'none';
-        return canvas;
-    }
-
-    // 1. PDF COMPLETO (2 PÁGINAS A4 PAISAGEM)
-    async function gerarDiplomaPdf() {
-        const btn = document.getElementById('btnExportPdf');
-        const origText = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = `<span>Gerando PDF Alta Resolução...</span>`;
-
-        try {
-            const fEl = document.getElementById('sheetFrente');
-            const vEl = document.getElementById('sheetVerso');
-
-            const canvasF = await renderElementToCanvas(fEl);
-            const canvasV = await renderElementToCanvas(vEl);
-
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-                orientation: 'landscape',
-                unit: 'px',
-                format: [1123, 794],
-                hotfixes: ['px_scaling']
-            });
-
-            const imgF = canvasF.toDataURL('image/jpeg', 0.98);
-            pdf.addImage(imgF, 'JPEG', 0, 0, 1123, 794);
-
-            pdf.addPage([1123, 794], 'landscape');
-            const imgV = canvasV.toDataURL('image/jpeg', 0.98);
-            pdf.addImage(imgV, 'JPEG', 0, 0, 1123, 794);
-
-            const nomeLimpo = (document.getElementById('inpNome').value || 'DIPLOMA').replace(/\s+/g, '_');
-            pdf.save(`Diploma_Estacio_${nomeLimpo}.pdf`);
-            showToast('✅ Diploma completo (Frente + Verso) gerado com sucesso!');
-
-            // Grava histórico local
-            salvarHistoricoDiploma();
-        } catch(err) {
-            console.error('Erro ao gerar PDF:', err);
-            alert('Erro ao gerar PDF do Diploma: ' + err.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = origText;
+        function logoutUser() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = 'login.html';
         }
-    }
 
-    // 2. IMAGEM FRENTE
-    async function baixarImagemFrente() {
-        showToast('Renderizando imagem da Frente...');
-        const fEl = document.getElementById('sheetFrente');
-        const canvas = await renderElementToCanvas(fEl);
-        const link = document.createElement('a');
-        link.download = `Diploma_Estacio_Frente_${(document.getElementById('inpNome').value || 'ALUNO').replace(/\s+/g, '_')}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    }
-
-    // 3. IMAGEM VERSO
-    async function baixarImagemVerso() {
-        showToast('Renderizando imagem do Verso...');
-        const vEl = document.getElementById('sheetVerso');
-        const canvas = await renderElementToCanvas(vEl);
-        const link = document.createElement('a');
-        link.download = `Diploma_Estacio_Verso_${(document.getElementById('inpNome').value || 'ALUNO').replace(/\s+/g, '_')}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    }
-
-    // ─── SALVAR HISTÓRICO ───
-    function salvarHistoricoDiploma() {
-        try {
-            const loggedU = JSON.parse(localStorage.getItem('happynation_user') || '{}');
-            const uMail = (loggedU && loggedU.email) ? loggedU.email.toLowerCase().trim() : 'admin';
-            const histKey = 'happynation_diplomas_estacio_' + uMail;
-            let list = JSON.parse(localStorage.getItem(histKey) || '[]');
-
-            const atId = 'DIP-EST-' + Math.floor(10000 + Math.random() * 90000);
-            const record = {
-                id: atId,
-                nome: document.getElementById('inpNome').value,
-                curso: document.getElementById('inpCurso').value,
-                instituicao: document.getElementById('inpInstituicao').value,
-                data_colacao: document.getElementById('inpDataColacao').value,
-                codigo: document.getElementById('inpCodigoVal').value,
-                tipo: 'estacio',
-                created_at: new Date().toISOString()
+        // SINCRONIZAÇÃO EM TEMPO REAL
+        function syncDiploma() {
+            const g = (id, fallback) => {
+                const el = document.getElementById(id);
+                return el ? (el.value.trim() || fallback || '') : (fallback || '');
             };
-            list.unshift(record);
-            localStorage.setItem(histKey, JSON.stringify(list));
-        } catch(e) {}
-    }
 
-    // ─── RESETAR VALORES ───
-    function resetToDefaults() {
-        if (!confirm('Deseja restaurar os dados originais do modelo da Estácio?')) return;
-        document.getElementById('inpNome').value = "KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS";
-        document.getElementById('inpNacionalidade').value = "BRASILEIRO(A)";
-        document.getElementById('inpNaturalidade').value = "BELÉM-PA";
-        document.getElementById('inpNascimento').value = "06/05/1996";
-        document.getElementById('inpRg').value = "7488140";
-        document.getElementById('inpOrgaoRg').value = "PC/PA";
-        document.getElementById('inpInstituicao').value = "FACULDADE ESTÁCIO DO PARÁ";
-        document.getElementById('inpCurso').value = "CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL";
-        document.getElementById('inpDataConclusao').value = "09/12/2022";
-        document.getElementById('inpDataColacao').value = "17/02/2023";
-        document.getElementById('inpLocalDataFrente').value = "Belém - PA, 23 de Fevereiro de 2023.";
-        document.getElementById('inpDiretorNome').value = "ELAINE CRISTINA GRECCHI GONÇALVES";
-        document.getElementById('inpDiretorCargo').value = "Diretor(a) Geral";
-        document.getElementById('inpCodigoVal').value = "2036, 163.518f4ed3e83e";
-        document.getElementById('inpUrlVal').value = "https://consultadiploma.estacio.br/diploma/2036.163.518f4ed3e83e";
+            const nome = g('inpNome', 'KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS');
+            const nac = g('inpNac', 'BRASILEIRO(A)');
+            const nat = g('inpNat', 'BELÉM-PA');
+            const nasc = g('inpNasc', '06/05/1996');
+            const rg = g('inpRg', '7488140');
+            const orgaoRg = g('inpOrgaoRg', 'PC/PA');
+            const inst = g('inpInstituicao', 'FACULDADE ESTÁCIO DO PARÁ');
+            const curso = g('inpCurso', 'CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL');
+            const dataConc = g('inpDataConc', '09/12/2022');
+            const dataCol = g('inpDataCol', '17/02/2023');
+            const dataExp = g('inpDataExp', 'Belém - PA, 23 de Fevereiro de 2023.');
+            const diretor = g('inpDiretorNome', 'ELAINE CRISTINA GRECCHI GONÇALVES');
+            const cargo = g('inpDiretorCargo', 'Diretor(a) Geral');
 
-        document.getElementById('inpMantenedora').value = "SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA";
-        document.getElementById('inpCnpjFaculdade').value = "002.608.755/0001-07";
-        document.getElementById('inpCursoVerso').value = "ENGENHARIA AMBIENTAL";
-        document.getElementById('inpCred1').value = "Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002";
-        document.getElementById('inpCred2').value = "Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.";
-        document.getElementById('inpReconhecimento').value = "Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.";
-        document.getElementById('inpRenovacao').value = "Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020";
-        document.getElementById('inpUnivReg').value = "UNIVERSIDADE ESTÁCIO DE SÁ";
-        document.getElementById('inpMantReg').value = "SOCIEDADE DE ENSINO SUPERIOR ESTÁCIO DE SÁ";
-        document.getElementById('inpCnpjReg').value = "034.075.739/0001-84";
-        document.getElementById('inpTextoReg').value = "Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.";
-        document.getElementById('inpProcesso').value = "Processo nº SRD/6266607/2023";
-        document.getElementById('inpLocalDataVerso').value = "BELÉM – PA, 23/02/2023";
-        document.getElementById('inpSecretarioNome').value = "ADRIANA SILVA ARAUJO";
-        document.getElementById('inpResolucao').value = "Resolução 092/GR/2016";
+            // Atualiza Frente
+            const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setTxt('outNome', nome);
+            setTxt('outNac', nac);
+            setTxt('outNat', nat);
+            setTxt('outNasc', nasc);
+            setTxt('outRg', rg);
+            setTxt('outOrgaoRg', orgaoRg);
+            setTxt('outInstituicaoFrente', inst);
+            setTxt('outCursoFrente', curso);
+            setTxt('outDataConc', dataConc);
+            setTxt('outDataCol', dataCol);
+            setTxt('outDataExp', dataExp);
+            setTxt('outDiretorNome', diretor);
+            setTxt('outDiretorCargo', cargo);
 
-        syncDiploma();
-        showToast('Valores padrão restaurados!');
-    }
+            const codVal = g('inpCodigoVal', '2036, 163.518f4ed3e83e');
+            const urlVal = g('inpUrlVal', 'https://consultadiploma.Estacio.br/diploma/2036.163.518f4ed3e83e');
+            setTxt('outCodigoVal', codVal);
+            setTxt('outUrlVal', urlVal);
+            setTxt('outInstFooter', inst);
 
-    // ─── USER & HEADER SETUP ───
-    function initUser() {
-        try {
-            const u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
-            const s = (window.MGSaldo ? window.MGSaldo.get() : (u.saldo !== undefined ? parseFloat(u.saldo) : 0));
-            const el = document.getElementById('userHeaderSaldo');
-            if (el) el.textContent = `Saldo R$ ${s.toFixed(2).replace('.', ',')}`;
+            // Atualiza Verso
+            setTxt('outInstVerso', inst);
+            setTxt('outMantVerso', g('inpMantenedora', 'SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA'));
+            setTxt('outCnpjVerso', 'CNPJ: ' + g('inpCnpjFaculdade', '002.608.755/0001-07'));
+            setTxt('outCred1', g('inpCred1', 'Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002'));
+            setTxt('outCred2', g('inpCred2', 'Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.'));
+            setTxt('outCursoVerso', g('inpCursoVerso', 'ENGENHARIA AMBIENTAL'));
+            setTxt('outReconhecimento', g('inpReconhecimento', 'Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.'));
+            setTxt('outRenovacao', g('inpRenovacao', 'Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020'));
 
-            const name = u.nome || u.name || 'Admin MG';
-            const email = u.email || 'admin@mgeditaveis.com.br';
-            const dropN = document.getElementById('dropUserName');
-            if (dropN) dropN.textContent = name;
-            const dropE = document.getElementById('dropUserEmail');
-            if (dropE) dropE.textContent = email;
+            setTxt('outUnivReg', g('inpUnivReg', 'UNIVERSIDADE ESTÁCIO DE SÁ'));
+            setTxt('outTextoReg', g('inpTextoReg', 'Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.'));
+            setTxt('outProcesso', g('inpProcesso', 'Processo nº SRD/6266607/2023'));
+            setTxt('outLocalDataVerso', g('inpLocalDataVerso', 'BELÉM – PA, 23/02/2023'));
+            setTxt('outSecretarioNome', g('inpSecretarioNome', 'ADRIANA SILVA ARAUJO'));
+            setTxt('outResolucao', g('inpResolucao', 'Resolução 092/GR/2016'));
+        }
 
-            const av = document.getElementById('userHeaderAvatar');
-            if (av) av.textContent = name.charAt(0).toUpperCase();
-        } catch(e) {}
-    }
+        // RESTAURAR PADRÃO
+        function resetToDefaults() {
+            if (!confirm('Deseja restaurar os dados originais do modelo da Estácio?')) return;
+            document.getElementById('inpNome').value = "KERCIA KEYTLY FERREIRA CHAVES DOS SANTOS";
+            document.getElementById('inpNac').value = "BRASILEIRO(A)";
+            document.getElementById('inpNat').value = "BELÉM-PA";
+            document.getElementById('inpNasc').value = "06/05/1996";
+            document.getElementById('inpRg').value = "7488140";
+            document.getElementById('inpOrgaoRg').value = "PC/PA";
+            document.getElementById('inpInstituicao').value = "FACULDADE ESTÁCIO DO PARÁ";
+            document.getElementById('inpCurso').value = "CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL";
+            document.getElementById('inpDataConc').value = "09/12/2022";
+            document.getElementById('inpDataCol').value = "17/02/2023";
+            document.getElementById('inpDataExp').value = "Belém - PA, 23 de Fevereiro de 2023.";
+            document.getElementById('inpDiretorNome').value = "ELAINE CRISTINA GRECCHI GONÇALVES";
+            document.getElementById('inpDiretorCargo').value = "Diretor(a) Geral";
+            document.getElementById('inpMantenedora').value = "SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA";
+            document.getElementById('inpCnpjFaculdade').value = "002.608.755/0001-07";
+            document.getElementById('inpCursoVerso').value = "ENGENHARIA AMBIENTAL";
+            document.getElementById('inpCred1').value = "Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002";
+            document.getElementById('inpCred2').value = "Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.";
+            document.getElementById('inpReconhecimento').value = "Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.";
+            document.getElementById('inpRenovacao').value = "Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020";
+            document.getElementById('inpUnivReg').value = "UNIVERSIDADE ESTÁCIO DE SÁ";
+            document.getElementById('inpTextoReg').value = "Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.";
+            document.getElementById('inpProcesso').value = "Processo nº SRD/6266607/2023";
+            document.getElementById('inpLocalDataVerso').value = "BELÉM – PA, 23/02/2023";
+            document.getElementById('inpSecretarioNome').value = "ADRIANA SILVA ARAUJO";
+            document.getElementById('inpResolucao').value = "Resolução 092/GR/2016";
+            document.getElementById('inpCodigoVal').value = "2036, 163.518f4ed3e83e";
+            document.getElementById('inpUrlVal').value = "https://consultadiploma.Estacio.br/diploma/2036.163.518f4ed3e83e";
 
-    function toggleAvatarDropdown(e) {
-        e.stopPropagation();
-        const d = document.getElementById('avatarDropdown');
-        if (d) d.classList.toggle('active');
-    }
+            syncDiploma();
+        }
 
-    document.addEventListener('click', () => {
-        const d = document.getElementById('avatarDropdown');
-        if (d) d.classList.remove('active');
-    });
+        // EXPORTAÇÃO FOLHA A4 EM PDF ALTA RESOLUÇÃO
+        async function exportA4SheetPdf() {
+            const btn = document.getElementById('btnExportPdf');
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg><span>Gerando PDF A4...</span>`;
+            btn.disabled = true;
 
-    function logoutUser() {
-        localStorage.removeItem('happynation_user');
-        sessionStorage.removeItem('happynation_user');
-        localStorage.removeItem('happynation_admin_auth');
-        window.location.href = 'login.html';
-    }
+            const zoomWrapper = document.getElementById('zoomWrapper');
+            const origTransform = zoomWrapper ? zoomWrapper.style.transform : '';
+            if (zoomWrapper) zoomWrapper.style.transform = 'none';
 
-    // ─── INICIALIZAÇÃO ───
-    document.addEventListener('DOMContentLoaded', () => {
-        initUser();
-        syncDiploma();
-        resetFitZoom();
-        switchPreviewTab('frente');
-    });
+            await new Promise(r => setTimeout(r, 150));
 
-    window.addEventListener('resize', () => {
-        resetFitZoom();
-    });
+            try {
+                const sheetEl = document.getElementById('diplomaA4Sheet');
+
+                const canvas = await html2canvas(sheetEl, {
+                    scale: 3,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: 794,
+                    height: 1123,
+                    windowWidth: 794,
+                    windowHeight: 1123,
+                    logging: false
+                });
+
+                if (zoomWrapper) zoomWrapper.style.transform = origTransform;
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'px',
+                    format: [794, 1123],
+                    hotfixes: ['px_scaling']
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                pdf.addImage(imgData, 'JPEG', 0, 0, 794, 1123);
+
+                const nomeAluno = (document.getElementById('inpNome').value || 'ALUNO').trim().replace(/\s+/g, '_');
+                pdf.save(`Diploma_Estacio_${nomeAluno}.pdf`);
+
+            } catch(e) {
+                console.error('Erro na geração do PDF:', e);
+                alert('Erro ao exportar PDF: ' + e.message);
+                if (zoomWrapper) zoomWrapper.style.transform = origTransform;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
+        }
+
+        // EXPORTAÇÃO IMAGEM PNG
+        async function exportA4SheetPng() {
+            const zoomWrapper = document.getElementById('zoomWrapper');
+            const origTransform = zoomWrapper ? zoomWrapper.style.transform : '';
+            if (zoomWrapper) zoomWrapper.style.transform = 'none';
+
+            await new Promise(r => setTimeout(r, 150));
+
+            try {
+                const sheetEl = document.getElementById('diplomaA4Sheet');
+                const canvas = await html2canvas(sheetEl, {
+                    scale: 3,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: 794,
+                    height: 1123
+                });
+
+                if (zoomWrapper) zoomWrapper.style.transform = origTransform;
+
+                const nomeAluno = (document.getElementById('inpNome').value || 'ALUNO').trim().replace(/\s+/g, '_');
+                const link = document.createElement('a');
+                link.download = `Diploma_Estacio_${nomeAluno}.png`;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            } catch(e) {
+                console.error(e);
+                alert('Erro ao gerar PNG: ' + e.message);
+                if (zoomWrapper) zoomWrapper.style.transform = origTransform;
+            }
+        }
+
+        // INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const u = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+                const s = (window.MGSaldo ? window.MGSaldo.get() : (u.saldo !== undefined ? parseFloat(u.saldo) : 0));
+                const sEl = document.getElementById('userHeaderSaldo');
+                if (sEl) sEl.textContent = `Saldo R$ ${s.toFixed(2).replace('.', ',')}`;
+
+                const name = u.nome || u.name || 'Admin MG';
+                const email = u.email || 'admin@mgeditaveis.com.br';
+                const dropN = document.getElementById('dropUserName');
+                if (dropN) dropN.textContent = name;
+                const dropE = document.getElementById('dropUserEmail');
+                if (dropE) dropE.textContent = email;
+                const av = document.getElementById('userHeaderAvatar');
+                if (av) av.textContent = name.charAt(0).toUpperCase();
+
+                const cEl = document.getElementById('custoDiplomaDisplay');
+                const custo = parseFloat(localStorage.getItem('happynation_diploma_price')) || 35.00;
+                if (cEl) cEl.textContent = 'R$ ' + custo.toFixed(2).replace('.', ',');
+            } catch(e) {}
+
+            syncDiploma();
+            resetZoom();
+        });
+
+        window.addEventListener('resize', () => {
+            resetZoom();
+        });
     </script>
 </body>
 </html>
