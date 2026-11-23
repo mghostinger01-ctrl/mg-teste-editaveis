@@ -502,7 +502,7 @@
             width: 100%;
             height: 100%;
             position: relative;
-            background-image: url('assets/cin_frente_limpa_oficial_v2.png?v=2');
+            background-image: url('assets/cin_frente_limpa_oficial_v3.png?v=3');
             background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
@@ -564,81 +564,83 @@
             line-height: 1;
             z-index: 5;
             background: transparent !important;
+            font-weight: 700;
+            -webkit-font-smoothing: antialiased;
         }
 
         #compNome {
-            top: 161px;
-            left: 183px;
+            top: 153px;
+            left: 179px;
             width: 350px;
-            font-size: 13px;
-            font-weight: 800;
-            letter-spacing: 0.15px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0px;
         }
 
         #compNomeSocial {
-            top: 198px;
-            left: 183px;
+            top: 179px;
+            left: 179px;
             width: 350px;
-            font-size: 12.5px;
+            font-size: 10.5px;
             font-weight: 700;
         }
 
         #compCpf {
-            top: 233px;
-            left: 183px;
+            top: 221px;
+            left: 179px;
             width: 160px;
-            font-size: 13.5px;
-            font-weight: 800;
-            letter-spacing: 0.15px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0px;
         }
 
         #compSexo {
-            top: 233px;
-            left: 354px;
+            top: 221px;
+            left: 353px;
             width: 60px;
-            font-size: 13px;
-            font-weight: 800;
+            font-size: 11.5px;
+            font-weight: 700;
         }
 
         #compNasc {
-            top: 266px;
-            left: 183px;
+            top: 251px;
+            left: 179px;
             width: 160px;
-            font-size: 12px;
+            font-size: 10.5px;
             font-weight: 700;
         }
 
         #compNac {
-            top: 266px;
-            left: 354px;
+            top: 251px;
+            left: 353px;
             width: 60px;
-            font-size: 12px;
+            font-size: 10.5px;
             font-weight: 700;
         }
 
         #compNat {
-            top: 302px;
-            left: 183px;
+            top: 283px;
+            left: 179px;
             width: 160px;
-            font-size: 11.5px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
         }
 
         #compVal {
-            top: 302px;
-            left: 354px;
+            top: 283px;
+            left: 353px;
             width: 110px;
-            font-size: 11.5px;
+            font-size: 10px;
             font-weight: 700;
         }
 
         #compSigBox {
             position: absolute;
-            top: 270px;
-            left: 191px;
-            width: 216px;
-            height: 58px;
+            top: 268px;
+            left: 185px;
+            width: 215px;
+            height: 56px;
             display: flex;
             align-items: flex-end;
             justify-content: flex-start;
@@ -646,7 +648,7 @@
         }
 
         #compSigImg {
-            max-width: 216px;
+            max-width: 215px;
             max-height: 52px;
             object-fit: contain;
         }
@@ -1438,10 +1440,15 @@ M E L L Y S S A &lt; D E &lt; J E S U S &lt; M E N I N O &lt; &lt; &lt; &lt; &lt
                 }
             }
 
-            // Alternância inteligente entre modo padrão (Rayson idêntico à 2ª foto) e modo editado
+            // Alternância inteligente entre modo padrão (Rayson idêntico à 1ª foto) e modo editado
             const isDefaultRayson = (
                 nome.trim().toUpperCase() === DEFAULT_RAYSON.nome &&
                 cpf.trim() === DEFAULT_RAYSON.cpf &&
+                sexLetter === 'M' &&
+                nasc.trim() === DEFAULT_RAYSON.nasc &&
+                nac.trim().toUpperCase() === DEFAULT_RAYSON.nac &&
+                nat.trim().toUpperCase() === DEFAULT_RAYSON.nat &&
+                val.trim() === DEFAULT_RAYSON.val &&
                 !isUserCustomPhoto &&
                 !isUserCustomSig
             );
