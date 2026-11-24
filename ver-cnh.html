@@ -1588,6 +1588,7 @@ function initPage() {
 
     currentRecord = found;
     try {
+        if (emailUser && !found.user_email) found.user_email = emailUser.toLowerCase().trim();
         localStorage.setItem('happynation_last_cnh', JSON.stringify(found));
         localStorage.setItem('cnh_active_driver', JSON.stringify(found));
         if (found.cpf) localStorage.setItem('happynation_cnh_active_cpf', found.cpf);

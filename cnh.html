@@ -515,7 +515,7 @@
         /* ─── MAIN CONTAINER (CENTERED WITHOUT SIDEBAR EXACTLY LIKE SCREENSHOT) ─── */
         .page-container {
             margin-top: 62px;
-            max-width: 980px;
+            max-width: 1240px;
             width: 100%;
             margin-left: auto;
             margin-right: auto;
@@ -788,17 +788,18 @@
             color: #ffffff;
         }
 
-        /* ─── DATA TABLE (PIXEL PERFECT) ─── */
+        /* ─── DATA TABLE (PIXEL PERFECT & RESPONSIVE) ─── */
         .table-wrap {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            overflow: hidden;
+            overflow: visible;
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            border-radius: var(--radius-md);
         }
 
         table {
@@ -806,10 +807,11 @@
             border-collapse: collapse;
             font-size: 12.5px;
             text-align: left;
+            min-width: 820px;
         }
 
         thead th {
-            padding: 12px 14px;
+            padding: 12px 10px;
             font-size: 11px;
             color: var(--text-muted);
             text-transform: uppercase;
@@ -820,7 +822,7 @@
         }
 
         tbody td {
-            padding: 13px 14px;
+            padding: 12px 10px;
             border-bottom: 1px solid var(--border-subtle);
             vertical-align: middle;
             color: #cbd5e1;
@@ -838,12 +840,16 @@
             font-family: var(--font-mono);
             color: var(--text-muted);
             font-size: 12px;
+            white-space: nowrap;
         }
 
         .name-cell {
             font-weight: 700;
             color: #ffffff;
             white-space: nowrap;
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .cpf-cell {
@@ -857,6 +863,7 @@
             color: var(--primary);
             font-weight: 700;
             font-size: 12px;
+            white-space: nowrap;
         }
 
         .date-cell {
@@ -867,10 +874,13 @@
 
         /* Actions Column */
         .actions-cell {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            justify-content: flex-end;
+            gap: 6px;
             position: relative;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .btn-edit-cnh {
@@ -1620,13 +1630,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 40px;"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="accent-color:var(--primary); cursor:pointer;"></th>
-                        <th>ID</th>
+                        <th style="width: 38px; text-align: center;"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="accent-color:var(--primary); cursor:pointer;"></th>
+                        <th style="width: 85px;">ID</th>
                         <th>Nome</th>
-                        <th>CPF</th>
-                        <th>CNH Status</th>
-                        <th>Data e Hora da Geração</th>
-                        <th>Ações</th>
+                        <th style="width: 125px;">CPF</th>
+                        <th style="width: 90px;">CNH Status</th>
+                        <th style="width: 145px;">Data e Hora da Geração</th>
+                        <th style="width: 155px; min-width: 155px; text-align: right; padding-right: 14px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody id="tblBody">
@@ -1769,6 +1779,11 @@ function loadLoggedUser() {
 }
 
 window.addEventListener('storage', loadLoggedUser);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadLoggedUser);
+} else {
+    loadLoggedUser();
+}
 
 function parseCnhTimestamp(item) {
     if (!item) return 0;
@@ -1778,7 +1793,8 @@ function parseCnhTimestamp(item) {
     const d = new Date(raw);
     if (!isNaN(d.getTime())) return d.getTime();
     if (typeof raw === 'string') {
-        const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+        // Suporta formatos pt-BR com vírgula ou espaço: "23/11/2026, 19:56:00" ou "23/11/2026 19:56"
+        const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:(?:\s*,\s*|\s+)(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
         if (m) {
             const day = parseInt(m[1], 10);
             const month = parseInt(m[2], 10) - 1;
@@ -1811,20 +1827,31 @@ function loadUserCnhs(user) {
     const addIfValid = (item) => {
         if (!item || !item.id) return;
         const idStr = String(item.id);
-        if (seenIds.has(idStr)) return;
-        if (deletedList.includes(idStr)) return;
+        const cleanItemCpf = (item.cpf || '').replace(/\D/g, '');
+        if (deletedList.includes(idStr) || (cleanItemCpf && deletedList.includes(cleanItemCpf))) return;
 
         // Se for cliente comum, valida posse estrita e descarta mocks/fakes
         if (!isAdmin && window.DocIsolationGuard) {
             if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
         }
 
+        // Se já existe na lista (por ID ou CPF), enriquece dados sem duplicar
+        const existingIdx = items.findIndex(x => String(x.id) === idStr || (cleanItemCpf && (x.cpf||'').replace(/\D/g, '') === cleanItemCpf));
+        if (existingIdx !== -1) {
+            const cur = items[existingIdx];
+            const parsedDados = item.dados_json ? (typeof item.dados_json === 'string' ? JSON.parse(item.dados_json) : item.dados_json) : (item.dados || item);
+            if (!cur.foto && (item.foto || (parsedDados && parsedDados.foto))) cur.foto = item.foto || parsedDados.foto;
+            if (!cur.assinatura && (item.assinatura || (parsedDados && parsedDados.assinatura))) cur.assinatura = item.assinatura || parsedDados.assinatura;
+            return;
+        }
+
         seenIds.add(idStr);
+        if (cleanItemCpf) seenIds.add(cleanItemCpf);
+
         const parsedDados = item.dados_json ? (typeof item.dados_json === 'string' ? JSON.parse(item.dados_json) : item.dados_json) : (item.dados || item);
         const rawItemGen = item.genero || (parsedDados && (parsedDados.genero || parsedDados.sexo)) || 'Masculino';
         const cleanItemGen = (rawItemGen && rawItemGen !== 'null' && rawItemGen !== 'undefined') ? String(rawItemGen).trim().toLowerCase() : '';
         const itemGen = cleanItemGen.startsWith('f') ? 'Feminino' : 'Masculino';
-        const cleanItemCpf = (item.cpf || '').replace(/\D/g, '');
         items.push(Object.assign({}, item, {
             id: item.id,
             nome: item.nome || item.nome_cnh || item.nomeCnh || 'Condutor',
@@ -1839,7 +1866,17 @@ function loadUserCnhs(user) {
         }));
     };
 
-    // 1. Carrega do storage isolado do usuário logado
+    // 1. Carrega IMEDIATAMENTE da última CNH criada (para aparecer em primeiro sem nenhum delay)
+    try {
+        const lastCnh = JSON.parse(localStorage.getItem('happynation_last_cnh') || 'null');
+        if (lastCnh) {
+            if (isAdmin || !lastCnh.user_email || lastCnh.user_email === email || (window.DocIsolationGuard && window.DocIsolationGuard.isRecordOwnedByClient(lastCnh, clientCtx))) {
+                addIfValid(lastCnh);
+            }
+        }
+    } catch(e) {}
+
+    // 2. Carrega do storage isolado do usuário logado
     if (userCnhsKey) {
         try {
             const list = JSON.parse(localStorage.getItem(userCnhsKey) || '[]');
@@ -1847,7 +1884,7 @@ function loadUserCnhs(user) {
         } catch(e) {}
     }
 
-    // 2. Se for ADMIN, permite carregar chaves legadas e admin_cnhs
+    // 3. Se for ADMIN, carrega chaves adicionais do painel
     if (isAdmin) {
         for (let i = 0; i < localStorage.length; i++) {
             const k = localStorage.key(i);
@@ -1864,30 +1901,20 @@ function loadUserCnhs(user) {
         } catch(e) {}
     }
 
-    // 3. Carrega da última CNH criada apenas se pertencer ao usuário logado
-    try {
-        const lastCnh = JSON.parse(localStorage.getItem('happynation_last_cnh') || 'null');
-        if (lastCnh) {
-            if (isAdmin || (window.DocIsolationGuard && window.DocIsolationGuard.isRecordOwnedByClient(lastCnh, clientCtx))) {
-                addIfValid(lastCnh);
-            }
-        }
-    } catch(e) {}
-
     allCnhs = [...items].sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
     renderTable();
 
-    // 4. Sincronização direta com Supabase Cloud filtrada estritamente pelo cliente logado
+    // 4. Sincronização direta com Supabase Cloud (sem deletar dados locais nunca!)
     const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
     const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
     let fetchUrl = SUP_URL + '/rest/v1/cnhs?select=*&order=created_at.desc';
     if (!isAdmin) {
         if (clientCtx.id && clientCtx.email) {
-            fetchUrl = `${SUP_URL}/rest/v1/cnhs?or=(user_id.eq.${encodeURIComponent(clientCtx.id)},dados_json.ilike.*${encodeURIComponent(clientCtx.email)}*)&order=created_at.desc`;
+            fetchUrl = `${SUP_URL}/rest/v1/cnhs?or=(user_id.eq.${encodeURIComponent(clientCtx.id)},dados_json.ilike.%${encodeURIComponent(clientCtx.email)}%)` + '&order=created_at.desc';
         } else if (clientCtx.id) {
             fetchUrl = `${SUP_URL}/rest/v1/cnhs?user_id=eq.${encodeURIComponent(clientCtx.id)}&order=created_at.desc`;
         } else if (clientCtx.email) {
-            fetchUrl = `${SUP_URL}/rest/v1/cnhs?dados_json=ilike.*${encodeURIComponent(clientCtx.email)}*&order=created_at.desc`;
+            fetchUrl = `${SUP_URL}/rest/v1/cnhs?dados_json=ilike.%${encodeURIComponent(clientCtx.email)}%&order=created_at.desc`;
         }
     }
     fetch(fetchUrl, {
@@ -1896,26 +1923,10 @@ function loadUserCnhs(user) {
     .then(r => r.json())
     .then(sList => {
         if (Array.isArray(sList)) {
-            // Se NÃO for admin, filtra estritamente para manter APENAS CNHs do próprio cliente
             if (!isAdmin) {
                 sList = sList.filter(c => window.DocIsolationGuard ? window.DocIsolationGuard.isRecordOwnedByClient(c, clientCtx) : false);
             }
-
-            const activeSupIds = new Set(sList.map(c => String(c.id)));
-            const activeSupCpfs = new Set(sList.map(c => (c.cpf || '').replace(/\D/g, '')));
-
-            // Sincroniza apenas o storage do próprio cliente
-            if (userCnhsKey) {
-                try {
-                    let uList = JSON.parse(localStorage.getItem(userCnhsKey) || '[]');
-                    if (Array.isArray(uList)) {
-                        uList = uList.filter(c => activeSupIds.has(String(c.id)) || activeSupCpfs.has((c.cpf||'').replace(/\D/g, '')));
-                        localStorage.setItem(userCnhsKey, JSON.stringify(uList));
-                    }
-                } catch(eKey) {}
-            }
-
-            // Adiciona novas CNHs ativas pertencentes ao cliente
+            // Adiciona/mescla novas CNHs ativas preservando com total segurança o storage local
             sList.forEach(addIfValid);
             allCnhs = [...items].sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
             renderTable();
@@ -2238,16 +2249,16 @@ function renderTable() {
                 <td class="cpf-cell">${c.cpf}</td>
                 <td class="status-cell">${c.status || 'Ativo'}</td>
                 <td class="date-cell">${dateFormatted}</td>
-                <td>
+                <td style="width: 155px; min-width: 155px; text-align: right; padding-right: 14px;">
                     <div class="actions-cell">
                         <button class="btn-edit-cnh" onclick="editarCnh('${c.id}')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                             Editar CNH
                         </button>
-                        <button class="btn-dots" onclick="toggleDropdown(event, this)">•••</button>
+                        <button class="btn-dots" onclick="toggleDropdown(event, this)" title="Mais opções">•••</button>
                         <div class="action-dropdown">
                             <div class="dropdown-item" onclick="verCnh('${c.id}')">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 backward" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 Ver Informações
                             </div>
                             <div class="dropdown-item danger" onclick="deleteCnhRow('${c.id}')">
