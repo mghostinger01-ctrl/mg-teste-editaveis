@@ -338,6 +338,23 @@
             <div class="field-label">Data de Emissão</div>
             <div class="field-value" id="valEmissao">---</div>
         </div>
+
+        <!-- BLOCO EXAME TOXICOLÓGICO OFICIAL SENATRAN / RENACH -->
+        <div class="field-item" id="blockExameTox" style="display:none; background:#f0fdf4; border:1.5px solid #86efac; border-radius:12px; padding:14px; margin-top:10px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                <div style="font-size:12px; font-weight:800; color:#15803d; text-transform:uppercase; letter-spacing:0.4px;">Exame Toxicológico (RENACH)</div>
+                <span id="badgeToxStatus" style="font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px; background:#dcfce7; color:#15803d; letter-spacing:0.3px;">NEGATIVO / VÁLIDO</span>
+            </div>
+            <div style="font-size:12.5px; color:#334155; line-height:1.5; margin-bottom:10px;">
+                Laboratório: <strong style="color:#0f172a;">Toxicologia Pardini</strong><br>
+                Laudo: <strong id="valToxLaudo" style="color:#0f172a;">---</strong><br>
+                Validade: <strong id="valToxValidade" style="color:#15803d;">---</strong>
+            </div>
+            <button type="button" id="btnAbrirToxLaudo" onclick="abrirValidacaoTox()" style="width:100%; height:42px; background:linear-gradient(135deg, #15803d, #16a34a); color:#ffffff; border:none; border-radius:8px; font-size:13px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 3px 10px rgba(21,128,61,0.25);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>Visualizar Laudo Toxicológico Completo</span>
+            </button>
+        </div>
     </div>
 
     <!-- Badge de Validação Oficial -->
@@ -411,6 +428,50 @@ window.addEventListener('load', () => {
     }
 
     // Se tiver CPF, busca no banco para preencher campos faltantes ou foto oficial
+    // Sincronização do Exame Toxicológico no detalhamento da CNH
+    let urlToxTarget = '';
+    function abrirValidacaoTox() {
+        if (urlToxTarget) {
+            window.open(urlToxTarget, '_blank');
+        } else {
+            window.location.href = 'validar-exame.html?laudo=' + encodeURIComponent(document.getElementById('valToxLaudo').textContent) + '&cpf=' + encodeURIComponent((cpf || '').replace(/\D/g, ''));
+        }
+    }
+
+    try {
+        let toxData = null;
+        if (params.get('has_tox') === '1' || params.get('tox_ld')) {
+            toxData = {
+                laudo: params.get('tox_ld') || '---',
+                validade: params.get('tox_vl') || '---',
+                autenticacao: params.get('tox_cd') || '',
+                resultado: params.get('tox_res') || 'NEGATIVO'
+            };
+        } else {
+            // Fallback para storage se aberto no mesmo navegador
+            const lastEx = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null') ||
+                           JSON.parse(localStorage.getItem('happynation_edit_exame') || 'null');
+            if (lastEx && (lastEx.laudo || lastEx.nome)) {
+                toxData = lastEx;
+            }
+        }
+
+        if (toxData) {
+            const blk = document.getElementById('blockExameTox');
+            if (blk) blk.style.display = 'block';
+            if (toxData.laudo) document.getElementById('valToxLaudo').textContent = toxData.laudo;
+            if (toxData.validade) document.getElementById('valToxValidade').textContent = toxData.validade;
+            
+            const qTox = new URLSearchParams();
+            if (toxData.autenticacao) qTox.set('cd', toxData.autenticacao);
+            if (toxData.laudo) qTox.set('ld', toxData.laudo);
+            if (cpf) qTox.set('cp', cpf.replace(/\D/g, ''));
+            if (nome) qTox.set('nm', nome);
+            if (toxData.validade) qTox.set('vl', toxData.validade);
+            urlToxTarget = 'validar-exame.html?' + qTox.toString();
+        }
+    } catch(eToxCheck) {}
+
     if (cpf) {
         const cleanCpf = cpf.replace(/\D/g, '');
         if (cleanCpf.length === 11) {

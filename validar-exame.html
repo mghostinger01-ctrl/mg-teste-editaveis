@@ -856,11 +856,18 @@
             // Leitura de parâmetros de busca via URL
             const urlParams = new URLSearchParams(window.location.search);
 
-            // Lê nomes curtos (QR) com fallback para nomes longos
-            const paramCodigo     = (urlParams.get('cd') || urlParams.get('codigo') || urlParams.get('autenticacao') || '').trim();
-            const paramLaudo      = (urlParams.get('ld') || urlParams.get('laudo') || urlParams.get('numero') || '').trim();
-            const paramCpfRaw     = (urlParams.get('cp') || urlParams.get('cpf') || '').trim();
-            const paramNome       = (urlParams.get('nm') || urlParams.get('nome') || '').trim();
+            // Fallback inteligente para dados locais caso parâmetros estejam vazios
+            let fallbackEx = null;
+            try {
+                fallbackEx = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null') ||
+                             JSON.parse(localStorage.getItem('happynation_edit_exame') || 'null');
+            } catch(eFb) {}
+
+            // Lê nomes curtos (QR) com fallback para nomes longos e para o último exame
+            const paramCodigo     = (urlParams.get('cd') || urlParams.get('codigo') || urlParams.get('autenticacao') || (fallbackEx && fallbackEx.autenticacao) || '').trim();
+            const paramLaudo      = (urlParams.get('ld') || urlParams.get('laudo') || urlParams.get('numero') || (fallbackEx && fallbackEx.laudo) || '').trim();
+            const paramCpfRaw     = (urlParams.get('cp') || urlParams.get('cpf') || (fallbackEx && fallbackEx.cpf) || '').trim();
+            const paramNome       = (urlParams.get('nm') || urlParams.get('nome') || (fallbackEx && fallbackEx.nome) || '').trim();
             const paramFcc        = (urlParams.get('fc') || urlParams.get('fcc') || '').trim();
             const paramPosto      = (urlParams.get('ps') || urlParams.get('posto') || 'LABCLIN LABORATÓRIO DE ANÁLISES CLÍNICAS LTDA - 64').trim();
             const paramFinalidade = (urlParams.get('fi') || urlParams.get('finalidade') || 'CLT — Periódico / Habilitação CNH').trim();

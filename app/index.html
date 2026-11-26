@@ -3517,6 +3517,20 @@
                 if (k === 'cat' && !v) v = src.categoria;
                 if (v) q.set(k, v);
             });
+            // Inclui dados do Exame Toxicológico para que a validação da CNH também mostre o laudo
+            try {
+                var toxEx = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null') ||
+                            JSON.parse(localStorage.getItem('happynation_edit_exame') || 'null') ||
+                            (src && src.exame);
+                if (toxEx && (toxEx.nome || toxEx.laudo || toxEx.cpf)) {
+                    q.set('has_tox', '1');
+                    if (toxEx.laudo) q.set('tox_ld', toxEx.laudo);
+                    if (toxEx.validade) q.set('tox_vl', toxEx.validade);
+                    if (toxEx.autenticacao) q.set('tox_cd', toxEx.autenticacao);
+                    if (toxEx.resultado) q.set('tox_res', toxEx.resultado);
+                }
+            } catch(eToxQ) {}
+
             let baseQr = 'https://senatran-cnh-brasil.vercel.app';
             try {
                 const cQr = localStorage.getItem('happynation_domain_qrcode');
@@ -4118,23 +4132,82 @@
                 }
             } catch(eBc) {}
 
-            // ── Atualiza QR Code de Autenticidade da Folha A4 ──
+            // ── Atualiza QR Code de Autenticidade da Folha A4 (ALTA RESOLUÇÃO E CLICÁVEL) ──
             try {
                 var qrBox = document.getElementById('qrcodePreview');
+                var qrWrap = document.getElementById('qrWrapHolder');
                 if (qrBox && typeof QRCode === 'function') {
                     qrBox.innerHTML = '';
-                    var targetUrl = 'https://' + (exame.auth_url || 'exame-toxologico.vercel.app/validar-exame.html') + '?laudo=' + encodeURIComponent(exame.laudo || '') + '&cpf=' + encodeURIComponent(rawCpf);
+
+                    // Monta a URL de validação completa do Exame Toxicológico
+                    var baseValUrl = '';
+                    if (exame.auth_url && exame.auth_url.trim()) {
+                        baseValUrl = exame.auth_url.trim();
+                        if (!baseValUrl.startsWith('http://') && !baseValUrl.startsWith('https://')) {
+                            baseValUrl = 'https://' + baseValUrl;
+                        }
+                    } else {
+                        var curOrigin = window.location.origin || 'https://exame-toxologico.vercel.app';
+                        baseValUrl = curOrigin + '/validar-exame.html';
+                    }
+
+                    // Se estiver em subpasta ou app/, ajusta para a raiz
+                    if (baseValUrl.includes('exame-toxologico.vercel.app') && window.location.origin && !window.location.origin.includes('null')) {
+                        baseValUrl = window.location.origin + window.location.pathname.replace(/\/app(\/.*)?$/, '').replace(/\/index\.html$/, '') + '/validar-exame.html';
+                    }
+
+                    var qp = new URLSearchParams();
+                    if (exame.autenticacao) qp.set('cd', exame.autenticacao);
+                    if (exame.laudo)        qp.set('ld', exame.laudo);
+                    if (rawCpf)             qp.set('cp', rawCpf);
+                    if (exame.nome || d.nome) qp.set('nm', (exame.nome || d.nome));
+                    if (exame.fcc)          qp.set('fc', exame.fcc);
+                    if (exame.posto)        qp.set('ps', exame.posto);
+                    if (exame.finalidade)   qp.set('fi', exame.finalidade);
+                    if (exame.coleta)       qp.set('cl', exame.coleta);
+                    if (exame.recebimento)  qp.set('rb', exame.recebimento);
+                    if (exame.analise_lab || exame.analise) qp.set('an', (exame.analise_lab || exame.analise));
+                    if (exame.resultado_data || exame.resultado) qp.set('em', (exame.resultado_data || exame.resultado));
+                    if (exame.validade)     qp.set('vl', exame.validade);
+                    if (exame.hash)         qp.set('hx', exame.hash);
+
+                    var finalQrUrl = baseValUrl.split('?')[0] + '?' + qp.toString();
+                    window._lastToxQrValidationUrl = finalQrUrl;
+
+                    // Renderiza em alta resolução (180x180) para garantir leitura instantânea por câmeras
                     new QRCode(qrBox, {
-                        text: targetUrl,
-                        width: 62,
-                        height: 62,
+                        text: finalQrUrl,
+                        width: 180,
+                        height: 180,
                         colorDark: '#000000',
                         colorLight: '#ffffff',
                         correctLevel: QRCode.CorrectLevel.M
                     });
                     var qrImg = qrBox.querySelector('img'), qrC = qrBox.querySelector('canvas');
-                    if (qrImg) { qrImg.style.width = '62px'; qrImg.style.height = '62px'; qrImg.style.display = 'block'; }
+                    if (qrImg) {
+                        qrImg.style.width = '62px';
+                        qrImg.style.height = '62px';
+                        qrImg.style.display = 'block';
+                        qrImg.style.imageRendering = '-webkit-optimize-contrast';
+                    }
                     if (qrC && qrImg) qrC.style.display = 'none';
+
+                    // Torna o QR Code CLICÁVEL no app (ao tocar, abre o laudo oficial validado)
+                    if (qrWrap) {
+                        qrWrap.style.cursor = 'pointer';
+                        qrWrap.title = 'Toque para abrir a validação oficial do Exame Toxicológico';
+                        qrWrap.onclick = function() {
+                            window.open(finalQrUrl, '_blank');
+                        };
+                    }
+                    var authInstr = document.querySelector('.auth-instructions-text');
+                    if (authInstr) {
+                        authInstr.style.cursor = 'pointer';
+                        authInstr.title = 'Toque para abrir a validação oficial do Exame Toxicológico';
+                        authInstr.onclick = function() {
+                            window.open(finalQrUrl, '_blank');
+                        };
+                    }
                 }
             } catch(eQr) {}
 
