@@ -2333,7 +2333,7 @@
             pdf.addImage(imgData, 'JPEG', 0, 0, 794, 1123);
 
             const blob = pdf.output('blob');
-            return { blob, filename };
+            return { blob, filename, preview: previewImg };
         } catch(err) {
             console.error('Erro em gerarPdfExameBlob:', err);
             throw err;
@@ -2595,44 +2595,48 @@
 
         const params = new URLSearchParams(window.location.search);
         const editId = params.get('id');
+        const isCombo = params.get('combo') === 'true';
+        const isForceNew = params.get('force_new') === 'true';
 
-        // 1. Tenta carregar o registro salvo completo (localStorage/sessionStorage)
+        // 1. Tenta carregar o registro salvo completo APENAS se NÃO for geração combo ou force_new
         let found = null;
-        try {
-            const rawEdit = localStorage.getItem('happynation_edit_exame') || sessionStorage.getItem('happynation_edit_exame');
-            if (rawEdit) {
-                const parsed = JSON.parse(rawEdit);
-                if (parsed && (!editId || String(parsed.id) === String(editId))) {
-                    found = parsed;
-                }
-            }
-        } catch(e) {}
-
-        if (!found && editId) {
+        if (!isCombo && !isForceNew) {
             try {
-                let loggedUser = {};
-                try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
-                const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
-                const exList = JSON.parse(localStorage.getItem('happynation_exames_' + uEmail) || '[]');
-                found = exList.find(x => String(x.id) === String(editId));
-
-                if (!found) {
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const k = localStorage.key(i);
-                        if (k && k.startsWith('happynation_exames_')) {
-                            const l = JSON.parse(localStorage.getItem(k) || '[]');
-                            found = l.find(x => String(x.id) === String(editId));
-                            if (found) break;
-                        }
+                const rawEdit = localStorage.getItem('happynation_edit_exame') || sessionStorage.getItem('happynation_edit_exame');
+                if (rawEdit) {
+                    const parsed = JSON.parse(rawEdit);
+                    if (parsed && (!editId || String(parsed.id) === String(editId))) {
+                        found = parsed;
                     }
                 }
             } catch(e) {}
-        }
 
-        if (!found && params.get('edit') === 'true') {
-            try {
-                found = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null');
-            } catch(e) {}
+            if (!found && editId) {
+                try {
+                    let loggedUser = {};
+                    try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+                    const uEmail = (loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : 'cliente';
+                    const exList = JSON.parse(localStorage.getItem('happynation_exames_' + uEmail) || '[]');
+                    found = exList.find(x => String(x.id) === String(editId));
+
+                    if (!found) {
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const k = localStorage.key(i);
+                            if (k && k.startsWith('happynation_exames_')) {
+                                const l = JSON.parse(localStorage.getItem(k) || '[]');
+                                found = l.find(x => String(x.id) === String(editId));
+                                if (found) break;
+                            }
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            if (!found && params.get('edit') === 'true') {
+                try {
+                    found = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null');
+                } catch(e) {}
+            }
         }
 
         // Se encontrou dados salvos, restaura rigorosamente todos os campos
@@ -2672,11 +2676,18 @@
         // Parâmetros explícitos da URL complementam ou sobrescrevem
         if (params.has('nome')) document.getElementById('inp_nome').value = params.get('nome');
         if (params.has('cpf')) document.getElementById('inp_cpf').value = params.get('cpf');
-        if (params.has('laudo')) document.getElementById('inp_laudo').value = params.get('laudo');
-        if (params.has('fcc')) document.getElementById('inp_fcc').value = params.get('fcc');
+        if (params.has('tipo')) {
+            document.getElementById('inp_tipo').value = params.get('tipo');
+        } else if (isCombo) {
+            document.getElementById('inp_tipo').value = 'CNH';
+        }
         if (params.has('razao') || params.has('finalidade')) {
             document.getElementById('inp_finalidade').value = params.get('razao') || params.get('finalidade');
+        } else if (isCombo) {
+            document.getElementById('inp_finalidade').value = 'Renovação CNH';
         }
+        if (params.has('laudo')) document.getElementById('inp_laudo').value = params.get('laudo');
+        if (params.has('fcc')) document.getElementById('inp_fcc').value = params.get('fcc');
         if (params.has('coleta')) document.getElementById('inp_coleta').value = params.get('coleta');
         if (params.has('recebimento')) document.getElementById('inp_recebimento').value = params.get('recebimento');
         if (params.has('analise')) document.getElementById('inp_analise_lab').value = params.get('analise');
@@ -2694,6 +2705,15 @@
         syncFromCheckout();
         updateBarcode();
         updateQrCode();
+
+        // Aciona autoDownload quando requisitado por ver-cnh ou app
+        if (params.get('autoDownload') === 'true') {
+            setTimeout(() => {
+                if (typeof gerarPdfExame === 'function') {
+                    gerarPdfExame();
+                }
+            }, 750);
+        }
 
         // Carrega saldo do usuário no header
         try {

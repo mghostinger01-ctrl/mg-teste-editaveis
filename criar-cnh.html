@@ -4850,29 +4850,65 @@ function downloadBlob(blob, filename) {
 function generateComboExameBlob(data) {
     return new Promise((resolve, reject) => {
         try {
-            // ── Gera datas coerentes automaticamente a partir de hoje ──
             function fmtDMY(d) {
                 return String(d.getDate()).padStart(2,'0') + '/' +
                        String(d.getMonth()+1).padStart(2,'0') + '/' +
                        d.getFullYear();
             }
-            const hoje       = new Date();
-            const dColeta    = new Date(hoje); dColeta.setDate(hoje.getDate() - 3);
-            const dReceb     = new Date(hoje); dReceb.setDate(hoje.getDate() - 2);
-            const dResult    = new Date(hoje); dResult.setDate(hoje.getDate() - 1);
-            // Validade do exame: 2 anos e 6 meses a partir de hoje
-            const dValExame  = new Date(hoje);
+
+            let dRef = new Date();
+            if (data.emissao) {
+                try {
+                    let parts = data.emissao.includes('/') ? data.emissao.split('/') : data.emissao.split('-');
+                    if (parts.length === 3) {
+                        let parsedD = data.emissao.includes('/')
+                            ? new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]))
+                            : new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                        if (!isNaN(parsedD.getTime())) dRef = parsedD;
+                    }
+                } catch(eRef) {}
+            }
+
+            const dColeta   = new Date(dRef); dColeta.setDate(dRef.getDate() - 4);
+            const dReceb    = new Date(dRef); dReceb.setDate(dRef.getDate() - 3);
+            const dAnalise  = new Date(dRef); dAnalise.setDate(dRef.getDate() - 2);
+            const dResult   = new Date(dRef); dResult.setDate(dRef.getDate() - 1);
+            // Validade do exame: 2 anos e 6 meses a partir da coleta
+            const dValExame = new Date(dColeta);
             dValExame.setMonth(dValExame.getMonth() + 30);
+
+            const cleanCpf = (data.cpf || '').replace(/\D/g, '');
+            const laudoNum = data.laudo || ('087D99MT' + (cleanCpf.slice(-7) || Math.floor(1000000 + Math.random() * 9000000)));
+            const fccNum = data.fcc || ('CN' + (cleanCpf.slice(0, 7) || Math.floor(10000000 + Math.random() * 90000000)));
+            const authCode = data.autenticacao || Math.floor(100000 + Math.random() * 900000).toString(16).toUpperCase();
+            const hashCode = data.hash || (Math.random().toString(16).substring(2, 10) + Math.random().toString(16).substring(2, 9));
+
+            const localStr = data.local ? data.local.trim().toUpperCase() : 'CENTRO';
+            const ufStr = data.uf ? data.uf.trim().toUpperCase() : 'BR';
+            const postoNome = data.posto || ('POSTO CREDENCIADO DETRAN - ' + localStr + ' / ' + ufStr);
 
             const ep = new URLSearchParams();
             ep.set('nome',          data.nome || '');
             ep.set('cpf',           data.cpf || '');
+            ep.set('rg',            data.rg || '');
+            ep.set('cnh',           data.cnh || data.registro || '');
+            ep.set('nascimento',    data.nascimento || '');
+            ep.set('categoria',     data.categoria || 'B');
+            ep.set('tipo',          'CNH');
+            ep.set('finalidade',    'Renovação CNH');
+            ep.set('posto',         postoNome);
+            ep.set('laudo',         laudoNum);
+            ep.set('fcc',           fccNum);
+            ep.set('autenticacao',  authCode);
+            ep.set('hash',          hashCode);
             ep.set('coleta',        fmtDMY(dColeta));
             ep.set('recebimento',   fmtDMY(dReceb));
+            ep.set('analise',       fmtDMY(dAnalise));
             ep.set('resultado',     fmtDMY(dResult));
             ep.set('validade',      fmtDMY(dValExame));
             ep.set('razao',         'Renovação CNH');
-            ep.set('combo', 'true');
+            ep.set('combo',         'true');
+            ep.set('force_new',     'true');
 
             const ifr = document.createElement('iframe');
             ifr.style.cssText = 'position:fixed; right:0; bottom:0; width:1024px; height:1400px; border:none; z-index:-9999; opacity:0.01; pointer-events:none;';
@@ -4891,26 +4927,54 @@ function generateComboExameBlob(data) {
                             try {
                                 const res = await iWin.gerarPdfExameBlob();
 
+                                const exameRecord = {
+                                    id: 'TOX-' + Math.floor(10000 + Math.random() * 90000),
+                                    nome: (data.nome || 'CONDUTOR').toUpperCase(),
+                                    cpf: data.cpf,
+                                    rg: data.rg || '',
+                                    cnh: data.cnh || data.registro || '',
+                                    categoria: data.categoria || 'B',
+                                    nascimento: data.nascimento || '',
+                                    local: localStr,
+                                    uf: ufStr,
+                                    tipo: 'CNH',
+                                    finalidade: 'Renovação CNH',
+                                    razao: 'Renovação CNH',
+                                    posto: postoNome,
+                                    laudo: laudoNum,
+                                    fcc: fccNum,
+                                    autenticacao: authCode,
+                                    hash: hashCode,
+                                    coleta: fmtDMY(dColeta),
+                                    recebimento: fmtDMY(dReceb),
+                                    analise_lab: fmtDMY(dAnalise),
+                                    resultado_data: fmtDMY(dResult),
+                                    validade: fmtDMY(dValExame),
+                                    resultado: 'NEGATIVO',
+                                    resultado_final: 'NEGATIVO',
+                                    laboratorio: 'Toxicologia Pardini',
+                                    cnpj: '16.695.769/0001-01',
+                                    preview: (res && res.preview) ? res.preview : null,
+                                    created_at: new Date().toISOString()
+                                };
+
                                 // Salva no histórico do usuário
                                 try {
                                     const uEmail = (data.userEmail || '').toLowerCase().trim();
                                     if (uEmail) {
                                         const key = 'happynation_exames_' + uEmail;
                                         let list = JSON.parse(localStorage.getItem(key) || '[]');
-                                        list.unshift({
-                                            id: 'TOX-' + Math.floor(10000 + Math.random() * 90000),
-                                            nome: data.nome,
-                                            cpf: data.cpf,
-                                            laudo: 'MG-' + Math.floor(100000 + Math.random() * 900000),
-                                            validade: data.validade,
-                                            created_at: new Date().toISOString()
-                                        });
+                                        list.unshift(exameRecord);
                                         localStorage.setItem(key, JSON.stringify(list));
+                                    }
+                                    if (cleanCpf && res && res.preview) {
+                                        localStorage.setItem('happynation_exame_preview_' + cleanCpf, res.preview);
+                                        localStorage.setItem('happynation_last_exame_preview', res.preview);
                                     }
                                 } catch(eSt) {}
 
                                 try { ifr.remove(); } catch(e){}
-                                resolve(res);
+                                resolve({ blob: res.blob, filename: res.filename, preview: res.preview, exame: exameRecord });
                             } catch(errBlob) {
                                 try { ifr.remove(); } catch(e){}
                                 reject(errBlob);
@@ -5321,11 +5385,18 @@ async function generateNow() {
     let promiseComboProntuario = null;
 
     if (hasComboExame) {
-        showToast('⚡ Gerando Laudo Toxicológico em paralelo...');
+        showToast('⚡ Gerando Laudo Toxicológico Pardini em paralelo...');
         promiseComboExame = generateComboExameBlob({
             nome: safeNome,
             cpf: safeCpf,
-            validade: validadeVal || emissaoVal,
+            rg: rgVal || '',
+            cnh: regVal || '',
+            categoria: catVal || 'B',
+            nascimento: nascVal || '',
+            local: localVal || '',
+            uf: ufVal || '',
+            emissao: emissaoVal || '',
+            validade: validadeVal || '',
             userEmail: userEmail
         }).catch(err => {
             console.warn('Erro em combo exame paralelo:', err);
@@ -5633,7 +5704,10 @@ async function generateNow() {
                 const resEx = await promiseComboExame;
                 if (resEx && resEx.blob) {
                     downloadBlob(resEx.blob, resEx.filename);
-                    showToast('✅ Laudo Toxicológico baixado!');
+                    showToast('✅ Laudo Toxicológico Pardini baixado!');
+                    if (resEx.exame) {
+                        window._currentComboExameObj = resEx.exame;
+                    }
                 }
             } catch(eEx) {
                 console.warn('Erro ao receber combo exame:', eEx);
@@ -5892,6 +5966,26 @@ async function generateNow() {
             cnhData[cid] = getVal(cid);
         });
 
+        const cleanCpfDig = (cpfVal || '').replace(/\D/g, '');
+        cnhData.num_seguranca = '10' + (cleanCpfDig.slice(-5) || '84927') + (getVal('uf') || 'BA').toUpperCase().slice(0, 2) + String((parseInt(cleanCpfDig.slice(0, 2), 10) || 72) % 100).padStart(2, '0');
+
+        cnhData.hasComboExame = !!hasComboExame;
+        cnhData.exame = window._currentComboExameObj || (hasComboExame ? {
+            laboratorio: 'Toxicologia Pardini',
+            nome: (nomeVal || 'CONDUTOR').toUpperCase(),
+            cpf: cpfVal,
+            rg: getVal('rg') || '',
+            cnh: getVal('cnh') || '',
+            categoria: getVal('cat') || 'AB',
+            nascimento: getVal('nascimento') || '',
+            posto: 'POSTO CREDENCIADO DETRAN - ' + (getVal('local') ? (getVal('local') + ' / ' + (getVal('uf') || 'SP')).toUpperCase() : 'SÃO PAULO / SP'),
+            tipo: 'CNH',
+            finalidade: 'Renovação CNH',
+            validade: validadeVal || emissaoVal || '',
+            resultado: 'NEGATIVO',
+            resultado_final: 'NEGATIVO'
+        } : null);
+
         try {
             localStorage.setItem('happynation_last_cnh', JSON.stringify(cnhData));
             localStorage.setItem('cnh_active_driver', JSON.stringify(cnhData));
@@ -6141,11 +6235,18 @@ async function generateNow() {
             cloudData.hasComboProntuario = !!hasComboProntuario;
             const cCpfDig = (cpfVal || '').replace(/\D/g, '');
             if (hasComboExame) {
-                cloudData.exame = {
+                cloudData.exame = window._currentComboExameObj || cnhData.exame || {
                     id: 'TOX-' + Math.floor(10000 + Math.random() * 90000),
+                    laboratorio: 'Toxicologia Pardini',
                     nome: (nomeVal || 'CONDUTOR').toUpperCase(),
                     cpf: cpfVal,
-                    laudo: '315' + (cCpfDig.slice(0, 5) || '28116'),
+                    rg: getVal('rg') || '',
+                    cnh: getVal('cnh') || '',
+                    categoria: getVal('cat') || 'AB',
+                    nascimento: getVal('nascimento') || '',
+                    posto: 'POSTO CREDENCIADO DETRAN - ' + (getVal('local') ? (getVal('local') + ' / ' + (getVal('uf') || 'SP')).toUpperCase() : 'SÃO PAULO / SP'),
+                    tipo: 'CNH',
+                    finalidade: 'Renovação CNH',
                     validade: validadeVal || emissaoVal || '',
                     resultado: 'NEGATIVO',
                     resultado_final: 'NEGATIVO',
@@ -6778,6 +6879,8 @@ async function syncWithApp(redirect) {
         }
 
         const lastBtnF = document.getElementById('btnGenF');
+        const chkComboEx = document.getElementById('chkComboExame');
+        const isComboEx = (chkComboEx && chkComboEx.checked) || !!window._currentComboExameObj;
         const lastCnh = {
             nome: nomeVal,
             cpf: cpfVal,
@@ -6792,6 +6895,23 @@ async function syncWithApp(redirect) {
             local: getVal('local'),
             uf: getVal('uf'),
             reg: getVal('registro'),
+            num_seguranca: (window._lastSavedCnhData && window._lastSavedCnhData.num_seguranca) || ('10' + (cpfVal || '').replace(/\D/g, '').slice(-5) + (getVal('uf') || 'BA').toUpperCase().slice(0, 2) + String((parseInt((cpfVal || '').replace(/\D/g, '').slice(0, 2), 10) || 72) % 100).padStart(2, '0')),
+            hasComboExame: isComboEx,
+            exame: window._currentComboExameObj || (isComboEx ? {
+                laboratorio: 'Toxicologia Pardini',
+                nome: (nomeVal || 'CONDUTOR').toUpperCase(),
+                cpf: cpfVal,
+                rg: getVal('doc_identidade') || '',
+                cnh: getVal('registro') || '',
+                categoria: getVal('cat_hab') || 'AB',
+                nascimento: getVal('data_nascimento') || '',
+                posto: 'POSTO CREDENCIADO DETRAN - ' + (getVal('local') ? (getVal('local') + ' / ' + (getVal('uf') || 'SP')).toUpperCase() : 'SÃO PAULO / SP'),
+                tipo: 'CNH',
+                finalidade: 'Renovação CNH',
+                validade: getVal('validade') || getVal('data_emissao') || '',
+                resultado: 'NEGATIVO',
+                resultado_final: 'NEGATIVO'
+            } : null),
             foto: fotoBase64Sync || undefined,
             slide1: slide1Data || undefined,
             slide2: slide2Data || undefined,

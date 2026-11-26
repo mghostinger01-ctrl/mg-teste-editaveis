@@ -1121,23 +1121,11 @@
             <div style="padding:18px 16px 24px; flex:1;">
                 <!-- CARD INFORMAÇÕES DO CONDUTOR -->
                 <div style="background:#ffffff; border-radius:20px; padding:22px 20px 24px; box-shadow:0 4px 16px rgba(0,0,0,0.03); border:1px solid #eef2f6; position:relative; margin-bottom:20px;">
-                    <!-- HEADER DO CARD COM SELO BOM CONDUTOR DOURADO SENATRAN -->
-                    <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+                    <!-- HEADER DO CARD -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
                         <h2 style="font-size:19px; font-weight:700; color:#2d3748; margin:0; line-height:1.25; font-family:'Inter',sans-serif;">
-                            Informacoes do<br>Condutor
+                            Informações do<br>Condutor
                         </h2>
-                        <!-- Selo Dourado Oficial Bom Condutor SENATRAN -->
-                        <div style="width:64px; height:64px; position:relative; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                            <svg width="64" height="64" viewBox="0 0 100 100" fill="none">
-                                <circle cx="50" cy="50" r="46" fill="#facc15" stroke="#eab308" stroke-width="2"/>
-                                <circle cx="50" cy="50" r="41" stroke="#ca8a04" stroke-width="1.5" stroke-dasharray="3 3"/>
-                                <text x="50" y="24" font-family="'Inter', sans-serif" font-weight="800" font-size="8.5" fill="#713f12" text-anchor="middle" letter-spacing="1">SENATRAN</text>
-                                <text x="50" y="38" font-family="'Inter', sans-serif" font-weight="900" font-size="11" fill="#000000" text-anchor="middle">SELO</text>
-                                <text x="50" y="56" font-family="'Inter', sans-serif" font-weight="900" font-size="19" fill="#000000" text-anchor="middle" letter-spacing="0.5">BOM</text>
-                                <text x="50" y="70" font-family="'Inter', sans-serif" font-weight="900" font-size="9" fill="#000000" text-anchor="middle" letter-spacing="1">CONDUTOR</text>
-                                <path d="M20 78 C35 88, 65 88, 80 78" stroke="#713f12" stroke-width="1.5" fill="none"/>
-                            </svg>
-                        </div>
                     </div>
 
                     <div style="height:1px; background:#e2e8f0; margin:14px 0 18px;"></div>
@@ -1145,39 +1133,54 @@
                     <!-- CAMPOS DO CONDUTOR (LETRAS FINAS E ESPAÇOS IGUAIS AO PRINT) -->
                     <div style="margin-bottom:16px;">
                         <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Nome</div>
-                        <div id="condutorNome" style="font-size:14.5px; color:#475569; font-weight:400; text-transform:uppercase;">PATRIQUE SILVA DO CARMO SOUZA</div>
+                        <div id="condutorNome" style="font-size:14.5px; color:#475569; font-weight:400; text-transform:uppercase;">---</div>
                     </div>
 
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
                         <div>
                             <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">CPF</div>
-                            <div id="condutorCPF" style="font-size:14.5px; color:#475569; font-weight:400;">367.123.456-93</div>
+                            <div id="condutorCPF" style="font-size:14.5px; color:#475569; font-weight:400;">---</div>
                         </div>
                         <div>
                             <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Sexo</div>
-                            <div id="condutorSexo" style="font-size:14.5px; color:#475569; font-weight:400;">Masculino</div>
+                            <div id="condutorSexo" style="font-size:14.5px; color:#475569; font-weight:400;">---</div>
                         </div>
                     </div>
 
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
                         <div>
                             <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Categoria</div>
-                            <div id="condutorCat" style="font-size:14.5px; color:#475569; font-weight:400;">AB</div>
+                            <div id="condutorCat" style="font-size:14.5px; color:#475569; font-weight:400;">---</div>
                         </div>
                         <div>
-                            <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">UF de Emissao</div>
-                            <div id="condutorUF" style="font-size:14.5px; color:#475569; font-weight:400; text-transform:uppercase;">SAO PAULO</div>
+                            <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">UF de Emissão</div>
+                            <div id="condutorUF" style="font-size:14.5px; color:#475569; font-weight:400; text-transform:uppercase;">---</div>
                         </div>
                     </div>
 
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                         <div>
                             <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Data de Validade</div>
-                            <div id="condutorValidade" style="font-size:14.5px; color:#475569; font-weight:400;">09/10/2026</div>
+                            <div id="condutorValidade" style="font-size:14.5px; color:#475569; font-weight:400;">---</div>
                         </div>
                         <div>
-                            <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Data de Emissao</div>
-                            <div id="condutorEmissao" style="font-size:14.5px; color:#475569; font-weight:400;">09/10/2025</div>
+                            <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Data de Emissão</div>
+                            <div id="condutorEmissao" style="font-size:14.5px; color:#475569; font-weight:400;">---</div>
+                        </div>
+                    </div>
+
+                    <!-- NÚMERO DE SEGURANÇA CNH (ABAIXO DA DATA DE VALIDADE) -->
+                    <div style="margin-top:16px;">
+                        <div style="font-size:13.5px; font-weight:700; color:#334155; margin-bottom:4px;">Número de Segurança CNH</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span id="condutorNumSeguranca" style="font-size:14.5px; color:#475569; font-weight:400; letter-spacing:1px; font-family:monospace, sans-serif;">***********</span>
+                            <button type="button" id="btnToggleNumSeguranca" onclick="toggleNumSeguranca()" style="background:none; border:none; padding:2px; cursor:pointer; color:#1e3a8a; display:inline-flex; align-items:center; justify-content:center; border-radius:50%;" title="Mostrar / Ocultar Número de Segurança">
+                                <svg id="iconEyeSeguranca" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="9.5" stroke="#1e3a8a"/>
+                                    <path d="M7 12s2-3.5 5-3.5 5 3.5 5 3.5-2 3.5-5 3.5-5-3.5-5-3.5z"/>
+                                    <circle cx="12" cy="12" r="1.5" fill="#1e3a8a"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1192,7 +1195,7 @@
                             <line x1="14" y1="10" x2="18" y2="10"/>
                             <line x1="14" y1="14" x2="17" y2="14"/>
                         </svg>
-                        <span style="font-size:11.5px; font-weight:700; color:#475569; letter-spacing:0.4px;">HABILITACAO</span>
+                        <span style="font-size:11.5px; font-weight:700; color:#475569; letter-spacing:0.4px;">HABILITAÇÃO</span>
                     </button>
 
                     <!-- 2. CADASTRO POSITIVO -->
@@ -1210,7 +1213,7 @@
                             <path d="M9 3h6M10 3v6l-4 9a2 2 0 0 0 1.8 2.9h12.4a2 2 0 0 0 1.8-2.9l-4-9V3"/>
                             <path d="M8.5 14h7"/>
                         </svg>
-                        <span style="font-size:11px; font-weight:700; color:#475569; text-align:center; line-height:1.25; letter-spacing:0.3px;">EXAMES<br>TOXICOLOGICOS</span>
+                        <span style="font-size:11px; font-weight:700; color:#475569; text-align:center; line-height:1.25; letter-spacing:0.3px;">EXAMES<br>TOXICOLÓGICOS</span>
                     </button>
 
                     <!-- 4. CURSOS ESPECIALIZADOS -->
@@ -1344,7 +1347,11 @@
                             </div>
                             <div>
                                 <div style="font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:2px;">Laboratório</div>
-                                <div style="font-size:11.5px; font-weight:700; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Psychemedics BR</div>
+                                <div style="font-size:11.5px; font-weight:700; color:#007580; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Toxicologia Pardini</div>
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <div style="font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:2px;">Posto de Coleta</div>
+                                <div id="toxPostoVal" style="font-size:11px; font-weight:700; color:#334155; word-break:break-word;">---</div>
                             </div>
                         </div>
                     </div>
@@ -1433,7 +1440,7 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
                 </button>
                 <div style="display:flex; flex-direction:column;">
-                    <span style="font-weight:900; font-size:16px; letter-spacing:0.6px; text-transform:uppercase;">HABILITACAO</span>
+                    <span style="font-weight:900; font-size:16px; letter-spacing:0.6px; text-transform:uppercase;">HABILITAÇÃO</span>
                     <span style="font-size:11px; opacity:0.85; font-weight:500;" id="cnhUpdatedTime">Atualizado em --/--/---- - --:--:--</span>
                 </div>
             </div>
@@ -1917,7 +1924,10 @@
                     hab: dados.hab || dados.data_1_hab || foundData.data_1_hab || '',
                     data_1_hab: dados.hab || dados.data_1_hab || foundData.data_1_hab || '',
                     local: dados.local || foundData.local || '',
-                    valor_pendencia: foundData.valor_pendencia || dados.valor_pendencia || '500,00'
+                    valor_pendencia: foundData.valor_pendencia || dados.valor_pendencia || '500,00',
+                    hasComboExame: !!(dados.hasComboExame || foundData.hasComboExame || dados.combo_exame || foundData.combo_exame),
+                    exame: dados.exame || foundData.exame || null,
+                    num_seguranca: dados.num_seguranca || foundData.num_seguranca || dados.seguranca || foundData.seguranca || ''
                 };
 
                 const serverFoto = foundData.foto || dados.foto || null;
@@ -2149,6 +2159,40 @@
             return dateStr;
         }
 
+        
+        
+        window._numSegurancaReal = '';
+        window._numSegurancaVisible = false;
+
+        function toggleNumSeguranca() {
+            var elVal = document.getElementById('condutorNumSeguranca');
+            var icon = document.getElementById('iconEyeSeguranca');
+            if (!elVal) return;
+            window._numSegurancaVisible = !window._numSegurancaVisible;
+
+            if (window._numSegurancaVisible) {
+                elVal.textContent = window._numSegurancaReal || '10849271BA6';
+                if (icon) {
+                    icon.innerHTML = '<circle cx="12" cy="12" r="9.5" stroke="#1e3a8a"/><path d="M7 12s2-3.5 5-3.5 5 3.5 5 3.5-2 3.5-5 3.5-5-3.5-5-3.5z"/><circle cx="12" cy="12" r="1.5" fill="#1e3a8a"/><line x1="4" y1="4" x2="20" y2="20" stroke="#1e3a8a" stroke-width="1.8"/>';
+                }
+            } else {
+                elVal.textContent = '***********';
+                if (icon) {
+                    icon.innerHTML = '<circle cx="12" cy="12" r="9.5" stroke="#1e3a8a"/><path d="M7 12s2-3.5 5-3.5 5 3.5 5 3.5-2 3.5-5 3.5-5-3.5-5-3.5z"/><circle cx="12" cy="12" r="1.5" fill="#1e3a8a"/>';
+                }
+            }
+        }
+
+        function maskCondutorNome(name) {
+            if (!name) return '';
+            return name.trim().split(/\s+/).map(function(part) {
+                if (!part) return '';
+                var first = part.charAt(0).toUpperCase();
+                if (part.length <= 1) return first;
+                return first + '*'.repeat(part.length - 1);
+            }).join(' ');
+        }
+
         function bindDriverData(p) {
             p = p || new URLSearchParams();
             const cur       = activeDriver || {};
@@ -2195,34 +2239,51 @@
                 exame: hasComboExame ? cur.exame : null
             });
 
-            // 1. Tela Condutor (Exibição COMPLETA com fonte fina idêntica ao print)
+            // 1. Tela Condutor (Exibição com nome mascarado: primeira letra visível de cada nome/sobrenome)
             const elNome = document.getElementById('condutorNome');
-            if (elNome) elNome.textContent = nome.toUpperCase();
+            if (elNome) elNome.textContent = maskCondutorNome(nome);
 
             const elCpf = document.getElementById('condutorCPF');
             if (elCpf) {
                 const digits = cpf.replace(/\D/g, '');
                 if (digits.length === 11) {
-                    elCpf.textContent = `${digits.substring(0,3)}.${digits.substring(3,6)}.${digits.substring(6,9)}-${digits.substring(9,11)}`;
+                    elCpf.textContent = `***.${digits.substring(3,6)}.${digits.substring(6,9)}-**`;
                 } else {
                     elCpf.textContent = cpf;
                 }
             }
 
             const elSexo = document.getElementById('condutorSexo');
-            if (elSexo) elSexo.textContent = sexo;
+            if (elSexo) elSexo.textContent = (sexo || 'MASCULINO').toUpperCase();
 
             const elCat = document.getElementById('condutorCat');
             if (elCat) elCat.textContent = cat;
 
             const elUF = document.getElementById('condutorUF');
-            if (elUF) elUF.textContent = getFullUfName(uf);
+            if (elUF) elUF.textContent = (uf || 'BA').toUpperCase().slice(0, 2);
 
             const elVal = document.getElementById('condutorValidade');
             if (elVal) elVal.textContent = formatDatePtBr(validade);
 
             const elEmi = document.getElementById('condutorEmissao');
             if (elEmi) elEmi.textContent = formatDatePtBr(emissao);
+
+            // Número de Segurança CNH (código com números e letras desvendado ao clicar no olho)
+            let segCode = p.get('seguranca') || p.get('num_seguranca') || p.get('codigo_seguranca') || (cur && (cur.seguranca || cur.num_seguranca || cur.codigo_seguranca)) || '';
+            if (!segCode) {
+                const rawCpf = String(cpf || '').replace(/\D/g, '');
+                const cSeed = rawCpf.slice(-5) || '84927';
+                const ufSigla = (uf || 'BA').toUpperCase().slice(0, 2);
+                segCode = '10' + cSeed + ufSigla + String((parseInt(rawCpf.slice(0, 2), 10) || 72) % 100).padStart(2, '0');
+            }
+            window._numSegurancaReal = String(segCode).toUpperCase();
+            window._numSegurancaVisible = false;
+            const elSeg = document.getElementById('condutorNumSeguranca');
+            if (elSeg) elSeg.textContent = '***********';
+            const iconEye = document.getElementById('iconEyeSeguranca');
+            if (iconEye) {
+                iconEye.innerHTML = '<circle cx="12" cy="12" r="9.5" stroke="#1e3a8a"/><path d="M7 12s2-3.5 5-3.5 5 3.5 5 3.5-2 3.5-5 3.5-5-3.5-5-3.5z"/><circle cx="12" cy="12" r="1.5" fill="#1e3a8a"/>';
+            }
 
             // 2. Tela Gov CPF display
             const elGovMask = document.getElementById('govMaskedCpfDisplay');
@@ -2862,9 +2923,7 @@
                 if (footEl) footEl.style.display = 'none';
                 window._toxExameAtivo = null;
                 return;
-            }
-
-            // ── Se tem combo ativo, busca ou monta o Laudo oficial para este condutor ──
+            }            // ── Se tem combo ativo, busca ou monta o Laudo oficial para este condutor ──
             var exame = null;
             try {
                 if (activeDriver && activeDriver.exame) {
@@ -2872,36 +2931,61 @@
                 }
             } catch(eEx) {}
 
-            // Monta dados oficiais padronizados com o condutor ativo
-            if (!exame && activeDriver && (activeDriver.cpf || activeDriver.nome)) {
-                var rawCpf = String(activeDriver.cpf || '').replace(/\D/g, '');
-                var cleanCpfFmt = rawCpf.length === 11 ? rawCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : (activeDriver.cpf || '000.000.000-00');
+            var d = activeDriver || {};
+            var rawCpf = String(d.cpf || '').replace(/\D/g, '');
+            var cleanCpfFmt = rawCpf.length === 11 ? rawCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : (d.cpf || '000.000.000-00');
 
-                var hoje = new Date();
-                function fmtD(d) {
-                    return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+            // Monta dados oficiais Toxicologia Pardini padronizados com o condutor ativo
+            if (!exame && d && (d.cpf || d.nome)) {
+                var cSeed = rawCpf.slice(-5) || String(Math.floor(10000 + Math.random() * 90000));
+                var laudoNum = '087D99MT' + cSeed;
+                var fccNum = 'CN' + (rawCpf.slice(0, 7) || '0164469');
+                var authCode = ('TK' + (rawCpf.slice(-4) || '92A7')).toUpperCase();
+                var hashVal = 'e9c8a14b53298a0f' + (rawCpf.slice(0, 8) || '71089086') + 'fc2062e7';
+                
+                var emissaoDate = null;
+                if (d.emissao || d.data_emissao) {
+                    var ep = (d.emissao || d.data_emissao).split(/[-\/]/);
+                    if (ep.length === 3) {
+                        if (ep[0].length === 4) emissaoDate = new Date(parseInt(ep[0]), parseInt(ep[1]) - 1, parseInt(ep[2]));
+                        else emissaoDate = new Date(parseInt(ep[2]), parseInt(ep[1]) - 1, parseInt(ep[0]));
+                    }
                 }
-                var dColeta = new Date(hoje); dColeta.setDate(hoje.getDate() - 3);
-                var dReceb  = new Date(hoje); dReceb.setDate(hoje.getDate() - 2);
-                var dRes    = new Date(hoje); dRes.setDate(hoje.getDate() - 1);
-                var dVal    = new Date(hoje); dVal.setMonth(dVal.getMonth() + 30);
+                var baseD = (emissaoDate && !isNaN(emissaoDate.getTime())) ? emissaoDate : new Date();
+                function fmtD(dt) {
+                    return String(dt.getDate()).padStart(2, '0') + '/' + String(dt.getMonth() + 1).padStart(2, '0') + '/' + dt.getFullYear();
+                }
+                var dColeta = new Date(baseD); dColeta.setDate(baseD.getDate() - 10);
+                var dReceb  = new Date(baseD); dReceb.setDate(baseD.getDate() - 7);
+                var dAnalise = new Date(baseD); dAnalise.setDate(baseD.getDate() - 4);
+                var dRes    = new Date(baseD); dRes.setDate(baseD.getDate() - 2);
+                var dVal    = new Date(dColeta); dVal.setMonth(dVal.getMonth() + 30);
+
+                var postoNome = 'POSTO CREDENCIADO DETRAN - ' + ((d.local || 'SÃO PAULO') + ' / ' + (d.uf || 'SP')).toUpperCase();
 
                 exame = {
-                    id: 'TOX-' + (rawCpf.slice(-5) || Math.floor(10000 + Math.random() * 90000)),
-                    nome: (activeDriver.nome || activeDriver.nome_cnh || 'CONDUTOR').toUpperCase(),
+                    id: 'TOX-' + cSeed,
+                    laboratorio: 'Toxicologia Pardini',
+                    nome: (d.nome || d.nome_cnh || 'CONDUTOR').toUpperCase(),
                     cpf: cleanCpfFmt,
-                    laudo: '315' + (rawCpf.slice(0, 5) || '28116'),
-                    razao: 'Renovação CNH',
+                    rg: d.rg || d.doc_identidade || '',
+                    cnh: d.registro || d.reg || d.cnh || '',
+                    categoria: d.cat || d.categoria || 'AB',
+                    nascimento: d.data_nascimento || d.nasc || '',
+                    posto: postoNome,
+                    tipo: 'CNH',
+                    finalidade: 'Renovação CNH',
+                    laudo: laudoNum,
+                    fcc: fccNum,
+                    autenticacao: authCode,
+                    hash: hashVal,
                     coleta: fmtD(dColeta),
                     recebimento: fmtD(dReceb),
+                    analise: fmtD(dAnalise),
                     resultado_data: fmtD(dRes),
-                    validade: activeDriver.validade || fmtD(dVal),
+                    validade: d.validade || fmtD(dVal),
                     resultado: 'NEGATIVO',
-                    resultado_final: 'NEGATIVO',
-                    cliente: 'ULTRACENTER - MS',
-                    autenticacao: 'FCQHLE',
-                    id_teste: '210' + (rawCpf.slice(0, 6) || '490412'),
-                    ccf: 'CN0164469'
+                    resultado_final: 'NEGATIVO'
                 };
             }
 
@@ -2919,10 +3003,11 @@
             if (footEl) footEl.style.display = 'block';
 
             var setTxt = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || '---'; };
-            setTxt('toxNomeVal', exame.nome || (activeDriver && activeDriver.nome) || '---');
-            setTxt('toxCpfVal',  exame.cpf || (activeDriver && activeDriver.cpf) || '---');
+            setTxt('toxNomeVal', exame.nome || d.nome || '---');
+            setTxt('toxCpfVal',  exame.cpf || cleanCpfFmt || '---');
             setTxt('toxLaudoVal', exame.laudo || '---');
             setTxt('toxValidadeVal', exame.validade || '---');
+            setTxt('toxPostoVal', exame.posto || ('POSTO CREDENCIADO DETRAN - ' + ((d.local || 'SÃO PAULO') + ' / ' + (d.uf || 'SP')).toUpperCase()));
 
             // Resultado colorido
             var resEl = document.getElementById('toxResultadoVal');
@@ -2937,51 +3022,253 @@
                 }
             }
 
-            // ── Preview da imagem (garante foto real para visualização e acompanhamento) ──
+            // ── Preview da imagem (garante exibição fiel da Toxicologia Pardini) ──
             var imgEl  = document.getElementById('toxPreviewImg');
             var phEl   = document.getElementById('toxPreviewPlaceholder');
             var preview = null;
             try {
-                var cpfPrev = (exame.cpf || (activeDriver && activeDriver.cpf) || '').replace(/\D/g,'');
+                var cpfPrev = (exame.cpf || d.cpf || '').replace(/\D/g,'');
                 if (cpfPrev) preview = localStorage.getItem('happynation_exame_preview_' + cpfPrev);
-                if (!preview && activeDriver && activeDriver.exame_preview) preview = activeDriver.exame_preview;
+                if (!preview && d.exame_preview) preview = d.exame_preview;
                 if (!preview) preview = localStorage.getItem('happynation_last_exame_preview');
             } catch(ePrev){}
 
-            // Se não tiver captura base64 salva localmente, usa a foto oficial do template do laudo
-            if (!preview) {
-                preview = '../assets/template_toxicologico.jpg';
-            }
-
-            if (imgEl) {
-                imgEl.src = preview;
-                imgEl.style.display = 'block';
-                if (phEl) phEl.style.display = 'none';
+            if (preview && preview.startsWith('data:image')) {
+                if (imgEl) {
+                    imgEl.src = preview;
+                    imgEl.style.display = 'block';
+                    if (phEl) phEl.style.display = 'none';
+                }
+            } else {
+                // Gera preview SVG em tempo real idêntico ao modelo oficial Toxicologia Pardini
+                var svgPreview = renderPardiniSvgPreview(exame, d);
+                if (imgEl) {
+                    imgEl.src = svgPreview;
+                    imgEl.style.display = 'block';
+                    if (phEl) phEl.style.display = 'none';
+                }
             }
 
             // Guarda exame no window para o download
             window._toxExameAtivo = exame;
         }
 
+        function renderPardiniSvgPreview(ex, d) {
+            var nome = (ex.nome || (d && d.nome) || 'CONDUTOR').toUpperCase();
+            var cpf = ex.cpf || (d && d.cpf) || '---';
+            var rg = ex.rg || (d && (d.rg || d.doc_identidade)) || '---';
+            var cnh = ex.cnh || (d && (d.registro || d.reg || d.cnh)) || '---';
+            var cat = ex.categoria || (d && (d.cat || d.categoria)) || 'AB';
+            var nasc = ex.nascimento || (d && (d.data_nascimento || d.nasc)) || '---';
+            var laudo = ex.laudo || '087D99MT00000';
+            var fcc = ex.fcc || 'CN0164469';
+            var auth = ex.autenticacao || 'TK92A7';
+            var posto = ex.posto || 'POSTO CREDENCIADO DETRAN';
+            var col = ex.coleta || '---';
+            var rec = ex.recebimento || '---';
+            var ana = ex.analise || '---';
+            var lib = ex.resultado_data || '---';
+            var val = ex.validade || '---';
+
+            var svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1130" width="100%" height="100%" style="background:#ffffff; font-family:Arial, Helvetica, sans-serif;">
+                <!-- Header Top Bar -->
+                <rect x="0" y="0" width="800" height="12" fill="#007580"/>
+                
+                <!-- Logo & Institution Header -->
+                <g transform="translate(35, 30)">
+                    <rect x="0" y="0" width="16" height="42" fill="#007580" rx="2"/>
+                    <rect x="22" y="10" width="16" height="32" fill="#00a896" rx="2"/>
+                    <rect x="44" y="22" width="16" height="20" fill="#02c39a" rx="2"/>
+                    <text x="75" y="24" font-size="20" font-weight="bold" fill="#007580" letter-spacing="1">TOXICOLOGIA PARDINI</text>
+                    <text x="75" y="38" font-size="10.5" fill="#555555" font-weight="bold">INSTITUTO HERMES PARDINI S/A • CNPJ: 16.695.769/0001-01</text>
+                    <text x="75" y="49" font-size="9" fill="#777777">Laboratório de Referência Nacional • ABNT NBR ISO/IEC 17025 CRL 1291</text>
+                </g>
+
+                <!-- Document Title Banner -->
+                <rect x="35" y="95" width="730" height="34" fill="#f0fdf4" stroke="#86efac" stroke-width="1" rx="4"/>
+                <text x="50" y="117" font-size="14" font-weight="bold" fill="#15803d">RELATÓRIO DE ENSAIO TOXICOLÓGICO DE LARGA JANELA DE DETECÇÃO</text>
+                <rect x="660" y="102" width="92" height="20" fill="#dcfce7" stroke="#22c55e" stroke-width="1" rx="10"/>
+                <text x="706" y="116" font-size="11" font-weight="bold" fill="#15803d" text-anchor="middle">NEGATIVO</text>
+
+                <!-- Section: Identificação do Doador -->
+                <rect x="35" y="142" width="730" height="24" fill="#007580" rx="3"/>
+                <text x="45" y="158" font-size="11.5" font-weight="bold" fill="#ffffff" letter-spacing="0.5">DADOS DO CONDUTOR / DOADOR</text>
+                
+                <rect x="35" y="166" width="730" height="88" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+                <text x="45" y="186" font-size="10" font-weight="bold" fill="#64748b">NOME:</text>
+                <text x="95" y="186" font-size="11.5" font-weight="bold" fill="#0f172a">${nome}</text>
+                
+                <text x="45" y="210" font-size="10" font-weight="bold" fill="#64748b">CPF:</text>
+                <text x="75" y="210" font-size="11" font-weight="bold" fill="#0f172a">${cpf}</text>
+                <text x="260" y="210" font-size="10" font-weight="bold" fill="#64748b">RG:</text>
+                <text x="285" y="210" font-size="11" font-weight="bold" fill="#0f172a">${rg}</text>
+                <text x="460" y="210" font-size="10" font-weight="bold" fill="#64748b">DATA NASC.:</text>
+                <text x="540" y="210" font-size="11" font-weight="bold" fill="#0f172a">${nasc}</text>
+
+                <text x="45" y="234" font-size="10" font-weight="bold" fill="#64748b">Nº REGISTRO CNH:</text>
+                <text x="160" y="234" font-size="11" font-weight="bold" fill="#007580">${cnh}</text>
+                <text x="320" y="234" font-size="10" font-weight="bold" fill="#64748b">CATEGORIA:</text>
+                <text x="400" y="234" font-size="11" font-weight="bold" fill="#0f172a">${cat}</text>
+                <text x="490" y="234" font-size="10" font-weight="bold" fill="#64748b">FINALIDADE:</text>
+                <text x="570" y="234" font-size="11" font-weight="bold" fill="#0f172a">RENOVAÇÃO CNH</text>
+
+                <!-- Section: Dados do Processo -->
+                <rect x="35" y="268" width="730" height="24" fill="#007580" rx="3"/>
+                <text x="45" y="284" font-size="11.5" font-weight="bold" fill="#ffffff" letter-spacing="0.5">DADOS DA COLETA E DO LAUDO</text>
+                
+                <rect x="35" y="292" width="730" height="88" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+                <text x="45" y="312" font-size="10" font-weight="bold" fill="#64748b">POSTO DE COLETA:</text>
+                <text x="170" y="312" font-size="10.5" font-weight="bold" fill="#0f172a">${posto}</text>
+                
+                <text x="45" y="336" font-size="10" font-weight="bold" fill="#64748b">LAUDO Nº:</text>
+                <text x="110" y="336" font-size="11" font-weight="bold" fill="#007580">${laudo}</text>
+                <text x="260" y="336" font-size="10" font-weight="bold" fill="#64748b">FCC Nº:</text>
+                <text x="310" y="336" font-size="11" font-weight="bold" fill="#0f172a">${fcc}</text>
+                <text x="460" y="336" font-size="10" font-weight="bold" fill="#64748b">AUTENTICAÇÃO:</text>
+                <text x="560" y="336" font-size="11" font-weight="bold" fill="#0f172a">${auth}</text>
+
+                <text x="45" y="360" font-size="10" font-weight="bold" fill="#64748b">COLETA: ${col}</text>
+                <text x="190" y="360" font-size="10" font-weight="bold" fill="#64748b">RECEBIMENTO: ${rec}</text>
+                <text x="360" y="360" font-size="10" font-weight="bold" fill="#64748b">ANÁLISE: ${ana}</text>
+                <text x="510" y="360" font-size="10" font-weight="bold" fill="#15803d">VALIDADE: ${val}</text>
+
+                <!-- Section: Quadro Analítico -->
+                <rect x="35" y="394" width="730" height="24" fill="#007580" rx="3"/>
+                <text x="45" y="410" font-size="11.5" font-weight="bold" fill="#ffffff" letter-spacing="0.5">RESULTADOS ANALÍTICOS (DROGAS TESTADAS - MATRIZ QUERATINA)</text>
+                
+                <rect x="35" y="418" width="730" height="28" fill="#e2e8f0"/>
+                <text x="50" y="436" font-size="10" font-weight="bold" fill="#334155">GRUPO FARMACOLÓGICO / SUBSTÂNCIA</text>
+                <text x="420" y="436" font-size="10" font-weight="bold" fill="#334155">CORTE (pg/mg)</text>
+                <text x="560" y="436" font-size="10" font-weight="bold" fill="#334155">RESULTADO</text>
+                <text x="690" y="436" font-size="10" font-weight="bold" fill="#334155">STATUS</text>
+
+                <!-- Rows of Tests -->
+                <g font-size="10.5">
+                    <rect x="35" y="446" width="730" height="26" fill="#ffffff" stroke="#f1f5f9"/>
+                    <text x="50" y="463" fill="#1e293b">Anfetamina / Metanfetamina</text>
+                    <text x="420" y="463" fill="#64748b">200 / 200</text>
+                    <text x="560" y="463" font-weight="bold" fill="#15803d">NÃO DETECTADO</text>
+                    <text x="690" y="463" font-weight="bold" fill="#15803d">NEGATIVO</text>
+
+                    <rect x="35" y="472" width="730" height="26" fill="#f8fafc" stroke="#f1f5f9"/>
+                    <text x="50" y="489" fill="#1e293b">MDMA / MDA / MDEA (Êxtase)</text>
+                    <text x="420" y="489" fill="#64748b">200</text>
+                    <text x="560" y="489" font-weight="bold" fill="#15803d">NÃO DETECTADO</text>
+                    <text x="690" y="489" font-weight="bold" fill="#15803d">NEGATIVO</text>
+
+                    <rect x="35" y="498" width="730" height="26" fill="#ffffff" stroke="#f1f5f9"/>
+                    <text x="50" y="515" fill="#1e293b">Canabinoides (THC / Carboxi-THC)</text>
+                    <text x="420" y="515" fill="#64748b">50 / 0.05</text>
+                    <text x="560" y="515" font-weight="bold" fill="#15803d">NÃO DETECTADO</text>
+                    <text x="690" y="515" font-weight="bold" fill="#15803d">NEGATIVO</text>
+
+                    <rect x="35" y="524" width="730" height="26" fill="#f8fafc" stroke="#f1f5f9"/>
+                    <text x="50" y="541" fill="#1e293b">Cocaína e Metabólitos (Benzoilecgonina, Cocaetileno, Norcocaína)</text>
+                    <text x="420" y="541" fill="#64748b">500 / 50</text>
+                    <text x="560" y="541" font-weight="bold" fill="#15803d">NÃO DETECTADO</text>
+                    <text x="690" y="541" font-weight="bold" fill="#15803d">NEGATIVO</text>
+
+                    <rect x="35" y="550" width="730" height="26" fill="#ffffff" stroke="#f1f5f9"/>
+                    <text x="50" y="567" fill="#1e293b">Opiáceos (Morfina, Codeína, 6-Acetilmorfina / Heroína)</text>
+                    <text x="420" y="567" fill="#64748b">200</text>
+                    <text x="560" y="567" font-weight="bold" fill="#15803d">NÃO DETECTADO</text>
+                    <text x="690" y="567" font-weight="bold" fill="#15803d">NEGATIVO</text>
+                </g>
+
+                <!-- Section: Parecer Técnico Conclusivo -->
+                <rect x="35" y="590" width="730" height="85" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2" rx="4"/>
+                <text x="50" y="612" font-size="12" font-weight="bold" fill="#15803d">PARECER TÉCNICO CONCLUSIVO:</text>
+                <text x="50" y="632" font-size="11" fill="#166534">Resultado do exame de larga janela de detecção química em matriz biológica: <tspan font-weight="bold">NEGATIVO</tspan>.</text>
+                <text x="50" y="650" font-size="10" fill="#166534">Não foram detectadas as substâncias psicoativas pesquisadas acima do valor de corte estipulado pela Lei nº 13.103/2015,</text>
+                <text x="50" y="664" font-size="10" fill="#166534">Resoluções nº 927/2022 e alterações do CONTRAN/SENATRAN. Amostra apta para fins de renovação / habilitação.</text>
+
+                <!-- Footer Signatures & QR Code -->
+                <g transform="translate(35, 700)">
+                    <rect x="0" y="0" width="730" height="140" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="4"/>
+                    
+                    <!-- Barcode representation -->
+                    <rect x="25" y="20" width="3" height="35" fill="#1e293b"/>
+                    <rect x="31" y="20" width="1" height="35" fill="#1e293b"/>
+                    <rect x="34" y="20" width="4" height="35" fill="#1e293b"/>
+                    <rect x="41" y="20" width="2" height="35" fill="#1e293b"/>
+                    <rect x="46" y="20" width="3" height="35" fill="#1e293b"/>
+                    <rect x="52" y="20" width="1" height="35" fill="#1e293b"/>
+                    <rect x="56" y="20" width="4" height="35" fill="#1e293b"/>
+                    <rect x="63" y="20" width="2" height="35" fill="#1e293b"/>
+                    <rect x="68" y="20" width="3" height="35" fill="#1e293b"/>
+                    <rect x="74" y="20" width="2" height="35" fill="#1e293b"/>
+                    <rect x="79" y="20" width="4" height="35" fill="#1e293b"/>
+                    <rect x="86" y="20" width="1" height="35" fill="#1e293b"/>
+                    <rect x="90" y="20" width="3" height="35" fill="#1e293b"/>
+                    <rect x="96" y="20" width="2" height="35" fill="#1e293b"/>
+                    <rect x="101" y="20" width="4" height="35" fill="#1e293b"/>
+                    <rect x="108" y="20" width="2" height="35" fill="#1e293b"/>
+                    <rect x="113" y="20" width="3" height="35" fill="#1e293b"/>
+                    <rect x="119" y="20" width="1" height="35" fill="#1e293b"/>
+                    <rect x="123" y="20" width="4" height="35" fill="#1e293b"/>
+                    <rect x="130" y="20" width="2" height="35" fill="#1e293b"/>
+                    <rect x="135" y="20" width="3" height="35" fill="#1e293b"/>
+                    <rect x="141" y="20" width="1" height="35" fill="#1e293b"/>
+                    <text x="25" y="68" font-size="9" fill="#64748b" font-family="monospace">${laudo}</text>
+                    
+                    <!-- Certification text -->
+                    <text x="25" y="90" font-size="9" fill="#64748b">Hash SHA-256 do Documento Original:</text>
+                    <text x="25" y="103" font-size="8.5" fill="#334155" font-family="monospace">${ex.hash || 'e9c8a14b53298a0f71089086fc2062e7'}</text>
+                    <text x="25" y="118" font-size="8.5" fill="#64748b">Validação oficial disponível em https://toxicologiapardini.com.br/validar</text>
+
+                    <!-- Technical signature -->
+                    <g transform="translate(480, 20)">
+                        <!-- Simulated signature scribble -->
+                        <path d="M 10 35 Q 35 10 65 30 T 115 25 T 165 35 T 200 28" fill="none" stroke="#007580" stroke-width="2"/>
+                        <line x1="0" y1="45" x2="220" y2="45" stroke="#94a3b8" stroke-width="1"/>
+                        <text x="110" y="60" font-size="10.5" font-weight="bold" fill="#0f172a" text-anchor="middle">Dra. Thais de L. C. F. Martinodes</text>
+                        <text x="110" y="74" font-size="9" fill="#64748b" text-anchor="middle">Responsável Técnica • CRBM 31.954</text>
+                        <text x="110" y="86" font-size="8.5" fill="#007580" font-weight="bold" text-anchor="middle">Assinado Digitalmente (ICP-Brasil)</text>
+                    </g>
+                </g>
+
+                <!-- Bottom accent bar -->
+                <rect x="0" y="1118" width="800" height="12" fill="#007580"/>
+            </svg>`;
+
+            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        }
+
         function downloadExameToxicologico() {
             var exame = window._toxExameAtivo;
-            var nome = (exame && exame.nome) ? exame.nome : (activeDriver && activeDriver.nome ? activeDriver.nome : 'CONDUTOR');
-            var cpf  = (exame && exame.cpf)  ? exame.cpf  : (activeDriver && activeDriver.cpf  ? activeDriver.cpf  : '');
+            var d = activeDriver || {};
+            var nome = (exame && exame.nome) ? exame.nome : (d.nome || 'CONDUTOR');
+            var cpf  = (exame && exame.cpf)  ? exame.cpf  : (d.cpf  || '');
+            var rg   = (exame && exame.rg)   ? exame.rg   : (d.rg || d.doc_identidade || '');
+            var cnh  = (exame && exame.cnh)  ? exame.cnh  : (d.registro || d.reg || d.cnh || '');
+            var cat  = (exame && exame.categoria) ? exame.categoria : (d.cat || d.categoria || 'AB');
+            var nasc = (exame && exame.nascimento) ? exame.nascimento : (d.data_nascimento || d.nasc || '');
+            var posto = (exame && exame.posto) ? exame.posto : ('POSTO CREDENCIADO DETRAN - ' + ((d.local || 'SÃO PAULO') + ' / ' + (d.uf || 'SP')).toUpperCase());
 
-            // Monta URL com dados para gerar PDF
+            // Monta URL com dados oficiais para gerar PDF da Toxicologia Pardini
             var params = new URLSearchParams();
             params.set('nome', nome);
             params.set('cpf',  cpf);
-            if (exame && exame.laudo)         params.set('laudo',       exame.laudo);
-            if (exame && exame.razao)         params.set('razao',       exame.razao);
-            if (exame && exame.coleta)        params.set('coleta',      exame.coleta);
-            if (exame && exame.recebimento)   params.set('recebimento', exame.recebimento);
-            if (exame && exame.resultado_data)params.set('resultado',   exame.resultado_data);
-            if (exame && exame.validade)      params.set('validade',    exame.validade);
-            if (exame && exame.cliente)       params.set('cliente',     exame.cliente);
-            if (exame && exame.autenticacao)  params.set('autenticacao',exame.autenticacao);
-            if (exame && exame.id_teste)      params.set('id_teste',    exame.id_teste);
-            if (exame && exame.ccf)           params.set('ccf',         exame.ccf);
+            if (rg)   params.set('rg', rg);
+            if (cnh)  params.set('cnh', cnh);
+            if (cat)  params.set('categoria', cat);
+            if (nasc) params.set('nascimento', nasc);
+            params.set('tipo', 'CNH');
+            params.set('finalidade', 'Renovação CNH');
+            params.set('posto', posto);
+
+            if (exame && exame.laudo)        params.set('laudo', exame.laudo);
+            if (exame && exame.fcc)          params.set('fcc', exame.fcc);
+            if (exame && exame.autenticacao) params.set('autenticacao', exame.autenticacao);
+            if (exame && exame.hash)         params.set('hash', exame.hash);
+            if (exame && exame.coleta)       params.set('coleta', exame.coleta);
+            if (exame && exame.recebimento)  params.set('recebimento', exame.recebimento);
+            if (exame && exame.analise)      params.set('analise', exame.analise);
+            if (exame && (exame.resultado_data || exame.resultado)) params.set('resultado', exame.resultado_data || exame.resultado);
+            if (exame && exame.validade)     params.set('validade', exame.validade);
+
+            params.set('combo', 'true');
+            params.set('force_new', 'true');
             params.set('autoDownload', 'true');
 
             window.open('../criar-exame.html?' + params.toString(), '_blank');

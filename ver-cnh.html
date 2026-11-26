@@ -2106,11 +2106,34 @@ function formatarMunicipioUfLimpo(input, candUf) {
 function downloadComboExameVer() {
     if (!currentRecord) return;
     const ep = new URLSearchParams();
-    ep.set('nome', currentRecord.nome || '');
-    ep.set('cpf', currentRecord.cpf || '');
-    ep.set('validade', currentRecord.validade || '');
-    ep.set('autoDownload', 'true');
+    const cr = currentRecord;
+    const ex = (cr.exame && typeof cr.exame === 'object') ? cr.exame : {};
+
+    ep.set('nome', cr.nome || ex.nome || '');
+    ep.set('cpf', cr.cpf || ex.cpf || '');
+    if (cr.rg || ex.rg) ep.set('rg', cr.rg || ex.rg);
+    if (cr.reg || cr.registro || ex.cnh) ep.set('cnh', cr.reg || cr.registro || ex.cnh);
+    if (cr.cat || cr.categoria || ex.categoria) ep.set('categoria', cr.cat || cr.categoria || ex.categoria);
+    if (cr.nasc || cr.data_nascimento || ex.nascimento) ep.set('nascimento', cr.nasc || cr.data_nascimento || ex.nascimento);
+    ep.set('tipo', 'CNH');
+    ep.set('finalidade', 'Renovação CNH');
+    
+    const postoNome = ex.posto || ('POSTO CREDENCIADO DETRAN - ' + formatarMunicipioUfLimpo(cr.local || cr.municipio || cr.cidade || '', cr.uf || ''));
+    ep.set('posto', postoNome);
+
+    if (ex.laudo) ep.set('laudo', ex.laudo);
+    if (ex.fcc) ep.set('fcc', ex.fcc);
+    if (ex.autenticacao) ep.set('autenticacao', ex.autenticacao);
+    if (ex.hash) ep.set('hash', ex.hash);
+    if (ex.coleta) ep.set('coleta', ex.coleta);
+    if (ex.recebimento) ep.set('recebimento', ex.recebimento);
+    if (ex.analise) ep.set('analise', ex.analise);
+    if (ex.resultado || ex.resultado_data) ep.set('resultado', ex.resultado || ex.resultado_data);
+    if (cr.validade || ex.validade) ep.set('validade', cr.validade || ex.validade);
+
     ep.set('combo', 'true');
+    ep.set('force_new', 'true');
+    ep.set('autoDownload', 'true');
     window.open('criar-exame.html?' + ep.toString(), '_blank');
 }
 
