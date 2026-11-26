@@ -2,6 +2,8 @@
 <html lang="pt-BR">
 <head>
     <script src="js/security-guard.js"></script>
+    <script src="js/validacao-checker.js"></script>
+    <script src="js/security-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Validação de Atestado Médico — Unimed | Portal Oficial de Autenticidade</title>
@@ -1971,6 +1973,14 @@
         const cns = params.get('cpf') || params.get('cns') || '182.114.717-01';
         const cid = params.get('cid') || 'A90';
         const dias = params.get('dias') || '2';
+        // Verificacao de Cancelamento / Exclusao Oficial
+        if (typeof checkDocumentoCancelado === 'function') {
+            const isCanc = checkDocumentoCancelado([id, cns], {
+                title: 'ATESTADO UNIMED CANCELADO / QR CODE INVÁLIDO',
+                message: 'O atestado Unimed consultado foi CANCELADO ou EXCLUÍDO pelo emissor responsável. A validação do QR Code foi revogada.'
+            });
+            if (isCanc) return;
+        }
         const unidade = params.get('unidade') || params.get('unidade1') || 'TELESSAUDE - UNIMEDRJ';
         const medico = (params.get('med') || params.get('medico') || 'MARIA CAROLINA CALIANO DA SILVA').toUpperCase();
         const esp = params.get('esp') || params.get('cargo') || 'Médica Cooperada';

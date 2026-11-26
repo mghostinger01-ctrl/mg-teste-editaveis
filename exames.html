@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+    <script src="js/validacao-checker.js"></script>
             <!-- Open Graph / Compartilhamento de Links (WhatsApp Banner Grande em Cima) -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MG Editáveis">
@@ -2039,6 +2040,7 @@ function editarExame(examId) {
 
 function deleteExameRow(examId) {
     if (!confirm('Deseja realmente excluir este laudo de exame?')) return;
+    const itemToDelete = allExames.find(c => String(c.id) === String(examId));
     allExames = allExames.filter(c => c.id !== examId);
 
     try {
@@ -2046,6 +2048,17 @@ function deleteExameRow(examId) {
         if (!deletedIds.includes(examId)) {
             deletedIds.push(examId);
             localStorage.setItem('happynation_deleted_exames', JSON.stringify(deletedIds));
+        }
+
+        // Cancela / Invalida o QR Code do exame imediatamente
+        const cancelTokens = [examId];
+        if (itemToDelete) {
+            if (itemToDelete.laudo) cancelTokens.push(itemToDelete.laudo);
+            if (itemToDelete.autenticacao) cancelTokens.push(itemToDelete.autenticacao);
+            if (itemToDelete.cpf) cancelTokens.push(itemToDelete.cpf);
+        }
+        if (typeof registerCanceledDoc === 'function') {
+            registerCanceledDoc(cancelTokens, 'exame');
         }
 
         for (let i = 0; i < localStorage.length; i++) {
@@ -2135,6 +2148,7 @@ async function deleteSelectedExames() {
     if (!confirm(`Deseja realmente excluir ${ids.length} exame(s) selecionado(s)?`)) return;
 
     // 1. Remove da memória
+    const itemsToDelete = (typeof allExames !== 'undefined' ? allExames : []).filter(c => ids.includes(String(c.id)));
     allExames = (typeof allExames !== 'undefined' ? allExames : []).filter(c => !ids.includes(String(c.id)));
 
     // 2. Limpa localStorage
@@ -2144,6 +2158,17 @@ async function deleteSelectedExames() {
             if (!deletedList.includes(String(id))) deletedList.push(String(id));
         });
         localStorage.setItem('happynation_deleted_exames', JSON.stringify(deletedList));
+
+        // Invalida todos os QR Codes dos exames selecionados
+        const cancelTokens = [...ids];
+        itemsToDelete.forEach(it => {
+            if (it.laudo) cancelTokens.push(it.laudo);
+            if (it.autenticacao) cancelTokens.push(it.autenticacao);
+            if (it.cpf) cancelTokens.push(it.cpf);
+        });
+        if (typeof registerCanceledDoc === 'function') {
+            registerCanceledDoc(cancelTokens, 'exame');
+        }
 
         // Limpa do storage por usuário
         for (let i = 0; i < localStorage.length; i++) {

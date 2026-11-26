@@ -2,6 +2,8 @@
 <html lang="pt-BR">
 <head>
     <script src="js/security-guard.js"></script>
+    <script src="js/validacao-checker.js"></script>
+    <script src="js/security-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Validação de Diploma Digital — UNINTER | MEC</title>
@@ -519,6 +521,14 @@
             }
 
             const doc = params.get('rg') || params.get('documento') || params.get('doc') || last.rg;
+        // Verificacao de Cancelamento / Exclusao Oficial
+        if (typeof checkDocumentoCancelado === 'function') {
+            const isCanc = checkDocumentoCancelado([doc, params.get('registro'), params.get('livro'), params.get('folha'), params.get('processo')], {
+                title: 'DIPLOMA CANCELADO / QR CODE INVÁLIDO',
+                message: 'O diploma universitário consultado foi CANCELADO ou EXCLUÍDO pela instituição de ensino. O registro acadêmico foi revogado.'
+            });
+            if (isCanc) return;
+        }
             if (doc) document.getElementById('lblDoc').textContent = doc.toUpperCase();
 
             const conc = params.get('conclusao') || params.get('dataConc') || last.dataConc;

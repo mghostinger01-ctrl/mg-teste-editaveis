@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <script src="js/security-guard.js"></script>
+    <script src="js/validacao-checker.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Validação de Atestado Médico — UPA 24h | Ministério da Saúde</title>
@@ -1977,6 +1978,14 @@
         const end1 = params.get('end1') || 'Av. Miguel Ignácio Curi, 41';
         const end2 = params.get('end2') || 'Vila Carmosina - São Paulo - SP';
         const end3 = params.get('end3') || 'CEP: 08295-005';
+        // Verificacao de Cancelamento / Exclusao Oficial
+        if (typeof checkDocumentoCancelado === 'function') {
+            const isCanc = checkDocumentoCancelado([id, cns, auth], {
+                title: 'ATESTADO CANCELADO / QR CODE INVÁLIDO',
+                message: 'O atestado médico consultado foi CANCELADO ou EXCLUÍDO pelo emissor responsável. O registro de autenticidade foi revogado.'
+            });
+            if (isCanc) return;
+        }
 
         // Formata descrição legível de CIDs comuns
         let cidDesc = cid;

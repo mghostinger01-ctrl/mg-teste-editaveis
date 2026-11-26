@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+    <script src="js/validacao-checker.js"></script>
     <!-- Open Graph / Compartilhamento de Links -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MG Editáveis">
@@ -1537,6 +1538,12 @@
     }
 
     function deleteDiplomaRow(docId) {
+    if (typeof registerCanceledDoc === 'function') {
+        const item = (typeof allDiplomas !== 'undefined' ? allDiplomas : []).find(x => String(x.id) === String(docId));
+        const toks = [docId];
+        if (item) { if (item.cpf) toks.push(item.cpf); if (item.rg) toks.push(item.rg); if (item.registro) toks.push(item.registro); }
+        registerCanceledDoc(toks, 'diploma');
+    }
         if (!confirm('Deseja realmente excluir este diploma universitário?')) return;
         allDiplomas = (typeof allDiplomas !== 'undefined' ? allDiplomas : []).filter(c => c.id !== docId);
 

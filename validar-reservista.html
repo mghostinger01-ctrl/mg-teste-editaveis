@@ -2,6 +2,8 @@
 <html lang="pt-BR">
 <head>
     <script src="js/security-guard.js"></script>
+    <script src="js/validacao-checker.js"></script>
+    <script src="js/security-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validação Oficial de Autenticidade | Exército Brasileiro</title>
@@ -776,6 +778,14 @@
 
             const nome = params.get('nome') || params.get('paciente') || params.get('n') || 'CIDADÃO BRASILEIRO';
             const ra = params.get('ra') || '041505325879';
+        // Verificacao de Cancelamento / Exclusao Oficial
+        if (typeof checkDocumentoCancelado === 'function') {
+            const isCanc = checkDocumentoCancelado([ra, params.get('auth'), params.get('hash'), params.get('cpf')], {
+                title: 'CERTIFICADO DE RESERVISTA CANCELADO / QR CODE INVÁLIDO',
+                message: 'O certificado militar consultado foi CANCELADO ou EXCLUÍDO pelo órgão emissor. A autenticidade foi revogada.'
+            });
+            if (isCanc) return;
+        }
             const rawCpf = params.get('cpf') || '000.000.000-00';
             const cpf = formatarCpf(rawCpf);
             const nasc = params.get('nasc') || params.get('nascimento') || params.get('dn') || '14/06/2005';

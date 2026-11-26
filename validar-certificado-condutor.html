@@ -2,6 +2,8 @@
 <html lang="pt-BR">
 <head>
     <script src="js/security-guard.js"></script>
+    <script src="js/validacao-checker.js"></script>
+    <script src="js/security-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validação Oficial de Certificado | ICETRAN</title>
@@ -608,6 +610,14 @@
             const cpf = params.get('cpf') || '137.573.156-42';
             const cnh = params.get('cnh') || '06516126204';
             const cat = params.get('cat') || 'D';
+        // Verificacao de Cancelamento / Exclusao Oficial
+        if (typeof checkDocumentoCancelado === 'function') {
+            const isCanc = checkDocumentoCancelado([reg, cpf, cnh], {
+                title: 'CERTIFICADO CANCELADO / QR CODE INVÁLIDO',
+                message: 'O certificado de curso de condutor consultado foi CANCELADO ou EXCLUÍDO pelo órgão emissor. A validação foi revogada.'
+            });
+            if (isCanc) return;
+        }
             const renach = params.get('renach') || 'MG556649575';
             const curso = params.get('curso') || 'Condutores de Veículos de Emergência';
             const ch = params.get('ch') || '50';

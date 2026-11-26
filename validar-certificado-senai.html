@@ -2,6 +2,8 @@
 <html lang="pt-BR">
 <head>
     <script src="js/security-guard.js"></script>
+    <script src="js/validacao-checker.js"></script>
+    <script src="js/security-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Validação Oficial de Certificado | SENAI Nacional</title>
@@ -648,6 +650,14 @@
             const cpf = params.get('cpf') || '86717019565';
             const rg = params.get('rg') || '2125673908';
             const orgao = params.get('orgao') || 'SSP';
+        // Verificacao de Cancelamento / Exclusao Oficial
+        if (typeof checkDocumentoCancelado === 'function') {
+            const isCanc = checkDocumentoCancelado([id, cpf, rg, params.get('codigo'), params.get('registro')], {
+                title: 'CERTIFICADO SENAI CANCELADO / QR CODE INVÁLIDO',
+                message: 'O certificado consultado foi CANCELADO ou EXCLUÍDO pela unidade SENAI emissora. O registro de autenticidade foi revogado.'
+            });
+            if (isCanc) return;
+        }
             const curso = params.get('curso') || 'Qualificação Profissional em Programador Web';
             const carga = params.get('carga') || params.get('horas') || '240';
             const dataInicio = params.get('dataInicio') || params.get('inicio') || '20/11/2023';

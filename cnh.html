@@ -866,6 +866,39 @@
             white-space: nowrap;
         }
 
+        .btn-status-toggle {
+            border: none;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            text-transform: none;
+        }
+        .status-badge-active {
+            background: rgba(0, 220, 130, 0.15);
+            color: #00dc82;
+            border: 1px solid rgba(0, 220, 130, 0.35);
+        }
+        .status-badge-active:hover {
+            background: rgba(0, 220, 130, 0.28);
+            transform: scale(1.05);
+        }
+        .status-badge-inactive {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+        .status-badge-inactive:hover {
+            background: rgba(239, 68, 68, 0.28);
+            transform: scale(1.05);
+        }
+
         .date-cell {
             font-size: 12px;
             color: #94a3b8;
@@ -2231,13 +2264,18 @@ function renderTable() {
         const d = ts ? new Date(ts) : new Date();
         const dateFormatted = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
+        const isDesativada = (c.status === 'Desativada' || c.status === 'Inativo');
+        const statusHtml = isDesativada
+            ? `<button type="button" class="btn-status-toggle status-badge-inactive" onclick="toggleCnhStatus('${c.id}')" title="Clique para reativar instantaneamente"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Desativada</button>`
+            : `<button type="button" class="btn-status-toggle status-badge-active" onclick="toggleCnhStatus('${c.id}')" title="Clique para desativar"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Ativo</button>`;
+
         html += `
             <tr>
                 <td><input type="checkbox" class="row-select-cb" value="${c.id}" onchange="updateSelectCount()" style="accent-color:var(--primary); cursor:pointer;"></td>
                 <td class="id-cell">${c.id}</td>
                 <td class="name-cell" style="cursor:pointer;" onclick="verCnh('${c.id}')">${c.nome}</td>
                 <td class="cpf-cell">${c.cpf}</td>
-                <td class="status-cell">${c.status || 'Ativo'}</td>
+                <td class="status-cell">${statusHtml}</td>
                 <td class="date-cell">${dateFormatted}</td>
                 <td style="width: 155px; min-width: 155px; text-align: right; padding-right: 14px;">
                     <div class="actions-cell">
@@ -2250,6 +2288,11 @@ function renderTable() {
                             <div class="dropdown-item" onclick="verCnh('${c.id}')">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 Ver Informações
+                            </div>
+                            <div class="dropdown-item ${isDesativada ? 'text-success' : 'danger'}" onclick="toggleCnhStatus('${c.id}')">
+                                ${isDesativada
+                                    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Ativar CNH`
+                                    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Desativar CNH`}
                             </div>
                             <div class="dropdown-item danger" onclick="deleteCnhRow('${c.id}')">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -2428,6 +2471,114 @@ async function deleteSelectedCnhs() {
     renderTable();
     updateSelectCount();
     showToast(`${ids.length} CNH(s) excluída(s) com sucesso!`);
+}
+
+async function toggleCnhStatus(cnhId) {
+    const item = allCnhs.find(c => String(c.id) === String(cnhId));
+    if (!item) return;
+
+    const isCurrentlyDesativada = (item.status === 'Desativada' || item.status === 'Inativo');
+    const newStatus = isCurrentlyDesativada ? 'Ativo' : 'Desativada';
+    const cleanCpf = (item.cpf || '').replace(/\D/g, '');
+
+    // Atualiza em memória imediatamente
+    item.status = newStatus;
+
+    // Atualiza listas do localStorage para o usuário atual e demais
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.startsWith('happynation_cnhs') || key === 'happynation_admin_cnhs')) {
+                try {
+                    const list = JSON.parse(localStorage.getItem(key) || '[]');
+                    let changed = false;
+                    list.forEach(c => {
+                        if (String(c.id) === String(cnhId) || (cleanCpf && (c.cpf || '').replace(/\D/g, '') === cleanCpf)) {
+                            c.status = newStatus;
+                            changed = true;
+                        }
+                    });
+                    if (changed) localStorage.setItem(key, JSON.stringify(list));
+                } catch(eKey) {}
+            }
+        }
+
+        // Gerencia lista de CPFs cancelados e chave de bloqueio
+        let canceled = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+        if (newStatus === 'Desativada') {
+            if (cleanCpf && !canceled.includes(cleanCpf)) canceled.push(cleanCpf);
+            localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(canceled));
+            if (cleanCpf) localStorage.setItem('happynation_blocked_cnh_' + cleanCpf, JSON.stringify({ valor_pendencia: '500,00' }));
+        } else {
+            canceled = canceled.filter(c => c !== cleanCpf);
+            localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(canceled));
+            if (cleanCpf) localStorage.removeItem('happynation_blocked_cnh_' + cleanCpf);
+        }
+
+        // Atualiza last_cnh se for a mesma
+        const lastCnh = JSON.parse(localStorage.getItem('happynation_last_cnh') || 'null');
+        if (lastCnh && (String(lastCnh.id) === String(cnhId) || (cleanCpf && (lastCnh.cpf || '').replace(/\D/g, '') === cleanCpf))) {
+            lastCnh.status = newStatus;
+            localStorage.setItem('happynation_last_cnh', JSON.stringify(lastCnh));
+        }
+    } catch(eStorage) {}
+
+    // Renderiza tabela imediatamente para feedback instantâneo ao admin
+    renderTable();
+
+    // 1. Dispara BroadcastChannel em tempo real para sincronização instantânea com o app
+    try {
+        const bc = new BroadcastChannel('happynation_live_sync');
+        bc.postMessage({
+            type: 'cnh_status_changed',
+            id: cnhId,
+            cpf: cleanCpf,
+            status: newStatus,
+            valor_pendencia: '500,00',
+            timestamp: Date.now()
+        });
+        bc.close();
+    } catch(eBc) {}
+
+    // 2. Atualiza no Supabase Cloud
+    const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+    const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
+    try {
+        fetch(`${SUP_URL}/rest/v1/cnhs?id=eq.${encodeURIComponent(cnhId)}`, {
+            method: 'PATCH',
+            headers: {
+                'apikey': SUP_KEY,
+                'Authorization': 'Bearer ' + SUP_KEY,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({ status: newStatus })
+        }).catch(() => {});
+
+        if (cleanCpf) {
+            fetch(`${SUP_URL}/rest/v1/cnhs?cpf=eq.${encodeURIComponent(cleanCpf)}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUP_KEY,
+                    'Authorization': 'Bearer ' + SUP_KEY,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify({ status: newStatus })
+            }).catch(() => {});
+        }
+    } catch(eSup) {}
+
+    // 3. Atualiza no backend PHP (MySQL + db.json + config.json)
+    try {
+        fetch('api/index.php?action=toggle_cnh_status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: cnhId, cpf: cleanCpf, status: newStatus, valor_pendencia: '500,00' })
+        }).catch(() => {});
+    } catch(eApi) {}
+
+    showToast(newStatus === 'Ativo' ? 'CNH Ativada! Acesso restaurado instantaneamente.' : 'CNH Desativada! Prontuário bloqueado instantaneamente.');
 }
 
 function deleteCnhRow(cnhId) {

@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <script src="js/security-guard.js"></script>
+    <script src="js/validacao-checker.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Validação Oficial de Laudo Toxicológico | Toxicologia Pardini</title>
@@ -884,6 +885,15 @@
             const cleanDigits = paramCpfRaw.replace(/\D/g, '');
             if (cleanDigits.length === 11) {
                 maskedCpf = `${cleanDigits.slice(0,3)}.***.***-${cleanDigits.slice(9,11)}`;
+            }
+
+            // Verificação de Cancelamento / Exclusão Oficial
+            if (typeof checkDocumentoCancelado === 'function') {
+                const isCanc = checkDocumentoCancelado([paramCodigo, paramLaudo, cleanDigits], {
+                    title: 'LAUDO CANCELADO / QR CODE INVÁLIDO',
+                    message: 'O exame toxicológico consultado foi CANCELADO ou EXCLUÍDO pelo laboratório emissor. A autenticidade deste laudo não é mais válida.'
+                });
+                if (isCanc) return;
             }
 
             // Injeção nos elementos de visualização

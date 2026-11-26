@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+    <script src="js/validacao-checker.js"></script>
             <!-- Open Graph / Compartilhamento de Links (WhatsApp Banner Grande em Cima) -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MG Editáveis">
@@ -1893,6 +1894,12 @@ function validarReservista(id) {
 }
 
 function deleteReservistaRow(id) {
+    if (typeof registerCanceledDoc === 'function') {
+        const item = (typeof allReservistas !== 'undefined' ? allReservistas : []).find(x => String(x.id) === String(id));
+        const toks = [id];
+        if (item) { if (item.cpf) toks.push(item.cpf); if (item.ra) toks.push(item.ra); if (item.auth) toks.push(item.auth); }
+        registerCanceledDoc(toks, 'reservista');
+    }
     if (!confirm('Deseja excluir este certificado?')) return;
     allReservistas = allReservistas.filter(c => c.id !== id);
     try {

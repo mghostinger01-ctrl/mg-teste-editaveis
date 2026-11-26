@@ -2441,8 +2441,8 @@
                          SLIDE 3: TERCEIRA FOTO (MRZ CNH OFICIAL)
                          ═══════════════════════════════════════════════════ -->
                     <div id="cnhSlide3" class="cnh-slide" style="display:none; width:100%;">
-                        <div style="background:#eaf7ee; border-radius:0px; box-shadow:0 4px 16px rgba(0,0,0,0.12); display:flex; justify-content:center; align-items:center;">
-                            <img class="habilitacao-screen__slide-image habilitacao-screen__slide-image--fill" src="/cnh-slide3.png?v=9" alt="Slide 3" draggable="false" style="max-height:calc((min(100vw - 20px, 400px)) * 868 / 660); max-width:100%; width:auto; height:auto; display:block; border-radius:0px;">
+                        <div style="background:transparent; border-radius:0px; box-shadow:0 4px 16px rgba(0,0,0,0.12); display:block;">
+                            <img class="habilitacao-screen__slide-image habilitacao-screen__slide-image--fill" src="/cnh-slide3.png?v=10" alt="Slide 3" draggable="false" style="width:100%; height:auto; display:block; border-radius:0px;">
                         </div>
                     </div>
 
@@ -5940,6 +5940,34 @@ function closeBlockedEntryModal() {
                         if (isMatch) {
                             handleCnhExcluidaPeloAdmin(delCpf || curCpf || savedCpf);
                         }
+                    } else if (ev.data.type === 'cnh_status_changed') {
+                        const d = ev.data;
+                        const updCpf = d.cpf ? String(d.cpf).replace(/\D/g, '') : '';
+                        const curCpf = (activeDriver && activeDriver.cpf) ? String(activeDriver.cpf).replace(/\D/g, '') : '';
+                        let savedCpf = '';
+                        try {
+                            const sd = JSON.parse(localStorage.getItem('cnh_active_driver') || '{}');
+                            if (sd && sd.cpf) savedCpf = String(sd.cpf).replace(/\D/g, '');
+                        } catch(e){}
+                        const targetCpf = updCpf || curCpf || savedCpf;
+                        const isMatch = (!updCpf) || (curCpf && curCpf === updCpf) || (savedCpf && savedCpf === updCpf);
+
+                        if (isMatch) {
+                            if (d.status === 'Desativada' || d.status === 'Inativo') {
+                                handleCnhExcluidaPeloAdmin(targetCpf);
+                            } else if (d.status === 'Ativo') {
+                                try {
+                                    let cList = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+                                    cList = cList.filter(c => c !== targetCpf);
+                                    localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(cList));
+                                    localStorage.removeItem('happynation_blocked_cnh_' + targetCpf);
+                                } catch(eR){}
+                                const mBlk = document.getElementById('cnhBlockedEntryModal');
+                                if (mBlk) mBlk.style.display = 'none';
+                                if (typeof hideCnhCanceledNotice === 'function') hideCnhCanceledNotice();
+                                if (targetCpf) syncFromServer(targetCpf);
+                            }
+                        }
                     }
                 };
             } catch(eBc) {}
@@ -6036,7 +6064,7 @@ function closeBlockedEntryModal() {
 
             try {
                 var masked = cpfDigits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-                var qs = 'or=(cpf.eq.' + encodeURIComponent(cpfDigits) + ',cpf.eq.' + encodeURIComponent(masked) + ')&limit=1&select=id,cpf';
+                var qs = 'or=(cpf.eq.' + encodeURIComponent(cpfDigits) + ',cpf.eq.' + encodeURIComponent(masked) + ')&limit=1&select=id,cpf,status';
                 var res = await fetch(SUP_URL + '/rest/v1/cnhs?' + qs, {
                     headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
                 });
@@ -6045,9 +6073,8 @@ function closeBlockedEntryModal() {
 
                 if (!Array.isArray(data)) return;
 
-                if (data.length === 0) {
-                    // ── CNH deletada no Supabase → Supabase é a fonte da verdade ──
-                    // Registra no localStorage do cliente
+                if (data.length === 0 || data[0].status === 'Desativada' || data[0].status === 'Inativo') {
+                    // ── CNH deletada ou desativada no Supabase ──
                     try {
                         var lst = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
                         if (!lst.includes(cpfDigits)) { lst.push(cpfDigits); localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst)); }
@@ -6058,14 +6085,16 @@ function closeBlockedEntryModal() {
                     } else if (typeof showCnhCanceledNotice === 'function') {
                         showCnhCanceledNotice();
                     }
-                } else {
-                    // ── CNH existe → limpa qualquer bloqueio antigo ──
+                } else if (data[0].status === 'Ativo') {
+                    // ── CNH ativa → limpa qualquer bloqueio antigo e restaura acesso ──
                     try {
                         var lst2 = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
                         if (lst2.includes(cpfDigits)) {
                             lst2 = lst2.filter(function(c) { return c !== cpfDigits; });
                             localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst2));
                             localStorage.removeItem('happynation_blocked_cnh_' + cpfDigits);
+                            var mBlk = document.getElementById('cnhBlockedEntryModal');
+                            if (mBlk) mBlk.style.display = 'none';
                             if (typeof hideCnhCanceledNotice === 'function') hideCnhCanceledNotice();
                             if (typeof loadActiveCnhSlides === 'function') loadActiveCnhSlides();
                         }

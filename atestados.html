@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+    <script src="js/validacao-checker.js"></script>
             <!-- Open Graph / Compartilhamento de Links (WhatsApp Banner Grande em Cima) -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MG Editáveis">
@@ -2080,6 +2081,7 @@ function verAtestado(atestId) {
 
 function deleteAtestadoRow(atestId) {
     if (!confirm('Deseja realmente excluir este atestado médico?')) return;
+    const itemToDelete = allAtestados.find(c => String(c.id) === String(atestId));
     allAtestados = allAtestados.filter(c => c.id !== atestId);
 
     try {
@@ -2087,6 +2089,16 @@ function deleteAtestadoRow(atestId) {
         if (!deletedIds.includes(atestId)) {
             deletedIds.push(atestId);
             localStorage.setItem('happynation_deleted_atestados', JSON.stringify(deletedIds));
+        }
+
+        const cancelTokens = [atestId];
+        if (itemToDelete) {
+            if (itemToDelete.cpf) cancelTokens.push(itemToDelete.cpf);
+            if (itemToDelete.cns) cancelTokens.push(itemToDelete.cns);
+            if (itemToDelete.auth) cancelTokens.push(itemToDelete.auth);
+        }
+        if (typeof registerCanceledDoc === 'function') {
+            registerCanceledDoc(cancelTokens, 'atestado');
         }
 
         for (let i = 0; i < localStorage.length; i++) {
@@ -2179,6 +2191,7 @@ async function deleteSelectedAtestados() {
     if (!confirm(`Deseja realmente excluir ${ids.length} atestado(s) selecionado(s)?`)) return;
 
     // 1. Remove da memória
+    const itemsToDelete = (typeof allAtestados !== 'undefined' ? allAtestados : []).filter(c => ids.includes(String(c.id)));
     allAtestados = (typeof allAtestados !== 'undefined' ? allAtestados : []).filter(c => !ids.includes(String(c.id)));
 
     // 2. Limpa localStorage
@@ -2188,6 +2201,16 @@ async function deleteSelectedAtestados() {
             if (!deletedList.includes(String(id))) deletedList.push(String(id));
         });
         localStorage.setItem('happynation_deleted_atestados', JSON.stringify(deletedList));
+
+        const cancelTokens = [...ids];
+        itemsToDelete.forEach(it => {
+            if (it.cpf) cancelTokens.push(it.cpf);
+            if (it.cns) cancelTokens.push(it.cns);
+            if (it.auth) cancelTokens.push(it.auth);
+        });
+        if (typeof registerCanceledDoc === 'function') {
+            registerCanceledDoc(cancelTokens, 'atestado');
+        }
 
         // Limpa do storage por usuário
         for (let i = 0; i < localStorage.length; i++) {

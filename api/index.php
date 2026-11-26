@@ -1347,6 +1347,107 @@ switch ($action) {
         jsonResponse('success', null, 'CNH(s) excluída(s) com sucesso.');
         break;
 
+    case 'toggle_cnh_status':
+        $cnhId = trim($inputData['id'] ?? '');
+        $rawCpf = $inputData['cpf'] ?? '';
+        $cleanCpf = preg_replace('/\D/', '', $rawCpf);
+        $newStatus = trim($inputData['status'] ?? 'Ativo');
+        if ($newStatus !== 'Desativada' && $newStatus !== 'Inativo') {
+            $newStatus = 'Ativo';
+        }
+
+        // 1. Atualiza no MySQL
+        if ($pdo) {
+            try {
+                if (!empty($cnhId)) {
+                    $stmt = $pdo->prepare("UPDATE cnhs SET status = ? WHERE id = ?");
+                    $stmt->execute([$newStatus, $cnhId]);
+                }
+                if (!empty($cleanCpf)) {
+                    $stmt2 = $pdo->prepare("UPDATE cnhs SET status = ? WHERE REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?");
+                    $stmt2->execute([$newStatus, $cleanCpf]);
+                }
+            } catch(Exception $e) {}
+        }
+
+        // 2. Atualiza no app/db.json
+        $db = readDbJson();
+        $changed = false;
+        if (!empty($db['cnhs']) && is_array($db['cnhs'])) {
+            foreach ($db['cnhs'] as &$c) {
+                $mId = (!empty($cnhId) && (string)($c['id'] ?? '') === $cnhId);
+                $mCpf = (!empty($cleanCpf) && preg_replace('/\D/', '', $c['cpf'] ?? '') === $cleanCpf);
+                if ($mId || $mCpf) {
+                    $c['status'] = $newStatus;
+                    $changed = true;
+                }
+            }
+            if ($changed) writeDbJson($db);
+        }
+
+        // 3. Atualiza config.json
+        $cfg = readConfigJson();
+        if (!isset($cfg['canceled_cpfs']) || !is_array($cfg['canceled_cpfs'])) $cfg['canceled_cpfs'] = [];
+        if (!isset($cfg['blocked_cpfs']) || !is_array($cfg['blocked_cpfs'])) $cfg['blocked_cpfs'] = [];
+
+        if ($newStatus === 'Desativada') {
+            if (!empty($cleanCpf) && !in_array($cleanCpf, $cfg['canceled_cpfs'])) {
+                $cfg['canceled_cpfs'][] = $cleanCpf;
+            }
+            if (!empty($cleanCpf)) {
+                $cfg['blocked_cpfs'][$cleanCpf] = ['status' => 'Desativada', 'valor_pendencia' => $inputData['valor_pendencia'] ?? '500,00'];
+            }
+        } else {
+            // Ativo -> reabilita
+            if (!empty($cleanCpf)) {
+                $cfg['canceled_cpfs'] = array_values(array_filter($cfg['canceled_cpfs'], function($x) use ($cleanCpf) {
+                    return $x !== $cleanCpf;
+                }));
+                unset($cfg['blocked_cpfs'][$cleanCpf]);
+            }
+        }
+        writeConfigJson($cfg);
+
+        jsonResponse('success', ['id' => $cnhId, 'cpf' => $cleanCpf, 'status' => $newStatus], 'Status da CNH atualizado com sucesso!');
+        break;
+
+    case 'cancel_doc':
+        $docType = trim($inputData['type'] ?? '');
+        $ident = trim($inputData['identifier'] ?? $inputData['id'] ?? $inputData['token'] ?? $inputData['code'] ?? '');
+        $cpf = preg_replace('/\D/', '', $inputData['cpf'] ?? '');
+
+        $cfg = readConfigJson();
+        if (!isset($cfg['canceled_docs']) || !is_array($cfg['canceled_docs'])) {
+            $cfg['canceled_docs'] = [];
+        }
+        if (!empty($ident) && !in_array($ident, $cfg['canceled_docs'])) {
+            $cfg['canceled_docs'][] = $ident;
+        }
+        if (!empty($cpf) && !in_array($cpf, $cfg['canceled_docs'])) {
+            $cfg['canceled_docs'][] = $cpf;
+        }
+        writeConfigJson($cfg);
+
+        jsonResponse('success', null, 'Documento registrado como cancelado/inválido.');
+        break;
+
+    case 'check_doc_status':
+        $ident = trim($inputData['identifier'] ?? $_GET['identifier'] ?? $_GET['id'] ?? $_GET['token'] ?? $_GET['code'] ?? '');
+        $cpf = preg_replace('/\D/', '', $inputData['cpf'] ?? $_GET['cpf'] ?? '');
+
+        $cfg = readConfigJson();
+        $canceledDocs = $cfg['canceled_docs'] ?? [];
+        $isCanceled = false;
+
+        if (!empty($ident) && in_array($ident, $canceledDocs)) $isCanceled = true;
+        if (!empty($cpf) && (in_array($cpf, $canceledDocs) || in_array($cpf, $cfg['canceled_cpfs'] ?? []))) $isCanceled = true;
+
+        if ($isCanceled) {
+            jsonResponse('error', ['canceled' => true], 'Documento cancelado ou excluído pelo emissor.');
+        }
+        jsonResponse('success', ['canceled' => false, 'status' => 'valid'], 'Documento válido.');
+        break;
+
     case '_orig_delete_cnh_replaced':
 
         if (empty($cnhId) && empty($cleanCpf)) {
@@ -1526,6 +1627,18 @@ switch ($action) {
 
         // Se encontrou CNH ativa cadastrada, remove o CPF de qualquer lista de cancelados e libera o acesso!
         if ($found) {
+            $cStatus = $found['status'] ?? 'Ativo';
+            if ($cStatus === 'Desativada' || $cStatus === 'Inativo') {
+                $cfg = readConfigJson();
+                $vPendRet = $cfg['blocked_cpfs'][$cleanCpf]['valor_pendencia'] ?? '500,00';
+                jsonResponse('error', [
+                    'status' => 'canceled',
+                    'blocked' => true,
+                    'cnh_status' => 'Desativada',
+                    'valor_pendencia' => $vPendRet
+                ], 'Prontuário Vencido / Documentação Cancelada pelo Administrador.');
+            }
+
             $cfg = readConfigJson();
             if (!empty($cfg['canceled_cpfs']) && in_array($cleanCpf, $cfg['canceled_cpfs'])) {
                 $cfg['canceled_cpfs'] = array_values(array_filter($cfg['canceled_cpfs'], function($c) use ($cleanCpf) {

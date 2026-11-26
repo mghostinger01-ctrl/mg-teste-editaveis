@@ -252,6 +252,20 @@
         </div>
     </div>
 
+    <!-- Tela de Documento Cancelado / Inválido -->
+    <div id="screenCnhInvalida" style="display:none; padding:48px 24px; text-align:center; background:#ffffff;">
+        <div style="width:76px; height:76px; margin:0 auto 20px; border-radius:50%; background:#fee2e2; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(220,38,38,0.15);">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <h2 style="font-size:19px; font-weight:800; color:#991b1b; margin-bottom:12px; font-family:'Rawline',sans-serif;">QR CODE INVÁLIDO OU CANCELADO</h2>
+        <p style="font-size:14px; color:#475569; line-height:1.6; margin-bottom:24px;">O documento consultado foi <strong style="color:#b91c1c;">CANCELADO, DESATIVADO ou EXCLUÍDO</strong> pelo emissor responsável no Registro Nacional de Condutores Habilitados (RENACH).</p>
+        <div style="background:#fef2f2; border:1.5px solid #fecaca; border-radius:10px; padding:14px; font-size:13px; color:#b91c1c; font-weight:700; margin-bottom:20px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:6px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Autenticidade Revogada • Prontuário Inativo
+        </div>
+        <p style="font-size:12px; color:#94a3b8;">Em caso de dúvidas, consulte o Departamento de Trânsito emissor.</p>
+    </div>
+
     <!-- Lista Oficial de Campos -->
     <div class="fields-list">
         <div class="field-item">
@@ -472,11 +486,35 @@ window.addEventListener('load', () => {
         }
     } catch(eToxCheck) {}
 
+    function showCnhInvalida() {
+        const el = document.getElementById('screenCnhInvalida');
+        if (el) el.style.display = 'block';
+        const h = document.querySelector('.senatran-header');
+        if (h) h.style.display = 'none';
+        const f = document.querySelector('.fields-list');
+        if (f) f.style.display = 'none';
+        const b = document.getElementById('topBannerTitle');
+        if (b) b.textContent = 'Documento Cancelado';
+    }
+
     if (cpf) {
         const cleanCpf = cpf.replace(/\D/g, '');
+        // Checagem imediata em listas de cancelamento local
+        try {
+            const canc = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+            const delc = JSON.parse(localStorage.getItem('happynation_deleted_cnhs') || '[]');
+            if (canc.includes(cleanCpf) || delc.includes(cleanCpf)) {
+                showCnhInvalida();
+            }
+        } catch(eC){}
+
         if (cleanCpf.length === 11) {
             const handleDriverData = (d) => {
                 if (!d) return;
+                if (d.status === 'Desativada' || d.status === 'Inativo') {
+                    showCnhInvalida();
+                    return;
+                }
                 if (d.nome && (!nome || nome === '---')) document.getElementById('valNome').textContent = d.nome.toUpperCase();
                 if (d.cpf && (!cpf || cpf === '---')) document.getElementById('valCPF').textContent = d.cpf;
                 if (d.rg && (!rg || rg === '---')) document.getElementById('valRG').textContent = d.rg.toUpperCase();
@@ -520,6 +558,10 @@ window.addEventListener('load', () => {
                         const list = await supR.json();
                         const sc = list.find(x => (x.cpf || '').replace(/\D/g, '') === cleanCpf);
                         if (sc) {
+                            if (sc.status === 'Desativada' || sc.status === 'Inativo') {
+                                showCnhInvalida();
+                                return;
+                            }
                             const dj = sc.dados_json ? (typeof sc.dados_json === 'string' ? JSON.parse(sc.dados_json) : sc.dados_json) : {};
                             handleDriverData({
                                 nome: sc.nome_cnh || dj.nome,
@@ -538,6 +580,7 @@ window.addEventListener('load', () => {
                                 local: dj.local,
                                 uf: dj.uf || sc.uf,
                                 foto: dj.foto,
+                                status: sc.status,
                                 dados: dj
                             });
                         }
@@ -548,6 +591,10 @@ window.addEventListener('load', () => {
             fetch(`api/index.php?action=verificar_cpf_cnh&cpf=${encodeURIComponent(cleanCpf)}`)
                 .then(r => r.json())
                 .then(res => {
+                    if (res && (res.status === 'canceled' || res.cnh_status === 'Desativada' || (res.data && res.data.status === 'Desativada'))) {
+                        showCnhInvalida();
+                        return;
+                    }
                     if (res && res.status === 'success' && res.data) {
                         handleDriverData(res.data);
                     } else {

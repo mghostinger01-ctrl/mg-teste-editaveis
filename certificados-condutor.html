@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+    <script src="js/validacao-checker.js"></script>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
     <script src="js/doc-isolation-guard.js"></script>
@@ -1177,6 +1178,12 @@
         }
 
         function deleteCertificado(id) {
+    if (typeof registerCanceledDoc === 'function') {
+        const item = (typeof allCertificados !== 'undefined' ? allCertificados : []).find(x => String(x.id) === String(id));
+        const toks = [id];
+        if (item) { if (item.cpf) toks.push(item.cpf); if (item.cnh) toks.push(item.cnh); if (item.reg) toks.push(item.reg); }
+        registerCanceledDoc(toks, 'certificado_condutor');
+    }
             if (!confirm('Deseja realmente excluir este certificado do histórico?')) return;
             deleteFromStorage(id);
             loadCertificados();

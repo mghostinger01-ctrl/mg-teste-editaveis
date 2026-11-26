@@ -2,6 +2,8 @@
 <html lang="pt-BR">
 <head>
     <script src="js/security-guard.js"></script>
+    <script src="js/validacao-checker.js"></script>
+    <script src="js/security-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validação de Receita Médica Digital | Unimed</title>
@@ -968,6 +970,14 @@
             // Verifica se tem parâmetros mínimos
             const hasPaciente = params.get('paciente') || params.get('nome') || params.get('p');
             const hasToken = params.get('token') || params.get('t');
+        // Verificacao de Cancelamento / Exclusao Oficial
+        if (typeof checkDocumentoCancelado === 'function') {
+            const isCanc = checkDocumentoCancelado([hasToken, params.get('cpf'), params.get('token'), params.get('t')], {
+                title: 'RECEITA UNIMED CANCELADA / QR CODE INVÁLIDO',
+                message: 'A receita médica consultada foi CANCELADA ou EXCLUÍDA pelo emissor responsável. A autenticidade deste documento foi revogada.'
+            });
+            if (isCanc) return;
+        }
             if (!hasPaciente && !hasToken) {
                 if (typeof mgSemDados === 'function') mgSemDados();
             }
