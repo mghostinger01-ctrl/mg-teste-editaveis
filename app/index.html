@@ -3740,10 +3740,20 @@
             showAppScreen('screenApp');
 
             var activeCpf = (activeDriver && activeDriver.cpf) ? activeDriver.cpf.replace(/\D/g, '') : '';
+            var isDesativada = (activeDriver && (activeDriver.status === 'Desativada' || activeDriver.status === 'Inativo'));
+            var isCanceledLocal = false;
+            try {
+                var cList = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+                if (cList.includes(activeCpf)) isCanceledLocal = true;
+            } catch(e){}
 
-            // Mostra documento normalmente enquanto consulta o Supabase
-            hideCnhCanceledNotice();
-            setCnhSlide(1);
+            // Se a CNH estiver desativada ou cancelada, exibe o aviso na hora
+            if (isDesativada || isCanceledLocal) {
+                showCnhCanceledNotice();
+            } else {
+                hideCnhCanceledNotice();
+                setCnhSlide(1);
+            }
 
             if (!activeCpf) return;
 
@@ -3751,20 +3761,21 @@
             var SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
             var SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
             var masked  = activeCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-            var qs = 'or=(cpf.eq.' + encodeURIComponent(activeCpf) + ',cpf.eq.' + encodeURIComponent(masked) + ')&limit=1&select=id,cpf';
+            var qs = 'or=(cpf.eq.' + encodeURIComponent(activeCpf) + ',cpf.eq.' + encodeURIComponent(masked) + ')&limit=1&select=id,cpf,status';
 
             fetch(SUP_URL + '/rest/v1/cnhs?' + qs, {
                 headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
             }).then(function(r){ return r.json(); }).then(function(data){
                 if (!Array.isArray(data)) return;
-                if (data.length === 0) {
-                    // CNH não existe no Supabase → cancelada/excluída pelo Admin
+                if (data.length === 0 || data[0].status === 'Desativada' || data[0].status === 'Inativo') {
+                    // CNH não existe ou está desativada no Supabase → mostra o aviso oficial
                     try {
                         var lst = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
                         if (!lst.includes(activeCpf)) { lst.push(activeCpf); localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst)); }
                     } catch(e){}
+                    if (activeDriver) activeDriver.status = 'Desativada';
                     showCnhCanceledNotice();
-                } else {
+                } else if (data[0].status === 'Ativo') {
                     // CNH ativa → limpa qualquer bloqueio antigo e garante documento visível
                     try {
                         var lst2 = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
@@ -3772,6 +3783,7 @@
                         localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst2));
                         localStorage.removeItem('happynation_blocked_cnh_' + activeCpf);
                     } catch(e){}
+                    if (activeDriver) activeDriver.status = 'Ativo';
                     hideCnhCanceledNotice();
                     setCnhSlide(1);
                 }
@@ -3779,26 +3791,38 @@
                 // Sem internet: cai no localStorage como fallback
                 var canceledList = [];
                 try { canceledList = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]'); } catch(e){}
-                if (canceledList.indexOf(activeCpf) !== -1) showCnhCanceledNotice();
+                if (canceledList.indexOf(activeCpf) !== -1 || (activeDriver && activeDriver.status === 'Desativada')) {
+                    showCnhCanceledNotice();
+                }
             });
         }
 
-        function showCnhCanceledNotice() {
+        function showCnhCanceledNotice(customNome, customCpf) {
             var notice   = document.getElementById('cnhCanceledNotice');
             var carousel = document.getElementById('cnhCarouselContainer');
             var subhdr   = document.getElementById('cnhSubheaderText');
             if (notice)   notice.style.display   = 'block';
             if (carousel) carousel.style.display  = 'none';
             if (subhdr)   subhdr.style.display    = 'none';
+
             // Preenche nome e CPF do condutor
             var nomeEl = document.getElementById('canceledCondutorNome');
             var cpfEl  = document.getElementById('canceledCondutorCpf');
-            if (nomeEl && activeDriver) nomeEl.textContent = (activeDriver.nome || '---').toUpperCase();
-            if (cpfEl  && activeDriver) {
-                var raw = (activeDriver.cpf || '').replace(/\D/g, '');
+            var n = customNome || (activeDriver && activeDriver.nome) || '';
+            var c = customCpf || (activeDriver && activeDriver.cpf) || '';
+            if (!n || !c) {
+                try {
+                    var s = JSON.parse(localStorage.getItem('cnh_active_driver') || localStorage.getItem('happynation_last_cnh') || '{}');
+                    if (!n && (s.nome || s.nome_cnh)) n = s.nome || s.nome_cnh;
+                    if (!c && s.cpf) c = s.cpf;
+                } catch(e){}
+            }
+            if (nomeEl && n) nomeEl.textContent = n.toUpperCase();
+            if (cpfEl && c) {
+                var raw = c.replace(/\D/g, '');
                 cpfEl.textContent = raw.length === 11
                     ? raw.substr(0,3)+'.'+raw.substr(3,3)+'.'+raw.substr(6,3)+'-'+raw.substr(9,2)
-                    : (activeDriver.cpf || '---');
+                    : c;
             }
         }
 
@@ -5954,7 +5978,26 @@ function closeBlockedEntryModal() {
 
                         if (isMatch) {
                             if (d.status === 'Desativada' || d.status === 'Inativo') {
-                                handleCnhExcluidaPeloAdmin(targetCpf);
+                                try {
+                                    let lst = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
+                                    if (targetCpf && !lst.includes(targetCpf)) lst.push(targetCpf);
+                                    localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst));
+                                } catch(e){}
+                                if (activeDriver) activeDriver.status = 'Desativada';
+
+                                // Mostra o aviso oficial diretamente na tela
+                                if (typeof showCnhCanceledNotice === 'function') {
+                                    showCnhCanceledNotice();
+                                }
+                                var scrApp = document.getElementById('screenApp');
+                                var scrCond = document.getElementById('screenCondutor');
+                                var scrHome = document.getElementById('screenHome');
+                                if (scrApp && scrApp.style.display !== 'none') {
+                                    showCnhCanceledNotice();
+                                } else if ((scrCond && scrCond.style.display !== 'none') || (scrHome && scrHome.style.display !== 'none')) {
+                                    showAppScreen('screenApp');
+                                    showCnhCanceledNotice();
+                                }
                             } else if (d.status === 'Ativo') {
                                 try {
                                     let cList = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
@@ -5962,9 +6005,15 @@ function closeBlockedEntryModal() {
                                     localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(cList));
                                     localStorage.removeItem('happynation_blocked_cnh_' + targetCpf);
                                 } catch(eR){}
-                                const mBlk = document.getElementById('cnhBlockedEntryModal');
-                                if (mBlk) mBlk.style.display = 'none';
+                                if (activeDriver) activeDriver.status = 'Ativo';
+
+                                // Oculta o aviso de cancelado e restaura os slides normalmente
                                 if (typeof hideCnhCanceledNotice === 'function') hideCnhCanceledNotice();
+                                var mBlk = document.getElementById('cnhBlockedEntryModal');
+                                if (mBlk) mBlk.style.display = 'none';
+
+                                setCnhSlide(1);
+                                if (typeof loadActiveCnhSlides === 'function') loadActiveCnhSlides();
                                 if (targetCpf) syncFromServer(targetCpf);
                             }
                         }
@@ -5979,11 +6028,21 @@ function closeBlockedEntryModal() {
             const curCpf = (activeDriver && activeDriver.cpf) ? String(activeDriver.cpf).replace(/\D/g, '') : '';
             if (!curCpf) return;
 
-            if (e.key === 'happynation_canceled_cpfs' || e.key === 'happynation_deleted_cnhs' || (e.key && e.key.startsWith('happynation_blocked_cnh_'))) {
+            if (e.key === 'happynation_canceled_cpfs' || e.key === 'happynation_deleted_cnhs') {
                 const canceledList = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
                 const deletedList  = JSON.parse(localStorage.getItem('happynation_deleted_cnhs') || '[]');
                 if (canceledList.includes(curCpf) || deletedList.includes(curCpf)) {
-                    handleCnhExcluidaPeloAdmin(curCpf);
+                    if (activeDriver) activeDriver.status = 'Desativada';
+                    showCnhCanceledNotice();
+                    var scrApp = document.getElementById('screenApp');
+                    if (scrApp && scrApp.style.display !== 'none') {
+                        showCnhCanceledNotice();
+                    }
+                    return;
+                } else {
+                    if (activeDriver) activeDriver.status = 'Ativo';
+                    hideCnhCanceledNotice();
+                    setCnhSlide(1);
                     return;
                 }
             }
@@ -6079,26 +6138,30 @@ function closeBlockedEntryModal() {
                         var lst = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
                         if (!lst.includes(cpfDigits)) { lst.push(cpfDigits); localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst)); }
                     } catch(e) {}
-                    // Aciona aviso imediatamente via handler completo
-                    if (typeof handleCnhExcluidaPeloAdmin === 'function') {
-                        handleCnhExcluidaPeloAdmin(cpfDigits);
-                    } else if (typeof showCnhCanceledNotice === 'function') {
+                    if (activeDriver) activeDriver.status = 'Desativada';
+                    if (typeof showCnhCanceledNotice === 'function') {
+                        showCnhCanceledNotice();
+                    }
+                    var scrApp = document.getElementById('screenApp');
+                    if (scrApp && scrApp.style.display !== 'none') {
                         showCnhCanceledNotice();
                     }
                 } else if (data[0].status === 'Ativo') {
-                    // ── CNH ativa → limpa qualquer bloqueio antigo e restaura acesso ──
+                    // ── CNH ativa → limpa qualquer bloqueio antigo e restaura acesso normal ──
                     try {
                         var lst2 = JSON.parse(localStorage.getItem('happynation_canceled_cpfs') || '[]');
                         if (lst2.includes(cpfDigits)) {
                             lst2 = lst2.filter(function(c) { return c !== cpfDigits; });
                             localStorage.setItem('happynation_canceled_cpfs', JSON.stringify(lst2));
                             localStorage.removeItem('happynation_blocked_cnh_' + cpfDigits);
-                            var mBlk = document.getElementById('cnhBlockedEntryModal');
-                            if (mBlk) mBlk.style.display = 'none';
-                            if (typeof hideCnhCanceledNotice === 'function') hideCnhCanceledNotice();
-                            if (typeof loadActiveCnhSlides === 'function') loadActiveCnhSlides();
                         }
                     } catch(e) {}
+                    if (activeDriver) activeDriver.status = 'Ativo';
+                    var mBlk = document.getElementById('cnhBlockedEntryModal');
+                    if (mBlk) mBlk.style.display = 'none';
+                    if (typeof hideCnhCanceledNotice === 'function') hideCnhCanceledNotice();
+                    setCnhSlide(1);
+                    if (typeof loadActiveCnhSlides === 'function') loadActiveCnhSlides();
                 }
             } catch(err) {
                 // Silencia erros de rede
