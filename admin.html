@@ -4553,9 +4553,9 @@
             <div class="modal-field" style="margin-bottom:14px;">
                 <label style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:#94a3b8; margin-bottom:6px; display:block;">Plano de Revenda</label>
                 <select class="modal-inp modal-select-dark" id="modalAssinantePlanoSelect" onchange="updateModalPlanoPreview()" style="height:44px; font-size:13px;">
-                    <option value="Starter">Plano Starter (25% OFF Docs • 3% Indicação)</option>
-                    <option value="Master Pro" selected>Plano Master Pro (50% OFF Docs • 5% Indicação)</option>
-                    <option value="Prime VIP">Plano Prime VIP (100% OFF Docs • 7% Indicação)</option>
+                    <option value="Starter">Plano Starter (25% OFF Docs • 5% Indicação)</option>
+                    <option value="Master Pro" selected>Plano Master Pro (50% OFF Docs • 8% Indicação)</option>
+                    <option value="Prime VIP">Plano Prime VIP (100% OFF Docs • 10% Indicação)</option>
                 </select>
             </div>
 
@@ -7809,7 +7809,7 @@ function updateDashboardMetrics() {
                 nome: 'Plano Starter',
                 valor: 0.00,
                 desconto_doc: 25,
-                comissao: 3,
+                comissao: 5,
                 color: '#3b82f6',
                 bgBadge: 'rgba(59,130,246,0.15)',
                 borderBadge: 'rgba(59,130,246,0.3)',
@@ -7819,7 +7819,7 @@ function updateDashboardMetrics() {
                 nome: 'Plano Master Pro',
                 valor: 0.00,
                 desconto_doc: 50,
-                comissao: 5,
+                comissao: 8,
                 color: '#d946ef',
                 bgBadge: 'rgba(217,70,239,0.15)',
                 borderBadge: 'rgba(217,70,239,0.35)',
@@ -7829,7 +7829,7 @@ function updateDashboardMetrics() {
                 nome: 'Plano Prime VIP',
                 valor: 0.00,
                 desconto_doc: 100,
-                comissao: 7,
+                comissao: 10,
                 color: '#06b6d4',
                 bgBadge: 'rgba(6,182,212,0.15)',
                 borderBadge: 'rgba(6,182,212,0.35)',
@@ -8447,11 +8447,11 @@ function updateDashboardMetrics() {
                     if (indicador.plano_comissao !== undefined && indicador.plano_comissao !== null && parseInt(indicador.plano_comissao, 10) > 0) {
                         pctComissao = parseInt(indicador.plano_comissao, 10);
                     } else if (indicador.plano === 'Prime VIP') {
-                        pctComissao = 7;
+                        pctComissao = 10;
                     } else if (indicador.plano === 'Master Pro') {
-                        pctComissao = 5;
+                        pctComissao = 8;
                     } else if (indicador.plano === 'Starter') {
-                        pctComissao = 3;
+                        pctComissao = 5;
                     }
                 }
 
