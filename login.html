@@ -807,20 +807,36 @@
             }
 
             try {
+                let users = null;
                 const client = window.supabaseInstance || window.supabaseClient;
-                if (!client) {
-                    throw new Error('Supabase client não carregado.');
+                if (client) {
+                    try {
+                        const { data, error } = await client
+                            .from('usuarios')
+                            .select('*')
+                            .ilike('email', email)
+                            .limit(1);
+                        if (!error && Array.isArray(data)) users = data;
+                    } catch(eClient) {
+                        console.warn('[Login] Erro SDK Supabase:', eClient);
+                    }
                 }
 
-                const { data: users, error } = await client
-                    .from('usuarios')
-                    .select('*')
-                    .ilike('email', email)
-                    .limit(1);
-
-                if (error) {
-                    console.error('Erro de consulta Supabase:', error);
-                    throw error;
+                // Fallback REST nativo direto no Supabase (funciona mesmo se a CDN falhar)
+                if (!users) {
+                    try {
+                        const res = await fetch(`https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/usuarios?email=ilike.${encodeURIComponent(email)}&limit=1`, {
+                            headers: {
+                                'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                                'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ'
+                            }
+                        });
+                        if (res.ok) {
+                            users = await res.json();
+                        }
+                    } catch(eREST) {
+                        console.warn('[Login] Erro fallback REST:', eREST);
+                    }
                 }
 
                 if (!users || users.length === 0) {
@@ -839,14 +855,16 @@
                     return;
                 }
 
-                if (user.status === 'blocked') {
+                const userStatus = String(user.status || '').toLowerCase().trim();
+
+                if (userStatus === 'blocked' || userStatus === 'bloqueado') {
                     showToast('Sua conta está bloqueada pelo Administrador.', false);
                     btn.disabled = false;
                     btn.textContent = 'Entrar';
                     return;
                 }
 
-                if (user.status === 'pending') {
+                if (userStatus === 'pending' || userStatus === 'pendente' || userStatus === 'analise' || userStatus === 'aguardando') {
                     const supPhone = getActiveSupportPhone();
                     const whatsUrl = 'https://wa.me/' + supPhone + '?text=' + encodeURIComponent('Olá, meu cadastro no MG Editáveis (' + (user.email || email) + ') ainda está em análise. Gostaria de agilizar a aprovação do meu acesso.');
                     openPendingModal(user.nome || '', email, whatsUrl);
@@ -893,19 +911,34 @@
             btn.textContent = 'Cadastrando...';
 
             try {
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 const client = window.supabaseInstance || window.supabaseClient;
-                if (!client) {
-                    throw new Error('Supabase client não carregado.');
-                }
 
                 // 1. Verifica duplicidade de e-mail
-                const { data: existingUser, error: checkErr } = await client
-                    .from('usuarios')
-                    .select('id')
-                    .ilike('email', email)
-                    .limit(1);
+                let existingUser = null;
+                if (client) {
+                    try {
+                        const { data, error: checkErr } = await client
+                            .from('usuarios')
+                            .select('id')
+                            .ilike('email', email)
+                            .limit(1);
+                        if (!checkErr && Array.isArray(data)) existingUser = data;
+                    } catch(eChk) {}
+                }
 
-                if (checkErr) throw checkErr;
+                if (!existingUser) {
+                    try {
+                        const rCheck = await fetch(`${SUP_URL}/rest/v1/usuarios?email=ilike.${encodeURIComponent(email)}&select=id&limit=1`, {
+                            headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}` }
+                        });
+                        if (rCheck.ok) {
+                            const dChk = await rCheck.json();
+                            if (Array.isArray(dChk)) existingUser = dChk;
+                        }
+                    } catch(eChkRest) {}
+                }
 
                 if (existingUser && existingUser.length > 0) {
                     showToast('Este e-mail já está cadastrado no sistema. Não é permitido criar novamente.', false);
@@ -916,23 +949,63 @@
 
                 // 2. Insere na tabela 'usuarios'
                 let newUser = null;
-                let insertRes = await client
-                    .from('usuarios')
-                    .insert([
-                        {
-                            nome: nome,
-                            email: email.toLowerCase(),
-                            senha: senha,
-                            phone: phone || null,
-                            saldo: 0.00,
-                            role: 'client',
-                            status: 'pending'
-                        }
-                    ])
-                    .select();
+                let insertErr = null;
 
-                let insertErr = insertRes.error;
-                newUser = insertRes.data;
+                if (client) {
+                    try {
+                        const insertRes = await client
+                            .from('usuarios')
+                            .insert([
+                                {
+                                    nome: nome,
+                                    email: email.toLowerCase(),
+                                    senha: senha,
+                                    phone: phone || null,
+                                    saldo: 0.00,
+                                    role: 'client',
+                                    status: 'pending'
+                                }
+                            ])
+                            .select();
+                        insertErr = insertRes.error;
+                        newUser = insertRes.data;
+                    } catch(eClientIns) {
+                        insertErr = eClientIns;
+                    }
+                }
+
+                // Se client falhou ou não existe, usa fetch REST nativo
+                if (!newUser || (Array.isArray(newUser) && newUser.length === 0)) {
+                    try {
+                        const rIns = await fetch(`${SUP_URL}/rest/v1/usuarios`, {
+                            method: 'POST',
+                            headers: {
+                                'apikey': SUP_KEY,
+                                'Authorization': `Bearer ${SUP_KEY}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=representation'
+                            },
+                            body: JSON.stringify({
+                                nome: nome,
+                                email: email.toLowerCase(),
+                                senha: senha,
+                                phone: phone || null,
+                                saldo: 0.00,
+                                role: 'client',
+                                status: 'pending'
+                            })
+                        });
+                        if (rIns.ok) {
+                            newUser = await rIns.json();
+                            insertErr = null;
+                        } else {
+                            const errTxt = await rIns.text();
+                            insertErr = { message: errTxt };
+                        }
+                    } catch(eRestIns) {
+                        insertErr = eRestIns;
+                    }
+                }
 
                 // Fallback automático robusto caso a sequence do PostgreSQL colida com IDs pré-existentes
                 if (insertErr) {

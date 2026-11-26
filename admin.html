@@ -2671,21 +2671,76 @@
                     </div>
                 </div>
 
-                <!-- CLIENTES APROVADOS / ATIVOS -->
+                <!-- BARRA DE FILTROS RÁPIDOS DE STATUS -->
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <button type="button" class="adm-filter user-filter active" id="btnFilterUserAll" onclick="setUserFilter('all', this)">
+                            <span>Todos os Clientes</span> <span id="countFilterAll" style="opacity:0.8; margin-left:4px;">(0)</span>
+                        </button>
+                        <button type="button" class="adm-filter user-filter" id="btnFilterUserPending" onclick="setUserFilter('pending', this)" style="border-color:rgba(245,158,11,0.5); color:#fbbf24; background:rgba(245,158,11,0.08);">
+                            <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#fbbf24; margin-right:5px; box-shadow:0 0 6px #fbbf24;"></span>
+                            <span>Aguardando Aprovação</span> <span id="countFilterPending" style="background:rgba(245,158,11,0.25); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; padding:1px 7px; border-radius:10px; font-weight:800; font-size:10px; margin-left:4px;">0</span>
+                        </button>
+                        <button type="button" class="adm-filter user-filter" id="btnFilterUserApproved" onclick="setUserFilter('approved', this)">
+                            <span>✓ Aprovados</span> <span id="countFilterApproved" style="opacity:0.8; margin-left:4px;">(0)</span>
+                        </button>
+                        <button type="button" class="adm-filter user-filter" id="btnFilterUserBlocked" onclick="setUserFilter('blocked', this)">
+                            <span>⛔ Bloqueados</span> <span id="countFilterBlocked" style="opacity:0.8; margin-left:4px;">(0)</span>
+                        </button>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button class="btn-act" onclick="openAddUserModal()" style="background:#00dc82; color:#062517; font-weight:700; border:none; padding:7px 14px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Novo Cliente</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO PRIORITÁRIA: AGUARDANDO APROVAÇÃO (PENDENTES) -->
+                <div id="pendingUsersSection" style="display:none; margin-bottom:20px;">
+                    <div class="card" style="border-color:rgba(245,158,11,0.35); background:linear-gradient(160deg,#1c1b18,#191505); padding:16px 18px; box-shadow:0 0 20px rgba(245,158,11,0.06);">
+                        <div class="card-header-bar" style="margin-bottom:12px;">
+                            <div class="table-title" style="font-size:14px; display:flex; align-items:center; gap:8px;">
+                                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#fbbf24; box-shadow:0 0 10px #fbbf24; animation:chipPulse 1.8s infinite ease-in-out;"></span>
+                                <span style="color:#fbbf24; font-weight:800; letter-spacing:0.3px;">Cadastros Aguardando Aprovação</span>
+                                <span id="pendingUsersCount" style="font-size:11px; font-weight:800; background:rgba(245,158,11,0.25); color:#fbbf24; border:1px solid rgba(245,158,11,0.5); padding:2px 8px; border-radius:12px;">0</span>
+                            </div>
+                            <div class="search-box-wrap">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" class="search-inp" id="searchPendingUserInp" placeholder="Buscar pendentes..." onkeyup="filterPendingUsersTable()" style="width:180px; padding-top:5px; padding-bottom:5px;">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>WhatsApp</th>
+                                        <th>Saldo</th>
+                                        <th>Documentos</th>
+                                        <th>Status</th>
+                                        <th>Ações Rápidas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pendingUsersTableBody">
+                                    <!-- Preenchido via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABELA PRINCIPAL DE CLIENTES -->
                 <div class="card">
                     <div class="card-header-bar">
                         <div class="table-title">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                            <span>Clientes Aprovados</span>
+                            <span id="mainUsersTableTitle">Todos os Clientes</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <button class="btn-act" onclick="openAddUserModal()" style="background:#00dc82; color:#062517; font-weight:700; border:none; padding:7px 14px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                <span>Novo Cliente</span>
-                            </button>
                             <div class="search-box-wrap">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                <input type="text" class="search-inp" id="searchUserInp" placeholder="Buscar por nome ou e-mail..." onkeyup="filterUsersTable()">
+                                <input type="text" class="search-inp" id="searchUserInp" placeholder="Buscar por nome, e-mail ou tel..." onkeyup="filterUsersTable()">
                             </div>
                         </div>
                     </div>
@@ -2723,64 +2778,14 @@
                     </div>
                 </div>
 
-                <!-- SEÇÃO: AGUARDANDO APROVAÇÃO (PENDENTES) -->
-                <div id="pendingUsersSection" style="display:none;">
-                    <div style="display:flex; align-items:center; gap:10px; margin:14px 0 8px 0;">
-                        <div style="flex:1; height:1px; background:rgba(245,158,11,0.2);"></div>
-                        <div style="display:flex; align-items:center; gap:8px; padding:4px 14px; border-radius:20px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); white-space:nowrap;">
-                            <span style="width:7px;height:7px;border-radius:50%;background:#fbbf24;box-shadow:0 0 8px #fbbf24;display:inline-block;animation:chipPulse 1.8s infinite ease-in-out;"></span>
-                            <span style="font-size:11px;font-weight:700;color:#fbbf24;letter-spacing:0.3px;">Aguardando Aprovação</span>
-                            <span id="pendingUsersCount" style="font-size:10px;font-weight:800;background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);padding:1px 7px;border-radius:10px;">0</span>
-                        </div>
-                        <div style="flex:1; height:1px; background:rgba(245,158,11,0.2);"></div>
-                    </div>
-                    <div class="card" style="border-color:rgba(245,158,11,0.22);background:linear-gradient(160deg,#191c1d,#191402); padding:14px 16px;">
-                        <div class="card-header-bar" style="margin-bottom:10px;">
-                            <div class="table-title" style="font-size:13.5px;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                <span style="color:#fbbf24;">Cadastros Pendentes</span>
-                            </div>
-                            <div class="search-box-wrap">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                <input type="text" class="search-inp" id="searchPendingUserInp" placeholder="Buscar pendentes..." onkeyup="filterPendingUsersTable()" style="width:180px; padding-top:5px; padding-bottom:5px;">
-                            </div>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Cliente</th>
-                                        <th>WhatsApp</th>
-                                        <th>Saldo</th>
-                                        <th>Documentos</th>
-                                        <th>Status</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="pendingUsersTableBody">
-                                    <!-- Preenchido via JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- SEÇÃO: CLIENTES BLOQUEADOS -->
-                <div id="blockedUsersSection" style="display:none;">
-                    <div style="display:flex; align-items:center; gap:10px; margin:14px 0 8px 0;">
-                        <div style="flex:1; height:1px; background:rgba(239,68,68,0.2);"></div>
-                        <div style="display:flex; align-items:center; gap:8px; padding:4px 14px; border-radius:20px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); white-space:nowrap;">
-                            <span style="width:7px;height:7px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;display:inline-block;"></span>
-                            <span style="font-size:11px;font-weight:700;color:#f87171;letter-spacing:0.3px;">Clientes Bloqueados</span>
-                            <span id="blockedUsersCount" style="font-size:10px;font-weight:800;background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.4);padding:1px 7px;border-radius:10px;">0</span>
-                        </div>
-                        <div style="flex:1; height:1px; background:rgba(239,68,68,0.2);"></div>
-                    </div>
-                    <div class="card" style="border-color:rgba(239,68,68,0.22);background:linear-gradient(160deg,#191c1d,#1e1313); padding:14px 16px;">
+                <div id="blockedUsersSection" style="display:none; margin-top:20px;">
+                    <div class="card" style="border-color:rgba(239,68,68,0.25); background:linear-gradient(160deg,#191c1d,#1e1313); padding:14px 16px;">
                         <div class="card-header-bar" style="margin-bottom:10px;">
-                            <div class="table-title" style="font-size:13.5px;">
+                            <div class="table-title" style="font-size:13.5px; display:flex; align-items:center; gap:8px;">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                                <span style="color:#f87171;">Contas Bloqueadas</span>
+                                <span style="color:#f87171; font-weight:800;">Contas Bloqueadas</span>
+                                <span id="blockedUsersCount" style="font-size:10px; font-weight:800; background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(239,68,68,0.4); padding:1px 7px; border-radius:10px;">0</span>
                             </div>
                             <div class="search-box-wrap">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -5000,22 +5005,44 @@
         }
 
         
+        const _recentlyUpdatedUsers = {};
+        const SUP_PROJECT_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+        const SUP_PUB_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
+
         // ─── GESTÃO DE DADOS VIA SUPABASE (SEM PHP/XAMPP) ───
         async function loadAdminDataFromSupabase() {
             const client = window.supabaseInstance || window.supabaseClient;
-            if (!client) {
-                console.warn('[Admin] Cliente Supabase ainda não inicializado.');
-                return;
-            }
 
             try {
                 // 1. Busca todos os usuários cadastrados na tabela 'usuarios'
-                const { data: sUsers, error: errUsers } = await client
-                    .from('usuarios')
-                    .select('*')
-                    .order('id', { ascending: false });
+                let sUsers = null;
+                if (client) {
+                    try {
+                        const { data, error } = await client
+                            .from('usuarios')
+                            .select('*')
+                            .order('id', { ascending: false });
+                        if (!error && Array.isArray(data)) sUsers = data;
+                    } catch(e) {}
+                }
 
-                if (!errUsers && Array.isArray(sUsers)) {
+                // Fallback direto via REST fetch nativo se client falhar ou não estiver pronto
+                if (!sUsers) {
+                    try {
+                        const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?select=*&order=id.desc`, {
+                            headers: {
+                                'apikey': SUP_PUB_KEY,
+                                'Authorization': `Bearer ${SUP_PUB_KEY}`
+                            }
+                        });
+                        if (r.ok) {
+                            const data = await r.json();
+                            if (Array.isArray(data)) sUsers = data;
+                        }
+                    } catch(eREST) {}
+                }
+
+                if (Array.isArray(sUsers)) {
                     let deletedUsers = [];
                     try {
                         deletedUsers = JSON.parse(localStorage.getItem('happynation_deleted_users') || '[]');
@@ -5033,25 +5060,37 @@
                             const uIdStr = String(u.id);
                             return !deletedUsers.includes(uIdStr);
                         })
-                        .map(u => ({
-                            id: u.id,
-                            nome: u.nome || 'Sem Nome',
-                            email: u.email || '',
-                            senha: u.senha || '',
-                            cpf: u.cpf || '',
-                            phone: u.phone || '--',
-                            saldo: parseFloat(u.saldo || 0),
-                            cnhsCount: 0,
-                            role: u.role || 'client',
-                            status: (u.status === 'pendente' ? 'pending' : (u.status === 'aprovado' ? 'approved' : (u.status || 'pending'))),
-                            plano: u.plano || 'Nenhum',
-                            plano_status: u.plano_status || 'inativo',
-                            plano_desconto: parseInt(u.plano_desconto || 0),
-                            plano_comissao: parseInt(u.plano_comissao || 0),
-                            plano_validade: u.plano_validade || 'Vitalício',
-                            plano_ativado_em: u.plano_ativado_em || null,
-                            created_at: u.created_at
-                        }));
+                        .map(u => {
+                            const uIdStr = String(u.id);
+                            const recent = _recentlyUpdatedUsers[uIdStr];
+                            let effStatus = u.status;
+                            if (recent && (Date.now() - recent.timestamp < 45000)) {
+                                effStatus = recent.status;
+                            }
+                            const rawStatus = String(effStatus || '').toLowerCase().trim();
+                            const normStatus = (rawStatus === 'aprovado' || rawStatus === 'approved') ? 'approved' :
+                                               (rawStatus === 'bloqueado' || rawStatus === 'blocked') ? 'blocked' : 'pending';
+
+                            return {
+                                id: u.id,
+                                nome: u.nome || 'Sem Nome',
+                                email: u.email || '',
+                                senha: u.senha || '',
+                                cpf: u.cpf || '',
+                                phone: u.phone || '--',
+                                saldo: parseFloat(u.saldo || 0),
+                                cnhsCount: 0,
+                                role: u.role || 'client',
+                                status: normStatus,
+                                plano: u.plano || 'Nenhum',
+                                plano_status: u.plano_status || 'inativo',
+                                plano_desconto: parseInt(u.plano_desconto || 0),
+                                plano_comissao: parseInt(u.plano_comissao || 0),
+                                plano_validade: u.plano_validade || 'Vitalício',
+                                plano_ativado_em: u.plano_ativado_em || null,
+                                created_at: u.created_at
+                            };
+                        });
 
                     localStorage.setItem('happynation_admin_users', JSON.stringify(usersData));
                 }
@@ -6350,8 +6389,8 @@ function updateDashboardMetrics() {
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                             </button>
                         ` : `
-                            <button class="btn-act approve" onclick="changeUserStatus('${u.id}', 'approved')" style="padding:4px 12px; font-size:11px;">✓ Aceitar</button>
-                            <button class="btn-act block" onclick="rejectAndDeleteUser('${u.id}')" style="padding:4px 10px; font-size:11px;">✕ Recusar</button>
+                            <button class="btn-act approve" id="btnApproveUser_${u.id}" onclick="changeUserStatus('${u.id}', 'approved')" style="background:#00dc82; color:#062517; font-weight:800; padding:6px 14px; font-size:11.5px; border-radius:6px; box-shadow:0 0 10px rgba(0,220,130,0.25); border:none; cursor:pointer;" title="Aprovar e Liberar Acesso">✓ Aceitar</button>
+                            <button class="btn-act block" onclick="rejectAndDeleteUser('${u.id}')" style="padding:6px 10px; font-size:11.5px; border-radius:6px;" title="Recusar Cadastro">✕ Recusar</button>
                         `}
                     </div>
                 </td>
@@ -6361,6 +6400,23 @@ function updateDashboardMetrics() {
 
         let currentUsersPage = 1;
         const USERS_PER_PAGE = 10;
+        let currentUserFilter = 'all';
+
+        function setUserFilter(f, btn) {
+            currentUserFilter = f;
+            document.querySelectorAll('.user-filter').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            currentUsersPage = 1;
+
+            const titleEl = document.getElementById('mainUsersTableTitle');
+            if (titleEl) {
+                if (f === 'pending') titleEl.textContent = 'Clientes Aguardando Aprovação';
+                else if (f === 'approved') titleEl.textContent = 'Clientes Aprovados';
+                else if (f === 'blocked') titleEl.textContent = 'Clientes Bloqueados';
+                else titleEl.textContent = 'Todos os Clientes';
+            }
+            renderUsersTable();
+        }
 
         function prevUsersPage() {
             if (currentUsersPage > 1) {
@@ -6370,12 +6426,20 @@ function updateDashboardMetrics() {
         }
 
         function nextUsersPage() {
-            const qApproved = (document.getElementById('searchUserInp')?.value || '').toLowerCase().trim();
+            const q = (document.getElementById('searchUserInp')?.value || '').toLowerCase().trim();
             const allApproved = usersData.filter(u => u.status === 'approved');
-            const filteredApp = qApproved
-                ? allApproved.filter(u => (u.nome||'').toLowerCase().includes(qApproved) || (u.email||'').toLowerCase().includes(qApproved) || (u.phone||'').includes(qApproved))
-                : allApproved;
-            const totalPages = Math.ceil(filteredApp.length / USERS_PER_PAGE) || 1;
+            const allPending = usersData.filter(u => u.status === 'pending');
+            const allBlocked = usersData.filter(u => u.status === 'blocked');
+            let baseList = usersData;
+            if (currentUserFilter === 'approved') baseList = allApproved;
+            else if (currentUserFilter === 'pending') baseList = allPending;
+            else if (currentUserFilter === 'blocked') baseList = allBlocked;
+
+            const filtered = q
+                ? baseList.filter(u => (u.nome||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q) || (u.phone||'').includes(q))
+                : baseList;
+
+            const totalPages = Math.ceil(filtered.length / USERS_PER_PAGE) || 1;
             if (currentUsersPage < totalPages) {
                 currentUsersPage++;
                 renderUsersTable();
@@ -6399,64 +6463,87 @@ function updateDashboardMetrics() {
                 if (u.status === 'blocked') blockedCount++;
             });
 
-            // Queries de busca individuais
-            const qApproved = (document.getElementById('searchUserInp')?.value || '').toLowerCase().trim();
-            const qPending = (document.getElementById('searchPendingUserInp')?.value || '').toLowerCase().trim();
-            const qBlocked = (document.getElementById('searchBlockedUserInp')?.value || '').toLowerCase().trim();
-
             const allApproved = usersData.filter(u => u.status === 'approved');
             const allPending = usersData.filter(u => u.status === 'pending');
             const allBlocked = usersData.filter(u => u.status === 'blocked');
 
-            // 1. Aprovados (Paginado de 10 em 10)
+            // Atualiza contadores dos filtros
+            const elCountAll = document.getElementById('countFilterAll');
+            if (elCountAll) elCountAll.textContent = `(${usersData.length})`;
+            const elCountPend = document.getElementById('countFilterPending');
+            if (elCountPend) elCountPend.textContent = pendingCount;
+            const elCountApp = document.getElementById('countFilterApproved');
+            if (elCountApp) elCountApp.textContent = `(${allApproved.length})`;
+            const elCountBlk = document.getElementById('countFilterBlocked');
+            if (elCountBlk) elCountBlk.textContent = `(${allBlocked.length})`;
+
+            // Queries de busca
+            const qMain = (document.getElementById('searchUserInp')?.value || '').toLowerCase().trim();
+            const qPending = (document.getElementById('searchPendingUserInp')?.value || '').toLowerCase().trim();
+            const qBlocked = (document.getElementById('searchBlockedUserInp')?.value || '').toLowerCase().trim();
+
+            // 1. Tabela Principal (De acordo com o filtro ativo)
             if (tbody) {
                 tbody.innerHTML = '';
-                const filteredApp = qApproved
-                    ? allApproved.filter(u => (u.nome||'').toLowerCase().includes(qApproved) || (u.email||'').toLowerCase().includes(qApproved) || (u.phone||'').includes(qApproved))
-                    : allApproved;
+                let baseList = usersData;
+                if (currentUserFilter === 'approved') baseList = allApproved;
+                else if (currentUserFilter === 'pending') baseList = allPending;
+                else if (currentUserFilter === 'blocked') baseList = allBlocked;
+                else {
+                    // Todos: pendentes vêm primeiro para chamar atenção imediata
+                    baseList = [...usersData].sort((a, b) => {
+                        if (a.status === 'pending' && b.status !== 'pending') return -1;
+                        if (a.status !== 'pending' && b.status === 'pending') return 1;
+                        return (b.id || 0) - (a.id || 0);
+                    });
+                }
 
-                const totalApp = filteredApp.length;
-                const totalPages = Math.ceil(totalApp / USERS_PER_PAGE) || 1;
+                const filteredMain = qMain
+                    ? baseList.filter(u => (u.nome||'').toLowerCase().includes(qMain) || (u.email||'').toLowerCase().includes(qMain) || (u.phone||'').includes(qMain))
+                    : baseList;
+
+                const totalItems = filteredMain.length;
+                const totalPages = Math.ceil(totalItems / USERS_PER_PAGE) || 1;
                 if (currentUsersPage > totalPages) currentUsersPage = totalPages;
                 if (currentUsersPage < 1) currentUsersPage = 1;
 
                 const startIdx = (currentUsersPage - 1) * USERS_PER_PAGE;
                 const endIdx = startIdx + USERS_PER_PAGE;
-                const pageUsers = filteredApp.slice(startIdx, endIdx);
+                const pageUsers = filteredMain.slice(startIdx, endIdx);
 
                 const pagInfo = document.getElementById('usersPaginationInfo');
                 if (pagInfo) {
-                    if (totalApp === 0) {
+                    if (totalItems === 0) {
                         pagInfo.textContent = 'Mostrando 0 de 0 Clientes';
                     } else {
-                        pagInfo.textContent = `Mostrando ${startIdx + 1}-${Math.min(endIdx, totalApp)} de ${totalApp} Clientes`;
+                        pagInfo.textContent = `Mostrando ${startIdx + 1}-${Math.min(endIdx, totalItems)} de ${totalItems} Clientes`;
                     }
                 }
 
                 const pageCur = document.getElementById('usersPageCurrentInfo');
                 if (pageCur) {
-                    pageCur.textContent = totalApp === 0 ? 'Página 0 de 0' : `Página ${currentUsersPage} de ${totalPages}`;
+                    pageCur.textContent = totalItems === 0 ? 'Página 0 de 0' : `Página ${currentUsersPage} de ${totalPages}`;
                 }
 
                 const btnPrev = document.getElementById('btnPrevUsersPage');
-                if (btnPrev) btnPrev.disabled = (currentUsersPage <= 1 || totalApp === 0);
+                if (btnPrev) btnPrev.disabled = (currentUsersPage <= 1 || totalItems === 0);
 
                 const btnNext = document.getElementById('btnNextUsersPage');
-                if (btnNext) btnNext.disabled = (currentUsersPage >= totalPages || totalApp === 0);
+                if (btnNext) btnNext.disabled = (currentUsersPage >= totalPages || totalItems === 0);
 
                 const footerEl = document.getElementById('usersTableFooter');
                 if (footerEl) {
-                    footerEl.style.display = totalApp === 0 ? 'none' : 'flex';
+                    footerEl.style.display = totalItems === 0 ? 'none' : 'flex';
                 }
 
                 if (pageUsers.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">${qApproved ? 'Nenhum cliente aprovado encontrado para esta busca.' : 'Nenhum cliente aprovado cadastrado.'}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">${qMain ? 'Nenhum cliente encontrado para esta busca.' : 'Nenhum cliente cadastrado nesta categoria.'}</td></tr>`;
                 } else {
                     pageUsers.forEach(u => tbody.appendChild(buildUserRow(u)));
                 }
             }
 
-            // 2. Pendentes (Aguardando Aprovação)
+            // 2. Seção Prioritária: Pendentes (Aguardando Aprovação)
             if (pendingSection && pendingTbody) {
                 if (allPending.length > 0) {
                     pendingSection.style.display = 'block';
@@ -6478,7 +6565,7 @@ function updateDashboardMetrics() {
 
             // 3. Bloqueados
             if (blockedSection && blockedTbody) {
-                if (allBlocked.length > 0) {
+                if (allBlocked.length > 0 && currentUserFilter === 'blocked') {
                     blockedSection.style.display = 'block';
                     if (blockedCountEl) blockedCountEl.textContent = allBlocked.length;
                     blockedTbody.innerHTML = '';
@@ -6922,43 +7009,80 @@ function updateDashboardMetrics() {
 
         async function changeUserStatus(id, newStatus) {
             const u = usersData.find(user => String(user.id) === String(id));
-            if (u) {
-                const normStatus = (newStatus === 'aprovado' || newStatus === 'approved') ? 'approved' :
-                                   (newStatus === 'pendente' || newStatus === 'pending') ? 'pending' : 'blocked';
-                u.status = normStatus;
-                saveStorage();
-                renderUsersTable();
-                updateDashboardMetrics();
-                showToast(`Status de ${u.nome} alterado para ${normStatus === 'approved' ? 'APROVADO' : normStatus.toUpperCase()}!`);
+            if (!u) return;
 
-                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
-                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
-                let ok = false;
-                const client = window.supabaseInstance || window.supabaseClient;
-                if (client) {
-                    try {
-                        const { error } = await client
-                            .from('usuarios')
-                            .update({ status: normStatus })
-                            .eq('id', id);
-                        if (!error) ok = true;
-                    } catch(err) {
-                        console.error(err);
-                    }
+            const normStatus = (newStatus === 'aprovado' || newStatus === 'approved') ? 'approved' :
+                               (newStatus === 'pendente' || newStatus === 'pending') ? 'pending' : 'blocked';
+
+            const btn = document.getElementById(`btnApproveUser_${id}`);
+            if (btn && normStatus === 'approved') {
+                btn.disabled = true;
+                btn.textContent = 'Aprovando...';
+                btn.style.opacity = '0.7';
+            }
+
+            // 1. Atualização otimista imediata na memória e localStorage
+            u.status = normStatus;
+            _recentlyUpdatedUsers[String(id)] = {
+                status: normStatus,
+                timestamp: Date.now()
+            };
+            saveStorage();
+            renderUsersTable();
+            updateDashboardMetrics();
+
+            const actionLabel = normStatus === 'approved' ? 'APROVADO' : (normStatus === 'blocked' ? 'BLOQUEADO' : 'PENDENTE');
+            showToast(`✓ Cliente ${u.nome} foi ${actionLabel} com sucesso! Acesso liberado no sistema.`, true);
+
+            // 2. Persiste no Supabase com múltiplas abordagens (SDK numérico, SDK string e REST nativo)
+            const numId = parseInt(id, 10);
+            let ok = false;
+            const client = window.supabaseInstance || window.supabaseClient;
+
+            if (client) {
+                try {
+                    const resNum = await client
+                        .from('usuarios')
+                        .update({ status: normStatus })
+                        .eq('id', isNaN(numId) ? id : numId);
+                    if (!resNum.error) ok = true;
+                } catch(errNum) {
+                    console.warn('[Admin] Erro client.update num:', errNum);
                 }
                 if (!ok) {
                     try {
-                        await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(id)}`, {
-                            method: 'PATCH',
-                            headers: {
-                                'apikey': SUP_KEY,
-                                'Authorization': `Bearer ${SUP_KEY}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ status: normStatus })
-                        });
-                    } catch(eREST) {}
+                        const resStr = await client
+                            .from('usuarios')
+                            .update({ status: normStatus })
+                            .eq('id', String(id));
+                        if (!resStr.error) ok = true;
+                    } catch(errStr) {
+                        console.warn('[Admin] Erro client.update str:', errStr);
+                    }
                 }
+            }
+
+            // Fallback REST nativo garantido via PATCH
+            try {
+                const targetId = isNaN(numId) ? encodeURIComponent(id) : numId;
+                const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?id=eq.${targetId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUP_PUB_KEY,
+                        'Authorization': `Bearer ${SUP_PUB_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({ status: normStatus })
+                });
+                if (r.ok) ok = true;
+            } catch(eREST) {
+                console.warn('[Admin] Erro fetch REST PATCH:', eREST);
+            }
+
+            if (!ok) {
+                console.error('[Admin] Falha ao persistir status no Supabase.');
+                showToast(`⚠️ Status salvo no painel, mas verifique a conexão com o banco.`, false);
             }
         }
 
