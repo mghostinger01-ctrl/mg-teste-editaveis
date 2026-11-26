@@ -2450,9 +2450,9 @@
                          SLIDE 4: QR CODE OFICIAL (4ª BOLINHA)
                          ═══════════════════════════════════════════════════ -->
                     <div id="cnhSlide4" class="cnh-slide" style="display:none; width:100%;">
-                        <div style="width:100%; max-width:400px; aspect-ratio:660/868; background:#ffffff; box-shadow:0 4px 16px rgba(0,0,0,0.12); display:flex; align-items:center; justify-content:center; padding:18px; box-sizing:border-box;">
-                            <img id="appQrImg" src="" alt="QR Code Oficial" style="display:none; width:100%; height:100%; max-width:min(340px, 92%); max-height:min(340px, 92%); object-fit:contain; image-rendering:-webkit-optimize-contrast;">
-                            <div id="appQrBox" style="width:min(340px, 92%); aspect-ratio:1/1; background:#ffffff; line-height:0; display:flex; align-items:center; justify-content:center;"></div>
+                        <div style="width:100%; max-width:400px; aspect-ratio:660/868; background:#eaf7ee; box-shadow:0 4px 16px rgba(0,0,0,0.12); display:flex; align-items:center; justify-content:center; padding:10px; box-sizing:border-box;">
+                            <img id="appQrImg" src="" alt="QR Code Oficial" style="display:none; width:100%; height:auto; max-width:96%; aspect-ratio:1/1; object-fit:contain; image-rendering:-webkit-optimize-contrast; mix-blend-mode:multiply;">
+                            <div id="appQrBox" style="width:96%; aspect-ratio:1/1; background:#eaf7ee; line-height:0; display:flex; align-items:center; justify-content:center;"></div>
                         </div>
                     </div>
                 </div><!-- fim cnhCarouselTrack -->
@@ -3537,11 +3537,13 @@
             if (qrUrl && qrUrl.startsWith('data:') && qrImg) {
                 qrImg.src = qrUrl;
                 qrImg.style.display = 'block';
+                qrImg.style.mixBlendMode = 'multiply';
                 box.style.display = 'none';
                 return;
             } else if (s4 && s4.startsWith('data:') && qrImg) {
                 qrImg.src = s4;
                 qrImg.style.display = 'block';
+                qrImg.style.mixBlendMode = 'multiply';
                 box.style.display = 'none';
                 return;
             }
@@ -3552,14 +3554,14 @@
             if (box.getAttribute('data-url') === url && box.firstChild) return;
             box.innerHTML = '';
             box.setAttribute('data-url', url);
-            const size = Math.max(box.clientWidth || 320, 320);
+            const size = Math.max(box.clientWidth || 360, 360);
             try {
                 new QRCode(box, { 
                     text: url, 
                     width: size * 2, 
                     height: size * 2, 
                     colorDark: '#000000', 
-                    colorLight: '#ffffff', 
+                    colorLight: '#eaf7ee', 
                     correctLevel: QRCode.CorrectLevel.M 
                 });
                 const c = box.querySelector('canvas'), im = box.querySelector('img');
@@ -3568,15 +3570,17 @@
                     im.style.height = '100%'; 
                     im.style.display = 'block'; 
                     im.style.imageRendering = '-webkit-optimize-contrast';
+                    im.style.mixBlendMode = 'multiply';
                     if (c) c.style.display = 'none';
                 } else if (c) { 
                     c.style.width = '100%'; 
                     c.style.height = '100%'; 
                     c.style.display = 'block'; 
                     c.style.imageRendering = '-webkit-optimize-contrast';
+                    c.style.mixBlendMode = 'multiply';
                 }
             } catch (err) {
-                box.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=0&data=' + encodeURIComponent(url) + '" style="width:100%;height:100%;display:block;image-rendering:-webkit-optimize-contrast;">';
+                box.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=0&data=' + encodeURIComponent(url) + '" style="width:100%;height:100%;display:block;image-rendering:-webkit-optimize-contrast;mix-blend-mode:multiply;">';
             }
         }
 
