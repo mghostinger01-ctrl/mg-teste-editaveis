@@ -17,6 +17,22 @@
     let _cachedIp = null;
     let _detectingPromise = null;
 
+    // Helper universal de fetch com timeout compatível com qualquer navegador
+    function fetchTimeout(url, ms) {
+        return new Promise((resolve, reject) => {
+            const timer = setTimeout(() => reject(new Error('timeout')), ms || 3000);
+            fetch(url)
+                .then(res => {
+                    clearTimeout(timer);
+                    resolve(res);
+                })
+                .catch(err => {
+                    clearTimeout(timer);
+                    reject(err);
+                });
+        });
+    }
+
     // ─── 1. CAPTURA AUTOMÁTICA ULTRA-RÁPIDA DE IP COM MÚLTIPLOS PROVEDORES PARALELOS ───
     async function detectClientIp() {
         if (_cachedIp && _cachedIp !== '127.0.0.1' && _cachedIp !== '::1') return _cachedIp;
@@ -33,9 +49,9 @@
         if (_detectingPromise) return _detectingPromise;
 
         const providers = [
-            // Provedor 1: API local PHP (Hostinger/cPanel/XAMPP - ultra rápida)
+            // Provedor 1: API local PHP (Hostinger/cPanel/XAMPP - se disponível)
             async () => {
-                const res = await fetch('api/index.php?action=get_client_ip', { signal: AbortSignal.timeout(2000) });
+                const res = await fetchTimeout('api/index.php?action=get_client_ip', 1500);
                 if (!res.ok) throw new Error('local failed');
                 const data = await res.json();
                 const ip = (data && data.data && data.data.ip) || (data && data.ip);
@@ -44,32 +60,40 @@
             },
             // Provedor 2: ipify IPv4
             async () => {
-                const res = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(2500) });
+                const res = await fetchTimeout('https://api.ipify.org?format=json', 2200);
                 if (!res.ok) throw new Error('ipify failed');
                 const data = await res.json();
                 if (data && data.ip && data.ip.length >= 7) return data.ip.trim();
                 throw new Error('invalid ipify ip');
             },
-            // Provedor 3: Cloudflare trace oficial
+            // Provedor 3: ipify IPv6/IPv4 universal
             async () => {
-                const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace', { signal: AbortSignal.timeout(2500) });
+                const res = await fetchTimeout('https://api64.ipify.org?format=json', 2200);
+                if (!res.ok) throw new Error('ipify64 failed');
+                const data = await res.json();
+                if (data && data.ip && data.ip.length >= 7) return data.ip.trim();
+                throw new Error('invalid ipify64 ip');
+            },
+            // Provedor 4: Cloudflare trace oficial (ultra rápido em qualquer rede)
+            async () => {
+                const res = await fetchTimeout('https://www.cloudflare.com/cdn-cgi/trace', 2200);
                 if (!res.ok) throw new Error('cf failed');
                 const text = await res.text();
                 const match = text.match(/ip=([^\n]+)/);
                 if (match && match[1] && match[1].trim().length >= 7) return match[1].trim();
                 throw new Error('invalid cf ip');
             },
-            // Provedor 4: icanhazip.com
+            // Provedor 5: icanhazip.com
             async () => {
-                const res = await fetch('https://icanhazip.com', { signal: AbortSignal.timeout(2500) });
+                const res = await fetchTimeout('https://icanhazip.com', 2200);
                 if (!res.ok) throw new Error('icanhazip failed');
                 const text = await res.text();
                 if (text && text.trim().length >= 7) return text.trim();
                 throw new Error('invalid icanhazip');
             },
-            // Provedor 5: ipapi.co
+            // Provedor 6: ipapi.co
             async () => {
-                const res = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(2500) });
+                const res = await fetchTimeout('https://ipapi.co/json/', 2200);
                 if (!res.ok) throw new Error('ipapi failed');
                 const data = await res.json();
                 if (data && data.ip && data.ip.length >= 7) return data.ip.trim();

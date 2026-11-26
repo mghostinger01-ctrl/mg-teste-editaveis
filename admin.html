@@ -5089,7 +5089,9 @@
                                 plano_comissao: parseInt(u.plano_comissao || 0),
                                 plano_validade: u.plano_validade || 'Vitalício',
                                 plano_ativado_em: u.plano_ativado_em || null,
-                                created_at: u.created_at
+                                created_at: u.created_at,
+                                register_ip: u.register_ip || u.ip || null,
+                                last_ip: u.last_ip || u.register_ip || null
                             };
                         });
 
@@ -6440,9 +6442,10 @@ function updateDashboardMetrics() {
             const uSaldo = (u.saldo !== undefined && u.saldo !== null) ? parseFloat(u.saldo) : 0;
             const uCount = (u.docsCount !== undefined) ? u.docsCount : (u.cnhsCount || 0);
 
-            const ipReg = u.register_ip || '--';
-            const ipLast = u.last_ip || '--';
-            const isDivergent = Boolean(u.register_ip && u.last_ip && String(u.register_ip).trim() !== String(u.last_ip).trim());
+            const ipReg = u.register_ip || u.ip || '';
+            const ipLast = u.last_ip || ipReg;
+            const hasIp = Boolean(ipReg && ipReg !== '--' && ipReg !== 'Não registrado');
+            const isDivergent = Boolean(hasIp && ipLast && String(ipReg).trim() !== String(ipLast).trim() && ipLast !== '--' && ipLast !== 'Não registrado');
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -6453,8 +6456,11 @@ function updateDashboardMetrics() {
                             <div class="user-name" style="font-size:12.5px;">${uNome}</div>
                             <div class="user-email" style="font-size:10.5px;">${u.email || ''}</div>
                             <div style="font-size:9.5px; color:#94a3b8; font-family:var(--font-mono); margin-top:2px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
-                                <span>🔒 IP Cad: <strong style="color:${isDivergent ? '#f87171' : '#38bdf8'}">${ipReg}</strong></span>
-                                ${isDivergent ? `<span title="Tentativa de login com IP divergente: ${ipLast}" style="background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(239,68,68,0.4); padding:0 4px; border-radius:4px; font-weight:700; font-size:9px;">⚠️ IP Divergente (${ipLast})</span>` : ''}
+                                <span>🔒 IP Cad: ${hasIp ? `<strong style="color:${isDivergent ? '#f87171' : '#38bdf8'}">${ipReg}</strong>` : `<span style="color:#64748b; font-style:italic;">Não registrado</span>`}</span>
+                                ${hasIp 
+                                    ? `<button type="button" onclick="adminManualSetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}', '${ipReg}')" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:10px; padding:0 2px;" title="Editar IP">✏️</button>` 
+                                    : `<button type="button" onclick="adminManualSetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:1px 5px; border-radius:4px; font-size:9.5px; cursor:pointer;" title="Definir IP manualmente">+ Definir IP</button>`}
+                                ${isDivergent ? `<span title="Tentativa de login com IP divergente: ${ipLast}" style="background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(239,68,68,0.4); padding:0 4px; border-radius:4px; font-weight:700; font-size:9px;">⚠️ Divergente (${ipLast})</span>` : ''}
                             </div>
                         </div>
                     </div>
@@ -6562,8 +6568,9 @@ function updateDashboardMetrics() {
             const allBlocked = usersData.filter(u => u.status === 'blocked');
 
             // Atualiza contadores dos filtros
+            const nonPendingList = usersData.filter(u => u.status !== 'pending');
             const elCountAll = document.getElementById('countFilterAll');
-            if (elCountAll) elCountAll.textContent = `(${usersData.length})`;
+            if (elCountAll) elCountAll.textContent = `(${nonPendingList.length})`;
             const elCountPend = document.getElementById('countFilterPending');
             if (elCountPend) elCountPend.textContent = pendingCount;
             const elCountApp = document.getElementById('countFilterApproved');
@@ -6584,12 +6591,8 @@ function updateDashboardMetrics() {
                 else if (currentUserFilter === 'pending') baseList = allPending;
                 else if (currentUserFilter === 'blocked') baseList = allBlocked;
                 else {
-                    // Todos: pendentes vêm primeiro para chamar atenção imediata
-                    baseList = [...usersData].sort((a, b) => {
-                        if (a.status === 'pending' && b.status !== 'pending') return -1;
-                        if (a.status !== 'pending' && b.status === 'pending') return 1;
-                        return (b.id || 0) - (a.id || 0);
-                    });
+                    // Todos os Clientes: NÃO incluir cadastros pendentes na tabela principal, pois eles já possuem a seção exclusiva no topo
+                    baseList = nonPendingList.sort((a, b) => (b.id || 0) - (a.id || 0));
                 }
 
                 const filteredMain = qMain
