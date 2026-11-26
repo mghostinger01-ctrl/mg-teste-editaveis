@@ -6356,6 +6356,11 @@ function updateDashboardMetrics() {
             const uNome = u.nome || 'Cliente';
             const uSaldo = (u.saldo !== undefined && u.saldo !== null) ? parseFloat(u.saldo) : 0;
             const uCount = (u.docsCount !== undefined) ? u.docsCount : (u.cnhsCount || 0);
+
+            const ipReg = u.register_ip || '--';
+            const ipLast = u.last_ip || '--';
+            const isDivergent = Boolean(u.register_ip && u.last_ip && String(u.register_ip).trim() !== String(u.last_ip).trim());
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>
@@ -6364,6 +6369,10 @@ function updateDashboardMetrics() {
                         <div>
                             <div class="user-name" style="font-size:12.5px;">${uNome}</div>
                             <div class="user-email" style="font-size:10.5px;">${u.email || ''}</div>
+                            <div style="font-size:9.5px; color:#94a3b8; font-family:var(--font-mono); margin-top:2px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+                                <span>🔒 IP Cad: <strong style="color:${isDivergent ? '#f87171' : '#38bdf8'}">${ipReg}</strong></span>
+                                ${isDivergent ? `<span title="Tentativa de login com IP divergente: ${ipLast}" style="background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(239,68,68,0.4); padding:0 4px; border-radius:4px; font-weight:700; font-size:9px;">⚠️ IP Divergente (${ipLast})</span>` : ''}
+                            </div>
                         </div>
                     </div>
                 </td>
@@ -6379,11 +6388,13 @@ function updateDashboardMetrics() {
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                                 <span>Editar</span>
                             </button>
+                            <button class="btn-act" onclick="adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.35); font-size:10.5px; padding:3px 7px; border-radius:5px;" title="Resetar IP (Permite vincular novo IP no próximo acesso)">🔄 Reset IP</button>
                             <button class="btn-act block" onclick="changeUserStatus('${u.id}', 'blocked')" title="Bloquear Cliente">Bloquear</button>
                             <button class="btn-act delete" onclick="deleteUser('${u.id}')" title="Excluir Usuário">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                             </button>
                         ` : u.status === 'blocked' ? `
+                            <button class="btn-act" onclick="adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); font-size:11px; padding:4px 8px; border-radius:6px; font-weight:700;" title="Desbloqueia e reseta a trava de IP">🔄 Reset IP & Desbloquear</button>
                             <button class="btn-act approve" onclick="changeUserStatus('${u.id}', 'approved')" title="Desbloquear Cliente">Desbloquear</button>
                             <button class="btn-act delete" onclick="deleteUser('${u.id}')" title="Excluir Usuário">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -7083,6 +7094,61 @@ function updateDashboardMetrics() {
             if (!ok) {
                 console.error('[Admin] Falha ao persistir status no Supabase.');
                 showToast(`⚠️ Status salvo no painel, mas verifique a conexão com o banco.`, false);
+            }
+        }
+
+        async function adminResetUserIp(id, userName) {
+            if (!confirm(`Deseja resetar a trava de IP de "${userName}"?\n\nIsso removerá o vínculo com o IP anterior e permitirá que o cliente acesse em novo aparelho/conexão. O novo IP será capturado e travado automaticamente no próximo login.`)) {
+                return;
+            }
+
+            const u = usersData.find(user => String(user.id) === String(id));
+            if (u) {
+                u.register_ip = null;
+                u.last_ip = null;
+                if (u.status === 'blocked') u.status = 'approved';
+                saveStorage();
+                renderUsersTable();
+                updateDashboardMetrics();
+            }
+
+            showToast(`Resetando trava de IP de ${userName}...`);
+
+            const client = window.supabaseInstance || window.supabaseClient;
+            const numId = parseInt(id, 10);
+            const targetId = isNaN(numId) ? id : numId;
+
+            try {
+                if (client) {
+                    try {
+                        await client.from('usuarios').update({ register_ip: null, last_ip: null, status: 'approved' }).eq('id', targetId);
+                    } catch(eClient) {}
+                }
+                try {
+                    await fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?id=eq.${targetId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUP_PUB_KEY,
+                            'Authorization': `Bearer ${SUP_PUB_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ register_ip: null, last_ip: null, status: 'approved' })
+                    });
+                } catch(eRest) {}
+
+                // Notifica a API local/hospedada se houver
+                try {
+                    await fetch('api/index.php?action=reset_user_ip', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: id })
+                    });
+                } catch(eApi) {}
+
+                showToast(`✓ Trava de IP de ${userName} resetada com sucesso! Cliente liberado no novo IP.`, true);
+            } catch(e) {
+                console.error('[Admin] Erro ao resetar IP:', e);
+                showToast(`Erro ao resetar no banco: ${e.message || e}`, false);
             }
         }
 

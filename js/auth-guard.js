@@ -71,6 +71,59 @@
             return;
         }
 
+        // ── VERIFICAÇÃO ATIVA DE IP EM BACKGROUND (ANTI-VENDA DE CONTAS) ──
+        if (user && user.role !== 'admin' && String(user.email).trim().toUpperCase() !== 'MG') {
+            (async function verifySessionIp() {
+                try {
+                    // Carrega ip-security dinamicamente se ainda não estiver na página
+                    if (!window.MGIpSecurity) {
+                        await new Promise(function(resolve) {
+                            var s = document.createElement('script');
+                            var isSub = window.location.pathname.includes('/app/');
+                            s.src = (isSub ? '../' : '') + 'js/ip-security.js';
+                            s.onload = resolve;
+                            s.onerror = resolve;
+                            document.head.appendChild(s);
+                        });
+                    }
+                    if (window.MGIpSecurity && typeof window.MGIpSecurity.detectIp === 'function') {
+                        var curIp = await window.MGIpSecurity.detectIp();
+                        if (curIp) {
+                            // Se o usuário ainda não tiver register_ip gravado, vincula imediatamente
+                            if (!user.register_ip) {
+                                user.register_ip = curIp;
+                                user.last_ip = curIp;
+                                try {
+                                    if (rawLocal) localStorage.setItem('happynation_user', JSON.stringify(user));
+                                    if (rawSession) sessionStorage.setItem('happynation_user', JSON.stringify(user));
+                                } catch(eStore) {}
+                                window.MGIpSecurity.bindUserIp(user.id, curIp);
+                            } else if (String(user.register_ip).trim() !== String(curIp).trim()) {
+                                // IP DIVERGENTE DETECTADO! Bloqueia conta e expulsa imediatamente para a tela de bloqueio com WhatsApp
+                                console.warn('[Auth-Guard] IP divergente detectado!', user.register_ip, '!=', curIp);
+                                if (typeof window.MGIpSecurity.lockUserByIp === 'function') {
+                                    await window.MGIpSecurity.lockUserByIp(user, curIp);
+                                }
+                                try {
+                                    localStorage.removeItem('happynation_user');
+                                    sessionStorage.removeItem('happynation_user');
+                                } catch(eWipe) {}
+                                var isSub = window.location.pathname.includes('/app/');
+                                var redirectUrl = (isSub ? '../' : '') + 'login.html?bloqueado=ip_divergente' +
+                                    '&nome=' + encodeURIComponent(user.nome || '') +
+                                    '&email=' + encodeURIComponent(user.email || '') +
+                                    '&ip_reg=' + encodeURIComponent(user.register_ip) +
+                                    '&ip_cur=' + encodeURIComponent(curIp);
+                                window.location.replace(redirectUrl);
+                            }
+                        }
+                    }
+                } catch(eIpCheck) {
+                    console.warn('[Auth-Guard IP Check]', eIpCheck);
+                }
+            })();
+        }
+
         // Delegação de evento para garantir que qualquer clique em "Sair" acione o handleLogout
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('a[href*="login.html"], .dropdown-item.danger, [data-logout]').forEach(function(el) {

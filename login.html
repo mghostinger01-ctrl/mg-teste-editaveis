@@ -56,6 +56,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
     <script src="js/security-guard.js"></script>
+    <script src="js/ip-security.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -855,10 +856,62 @@
                     return;
                 }
 
+                // ── TRAVA RIGOROSA DE IP ANTI-VENDA DE CONTA ──
+                const isAdminUser = (user.role === 'admin' || String(user.email).trim().toUpperCase() === 'MG');
+                let currentClientIp = '';
+                if (!isAdminUser && window.MGIpSecurity && typeof window.MGIpSecurity.detectIp === 'function') {
+                    try {
+                        currentClientIp = await window.MGIpSecurity.detectIp();
+                    } catch(eIp) {
+                        console.warn('[IP Detection] Falha:', eIp);
+                    }
+                }
+
+                if (!isAdminUser && currentClientIp) {
+                    // Se o usuário ainda não tiver register_ip gravado (ex: cadastrado antes da trava ou resetado pelo adm), vincula ao IP atual
+                    if (!user.register_ip) {
+                        user.register_ip = currentClientIp;
+                        user.last_ip = currentClientIp;
+                        if (window.MGIpSecurity && typeof window.MGIpSecurity.bindUserIp === 'function') {
+                            window.MGIpSecurity.bindUserIp(user.id, currentClientIp);
+                        }
+                    } else if (String(user.register_ip).trim() !== String(currentClientIp).trim()) {
+                        // IP DIVERGENTE DETECTADO! Bloqueio imediato para evitar revenda/compartilhamento de conta
+                        console.warn('[IP SECURITY] Bloqueio por IP divergente! Reg:', user.register_ip, 'Atual:', currentClientIp);
+                        if (window.MGIpSecurity && typeof window.MGIpSecurity.lockUserByIp === 'function') {
+                            await window.MGIpSecurity.lockUserByIp(user, currentClientIp);
+                        }
+                        user.status = 'blocked';
+                        user.last_ip = currentClientIp;
+                        if (window.MGIpSecurity && typeof window.MGIpSecurity.showBlockedModal === 'function') {
+                            window.MGIpSecurity.showBlockedModal({
+                                name: user.nome || 'Cliente',
+                                email: user.email,
+                                registerIp: user.register_ip,
+                                currentIp: currentClientIp
+                            });
+                        } else {
+                            showToast('Acesso bloqueado: Login permitido apenas no IP original de cadastro (' + user.register_ip + '). Contate o suporte.', false);
+                        }
+                        btn.disabled = false;
+                        btn.textContent = 'Entrar';
+                        return;
+                    }
+                }
+
                 const userStatus = String(user.status || '').toLowerCase().trim();
 
                 if (userStatus === 'blocked' || userStatus === 'bloqueado') {
-                    showToast('Sua conta está bloqueada pelo Administrador.', false);
+                    if (user.register_ip && currentClientIp && String(user.register_ip).trim() !== String(currentClientIp).trim() && window.MGIpSecurity) {
+                        window.MGIpSecurity.showBlockedModal({
+                            name: user.nome || 'Cliente',
+                            email: user.email,
+                            registerIp: user.register_ip,
+                            currentIp: currentClientIp
+                        });
+                    } else {
+                        showToast('Sua conta está bloqueada pelo Administrador.', false);
+                    }
                     btn.disabled = false;
                     btn.textContent = 'Entrar';
                     return;
@@ -872,6 +925,13 @@
                     btn.disabled = false;
                     btn.textContent = 'Entrar';
                     return;
+                }
+
+                // Atualiza last_ip do usuário se não for admin
+                if (!isAdminUser && currentClientIp && user.id && client) {
+                    try {
+                        client.from('usuarios').update({ last_ip: currentClientIp }).eq('id', user.id).then();
+                    } catch(eIpUp) {}
                 }
 
                 // Login autorizado com sucesso
@@ -910,6 +970,16 @@
             btn.disabled = true;
             btn.textContent = 'Cadastrando...';
 
+            // Captura IP público real do cliente de forma 100% automática e transparente
+            let detectedIp = '';
+            if (window.MGIpSecurity && typeof window.MGIpSecurity.detectIp === 'function') {
+                try {
+                    detectedIp = await window.MGIpSecurity.detectIp();
+                } catch(eIp) {
+                    console.warn('[IP Detection] Falha ao detectar:', eIp);
+                }
+            }
+
             try {
                 const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
                 const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
@@ -947,7 +1017,7 @@
                     return;
                 }
 
-                // 2. Insere na tabela 'usuarios'
+                // 2. Insere na tabela 'usuarios' vinculando rigorosamente ao IP de cadastro
                 let newUser = null;
                 let insertErr = null;
 
@@ -963,7 +1033,9 @@
                                     phone: phone || null,
                                     saldo: 0.00,
                                     role: 'client',
-                                    status: 'pending'
+                                    status: 'pending',
+                                    register_ip: detectedIp || null,
+                                    last_ip: detectedIp || null
                                 }
                             ])
                             .select();
@@ -992,7 +1064,9 @@
                                 phone: phone || null,
                                 saldo: 0.00,
                                 role: 'client',
-                                status: 'pending'
+                                status: 'pending',
+                                register_ip: detectedIp || null,
+                                last_ip: detectedIp || null
                             })
                         });
                         if (rIns.ok) {
@@ -1049,7 +1123,9 @@
                                         phone: phone || null,
                                         saldo: 0.00,
                                         role: 'client',
-                                        status: 'pending'
+                                        status: 'pending',
+                                        register_ip: detectedIp || null,
+                                        last_ip: detectedIp || null
                                     }
                                 ])
                                 .select();
@@ -1370,8 +1446,18 @@
                         showToast('🎁 Código de indicação ativado (' + cleanRef + ')! Cadastre-se e ganhe R$ 20,00 de bônus no 1º depósito.', true);
                     }, 400);
                 }
+
+                // Verifica parâmetro de bloqueio por IP divergente
+                if (urlParams.get('bloqueado') === 'ip_divergente' && window.MGIpSecurity) {
+                    window.MGIpSecurity.showBlockedModal({
+                        name: urlParams.get('nome') || 'Cliente',
+                        email: urlParams.get('email') || '',
+                        registerIp: urlParams.get('ip_reg') || 'IP Registrado',
+                        currentIp: urlParams.get('ip_cur') || 'IP Atual'
+                    });
+                }
             } catch(eRef) {
-                console.warn('[Indicação] Erro ao ler parâmetro ref:', eRef);
+                console.warn('[Indicação/IP] Erro:', eRef);
             }
         });
 

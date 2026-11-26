@@ -134,6 +134,58 @@ initSecuritySchema($pdo);
 switch ($action) {
 
     // ------------------------------------------------------------
+    // 0. DETECÇÃO E VINCULAÇÃO DE IP (SISTEMA DE SEGURANÇA ESTRITO)
+    // ------------------------------------------------------------
+    case 'get_client_ip':
+        $ip = getClientIp();
+        jsonResponse('success', ['ip' => $ip], 'IP detectado com sucesso');
+        break;
+
+    case 'bind_ip':
+        $userId = intval($inputData['user_id'] ?? 0);
+        $ipToBind = trim($inputData['ip'] ?? getClientIp());
+        if ($userId > 0 && !empty($ipToBind)) {
+            if ($pdo) {
+                try {
+                    $pdo->prepare("UPDATE usuarios SET register_ip = ?, last_ip = ? WHERE id = ?")->execute([$ipToBind, $ipToBind, $userId]);
+                } catch(Exception $e) {}
+            }
+            $db = readDbJson();
+            foreach (($db['users'] ?? []) as &$u) {
+                if (intval($u['id'] ?? 0) === $userId) {
+                    $u['register_ip'] = $ipToBind;
+                    $u['last_ip'] = $ipToBind;
+                    writeDbJson($db);
+                    break;
+                }
+            }
+        }
+        jsonResponse('success', ['ip' => $ipToBind]);
+        break;
+
+    case 'reset_user_ip':
+        $userId = intval($inputData['user_id'] ?? 0);
+        if ($userId > 0) {
+            if ($pdo) {
+                try {
+                    $pdo->prepare("UPDATE usuarios SET register_ip = NULL, last_ip = NULL, status = 'approved' WHERE id = ?")->execute([$userId]);
+                } catch(Exception $e) {}
+            }
+            $db = readDbJson();
+            foreach (($db['users'] ?? []) as &$u) {
+                if (intval($u['id'] ?? 0) === $userId) {
+                    $u['register_ip'] = null;
+                    $u['last_ip'] = null;
+                    if (($u['status'] ?? '') === 'blocked') $u['status'] = 'approved';
+                    writeDbJson($db);
+                    break;
+                }
+            }
+        }
+        jsonResponse('success', null, 'IP resetado com sucesso.');
+        break;
+
+    // ------------------------------------------------------------
     // 1. AUTENTICAÇÃO (LOGIN & REGISTRO COM RESTRIÇÃO ESTRITA DE IP)
     // ------------------------------------------------------------
     case 'login':
@@ -191,6 +243,33 @@ switch ($action) {
 
                 if ($user['senha'] !== $senha && !password_verify($senha, $user['senha'])) {
                     jsonResponse('error', null, 'Senha incorreta.');
+                }
+
+                // Verificação estrita de IP de cadastro (Anti-revenda / Anti-compartilhamento de conta)
+                $userRole = strtolower($user['role'] ?? '');
+                if ($userRole !== 'admin') {
+                    $regIp = trim($user['register_ip'] ?? '');
+                    if (!empty($regIp) && $regIp !== $clientIp) {
+                        try {
+                            $pdo->prepare("UPDATE usuarios SET status = 'blocked', last_ip = ? WHERE id = ?")->execute([$clientIp, $user['id']]);
+                        } catch(Exception $ex) {}
+                        $phone = '5521998821029';
+                        $whatsUrl = 'https://wa.me/' . $phone . '?text=' . urlencode("Olá! Minha conta no MG Editáveis ({$user['nome']} - {$user['email']}) foi bloqueada por divergência de IP de segurança.\n- IP Registrado: {$regIp}\n- IP Atual: {$clientIp}\nSolicito validação com o suporte.");
+                        jsonResponse('error', [
+                            'ip_divergence' => true,
+                            'nome' => $user['nome'],
+                            'email' => $user['email'],
+                            'registered_ip' => $regIp,
+                            'current_ip' => $clientIp,
+                            'whatsapp_url' => $whatsUrl
+                        ], 'Acesso bloqueado por segurança: Esta conta está vinculada exclusivamente ao IP ' . $regIp . '. Tentativa de acesso a partir do IP ' . $clientIp . '. Fale com o suporte no WhatsApp.');
+                    } elseif (empty($regIp)) {
+                        // Vincula automaticamente no primeiro acesso
+                        try {
+                            $pdo->prepare("UPDATE usuarios SET register_ip = ?, last_ip = ? WHERE id = ?")->execute([$clientIp, $clientIp, $user['id']]);
+                            $user['register_ip'] = $clientIp;
+                        } catch(Exception $ex) {}
+                    }
                 }
 
                 if (($user['status'] ?? '') === 'blocked') {
