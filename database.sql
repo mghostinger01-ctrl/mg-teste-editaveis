@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `cnhs` (
   `genero` VARCHAR(20) NOT NULL DEFAULT 'Feminino',
   `valor_cobrado` DECIMAL(10,2) NOT NULL DEFAULT 26.00,
   `valor_pendencia` VARCHAR(30) DEFAULT '500,00',
+  `status` VARCHAR(30) NOT NULL DEFAULT 'Ativo',
   `dados_json` LONGTEXT DEFAULT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

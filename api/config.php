@@ -125,6 +125,16 @@ if (!$pdo) {
     }
 }
 
+// Auto-migração automática: garante que a coluna 'status' exista na tabela 'cnhs'
+if ($pdo) {
+    try {
+        $checkCol = $pdo->query("SHOW COLUMNS FROM `cnhs` LIKE 'status'")->fetch();
+        if (!$checkCol) {
+            $pdo->exec("ALTER TABLE `cnhs` ADD `status` VARCHAR(30) NOT NULL DEFAULT 'Ativo' AFTER `valor_pendencia`");
+        }
+    } catch(Exception $exMigrate) {}
+}
+
 // ------------------------------------------------------------
 // FUNÇÃO DE RESPOSTA JSON
 // ------------------------------------------------------------
