@@ -17,14 +17,14 @@
     let _cachedIp = null;
     let _detectingPromise = null;
 
-    // ─── 1. CAPTURA AUTOMÁTICA DE IP COM MÚLTIPLOS FALLBACKS ───
+    // ─── 1. CAPTURA AUTOMÁTICA ULTRA-RÁPIDA DE IP COM MÚLTIPLOS PROVEDORES PARALELOS ───
     async function detectClientIp() {
-        if (_cachedIp) return _cachedIp;
+        if (_cachedIp && _cachedIp !== '127.0.0.1' && _cachedIp !== '::1') return _cachedIp;
 
         // Tenta recuperar do sessionStorage
         try {
             const sessIp = sessionStorage.getItem('happynation_detected_ip');
-            if (sessIp && sessIp.length >= 7) {
+            if (sessIp && sessIp.length >= 7 && sessIp !== '127.0.0.1' && sessIp !== '::1') {
                 _cachedIp = sessIp;
                 return sessIp;
             }
@@ -32,82 +32,69 @@
 
         if (_detectingPromise) return _detectingPromise;
 
-        _detectingPromise = (async () => {
+        const providers = [
             // Provedor 1: API local PHP (Hostinger/cPanel/XAMPP - ultra rápida)
-            try {
-                const rLocal = await fetch('api/index.php?action=get_client_ip', { signal: AbortSignal.timeout(2000) });
-                if (rLocal.ok) {
-                    const data = await rLocal.json();
-                    const ip = (data && data.data && data.data.ip) || (data && data.ip);
-                    if (ip && ip !== '127.0.0.1' && ip !== '::1' && ip.length >= 7) {
-                        _cachedIp = ip.trim();
-                        sessionStorage.setItem('happynation_detected_ip', _cachedIp);
-                        return _cachedIp;
-                    }
-                }
-            } catch(e) {}
+            async () => {
+                const res = await fetch('api/index.php?action=get_client_ip', { signal: AbortSignal.timeout(2000) });
+                if (!res.ok) throw new Error('local failed');
+                const data = await res.json();
+                const ip = (data && data.data && data.data.ip) || (data && data.ip);
+                if (ip && ip.length >= 7 && ip !== '127.0.0.1' && ip !== '::1') return ip.trim();
+                throw new Error('invalid local ip');
+            },
+            // Provedor 2: ipify IPv4
+            async () => {
+                const res = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(2500) });
+                if (!res.ok) throw new Error('ipify failed');
+                const data = await res.json();
+                if (data && data.ip && data.ip.length >= 7) return data.ip.trim();
+                throw new Error('invalid ipify ip');
+            },
+            // Provedor 3: Cloudflare trace oficial
+            async () => {
+                const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace', { signal: AbortSignal.timeout(2500) });
+                if (!res.ok) throw new Error('cf failed');
+                const text = await res.text();
+                const match = text.match(/ip=([^\n]+)/);
+                if (match && match[1] && match[1].trim().length >= 7) return match[1].trim();
+                throw new Error('invalid cf ip');
+            },
+            // Provedor 4: icanhazip.com
+            async () => {
+                const res = await fetch('https://icanhazip.com', { signal: AbortSignal.timeout(2500) });
+                if (!res.ok) throw new Error('icanhazip failed');
+                const text = await res.text();
+                if (text && text.trim().length >= 7) return text.trim();
+                throw new Error('invalid icanhazip');
+            },
+            // Provedor 5: ipapi.co
+            async () => {
+                const res = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(2500) });
+                if (!res.ok) throw new Error('ipapi failed');
+                const data = await res.json();
+                if (data && data.ip && data.ip.length >= 7) return data.ip.trim();
+                throw new Error('invalid ipapi');
+            }
+        ];
 
-            // Provedor 2: ipify (IPv4)
-            try {
-                const r1 = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(2500) });
-                if (r1.ok) {
-                    const d1 = await r1.json();
-                    if (d1 && d1.ip) {
-                        _cachedIp = d1.ip.trim();
-                        sessionStorage.setItem('happynation_detected_ip', _cachedIp);
-                        return _cachedIp;
-                    }
-                }
-            } catch(e) {}
+        _detectingPromise = Promise.any(providers.map(fn => fn()))
+            .then(ip => {
+                _cachedIp = ip;
+                try { sessionStorage.setItem('happynation_detected_ip', ip); } catch(e) {}
+                return ip;
+            })
+            .catch(() => {
+                return '127.0.0.1';
+            })
+            .finally(() => {
+                _detectingPromise = null;
+            });
 
-            // Provedor 3: ipify (IPv6/IPv4 universal)
-            try {
-                const r2 = await fetch('https://api64.ipify.org?format=json', { signal: AbortSignal.timeout(2500) });
-                if (r2.ok) {
-                    const d2 = await r2.json();
-                    if (d2 && d2.ip) {
-                        _cachedIp = d2.ip.trim();
-                        sessionStorage.setItem('happynation_detected_ip', _cachedIp);
-                        return _cachedIp;
-                    }
-                }
-            } catch(e) {}
-
-            // Provedor 4: ipapi.co
-            try {
-                const r3 = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(2500) });
-                if (r3.ok) {
-                    const d3 = await r3.json();
-                    if (d3 && d3.ip) {
-                        _cachedIp = d3.ip.trim();
-                        sessionStorage.setItem('happynation_detected_ip', _cachedIp);
-                        return _cachedIp;
-                    }
-                }
-            } catch(e) {}
-
-            // Provedor 5: icanhazip.com
-            try {
-                const r4 = await fetch('https://icanhazip.com', { signal: AbortSignal.timeout(2500) });
-                if (r4.ok) {
-                    const txt = await r4.text();
-                    if (txt && txt.trim().length >= 7) {
-                        _cachedIp = txt.trim();
-                        sessionStorage.setItem('happynation_detected_ip', _cachedIp);
-                        return _cachedIp;
-                    }
-                }
-            } catch(e) {}
-
-            return '127.0.0.1';
-        })();
-
-        try {
-            return await _detectingPromise;
-        } finally {
-            _detectingPromise = null;
-        }
+        return _detectingPromise;
     }
+
+    // Pré-aquecimento da detecção em background assim que o script é carregado
+    try { setTimeout(detectClientIp, 50); } catch(ePre) {}
 
     // ─── 2. WHATSAPP DE SUPORTE DINÂMICO ───
     function getSupportPhone() {
