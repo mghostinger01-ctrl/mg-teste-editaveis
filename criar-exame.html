@@ -2048,6 +2048,61 @@
         const elMedCrm = document.getElementById('fld_medico_crm');
         if (elMedCrm) elMedCrm.textContent = (val('inp_medico_crm') || 'CRF - MG: 46.360');
 
+        // Auto-sincroniza rascunho preenchido no painel para que o App da CNH mostre EXATAMENTE o mesmo
+        try {
+            const currentDraft = {
+                id: window.__currentExamId || 'TOX-' + Math.floor(10000 + Math.random() * 90000),
+                nome: val('inp_nome') || 'CONDUTOR',
+                cpf: val('inp_cpf'),
+                tipo: val('inp_tipo') || 'CNH',
+                finalidade: val('inp_finalidade') || 'Renovação CNH',
+                razao: val('inp_finalidade') || 'Renovação CNH',
+                posto: val('inp_posto') || 'POSTO CREDENCIADO DETRAN',
+                laudo: val('inp_laudo') || '',
+                fcc: val('inp_fcc') || '',
+                amostra: val('inp_amostra') || 'Cabelos CABEÇA - 3,0 cm',
+                janela: val('inp_janela') || 'Aproximadamente 90 dias',
+                comp_coletado: val('inp_comp_coletado') || '3,0 cm',
+                comp_analisado: val('inp_comp_analisado') || '3,0 cm',
+                nf: val('inp_nf') || '0000/00/00',
+                coleta: val('inp_coleta') || '',
+                recebimento: val('inp_recebimento') || '',
+                analise_lab: val('inp_analise_lab') || '',
+                analise: val('inp_analise_lab') || '',
+                resultado_data: val('inp_resultado') || '',
+                validade: val('inp_validade') || '',
+                autenticacao: val('inp_autenticacao') || '',
+                hash: val('inp_hash') || '',
+                auth_url: val('inp_auth_url') || '',
+                medico_nome: val('inp_medico_nome') || 'Thais de L. C. F. Martinodes',
+                medico_crm: val('inp_medico_crm') || 'CRF - MG: 46.360',
+                medico_cel: val('inp_medico_cel') || '',
+                laboratorio: 'TOXICOLOGIA PARDINI',
+                status: 'Ativo',
+                resultado: (typeof currentResultadoStatus !== 'undefined' ? currentResultadoStatus : 'Negativo'),
+                resultado_final: (typeof currentResultadoStatus !== 'undefined' && currentResultadoStatus === 'Positivo' ? 'Positivo' : 'Negativo (Aprovado)'),
+                created_at: new Date().toISOString()
+            };
+            localStorage.setItem('happynation_last_exame', JSON.stringify(currentDraft));
+            localStorage.setItem('happynation_edit_exame', JSON.stringify(currentDraft));
+            const cCpf = (currentDraft.cpf || '').replace(/\D/g, '');
+            if (cCpf) {
+                localStorage.setItem('happynation_exame_' + cCpf, JSON.stringify(currentDraft));
+            }
+            try {
+                let lastCnh = JSON.parse(localStorage.getItem('happynation_last_cnh') || 'null');
+                if (lastCnh) {
+                    const cnhCpf = String(lastCnh.cpf || '').replace(/\D/g, '');
+                    if (!cnhCpf || !cCpf || cnhCpf === cCpf) {
+                        lastCnh.hasComboExame = true;
+                        lastCnh.exame = currentDraft;
+                        localStorage.setItem('happynation_last_cnh', JSON.stringify(lastCnh));
+                        localStorage.setItem('cnh_active_driver', JSON.stringify(lastCnh));
+                    }
+                }
+            } catch(eUpCnh) {}
+        } catch(eDraft) {}
+
         const elMedCel = document.getElementById('fld_medico_cel');
         if (elMedCel) elMedCel.textContent = (val('inp_medico_cel') || 'Cel.: 34 - 713334');
 

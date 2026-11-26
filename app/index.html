@@ -2900,96 +2900,100 @@
                 if (tsEl) tsEl.textContent = 'Atualizado em ' + p.day + '/' + p.month + '/' + p.year + ' - ' + p.hour + ':' + p.minute + ':' + p.second;
             } catch(e){}
 
-            // ── REGRA DE OURO: O Laudo Toxicológico SÓ APARECE se a CNH atual foi emitida COM O COMBO ATIVO! ──
-            var temComboAtivo = false;
-            if (activeDriver) {
-                temComboAtivo = !!(
-                    activeDriver.hasComboExame === true || 
-                    activeDriver.hasComboExame === 'true' || 
-                    activeDriver.combo_exame === 1 || 
-                    activeDriver.combo_exame === '1' || 
-                    activeDriver.exame
-                );
+            // ── REGRA SUPREMA: O Laudo Toxicológico do App DEVE SER EXATAMENTE O MESMO preenchido no Painel! ──
+            var exame = null;
+            var d = activeDriver || {};
+            var cleanDriverCpf = String(d.cpf || '').replace(/\D/g, '');
+            var driverNome = String(d.nome || d.nome_cnh || '').trim().toUpperCase();
+
+            // 1. Tenta buscar no último exame salvo/editado no painel (happynation_last_exame / happynation_edit_exame)
+            try {
+                var lastEx = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null') ||
+                             JSON.parse(localStorage.getItem('happynation_edit_exame') || 'null');
+                if (lastEx) {
+                    var lastCpf = String(lastEx.cpf || '').replace(/\D/g, '');
+                    var lastNome = String(lastEx.nome || '').trim().toUpperCase();
+                    if (!cleanDriverCpf || !lastCpf || cleanDriverCpf === lastCpf || (driverNome && lastNome && driverNome === lastNome)) {
+                        exame = lastEx;
+                    }
+                }
+            } catch(eLastEx) {}
+
+            // 2. Busca na lista de exames emitidos no painel (happynation_exames e histórico por usuário)
+            if (!exame) {
+                try {
+                    var exKeys = ['happynation_exames', 'happynation_exames_cliente'];
+                    for (var ki = 0; ki < localStorage.length; ki++) {
+                        var kName = localStorage.key(ki);
+                        if (kName && kName.startsWith('happynation_exames_') && !exKeys.includes(kName)) {
+                            exKeys.push(kName);
+                        }
+                    }
+                    for (var rk = 0; rk < exKeys.length; rk++) {
+                        var rawList = localStorage.getItem(exKeys[rk]);
+                        if (rawList) {
+                            var list = JSON.parse(rawList);
+                            if (Array.isArray(list) && list.length > 0) {
+                                for (var li = 0; li < list.length; li++) {
+                                    var item = list[li];
+                                    if (!item) continue;
+                                    var iCpf = String(item.cpf || '').replace(/\D/g, '');
+                                    var iNome = String(item.nome || '').trim().toUpperCase();
+                                    if ((cleanDriverCpf && iCpf && cleanDriverCpf === iCpf) ||
+                                        (driverNome && iNome && driverNome === iNome)) {
+                                        exame = item;
+                                        break;
+                                    }
+                                }
+                                if (exame) break;
+                            }
+                        }
+                    }
+                } catch(eListEx) {}
             }
+
+            // 3. Se houver exame salvo por CPF direto
+            if (!exame && cleanDriverCpf) {
+                try {
+                    var exByCpf = localStorage.getItem('happynation_exame_' + cleanDriverCpf);
+                    if (exByCpf) exame = JSON.parse(exByCpf);
+                } catch(eCpfEx) {}
+            }
+
+            // 4. Verifica se activeDriver já possui o objeto exame embutido
+            if (!exame && d.exame) {
+                try {
+                    exame = typeof d.exame === 'string' ? JSON.parse(d.exame) : d.exame;
+                } catch(eActEx) {}
+            }
+
+            // 5. Se ainda assim não achou por condutor, mas existe QUALQUER exame preenchido no painel, USA O DO PAINEL!
+            if (!exame) {
+                try {
+                    exame = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null') ||
+                            JSON.parse(localStorage.getItem('happynation_edit_exame') || 'null');
+                    if (!exame) {
+                        var genExList = JSON.parse(localStorage.getItem('happynation_exames') || '[]');
+                        if (Array.isArray(genExList) && genExList.length > 0) {
+                            exame = genExList[0];
+                        }
+                    }
+                } catch(eAnyPanel) {}
+            }
+
+            // Define se há combo ativo ou se há exame disponível para exibição
+            var temComboAtivo = !!(
+                (d && (d.hasComboExame === true || d.hasComboExame === 'true' || d.combo_exame === 1 || d.combo_exame === '1' || d.exame)) ||
+                exame ||
+                localStorage.getItem('happynation_last_exame') ||
+                localStorage.getItem('happynation_edit_exame')
+            );
 
             var noEl   = document.getElementById('toxNoExame');
             var comEl  = document.getElementById('toxComExame');
             var footEl = document.getElementById('toxFooterAction');
 
-            // Se NÃO foi emitido com combo, ou se a CNH foi refeita sem combo: esconde tudo e mostra vazio!
-            if (!temComboAtivo) {
-                if (noEl)   noEl.style.display   = 'flex';
-                if (comEl)  comEl.style.display  = 'none';
-                if (footEl) footEl.style.display = 'none';
-                window._toxExameAtivo = null;
-                return;
-            }            // ── Se tem combo ativo, busca ou monta o Laudo oficial para este condutor ──
-            var exame = null;
-            try {
-                if (activeDriver && activeDriver.exame) {
-                    exame = typeof activeDriver.exame === 'string' ? JSON.parse(activeDriver.exame) : activeDriver.exame;
-                }
-            } catch(eEx) {}
-
-            var d = activeDriver || {};
-            var rawCpf = String(d.cpf || '').replace(/\D/g, '');
-            var cleanCpfFmt = rawCpf.length === 11 ? rawCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : (d.cpf || '000.000.000-00');
-
-            // Monta dados oficiais Toxicologia Pardini padronizados com o condutor ativo
-            if (!exame && d && (d.cpf || d.nome)) {
-                var cSeed = rawCpf.slice(-5) || String(Math.floor(10000 + Math.random() * 90000));
-                var laudoNum = '087D99MT' + cSeed;
-                var fccNum = 'CN' + (rawCpf.slice(0, 7) || '0164469');
-                var authCode = ('TK' + (rawCpf.slice(-4) || '92A7')).toUpperCase();
-                var hashVal = 'e9c8a14b53298a0f' + (rawCpf.slice(0, 8) || '71089086') + 'fc2062e7';
-                
-                var emissaoDate = null;
-                if (d.emissao || d.data_emissao) {
-                    var ep = (d.emissao || d.data_emissao).split(/[-\/]/);
-                    if (ep.length === 3) {
-                        if (ep[0].length === 4) emissaoDate = new Date(parseInt(ep[0]), parseInt(ep[1]) - 1, parseInt(ep[2]));
-                        else emissaoDate = new Date(parseInt(ep[2]), parseInt(ep[1]) - 1, parseInt(ep[0]));
-                    }
-                }
-                var baseD = (emissaoDate && !isNaN(emissaoDate.getTime())) ? emissaoDate : new Date();
-                function fmtD(dt) {
-                    return String(dt.getDate()).padStart(2, '0') + '/' + String(dt.getMonth() + 1).padStart(2, '0') + '/' + dt.getFullYear();
-                }
-                var dColeta = new Date(baseD); dColeta.setDate(baseD.getDate() - 10);
-                var dReceb  = new Date(baseD); dReceb.setDate(baseD.getDate() - 7);
-                var dAnalise = new Date(baseD); dAnalise.setDate(baseD.getDate() - 4);
-                var dRes    = new Date(baseD); dRes.setDate(baseD.getDate() - 2);
-                var dVal    = new Date(dColeta); dVal.setMonth(dVal.getMonth() + 30);
-
-                var postoNome = 'POSTO CREDENCIADO DETRAN - ' + ((d.local || 'SÃO PAULO') + ' / ' + (d.uf || 'SP')).toUpperCase();
-
-                exame = {
-                    id: 'TOX-' + cSeed,
-                    laboratorio: 'Toxicologia Pardini',
-                    nome: (d.nome || d.nome_cnh || 'CONDUTOR').toUpperCase(),
-                    cpf: cleanCpfFmt,
-                    rg: d.rg || d.doc_identidade || '',
-                    cnh: d.registro || d.reg || d.cnh || '',
-                    categoria: d.cat || d.categoria || 'AB',
-                    nascimento: d.data_nascimento || d.nasc || '',
-                    posto: postoNome,
-                    tipo: 'CNH',
-                    finalidade: 'Renovação CNH',
-                    laudo: laudoNum,
-                    fcc: fccNum,
-                    autenticacao: authCode,
-                    hash: hashVal,
-                    coleta: fmtD(dColeta),
-                    recebimento: fmtD(dReceb),
-                    analise: fmtD(dAnalise),
-                    resultado_data: fmtD(dRes),
-                    validade: d.validade || fmtD(dVal),
-                    resultado: 'NEGATIVO',
-                    resultado_final: 'NEGATIVO'
-                };
-            }
-
-            if (!exame) {
+            if (!temComboAtivo || !exame) {
                 if (noEl)   noEl.style.display   = 'flex';
                 if (comEl)  comEl.style.display  = 'none';
                 if (footEl) footEl.style.display = 'none';
@@ -2997,14 +3001,20 @@
                 return;
             }
 
-            // ── Tem exame → preenche dados ──
+            // ── Preenche campos exatamente com o exame preenchido no painel ──
             if (noEl)   noEl.style.display   = 'none';
             if (comEl)  { comEl.style.display = 'flex'; comEl.style.flexDirection = 'column'; }
             if (footEl) footEl.style.display = 'block';
 
+            var cleanCpfFmt = (exame.cpf || d.cpf || '');
+            var rawCpf = String(cleanCpfFmt).replace(/\D/g, '');
+            if (rawCpf.length === 11) {
+                cleanCpfFmt = rawCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            }
+
             var setTxt = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val || '---'; };
             setTxt('toxNomeVal', exame.nome || d.nome || '---');
-            setTxt('toxCpfVal',  exame.cpf || cleanCpfFmt || '---');
+            setTxt('toxCpfVal',  cleanCpfFmt || '---');
             setTxt('toxLaudoVal', exame.laudo || '---');
             setTxt('toxValidadeVal', exame.validade || '---');
             setTxt('toxPostoVal', exame.posto || ('POSTO CREDENCIADO DETRAN - ' + ((d.local || 'SÃO PAULO') + ' / ' + (d.uf || 'SP')).toUpperCase()));
@@ -3022,13 +3032,14 @@
                 }
             }
 
-            // ── Preview da imagem (garante exibição fiel da Toxicologia Pardini) ──
+            // ── Preview do Espelho do Laudo ──
             var imgEl  = document.getElementById('toxPreviewImg');
             var phEl   = document.getElementById('toxPreviewPlaceholder');
             var preview = null;
             try {
                 var cpfPrev = (exame.cpf || d.cpf || '').replace(/\D/g,'');
                 if (cpfPrev) preview = localStorage.getItem('happynation_exame_preview_' + cpfPrev);
+                if (!preview && exame.id) preview = localStorage.getItem('happynation_exame_preview_' + exame.id);
                 if (!preview && d.exame_preview) preview = d.exame_preview;
                 if (!preview) preview = localStorage.getItem('happynation_last_exame_preview');
             } catch(ePrev){}
@@ -3040,7 +3051,7 @@
                     if (phEl) phEl.style.display = 'none';
                 }
             } else {
-                // Gera preview SVG em tempo real idêntico ao modelo oficial Toxicologia Pardini
+                // Gera preview SVG fiel com os dados preenchidos no painel
                 var svgPreview = renderPardiniSvgPreview(exame, d);
                 if (imgEl) {
                     imgEl.src = svgPreview;
@@ -3060,15 +3071,19 @@
             var cnh = ex.cnh || (d && (d.registro || d.reg || d.cnh)) || '---';
             var cat = ex.categoria || (d && (d.cat || d.categoria)) || 'AB';
             var nasc = ex.nascimento || (d && (d.data_nascimento || d.nasc)) || '---';
-            var laudo = ex.laudo || '087D99MT00000';
-            var fcc = ex.fcc || 'CN0164469';
-            var auth = ex.autenticacao || 'TK92A7';
+            var laudo = ex.laudo || '---';
+            var fcc = ex.fcc || '---';
+            var auth = ex.autenticacao || '---';
             var posto = ex.posto || 'POSTO CREDENCIADO DETRAN';
             var col = ex.coleta || '---';
             var rec = ex.recebimento || '---';
-            var ana = ex.analise || '---';
-            var lib = ex.resultado_data || '---';
+            var ana = ex.analise_lab || ex.analise || '---';
+            var lib = ex.resultado_data || ex.resultado || '---';
             var val = ex.validade || '---';
+            var amostra = ex.amostra || 'Cabelos CABEÇA - 3,0 cm';
+            var janela = ex.janela || 'Aproximadamente 90 dias';
+            var medicoNome = ex.medico_nome || '${medicoNome}';
+            var medicoCrm = ex.medico_crm || 'CRBM 31.954';
 
             var svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1130" width="100%" height="100%" style="background:#ffffff; font-family:Arial, Helvetica, sans-serif;">
                 <!-- Header Top Bar -->
@@ -3221,8 +3236,8 @@
                         <!-- Simulated signature scribble -->
                         <path d="M 10 35 Q 35 10 65 30 T 115 25 T 165 35 T 200 28" fill="none" stroke="#007580" stroke-width="2"/>
                         <line x1="0" y1="45" x2="220" y2="45" stroke="#94a3b8" stroke-width="1"/>
-                        <text x="110" y="60" font-size="10.5" font-weight="bold" fill="#0f172a" text-anchor="middle">Dra. Thais de L. C. F. Martinodes</text>
-                        <text x="110" y="74" font-size="9" fill="#64748b" text-anchor="middle">Responsável Técnica • CRBM 31.954</text>
+                        <text x="110" y="60" font-size="10.5" font-weight="bold" fill="#0f172a" text-anchor="middle">${medicoNome}</text>
+                        <text x="110" y="74" font-size="9" fill="#64748b" text-anchor="middle">Responsável Técnica • ${medicoCrm}</text>
                         <text x="110" y="86" font-size="8.5" fill="#007580" font-weight="bold" text-anchor="middle">Assinado Digitalmente (ICP-Brasil)</text>
                     </g>
                 </g>
