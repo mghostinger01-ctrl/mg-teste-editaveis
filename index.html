@@ -2332,13 +2332,29 @@
             initUserData();
         });
 
-        // Atualização em tempo real caso valores, telefone ou dados sejam alterados no Admin
+        // Atualização em tempo real caso valores, telefone ou dados sejam alterados no Admin ou após gerar documentos
+        window.addEventListener('pageshow', () => {
+            initUserData();
+        });
         window.addEventListener('storage', () => {
             initUserData();
         });
         window.addEventListener('mg_saldo_updated', () => {
             initUserData();
         });
+
+        try {
+            if (typeof BroadcastChannel !== 'undefined') {
+                const _idxBc = new BroadcastChannel('happynation_live_sync');
+                _idxBc.onmessage = function(ev) {
+                    const msg = ev && ev.data;
+                    if (!msg) return;
+                    if (msg.type === 'cnh_created' || msg.type === 'cnh_updated' || msg.type === 'cnh_status_changed' || msg.type === 'cnh_unblocked') {
+                        initUserData();
+                    }
+                };
+            }
+        } catch(eBc) {}
     
         // ─── HIGH-TECH ANIMATED NEURAL/PLEXUS NETWORK BACKGROUND ───
         (function initNeuralNetwork() {

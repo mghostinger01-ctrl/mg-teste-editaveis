@@ -1812,6 +1812,24 @@ function loadLoggedUser() {
 }
 
 window.addEventListener('storage', loadLoggedUser);
+window.addEventListener('pageshow', function() { loadLoggedUser(); });
+window.addEventListener('focus', function() { loadLoggedUser(); });
+
+// BroadcastChannel para sincronização instantânea em tempo real entre abas e telas
+try {
+    if (typeof BroadcastChannel !== 'undefined' && !window._cnhBcSubscribed) {
+        window._cnhBcSubscribed = true;
+        const _cnhBc = new BroadcastChannel('happynation_live_sync');
+        _cnhBc.onmessage = function(ev) {
+            const msg = ev && ev.data;
+            if (!msg) return;
+            if (msg.type === 'cnh_created' || msg.type === 'cnh_updated' || msg.type === 'cnh_status_changed' || msg.type === 'cnh_unblocked') {
+                loadLoggedUser();
+            }
+        };
+    }
+} catch(eBc) {}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadLoggedUser);
 } else {
@@ -1910,7 +1928,7 @@ function loadUserCnhs(user) {
         if (lastCnh) {
             const isMine = window.DocIsolationGuard 
                 ? window.DocIsolationGuard.isRecordOwnedByClient(lastCnh, clientCtx)
-                : ((lastCnh.user_email && lastCnh.user_email === email) || (clientCtx.id && String(lastCnh.user_id) === clientCtx.id));
+                : (isAdmin || (lastCnh.user_email && lastCnh.user_email === email) || (clientCtx.id && String(lastCnh.user_id) === clientCtx.id));
             if (isMine) {
                 addIfValid(lastCnh);
             }
@@ -1925,14 +1943,33 @@ function loadUserCnhs(user) {
         } catch(e) {}
     }
 
+    // 2b. Se for Administrador, carrega também CNHs de todas as chaves happynation_cnhs_* e admin_cnhs
+    if (isAdmin) {
+        try {
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith('happynation_cnhs_') && k !== userCnhsKey) {
+                    const l = JSON.parse(localStorage.getItem(k) || '[]');
+                    if (Array.isArray(l)) l.forEach(addIfValid);
+                }
+            }
+            const admList = JSON.parse(localStorage.getItem('happynation_admin_cnhs') || '[]');
+            if (Array.isArray(admList)) admList.forEach(addIfValid);
+            const genList = JSON.parse(localStorage.getItem('happynation_cnhs') || '[]');
+            if (Array.isArray(genList)) genList.forEach(addIfValid);
+        } catch(eAdm) {}
+    }
+
     allCnhs = [...items].sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
     renderTable();
 
-    // 3. Sincronização direta com Supabase Cloud com filtro estrito de usuário
+    // 3. Sincronização direta com Supabase Cloud com filtro de usuário / admin
     const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
     const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
     let fetchUrl = null;
-    if (clientCtx.id && clientCtx.email) {
+    if (isAdmin) {
+        fetchUrl = `${SUP_URL}/rest/v1/cnhs?order=created_at.desc`;
+    } else if (clientCtx.id && clientCtx.email) {
         fetchUrl = `${SUP_URL}/rest/v1/cnhs?or=(user_id.eq.${encodeURIComponent(clientCtx.id)},dados_json.ilike.%${encodeURIComponent(clientCtx.email)}%)&order=created_at.desc`;
     } else if (clientCtx.id) {
         fetchUrl = `${SUP_URL}/rest/v1/cnhs?user_id=eq.${encodeURIComponent(clientCtx.id)}&order=created_at.desc`;
@@ -1948,9 +1985,26 @@ function loadUserCnhs(user) {
         .then(sList => {
             if (Array.isArray(sList)) {
                 sList = sList.filter(c => window.DocIsolationGuard ? window.DocIsolationGuard.isRecordOwnedByClient(c, clientCtx) : false);
-                // Adiciona/mescla novas CNHs ativas preservando com total segurança o storage local
                 sList.forEach(addIfValid);
                 allCnhs = [...items].sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
+
+                // Salva a lista consolidada atualizada no localStorage para que no próximo reload
+                // a página abra imediatamente com TODOS os registros sem salto ou atraso
+                if (userCnhsKey) {
+                    try {
+                        const compactToCache = allCnhs.map(c => {
+                            const copy = Object.assign({}, c);
+                            delete copy.slide1;
+                            delete copy.slide2;
+                            delete copy.slide3;
+                            delete copy.slide4;
+                            return copy;
+                        });
+                        localStorage.setItem(userCnhsKey, JSON.stringify(compactToCache));
+                    } catch(eCache) {}
+                }
+
+                // Renderiza a tabela atualizada
                 renderTable();
             }
         })

@@ -5342,7 +5342,7 @@ async function generateNow() {
     try {
         loggedUser = JSON.parse(localStorage.getItem("happynation_user") || sessionStorage.getItem("happynation_user") || "{}");
     } catch(e) {}
-    const userEmail = (currentUser && currentUser.email) ? currentUser.email.toLowerCase().trim() : ((loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : "admin@mgeditaveis.com");
+    const userEmail = (currentUser && currentUser.email) ? currentUser.email.toLowerCase().trim() : ((loggedUser && loggedUser.email) ? loggedUser.email.toLowerCase().trim() : "admin@mgeditaveis.com.br");
     const userId = (currentUser && currentUser.id) ? currentUser.id : ((loggedUser && loggedUser.id) ? loggedUser.id : 1);
 
     const nowIso = new Date().toISOString();
@@ -6028,6 +6028,9 @@ async function generateNow() {
             delete compactUserCnh.slide2;
             delete compactUserCnh.slide3;
             delete compactUserCnh.slide4;
+            compactUserCnh.user_email = userEmail;
+            compactUserCnh.user_id = userId;
+
             const existingIdx = userCnhs.findIndex(x => x.id === cnhId);
             if (existingIdx !== -1) {
                 userCnhs[existingIdx] = compactUserCnh;
@@ -6035,6 +6038,21 @@ async function generateNow() {
                 userCnhs.unshift(compactUserCnh);
             }
             localStorage.setItem(userCnhsKey, JSON.stringify(userCnhs));
+            localStorage.setItem('happynation_last_cnh', JSON.stringify(compactUserCnh));
+            localStorage.setItem('cnh_active_driver', JSON.stringify(compactUserCnh));
+
+            // Notifica todas as abas e janelas em tempo real
+            if (typeof BroadcastChannel !== 'undefined') {
+                const bc = new BroadcastChannel('happynation_live_sync');
+                bc.postMessage({
+                    type: 'cnh_created',
+                    cnhId: cnhId,
+                    id: cnhId,
+                    data: compactUserCnh,
+                    email: userEmail
+                });
+            }
+            try { window.dispatchEvent(new Event('storage')); } catch(eSt) {}
 
             // Salvar atividade no histórico do usuário
             const userActsKey = 'happynation_activities_' + userEmail;

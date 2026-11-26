@@ -19,8 +19,9 @@
         const id = (user && (user.id || user.user_id)) ? String(user.id) : '';
         const nome = (user && (user.nome || user.name)) ? String(user.nome).trim() : '';
         const role = (user && user.role) ? String(user.role).trim().toLowerCase() : '';
+        const isAdmin = Boolean(role === 'admin' || (user && user.role === 'admin') || email.includes('admin@mgeditaveis'));
         
-        return { user, email, id, nome, role, isClient: true, isAdmin: false };
+        return { user, email, id, nome, role, isClient: !isAdmin, isAdmin: isAdmin };
     }
 
     // IDs de documentos mock/demonstração que nunca devem ser exibidos
@@ -41,12 +42,17 @@
         if (!record) return false;
         if (!ctx) ctx = getClientContext();
 
-        // Se o cliente não estiver autenticado com email ou id válido, bloqueia
-        if (!ctx.email && !ctx.id) return false;
-
         // Bloqueia registros fakes/seeds de demonstração
         const recId = String(record.id || record.codigo || '');
         if (recId && FAKE_MOCK_IDS.has(recId)) return false;
+
+        // Administrador tem visibilidade de todos os documentos gerados legítimos
+        if (ctx.isAdmin) {
+            return true;
+        }
+
+        // Se o cliente não estiver autenticado com email ou id válido, bloqueia
+        if (!ctx.email && !ctx.id) return false;
 
         // Extrai dados parseados
         let dj = null;
@@ -67,10 +73,7 @@
 
         // 2. Verifica user_id
         const recUserId = String(record.user_id || record.userId || (dj && (dj.user_id || dj.userId)) || '');
-        if (recUserId && ctx.id && recUserId === ctx.id && recUserId !== '1') {
-            return true;
-        }
-        if (recUserId && ctx.id && recUserId === ctx.id && ctx.email && recEmail === ctx.email) {
+        if (recUserId && ctx.id && recUserId === ctx.id) {
             return true;
         }
 
