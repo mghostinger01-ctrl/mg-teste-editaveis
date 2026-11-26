@@ -1781,9 +1781,14 @@ function loadUserReceitas(user) {
         const idStr = String(item.id || item.token || ('rec_' + Date.now()));
         if (seenIds.has(idStr) || deletedList.includes(idStr)) return;
 
-        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
-        if (!isAdmin && window.DocIsolationGuard) {
+        // Validação estrita de posse: cada usuário visualiza exclusivamente suas próprias receitas
+        if (window.DocIsolationGuard) {
             if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        } else {
+            const itemEmail = (item.user_email || '').toLowerCase().trim();
+            const itemId = String(item.user_id || '');
+            if (email && itemEmail && itemEmail !== email) return;
+            if (clientCtx.id && itemId && itemId !== clientCtx.id) return;
         }
 
         seenIds.add(idStr);
@@ -1808,15 +1813,16 @@ function loadUserReceitas(user) {
     // 1. Carrega estritamente da chave do usuário logado
     if (email) scan('happynation_receitas_' + email);
 
-    // 2. Apenas para ADMIN: permite carregar chaves legadas de outros usuários
-    if (isAdmin) {
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('happynation_receitas_') && k !== ('happynation_receitas_' + email)) {
-                scan(k);
-            }
+    // 2. Carrega da última receita SE pertencer a este usuário
+    try {
+        const lastRec = JSON.parse(localStorage.getItem('happynation_last_receita') || 'null');
+        if (lastRec) {
+            const isMine = window.DocIsolationGuard
+                ? window.DocIsolationGuard.isRecordOwnedByClient(lastRec, clientCtx)
+                : ((lastRec.user_email && lastRec.user_email === email) || (clientCtx.id && String(lastRec.user_id) === clientCtx.id));
+            if (isMine) addIfValid(lastRec);
         }
-    }
+    } catch(e) {}
 
     items.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     allReceitas = items;

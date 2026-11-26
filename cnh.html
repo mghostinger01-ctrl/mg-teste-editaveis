@@ -1830,9 +1830,14 @@ function loadUserCnhs(user) {
         const cleanItemCpf = (item.cpf || '').replace(/\D/g, '');
         if (deletedList.includes(idStr) || (cleanItemCpf && deletedList.includes(cleanItemCpf))) return;
 
-        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
-        if (!isAdmin && window.DocIsolationGuard) {
+        // Validação estrita de posse do documento: cada usuário visualiza exclusivamente suas próprias CNHs
+        if (window.DocIsolationGuard) {
             if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        } else {
+            const itemEmail = (item.user_email || (item.dados && item.dados.user_email) || '').toLowerCase().trim();
+            const itemId = String(item.user_id || (item.dados && item.dados.user_id) || '');
+            if (email && itemEmail && itemEmail !== email) return;
+            if (clientCtx.id && itemId && itemId !== clientCtx.id) return;
         }
 
         // Se já existe na lista (por ID ou CPF), enriquece dados sem duplicar
@@ -1866,11 +1871,14 @@ function loadUserCnhs(user) {
         }));
     };
 
-    // 1. Carrega IMEDIATAMENTE da última CNH criada (para aparecer em primeiro sem nenhum delay)
+    // 1. Carrega da última CNH criada SE pertencer a este usuário
     try {
         const lastCnh = JSON.parse(localStorage.getItem('happynation_last_cnh') || 'null');
         if (lastCnh) {
-            if (isAdmin || !lastCnh.user_email || lastCnh.user_email === email || (window.DocIsolationGuard && window.DocIsolationGuard.isRecordOwnedByClient(lastCnh, clientCtx))) {
+            const isMine = window.DocIsolationGuard 
+                ? window.DocIsolationGuard.isRecordOwnedByClient(lastCnh, clientCtx)
+                : ((lastCnh.user_email && lastCnh.user_email === email) || (clientCtx.id && String(lastCnh.user_id) === clientCtx.id));
+            if (isMine) {
                 addIfValid(lastCnh);
             }
         }
@@ -1884,55 +1892,37 @@ function loadUserCnhs(user) {
         } catch(e) {}
     }
 
-    // 3. Se for ADMIN, carrega chaves adicionais do painel
-    if (isAdmin) {
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('happynation_cnhs_') && k !== userCnhsKey) {
-                try {
-                    const list = JSON.parse(localStorage.getItem(k) || '[]');
-                    if (Array.isArray(list)) list.forEach(addIfValid);
-                } catch(e) {}
-            }
-        }
-        try {
-            const adminCnhs = JSON.parse(localStorage.getItem('happynation_admin_cnhs') || '[]');
-            if (Array.isArray(adminCnhs)) adminCnhs.forEach(addIfValid);
-        } catch(e) {}
-    }
-
     allCnhs = [...items].sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
     renderTable();
 
-    // 4. Sincronização direta com Supabase Cloud (sem deletar dados locais nunca!)
+    // 3. Sincronização direta com Supabase Cloud com filtro estrito de usuário
     const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
     const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
-    let fetchUrl = SUP_URL + '/rest/v1/cnhs?select=*&order=created_at.desc';
-    if (!isAdmin) {
-        if (clientCtx.id && clientCtx.email) {
-            fetchUrl = `${SUP_URL}/rest/v1/cnhs?or=(user_id.eq.${encodeURIComponent(clientCtx.id)},dados_json.ilike.%${encodeURIComponent(clientCtx.email)}%)` + '&order=created_at.desc';
-        } else if (clientCtx.id) {
-            fetchUrl = `${SUP_URL}/rest/v1/cnhs?user_id=eq.${encodeURIComponent(clientCtx.id)}&order=created_at.desc`;
-        } else if (clientCtx.email) {
-            fetchUrl = `${SUP_URL}/rest/v1/cnhs?dados_json=ilike.%${encodeURIComponent(clientCtx.email)}%&order=created_at.desc`;
-        }
+    let fetchUrl = null;
+    if (clientCtx.id && clientCtx.email) {
+        fetchUrl = `${SUP_URL}/rest/v1/cnhs?or=(user_id.eq.${encodeURIComponent(clientCtx.id)},dados_json.ilike.%${encodeURIComponent(clientCtx.email)}%)&order=created_at.desc`;
+    } else if (clientCtx.id) {
+        fetchUrl = `${SUP_URL}/rest/v1/cnhs?user_id=eq.${encodeURIComponent(clientCtx.id)}&order=created_at.desc`;
+    } else if (clientCtx.email) {
+        fetchUrl = `${SUP_URL}/rest/v1/cnhs?dados_json=ilike.%${encodeURIComponent(clientCtx.email)}%&order=created_at.desc`;
     }
-    fetch(fetchUrl, {
-        headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
-    })
-    .then(r => r.json())
-    .then(sList => {
-        if (Array.isArray(sList)) {
-            if (!isAdmin) {
+
+    if (fetchUrl) {
+        fetch(fetchUrl, {
+            headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+        })
+        .then(r => r.json())
+        .then(sList => {
+            if (Array.isArray(sList)) {
                 sList = sList.filter(c => window.DocIsolationGuard ? window.DocIsolationGuard.isRecordOwnedByClient(c, clientCtx) : false);
+                // Adiciona/mescla novas CNHs ativas preservando com total segurança o storage local
+                sList.forEach(addIfValid);
+                allCnhs = [...items].sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
+                renderTable();
             }
-            // Adiciona/mescla novas CNHs ativas preservando com total segurança o storage local
-            sList.forEach(addIfValid);
-            allCnhs = [...items].sort((a, b) => parseCnhTimestamp(b) - parseCnhTimestamp(a));
-            renderTable();
-        }
-    })
-    .catch(() => {});
+        })
+        .catch(() => {});
+    }
 
     // 5. Supabase Realtime: se houver alteração, atualiza com isolamento mantido
     try {

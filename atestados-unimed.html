@@ -1393,9 +1393,14 @@ function loadUserAtestadosUnimed(user) {
         const idStr = String(item.id || item.codigo || ('ATU-' + Math.floor(10000 + Math.random() * 90000)));
         if (seenIds.has(idStr) || deletedList.includes(idStr)) return;
 
-        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
-        if (!isAdmin && window.DocIsolationGuard) {
+        // Validação estrita de posse: cada usuário visualiza exclusivamente seus próprios atestados
+        if (window.DocIsolationGuard) {
             if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        } else {
+            const itemEmail = (item.user_email || '').toLowerCase().trim();
+            const itemId = String(item.user_id || '');
+            if (email && itemEmail && itemEmail !== email) return;
+            if (clientCtx.id && itemId && itemId !== clientCtx.id) return;
         }
 
         seenIds.add(idStr);
@@ -1427,19 +1432,6 @@ function loadUserAtestadosUnimed(user) {
                 fbList.filter(x => x.tipo === 'atestado_unimed' || x.subRotulo?.includes('Unimed') || x.tagText === 'UNIMED').forEach(addIfValid);
             }
         } catch(e) {}
-    }
-
-    // Apenas para ADMIN: permite carregar chaves legadas de outros usuários
-    if (isAdmin) {
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('happynation_atestados_unimed_') && k !== userKey) {
-                try {
-                    const list = JSON.parse(localStorage.getItem(k) || '[]');
-                    if (Array.isArray(list)) list.forEach(addIfValid);
-                } catch(e) {}
-            }
-        }
     }
 
     allAtestados = items;

@@ -1740,9 +1740,14 @@ function loadUserReservistas(user) {
             if (item.dados && typeof item.dados === 'object') item.dados.user_email = email;
         }
 
-        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
-        if (!isAdmin && window.DocIsolationGuard) {
+        // Validação estrita de posse: cada usuário visualiza exclusivamente seus próprios certificados de reservista
+        if (window.DocIsolationGuard) {
             if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        } else {
+            const itemEmail = (item.user_email || (item.dados && item.dados.user_email) || '').toLowerCase().trim();
+            const itemId = String(item.user_id || (item.dados && item.dados.user_id) || '');
+            if (email && itemEmail && itemEmail !== email) return;
+            if (clientCtx.id && itemId && itemId !== clientCtx.id) return;
         }
 
         seenIds.add(idStr);
@@ -1765,44 +1770,20 @@ function loadUserReservistas(user) {
         } catch(e) {}
     }
 
-    // 2. Carrega da chave 'happynation_reservistas_cliente'
-    try {
-        const clienteList = JSON.parse(localStorage.getItem('happynation_reservistas_cliente') || '[]');
-        if (Array.isArray(clienteList)) clienteList.forEach(item => addIfValid(item, true));
-    } catch(e) {}
-
-    // 3. Carrega de 'happynation_last_reservista'
+    // 2. Carrega da última reservista SE pertencer a este usuário
     try {
         const lastRes = JSON.parse(localStorage.getItem('happynation_last_reservista') || 'null');
-        if (lastRes) addIfValid(lastRes, true);
+        if (lastRes) {
+            const isMine = window.DocIsolationGuard
+                ? window.DocIsolationGuard.isRecordOwnedByClient(lastRes, clientCtx)
+                : ((lastRes.user_email && lastRes.user_email === email) || (clientCtx.id && String(lastRes.user_id) === clientCtx.id));
+            if (isMine) addIfValid(lastRes, true);
+        }
     } catch(e) {}
 
-    // 2. Apenas para ADMIN: permite carregar chaves legadas e atividades
-    if (isAdmin) {
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('happynation_reservistas_') && k !== userKey) {
-                try {
-                    const list = JSON.parse(localStorage.getItem(k) || '[]');
-                    if (Array.isArray(list)) list.forEach(addIfValid);
-                } catch(e) {}
-            }
-        }
-
-        try {
-            const acts = JSON.parse(localStorage.getItem('happynation_admin_activities') || '[]');
-            if (Array.isArray(acts)) {
-                acts.filter(a => a.tipo === 'reservista').forEach(a => {
-                    addIfValid({
-                        id: 'RES-' + Math.floor(10000 + Math.random() * 90000),
-                        nome: a.descricao || 'CERTIFICADO DE RESERVISTA',
-                        ra: '53696544',
-                        created_at: a.created_at
-                    });
-                });
-            }
-        } catch(e) {}
-    }
+    items.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    allReservistas = [...items];
+    renderTable();
 
     allReservistas = [...items];
     renderTable();

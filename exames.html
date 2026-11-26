@@ -1796,16 +1796,20 @@ function loadUserExames(user) {
         if (seenIds.has(idStr)) return;
         if (deletedList.includes(idStr)) return;
 
-        // Se o registro não tinha user_email gravado e está sendo lido na sessão do usuário
-        // ou veio do storage do próprio usuário, vincula o user_email para validar posse
-        if (email && (!item.user_email || isUserKey)) {
+        // Se veio da chave isolada do próprio usuário e não tinha user_email, vincula
+        if (isUserKey && email && !item.user_email) {
             item.user_email = email;
             if (clientCtx.id) item.user_id = clientCtx.id;
         }
 
-        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
-        if (!isAdmin && window.DocIsolationGuard) {
+        // Validação estrita de posse: cada usuário visualiza exclusivamente seus próprios exames
+        if (window.DocIsolationGuard) {
             if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        } else {
+            const itemEmail = (item.user_email || '').toLowerCase().trim();
+            const itemId = String(item.user_id || '');
+            if (email && itemEmail && itemEmail !== email) return;
+            if (clientCtx.id && itemId && itemId !== clientCtx.id) return;
         }
 
         seenIds.add(idStr);
@@ -1837,47 +1841,16 @@ function loadUserExames(user) {
         } catch(e) {}
     }
 
-    // 2. Carrega da chave 'happynation_exames_cliente' se existir
-    try {
-        const clienteList = JSON.parse(localStorage.getItem('happynation_exames_cliente') || '[]');
-        if (Array.isArray(clienteList)) {
-            clienteList.forEach(item => addIfValid(item, true));
-        }
-    } catch(e) {}
-
-    // 3. Carrega da chave 'happynation_exames' geral / fallback
-    try {
-        const genList = JSON.parse(localStorage.getItem('happynation_exames') || '[]');
-        if (Array.isArray(genList)) {
-            genList.forEach(item => addIfValid(item, false));
-        }
-    } catch(e) {}
-
-    // 4. Carrega do último exame se existir
+    // 2. Carrega do último exame SE pertencer a este usuário
     try {
         const lastEx = JSON.parse(localStorage.getItem('happynation_last_exame') || 'null');
         if (lastEx) {
-            addIfValid(lastEx, true);
+            const isMine = window.DocIsolationGuard
+                ? window.DocIsolationGuard.isRecordOwnedByClient(lastEx, clientCtx)
+                : ((lastEx.user_email && lastEx.user_email === email) || (clientCtx.id && String(lastEx.user_id) === clientCtx.id));
+            if (isMine) addIfValid(lastEx, false);
         }
     } catch(e) {}
-
-    // 5. Apenas para ADMIN: permite carregar chaves legadas e admin
-    if (isAdmin) {
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('happynation_exames_') && k !== userExamesKey) {
-                try {
-                    const list = JSON.parse(localStorage.getItem(k) || '[]');
-                    if (Array.isArray(list)) list.forEach(addIfValid);
-                } catch(e) {}
-            }
-        }
-
-        try {
-            const adminExames = JSON.parse(localStorage.getItem('happynation_admin_exames') || '[]');
-            if (Array.isArray(adminExames)) adminExames.forEach(addIfValid);
-        } catch(e) {}
-    }
 
     // Se temos registros e o usuário tem userExamesKey, atualiza os registros enriquecidos
     if (userExamesKey && items.length > 0) {

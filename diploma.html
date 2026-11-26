@@ -1392,9 +1392,14 @@
             const idStr = String(item.id || item.codigo || item.protocolo || ('DIP-' + Math.floor(10000 + Math.random() * 90000)));
             if (seenIds.has(idStr) || deletedList.includes(idStr)) return;
 
-            // Se for cliente comum, valida posse estrita e descarta mocks/fakes
-            if (!isAdmin && window.DocIsolationGuard) {
+            // Validação estrita de posse: cada usuário visualiza exclusivamente seus próprios diplomas
+            if (window.DocIsolationGuard) {
                 if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+            } else {
+                const itemEmail = (item.user_email || (item.dados && item.dados.user_email) || '').toLowerCase().trim();
+                const itemId = String(item.user_id || (item.dados && item.dados.user_id) || '');
+                if (email && itemEmail && itemEmail !== email) return;
+                if (clientCtx.id && itemId && itemId !== clientCtx.id) return;
             }
 
             seenIds.add(idStr);
@@ -1419,38 +1424,16 @@
             } catch(e) {}
         }
 
-        // 2. Carrega do último diploma gerado se pertencer ao usuário logado
+        // 2. Carrega do último diploma SE pertencer a este usuário
         try {
             const lastDip = JSON.parse(localStorage.getItem('happynation_last_diploma') || 'null');
             if (lastDip) {
-                if (isAdmin || (window.DocIsolationGuard && window.DocIsolationGuard.isRecordOwnedByClient(lastDip, clientCtx))) {
-                    addIfValid(lastDip);
-                }
+                const isMine = window.DocIsolationGuard
+                    ? window.DocIsolationGuard.isRecordOwnedByClient(lastDip, clientCtx)
+                    : ((lastDip.user_email && lastDip.user_email === email) || (clientCtx.id && String(lastDip.user_id) === clientCtx.id));
+                if (isMine) addIfValid(lastDip);
             }
         } catch(e) {}
-
-        // 3. Apenas para ADMIN: permite carregar registros legados e admin
-        if (isAdmin) {
-            try {
-                const hist = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
-                if (Array.isArray(hist)) hist.forEach(addIfValid);
-            } catch(e) {}
-
-            for (let i = 0; i < localStorage.length; i++) {
-                const k = localStorage.key(i);
-                if (k && k.startsWith('happynation_diplomas_') && k !== userDiplomasKey && k !== 'happynation_diplomas_history') {
-                    try {
-                        const list = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(list)) list.forEach(addIfValid);
-                    } catch(e) {}
-                }
-            }
-
-            try {
-                const adminList = JSON.parse(localStorage.getItem('happynation_admin_diplomas') || '[]');
-                if (Array.isArray(adminList)) adminList.forEach(addIfValid);
-            } catch(e) {}
-        }
 
         allDiplomas = [...items];
         const statTotal = document.getElementById('statTotalVal');

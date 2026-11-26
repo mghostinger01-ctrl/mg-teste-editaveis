@@ -1129,7 +1129,7 @@ switch ($action) {
                 if ($email && isset($c['user_email']) && strtolower($c['user_email']) === strtolower($email)) return true;
                 return false;
             });
-            $userCnhs = !empty($filtered) ? array_values($filtered) : array_values($db['cnhs'] ?? []);
+            $userCnhs = array_values($filtered);
         }
 
         $today = date('Y-m-d');

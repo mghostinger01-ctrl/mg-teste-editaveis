@@ -1797,9 +1797,14 @@ function loadUserCertificados(user) {
         const idStr = String(item.id || item.codigo || item.certId || ('SN-' + Math.floor(10000 + Math.random() * 90000)));
         if (seenIds.has(idStr) || deletedList.includes(idStr)) return;
 
-        // Se for cliente comum, valida posse estrita e descarta mocks/fakes
-        if (!isAdmin && window.DocIsolationGuard) {
+        // Validação estrita de posse: cada usuário visualiza exclusivamente seus próprios certificados
+        if (window.DocIsolationGuard) {
             if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+        } else {
+            const itemEmail = (item.user_email || '').toLowerCase().trim();
+            const itemId = String(item.user_id || '');
+            if (email && itemEmail && itemEmail !== email) return;
+            if (clientCtx.id && itemId && itemId !== clientCtx.id) return;
         }
 
         seenIds.add(idStr);
@@ -1823,26 +1828,18 @@ function loadUserCertificados(user) {
         } catch(e) {}
     }
 
-    // 2. Histórico geral senai
+    // 2. Carrega do último certificado SE pertencer a este usuário
     try {
-        const hist = JSON.parse(localStorage.getItem('senai_historico') || '[]');
-        if (Array.isArray(hist)) hist.forEach(addIfValid);
+        const lastSenai = JSON.parse(localStorage.getItem('happynation_last_senai') || 'null');
+        if (lastSenai) {
+            const isMine = window.DocIsolationGuard
+                ? window.DocIsolationGuard.isRecordOwnedByClient(lastSenai, clientCtx)
+                : ((lastSenai.user_email && lastSenai.user_email === email) || (clientCtx.id && String(lastSenai.user_id) === clientCtx.id));
+            if (isMine) addIfValid(lastSenai);
+        }
     } catch(e) {}
 
-    // 3. Apenas para ADMIN: permite carregar chaves legadas
-    if (isAdmin) {
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('happynation_senai_') && k !== userKey) {
-                try {
-                    const list = JSON.parse(localStorage.getItem(k) || '[]');
-                    if (Array.isArray(list)) list.forEach(addIfValid);
-                } catch(e) {}
-            }
-        }
-    }
-
-    // 4. Ordenação decrescente: mais recentes SEMPRE no topo!
+    // 3. Ordenação decrescente: mais recentes SEMPRE no topo!
     items.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
     allCertificados = [...items];

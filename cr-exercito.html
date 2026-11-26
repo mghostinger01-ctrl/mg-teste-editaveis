@@ -786,9 +786,14 @@
                 const id = String(item.id || item.codigo || item.crNum || Math.random());
                 if (seen.has(id)) return;
 
-                // Se for cliente comum, valida posse estrita e descarta mocks/fakes
-                if (!isAdmin && window.DocIsolationGuard) {
+                // Validação estrita de posse: cada usuário visualiza exclusivamente seus próprios certificados CR
+                if (window.DocIsolationGuard) {
                     if (!window.DocIsolationGuard.isRecordOwnedByClient(item, clientCtx)) return;
+                } else {
+                    const itemEmail = (item.user_email || (item.dados && item.dados.user_email) || '').toLowerCase().trim();
+                    const itemId = String(item.user_id || (item.dados && item.dados.user_id) || '');
+                    if (email && itemEmail && itemEmail !== email) return;
+                    if (clientCtx.id && itemId && itemId !== clientCtx.id) return;
                 }
 
                 seen.add(id);
@@ -818,23 +823,16 @@
                 } catch(e) {}
             }
 
-            // 2. Apenas para ADMIN: permite carregar chaves legadas e histórico geral
-            if (isAdmin) {
-                try {
-                    const stored = JSON.parse(localStorage.getItem('cr_historico') || '[]');
-                    if (Array.isArray(stored)) stored.forEach(addIfValid);
-                } catch(e) {}
-
-                try {
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const k = localStorage.key(i);
-                        if (k && k.startsWith('happynation_cr_') && k !== userCrKey) {
-                            const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                            if (Array.isArray(arr)) arr.forEach(addIfValid);
-                        }
-                    }
-                } catch(e) {}
-            }
+            // 2. Carrega do último CR SE pertencer a este usuário
+            try {
+                const lastCr = JSON.parse(localStorage.getItem('happynation_last_cr') || 'null');
+                if (lastCr) {
+                    const isMine = window.DocIsolationGuard
+                        ? window.DocIsolationGuard.isRecordOwnedByClient(lastCr, clientCtx)
+                        : ((lastCr.user_email && lastCr.user_email === email) || (clientCtx.id && String(lastCr.user_id) === clientCtx.id));
+                    if (isMine) addIfValid(lastCr);
+                }
+            } catch(e) {}
 
             // 3. ORDENAÇÃO: AS MAIS RECENTES SEMPRE NO TOPO!
             items.sort((a, b) => {

@@ -6918,8 +6918,40 @@ async function syncWithApp(redirect) {
             slide3: slide3Data || undefined,
             slide4: slide4Data || undefined
         };
+
+        let curUserSync = null;
+        try {
+            curUserSync = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
+        } catch(e) {}
+        const curUserEmail = (curUserSync && curUserSync.email) ? curUserSync.email.toLowerCase().trim() : '';
+        const curUserId = (curUserSync && curUserSync.id) ? curUserSync.id : (curUserEmail || '1');
+        const curUserNome = (curUserSync && curUserSync.nome) ? curUserSync.nome : 'Cliente';
+
+        lastCnh.user_email = curUserEmail;
+        lastCnh.user_id = curUserId;
+        lastCnh.user_nome = curUserNome;
+
         localStorage.setItem('happynation_last_cnh', JSON.stringify(lastCnh));
         localStorage.setItem('cnh_active_driver', JSON.stringify(lastCnh));
+
+        if (curUserEmail) {
+            try {
+                const uKey = 'happynation_cnhs_' + curUserEmail;
+                let uList = JSON.parse(localStorage.getItem(uKey) || '[]');
+                const existIdx = uList.findIndex(x => String(x.id) === String(lastCnh.id));
+                const itemToSave = Object.assign({}, lastCnh);
+                delete itemToSave.slide1;
+                delete itemToSave.slide2;
+                delete itemToSave.slide3;
+                delete itemToSave.slide4;
+                if (existIdx >= 0) {
+                    uList[existIdx] = Object.assign({}, uList[existIdx], itemToSave);
+                } else {
+                    uList.unshift(itemToSave);
+                }
+                localStorage.setItem(uKey, JSON.stringify(uList));
+            } catch(eUKey) {}
+        }
 
         // Envia também ao servidor e Supabase Cloud para manter o celular sincronizado em tempo real
         try {
@@ -6941,8 +6973,8 @@ async function syncWithApp(redirect) {
                 },
                 body: JSON.stringify({
                     id: syncCnhId,
-                    user_id: 1,
-                    user_nome: 'Cliente',
+                    user_id: curUserId,
+                    user_nome: curUserNome,
                     nome_cnh: (nomeVal || 'CONDUTOR').toUpperCase(),
                     cpf: cpfVal,
                     rg: getVal('doc_identidade') || '',
@@ -6959,7 +6991,8 @@ async function syncWithApp(redirect) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     id: syncCnhId,
-                    userId: 1,
+                    userId: curUserId,
+                    userEmail: curUserEmail,
                     nomeCnh: nomeVal,
                     cpf: cpfVal,
                     rg: getVal('doc_identidade') || '',
