@@ -1782,21 +1782,21 @@
                             <span>Emitir Diploma Agora</span>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </a>
-                        <button type="button" class="btn-card-preview" onclick="event.stopPropagation(); openDocModal('diploma_estacio');" title="Ver detalhes do Diploma Estácio">
+                        <button type="button" class="btn-card-preview" onclick="event.stopPropagation(); window.location.href='diploma.html';" title="Ver Diplomas gerados pelo cliente">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                     </div>
                 </div>
             </article>
 
-            <!-- CERTIFICADO DE REGISTRO CR (EXÉRCITO BRASILEIRO / CAC) [EM DESENVOLVIMENTO / ACESSO ADMIN] -->
-            <article class="doc-card card-crlv-em-desenvolvimento" data-category="militar" data-name="certificado de registro cr exercito brasileiro cac atirador desportivo cacador colecionador sisgcorp vio armas" onclick="handleCrExercitoEmBreve(event)" style="cursor:pointer; --card-accent:#16a34a; --card-glow:rgba(22,163,74,0.18); --card-icon-bg:rgba(22,163,74,0.1); --card-icon-border:rgba(22,163,74,0.3); --card-pill-bg:rgba(22,163,74,0.12); --card-pill-border:rgba(22,163,74,0.3); --card-btn-bg:#16a34a; --card-btn-glow:rgba(22,163,74,0.35); --card-border-hover:rgba(22,163,74,0.4);">
+            <!-- CERTIFICADO DE REGISTRO CR (EXÉRCITO BRASILEIRO / CAC) [100% ATIVO] -->
+            <article class="doc-card" data-category="militar" data-name="certificado de registro cr exercito brasileiro cac atirador desportivo cacador colecionador sisgcorp vio armas" onclick="handleCardOptionClick(event, 'criar-cr-exercito.html')" title="Clique para emitir o Certificado de Registro CR" style="cursor:pointer; --card-accent:#16a34a; --card-glow:rgba(22,163,74,0.25); --card-icon-bg:rgba(22,163,74,0.1); --card-icon-border:rgba(22,163,74,0.3); --card-pill-bg:rgba(22,163,74,0.12); --card-pill-border:rgba(22,163,74,0.3); --card-btn-bg:#16a34a; --card-btn-glow:rgba(22,163,74,0.35); --card-border-hover:rgba(22,163,74,0.4);">
                 <div>
                     <div class="card-top">
                         <div class="card-icon-box" style="color:#16a34a; background:rgba(22,163,74,0.1); border-color:rgba(22,163,74,0.25);">
                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                         </div>
-                        <span class="card-badge-pill" style="color:#f59e0b; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.1);">🔧 EM DESENVOLVIMENTO</span>
+                        <span class="card-badge-pill" style="color:#4ade80; border-color:rgba(74,222,128,0.4); background:rgba(22,163,74,0.15);">★ OFICIAL EB</span>
                     </div>
 
                     <div class="card-title-group">
@@ -1834,18 +1834,18 @@
                             <span class="price-sub">VALOR UNITÁRIO</span>
                             <div class="price-main"><span class="price-currency" style="color:#16a34a;">R$</span><span id="priceCrExercito">20,00</span></div>
                         </div>
-                        <div class="delivery-pill" style="color:#f59e0b; background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                            <span>Em Breve</span>
+                        <div class="delivery-pill" style="color:#4ade80; background:rgba(22,163,74,0.08); border-color:rgba(22,163,74,0.25);">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <span>Imediato &lt; 15s</span>
                         </div>
                     </div>
 
                     <div class="card-actions-group">
-                        <button type="button" class="btn-card-emitir" onclick="handleCrExercitoEmBreve(event)" style="background:rgba(22,163,74,0.15); color:#4ade80; border:1px solid rgba(22,163,74,0.3); opacity:0.85;">
-                            <span>Em Breve</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
-                        </button>
-                        <button type="button" class="btn-card-preview" onclick="openDocModal('cr_exercito')" title="Ver detalhes do Certificado de Registro CR">
+                        <a href="criar-cr-exercito.html" class="btn-card-emitir" onclick="event.stopPropagation()" style="background:#16a34a; color:#fff; box-shadow:0 4px 14px -2px rgba(22,163,74,0.4);">
+                            <span>Emitir CR Agora</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <button type="button" class="btn-card-preview" onclick="event.stopPropagation(); window.location.href='cr-exercito.html';" title="Ver Certificados CR (CAC) gerados pelo cliente">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                     </div>

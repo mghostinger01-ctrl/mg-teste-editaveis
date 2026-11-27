@@ -1167,6 +1167,11 @@
                     <span id="userHeaderSaldo">Saldo R$ 0,00</span>
                 </a>
 
+                <a href="diploma.html" class="btn-voltar" style="color:#38bdf8; border-color:rgba(56,189,248,0.3); background:rgba(0,163,224,0.08);" title="Ver Histórico de Diplomas Gerados">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Histórico
+                </a>
+
                 <a href="editaveis.html" class="btn-voltar" title="Voltar ao Catálogo">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                     Catálogo
@@ -1385,6 +1390,13 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
                     <span>Gerar PDF — Folha A4 Única (Frente &amp; Verso)</span>
                 </button>
+
+                <div style="margin-top:8px;">
+                    <a href="diploma.html" style="background:#141718; border:1px solid #232729; color:#94a3b8; padding:11px 14px; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:12.5px; font-weight:600; cursor:pointer; text-decoration:none; transition:all 0.15s;" onmouseover="this.style.color='#fff'; this.style.borderColor='#333';" onmouseout="this.style.color='#94a3b8'; this.style.borderColor='#232729';">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>Ver Diplomas Gerados (Histórico / Recentes)</span>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -2321,7 +2333,102 @@
             wms.forEach(w => w.style.display = 'none');
         }
 
+        function saveDiplomaRecord() {
+            let loggedUser = {};
+            try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e){}
+            const email = (loggedUser.email || 'admin@mgeditaveis.com.br').toLowerCase().trim();
+
+            const nomeAluno = (document.getElementById('inpNome')?.value || 'KERIA KEYTLY FERREIRA CHAVES DOS SANTOS').trim().toUpperCase();
+            const curso = (document.getElementById('inpCurso')?.value || 'CURSO DE GRADUAÇÃO EM ENGENHARIA AMBIENTAL').trim().toUpperCase();
+            const cpf = document.getElementById('inpCpf')?.value || '000.000.000-00';
+            const rg = ((document.getElementById('inpRg')?.value || '') + ' ' + (document.getElementById('inpOrgaoRg')?.value || '')).trim();
+            const colacao = document.getElementById('inpColacao')?.value || '';
+            const codVal = document.getElementById('inpCodValidacao')?.value || '';
+            const urlVal = document.getElementById('inpUrlValidacao')?.value || '';
+            const codNumOnly = codVal.replace(/\D/g, '');
+            const id = 'EST' + (codNumOnly ? codNumOnly.slice(-8) : Math.floor(100000 + Math.random() * 900000));
+
+            const record = {
+                id: id,
+                codigo: id,
+                nome: nomeAluno,
+                diplomado: nomeAluno,
+                curso: curso,
+                cpf: cpf,
+                rg: rg,
+                dataExp: colacao || new Date().toLocaleDateString('pt-BR'),
+                status: 'Regular (Oficial Estácio)',
+                instituicao: 'Faculdade Estácio do Pará',
+                cod_validacao: codVal,
+                url_validacao: urlVal,
+                tipo: 'DIPLOMA',
+                tipo_documento: 'diploma_estacio',
+                created_at: new Date().toISOString(),
+                data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                user_email: email,
+                user_id: loggedUser.id || 1
+            };
+
+            try {
+                let userList = JSON.parse(localStorage.getItem('happynation_diplomas_' + email) || '[]');
+                userList = userList.filter(item => item.id !== id);
+                userList.unshift(record);
+                localStorage.setItem('happynation_diplomas_' + email, JSON.stringify(userList));
+
+                let hist = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
+                hist = hist.filter(item => item.id !== id);
+                hist.unshift(record);
+                localStorage.setItem('happynation_diplomas_history', JSON.stringify(hist));
+
+                localStorage.setItem('happynation_last_diploma', JSON.stringify(record));
+            } catch(e) {
+                console.error('Erro ao salvar no storage local:', e);
+            }
+
+            try {
+                if (window.sbClient) {
+                    window.sbClient.from('diplomas').insert([record]).then(()=>{}).catch(()=>{});
+                }
+            } catch(e){}
+
+            return record;
+        }
+
+        function checkEditMode() {
+            try {
+                let record = JSON.parse(localStorage.getItem('happynation_edit_diploma') || sessionStorage.getItem('happynation_edit_diploma') || 'null');
+                if (!record) {
+                    const params = new URLSearchParams(window.location.search);
+                    const id = params.get('id');
+                    if (id) {
+                        let userStr = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}';
+                        let email = '';
+                        try { email = (JSON.parse(userStr).email || '').toLowerCase().trim(); } catch(e){}
+                        const userList = JSON.parse(localStorage.getItem('happynation_diplomas_' + email) || '[]');
+                        const histList = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
+                        record = userList.find(x => x.id === id) || histList.find(x => x.id === id);
+                    }
+                }
+                if (record) {
+                    if (record.nome || record.diplomado) document.getElementById('inpNome').value = record.nome || record.diplomado;
+                    if (record.curso) document.getElementById('inpCurso').value = record.curso;
+                    if (record.cpf) document.getElementById('inpCpf').value = record.cpf;
+                    if (record.rg) document.getElementById('inpRg').value = record.rg;
+                    if (record.dataExp || record.colacao) document.getElementById('inpColacao').value = record.dataExp || record.colacao;
+                    if (record.cod_validacao) document.getElementById('inpCodValidacao').value = record.cod_validacao;
+                    if (record.url_validacao) document.getElementById('inpUrlValidacao').value = record.url_validacao;
+                    if (record.instituicao) document.getElementById('inpInstituicao').value = record.instituicao;
+                    syncDiploma();
+                    localStorage.removeItem('happynation_edit_diploma');
+                    sessionStorage.removeItem('happynation_edit_diploma');
+                }
+            } catch(e) {
+                console.error('Erro ao carregar dados de edição:', e);
+            }
+        }
+
         function finalizeGeneratedDocument() {
+            saveDiplomaRecord();
             window.previaWatermarkRemoved = true;
             try { sessionStorage.setItem('estacio_diploma_gerado', 'true'); } catch(e){}
             hidePreviaWatermarks();

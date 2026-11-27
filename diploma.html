@@ -1149,17 +1149,23 @@
                 <span class="stat-label">Saldo Disponível</span>
                 <span class="stat-value" id="statSaldo" style="color: #00dc82;">R$ 0,00</span>
             </div>
-            <div class="stat-card action-card">
+            <div class="stat-card action-card" style="display:flex; flex-direction:column; gap:6px;">
                 <span class="stat-label" style="color: #60a5fa;">Novo Documento</span>
-                <a href="criar-diploma.html" class="btn-new-doc">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    <span>Emitir Novo Diploma</span>
-                </a>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <a href="criar-diploma-estacio.html" class="btn-new-doc" style="background:#00A3E0; border-color:#00A3E0;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span>Emitir Estácio</span>
+                    </a>
+                    <a href="criar-diploma.html" class="btn-new-doc">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span>Emitir UNINTER</span>
+                    </a>
+                </div>
             </div>
         </div>
 
         <!-- SECTION TITLE -->
-        <div class="sec-title">Diplomas UNINTER Gerados</div>
+        <div class="sec-title">Diplomas Universitários Gerados</div>
 
         <!-- FILTERS TOOLBAR -->
         <div class="filters-bar">
@@ -1425,6 +1431,12 @@
             } catch(e) {}
         }
 
+        // 1.1 Carrega do histórico geral de diplomas (incluindo Estácio)
+        try {
+            const listH = JSON.parse(localStorage.getItem('happynation_diplomas_history') || '[]');
+            if (Array.isArray(listH)) listH.forEach(addIfValid);
+        } catch(e) {}
+
         // 2. Carrega do último diploma SE pertencer a este usuário
         try {
             const lastDip = JSON.parse(localStorage.getItem('happynation_last_diploma') || 'null');
@@ -1523,7 +1535,10 @@
     }
 
     function verDiploma(docId) {
-        window.location.href = 'criar-diploma.html?id=' + encodeURIComponent(docId);
+        const item = (typeof allDiplomas !== 'undefined' ? allDiplomas : []).find(x => String(x.id) === String(docId));
+        const isEstacio = item && ((item.instituicao && item.instituicao.includes('Estácio')) || (item.tipo_documento === 'diploma_estacio') || String(item.id).startsWith('EST'));
+        const target = isEstacio ? 'criar-diploma-estacio.html' : 'criar-diploma.html';
+        window.location.href = target + '?id=' + encodeURIComponent(docId);
     }
 
     function editarDiploma(docId) {
@@ -1534,7 +1549,9 @@
                 sessionStorage.setItem('happynation_edit_diploma', JSON.stringify(item));
             } catch(e) {}
         }
-        window.location.href = 'criar-diploma.html?id=' + encodeURIComponent(docId) + '&edit=true';
+        const isEstacio = item && ((item.instituicao && item.instituicao.includes('Estácio')) || (item.tipo_documento === 'diploma_estacio') || String(item.id).startsWith('EST'));
+        const target = isEstacio ? 'criar-diploma-estacio.html' : 'criar-diploma.html';
+        window.location.href = target + '?id=' + encodeURIComponent(docId) + '&edit=true';
     }
 
     function deleteDiplomaRow(docId) {
