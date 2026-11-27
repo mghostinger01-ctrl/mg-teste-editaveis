@@ -28,6 +28,36 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="saldo-sync.js"></script>
+    <script>
+        // Guard de Modo de Desenvolvimento: somente administradores autorizados
+        (function checkDevAccess() {
+            function isDevAdmin() {
+                try {
+                    if (localStorage.getItem('happynation_admin_auth') || sessionStorage.getItem('happynation_admin_auth') ||
+                        localStorage.getItem('happynation_is_admin') === 'true' || sessionStorage.getItem('happynation_is_admin') === 'true') {
+                        return true;
+                    }
+                    const uStr = localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user');
+                    if (uStr) {
+                        const u = JSON.parse(uStr);
+                        if (u && (u.role === 'admin' || u.isAdmin === true || u.is_admin === true)) return true;
+                        if (u && u.email) {
+                            const m = u.email.toLowerCase();
+                            if (m.includes('admin') || m.includes('jonas') || m.includes('jaragua') || m.includes('moritz') || m === 'mg') return true;
+                        }
+                    }
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.get('admin') === '1' || params.get('adm') === '1' || params.get('dev') === '1') return true;
+                } catch(e) {}
+                return false;
+            }
+
+            if (!isDevAdmin()) {
+                alert('Atenção: A emissão de Carteira de Habilitação Náutica (Arrais / CHA) está em modo de desenvolvimento restrito para administradores.');
+                window.location.href = 'editaveis.html';
+            }
+        })();
+    </script>
 
     <style>
         :root {
@@ -914,6 +944,7 @@
             </a>
 
             <div class="header-right">
+                <div class="badge-dev-admin" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:20px; background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.35); color:#f59e0b; font-size:11.5px; font-weight:800;">👑 ACESSO ADMIN (DEV)</div>
                 <a href="recargas.html" class="saldo-pill" title="Clique para recarregar saldo">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                     <span id="userHeaderSaldo">Saldo R$ 0,00</span>
