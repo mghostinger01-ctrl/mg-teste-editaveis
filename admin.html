@@ -5381,12 +5381,12 @@
                         let statusBadge = '<span class="badge ' + (u.status === 'approved' ? 'green' : (u.status === 'blocked' ? 'red' : 'yellow')) + '">' + (u.status || 'pending') + '</span>';
 
                         return '<tr>' +
-                            '<td><strong>' + safeNome + '</strong></td>' +
+                            '<td><div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><strong>' + safeNome + '</strong> ' + getUserActivityBadge(u) + '</div></td>' +
                             '<td style="color:var(--text-secondary); font-size:12px;">' + safeEmail + '</td>' +
-                            '<td style="color:var(--text-muted); font-size:11.5px;">' + safePhone + '</td>' +
+                            '<td style="color:#cbd5e1; font-size:11.5px;">' + safePhone + '</td>' +
                             '<td>' + ipBadge + '</td>' +
-                            '<td><span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">' + (lastIp !== 'Não registrado' ? lastIp : '--') + '</span></td>' +
-                            '<td style="color:var(--text-muted); font-size:11px;">' + created + '</td>' +
+                            '<td><span style="font-family:var(--font-mono); font-size:11px; color:#cbd5e1;">' + (lastIp !== 'Não registrado' ? lastIp : '--') + '</span></td>' +
+                            '<td style="color:#cbd5e1; font-size:11.5px; font-weight:500;">' + created + '</td>' +
                             '<td>' + statusBadge + '</td>' +
                             '<td style="text-align:right; white-space:nowrap;">' +
                                 '<div style="display:inline-flex; gap:4px; align-items:center; justify-content:flex-end;">' +
@@ -6465,61 +6465,99 @@ function updateDashboardMetrics() {
             if (elPrice) elPrice.textContent = `R$ ${parseFloat(savedPrice).toFixed(2).replace('.', ',')}`;
         }
 
+        // Converte qualquer formato de data (ISO, DD/MM/YYYY, timestamp) para milissegundos
+        function parseActivityTimestamp(val) {
+            if (!val) return null;
+            if (val instanceof Date) return isNaN(val.getTime()) ? null : val.getTime();
+            if (typeof val === 'number') return isNaN(val) ? null : val;
+            const str = String(val).trim();
+            if (!str) return null;
+
+            // Formato brasileiro: DD/MM/YYYY HH:mm:ss ou DD/MM/YYYY
+            const brMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[\sT]+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+            if (brMatch) {
+                const day = parseInt(brMatch[1], 10);
+                const month = parseInt(brMatch[2], 10) - 1;
+                const year = parseInt(brMatch[3], 10);
+                const hh = parseInt(brMatch[4] || 0, 10);
+                const mm = parseInt(brMatch[5] || 0, 10);
+                const ss = parseInt(brMatch[6] || 0, 10);
+                const d = new Date(year, month, day, hh, mm, ss);
+                return isNaN(d.getTime()) ? null : d.getTime();
+            }
+
+            const t = new Date(str).getTime();
+            return isNaN(t) ? null : t;
+        }
+
         function getUserActivityBadge(user) {
             if (!user) return '';
             const uId = String(user.id);
-            let lastTimeStr = usersPresenceMap[uId];
+            let latestTs = null;
 
-            // Fallback: se não tiver presença recente gravada, verifica última CNH gerada pelo cliente ou data de cadastro
-            if (!lastTimeStr) {
-                if (Array.isArray(cnhsData)) {
-                    const uNameClean = (user.nome || '').toLowerCase().trim();
-                    const foundCnh = cnhsData.find(c => {
-                        const cUser = (c.user || '').toLowerCase().trim();
-                        const cUserId = c.user_id ? String(c.user_id) : '';
-                        return (cUser && cUser === uNameClean) || (cUserId && cUserId === uId);
-                    });
-                    if (foundCnh) {
-                        lastTimeStr = foundCnh.created_at || foundCnh.data;
+            // 1. Prioridade: presença em tempo real (heartbeat)
+            if (usersPresenceMap && usersPresenceMap[uId]) {
+                latestTs = parseActivityTimestamp(usersPresenceMap[uId]);
+            }
+
+            // 2. Verifica se houve geração de CNH mais recente que a presença ou fallback
+            if (Array.isArray(cnhsData) && cnhsData.length > 0) {
+                const uNameClean = (user.nome || '').toLowerCase().trim();
+                cnhsData.forEach(c => {
+                    const cUser = (c.user || '').toLowerCase().trim();
+                    const cUserId = c.user_id ? String(c.user_id) : '';
+                    if ((cUser && cUser === uNameClean) || (cUserId && cUserId === uId)) {
+                        const cTs = parseActivityTimestamp(c.created_at || c.data);
+                        if (cTs && (!latestTs || cTs > latestTs)) {
+                            latestTs = cTs;
+                        }
                     }
-                }
+                });
             }
 
-            if (!lastTimeStr && user.created_at) {
-                lastTimeStr = user.created_at;
+            // 3. Fallback: data de cadastro do usuário
+            if (!latestTs && user.created_at) {
+                latestTs = parseActivityTimestamp(user.created_at);
             }
 
-            if (!lastTimeStr) {
-                return '<span style="font-size:10px; color:#64748b; font-style:italic;">Sem atividade</span>';
+            if (!latestTs) {
+                return '<span style="display:inline-flex; align-items:center; gap:4px; font-size:9.5px; font-weight:600; color:#cbd5e1; background:rgba(255,255,255,0.06); padding:2px 7px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); line-height:1.2;"><span style="color:#64748b;">•</span> Sem atividade</span>';
             }
 
             const now = Date.now();
-            const actTime = new Date(lastTimeStr).getTime();
-            if (isNaN(actTime)) {
-                return '<span style="font-size:10px; color:#64748b; font-style:italic;">Sem atividade</span>';
-            }
-
-            let diffMs = now - actTime;
+            let diffMs = now - latestTs;
             if (diffMs < 0) diffMs = 0;
             const diffMin = diffMs / (1000 * 60);
             const diffHours = diffMin / 60;
             const diffDays = diffHours / 24;
 
-            // Se esteve ativo nos últimos 4 minutos: ONLINE
+            const dateFmt = new Date(latestTs).toLocaleString('pt-BR');
+
+            // 1. ONLINE (ativo nos últimos 4 minutos)
             if (diffMin <= 4) {
-                return '<span style="display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; color:#10b981; background:rgba(16,185,129,0.12); padding:1px 6px; border-radius:10px; border:1px solid rgba(16,185,129,0.3); line-height:1.2;" title="Cliente online agora"><span style="width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span> Online</span>';
-            } else if (diffMin < 60) {
-                const m = Math.floor(diffMin);
-                return `<span style="font-size:10px; color:#94a3b8;" title="Última atividade"><span style="color:#38bdf8;">•</span> há ${m} min</span>`;
-            } else if (diffHours < 24) {
-                const h = Math.floor(diffHours);
-                return `<span style="font-size:10px; color:#94a3b8;" title="Última atividade"><span style="color:#64748b;">•</span> há ${h} ${h === 1 ? 'hora' : 'horas'}</span>`;
-            } else if (diffDays < 2) {
-                return `<span style="font-size:10px; color:#94a3b8;" title="Última atividade"><span style="color:#64748b;">•</span> ontem</span>`;
-            } else {
-                const d = Math.floor(diffDays);
-                return `<span style="font-size:10px; color:#94a3b8;" title="Última atividade"><span style="color:#64748b;">•</span> há ${d} dias</span>`;
+                return `<span style="display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; color:#34d399; background:rgba(16,185,129,0.16); padding:2px 8px; border-radius:12px; border:1px solid rgba(16,185,129,0.45); line-height:1.2;" title="Cliente online agora no painel (Última atividade: ${dateFmt})"><span style="width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></span> Online</span>`;
             }
+
+            // 2. MINUTOS (ativo há menos de 1 hora)
+            if (diffMin < 60) {
+                const m = Math.max(1, Math.floor(diffMin));
+                return `<span style="display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 7px; border-radius:12px; border:1px solid rgba(56,189,248,0.4); line-height:1.2;" title="Última atividade: ${dateFmt}"><span style="width:5px; height:5px; border-radius:50%; background:#38bdf8; box-shadow:0 0 5px #38bdf8;"></span> há ${m} min</span>`;
+            }
+
+            // 3. HORAS (ativo há menos de 24 horas)
+            if (diffHours < 24) {
+                const h = Math.floor(diffHours);
+                return `<span style="display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; color:#818cf8; background:rgba(99,102,241,0.15); padding:2px 7px; border-radius:12px; border:1px solid rgba(129,140,248,0.4); line-height:1.2;" title="Última atividade: ${dateFmt}"><span style="width:5px; height:5px; border-radius:50%; background:#818cf8; box-shadow:0 0 5px #818cf8;"></span> há ${h} ${h === 1 ? 'hora' : 'horas'}</span>`;
+            }
+
+            // 4. ONTEM (entre 24 e 48 horas)
+            if (diffDays < 2) {
+                return `<span style="display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; color:#fbbf24; background:rgba(245,158,11,0.15); padding:2px 7px; border-radius:12px; border:1px solid rgba(251,191,36,0.4); line-height:1.2;" title="Última atividade: ${dateFmt}"><span style="width:5px; height:5px; border-radius:50%; background:#fbbf24; box-shadow:0 0 5px #fbbf24;"></span> ontem</span>`;
+            }
+
+            // 5. DIAS (2 dias ou mais) — COR VIBRANTE EM DESTAQUE (VIOLETA LUMINOSO, ALTO CONTRASTE)
+            const d = Math.floor(diffDays);
+            return `<span style="display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; color:#f3e8ff; background:rgba(168,85,247,0.22); padding:2px 8px; border-radius:12px; border:1px solid rgba(192,132,252,0.55); line-height:1.2;" title="Última atividade: ${dateFmt}"><span style="width:5px; height:5px; border-radius:50%; background:#c084fc; box-shadow:0 0 6px #c084fc;"></span> há ${d} dias</span>`;
         }
 
         function buildUserRow(u) {
