@@ -117,7 +117,8 @@
         window.addEventListener('storage', loadActiveCnhSlides);
     </script>
 
-    <!-- HTML2PDF CDN -->
+    <!-- HTML2PDF e HTML2CANVAS CDNs para geração direta de PDF no app -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 
@@ -125,6 +126,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         html, body {
@@ -2307,7 +2309,7 @@
 
             <!-- BOTÃO DE DOWNLOAD FLUTUANTE FIXO NO MOBILE (NUNCA BUGA NEM FICA LONGE) -->
             <div id="toxFooterAction" style="position:fixed; bottom:0; left:0; right:0; max-width:540px; margin:0 auto; background:rgba(255,255,255,0.96); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:12px 16px max(12px, env(safe-area-inset-bottom, 12px)); border-top:1px solid rgba(226,232,240,0.9); box-shadow:0 -6px 20px rgba(15,23,42,0.08); z-index:90; display:none;">
-                <button onclick="downloadExameToxicologico()" style="width:100%; height:50px; background:linear-gradient(135deg, #0b2b64 0%, #1d5cc7 100%); color:#ffffff; border:none; border-radius:14px; font-size:14.5px; font-weight:800; font-family:'Inter',sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 4px 14px rgba(13,43,100,0.35); letter-spacing:0.3px; transition:transform 0.15s, box-shadow 0.15s;" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                <button id="btnDownloadExameTox" onclick="downloadExameToxicologico()" style="width:100%; height:50px; background:linear-gradient(135deg, #0b2b64 0%, #1d5cc7 100%); color:#ffffff; border:none; border-radius:14px; font-size:14.5px; font-weight:800; font-family:'Inter',sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 4px 14px rgba(13,43,100,0.35); letter-spacing:0.3px; transition:transform 0.15s, box-shadow 0.15s;" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     <span>Baixar Laudo Toxicológico (PDF)</span>
                 </button>
@@ -4231,44 +4233,180 @@
             window._toxExameAtivo = exame;
         }
 
-function downloadExameToxicologico() {
-            var exame = window._toxExameAtivo;
-            var d = activeDriver || {};
-            var nome = (exame && exame.nome) ? exame.nome : (d.nome || 'CONDUTOR');
-            var cpf  = (exame && exame.cpf)  ? exame.cpf  : (d.cpf  || '');
-            var rg   = (exame && exame.rg)   ? exame.rg   : (d.rg || d.doc_identidade || '');
-            var cnh  = (exame && exame.cnh)  ? exame.cnh  : (d.registro || d.reg || d.cnh || '');
-            var cat  = (exame && exame.categoria) ? exame.categoria : (d.cat || d.categoria || 'AB');
-            var nasc = (exame && exame.nascimento) ? exame.nascimento : (d.data_nascimento || d.nasc || '');
-            var posto = (exame && exame.posto) ? exame.posto : ('POSTO CREDENCIADO DETRAN - ' + ((d.local || 'SÃO PAULO') + ' / ' + (d.uf || 'SP')).toUpperCase());
+        async function downloadExameToxicologico() {
+            var btn = document.getElementById('btnDownloadExameTox') || (document.getElementById('toxFooterAction') ? document.getElementById('toxFooterAction').querySelector('button') : null);
+            var originalBtnHtml = btn ? btn.innerHTML : '';
 
-            // Monta URL com dados oficiais para gerar PDF da Toxicologia Pardini
-            var params = new URLSearchParams();
-            params.set('nome', nome);
-            params.set('cpf',  cpf);
-            if (rg)   params.set('rg', rg);
-            if (cnh)  params.set('cnh', cnh);
-            if (cat)  params.set('categoria', cat);
-            if (nasc) params.set('nascimento', nasc);
-            params.set('tipo', 'CNH');
-            params.set('finalidade', 'Renovação CNH');
-            params.set('posto', posto);
+            if (btn) {
+                btn.disabled = true;
+                btn.style.opacity = '0.75';
+                btn.innerHTML = '<svg style="animation:spin 1s linear infinite;width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg><span>Gerando Laudo Oficial (PDF)...</span>';
+            }
 
-            if (exame && exame.laudo)        params.set('laudo', exame.laudo);
-            if (exame && exame.fcc)          params.set('fcc', exame.fcc);
-            if (exame && exame.autenticacao) params.set('autenticacao', exame.autenticacao);
-            if (exame && exame.hash)         params.set('hash', exame.hash);
-            if (exame && exame.coleta)       params.set('coleta', exame.coleta);
-            if (exame && exame.recebimento)  params.set('recebimento', exame.recebimento);
-            if (exame && exame.analise)      params.set('analise', exame.analise);
-            if (exame && (exame.resultado_data || exame.resultado)) params.set('resultado', exame.resultado_data || exame.resultado);
-            if (exame && exame.validade)     params.set('validade', exame.validade);
+            try {
+                var exame = window._toxExameAtivo;
+                var d = (typeof activeDriver !== 'undefined' && activeDriver) ? activeDriver : {};
+                var nomeCondutor = (exame && exame.nome) ? exame.nome : (d.nome || 'CONDUTOR');
+                var safeNome = String(nomeCondutor).replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                var filename = 'laudo_toxicologico_pardini_' + safeNome + '.pdf';
 
-            params.set('combo', 'true');
-            params.set('force_new', 'true');
-            params.set('autoDownload', 'true');
+                var sheet = document.getElementById('sheetDoc');
+                if (!sheet) throw new Error('Folha oficial de laudo não encontrada.');
 
-            window.open('../criar-exame.html?' + params.toString(), '_blank');
+                // Constrói clone limpo com dimensões exatas de A4 para impressão/renderização
+                var clone = sheet.cloneNode(true);
+                clone.id = 'printCloneToxSheet';
+                clone.style.width = '794px';
+                clone.style.minHeight = '1123px';
+                clone.style.height = '1123px';
+                clone.style.maxHeight = '1123px';
+                clone.style.padding = '22px 30px 18px 30px';
+                clone.style.boxShadow = 'none';
+                clone.style.background = '#ffffff';
+                clone.style.color = '#000000';
+                clone.style.boxSizing = 'border-box';
+                clone.style.overflow = 'hidden';
+                clone.style.transform = 'none';
+
+                // Remove marcas d'água de prévia se houver
+                var wms = clone.querySelectorAll('#previewWatermarkOverlay, .watermark-grid-overlay');
+                wms.forEach(function(wm) { wm.remove(); });
+
+                // Garante integridade do QR Code no clone
+                var qrPreview = clone.querySelector('#qrcodePreview');
+                if (qrPreview) {
+                    qrPreview.classList.remove('qr-locked');
+                    qrPreview.style.filter = 'none';
+                    qrPreview.style.opacity = '1';
+
+                    var origCanvas = sheet.querySelector('#qrcodePreview canvas');
+                    var origImg = sheet.querySelector('#qrcodePreview img');
+                    var hasValidImg = false;
+                    qrPreview.innerHTML = '';
+
+                    if (origCanvas && origCanvas.width > 0) {
+                        try {
+                            var dataUrl = origCanvas.toDataURL('image/png');
+                            if (dataUrl && dataUrl.length > 100) {
+                                var imgEl = document.createElement('img');
+                                imgEl.src = dataUrl;
+                                imgEl.style.width = '62px';
+                                imgEl.style.height = '62px';
+                                imgEl.style.display = 'block';
+                                imgEl.style.imageRendering = '-webkit-optimize-contrast';
+                                qrPreview.appendChild(imgEl);
+                                hasValidImg = true;
+                            }
+                        } catch(eCanvas) {}
+                    }
+
+                    if (!hasValidImg && origImg && origImg.src && origImg.src.startsWith('data:')) {
+                        var imgEl2 = document.createElement('img');
+                        imgEl2.src = origImg.src;
+                        imgEl2.style.width = '62px';
+                        imgEl2.style.height = '62px';
+                        imgEl2.style.display = 'block';
+                        imgEl2.style.imageRendering = '-webkit-optimize-contrast';
+                        qrPreview.appendChild(imgEl2);
+                        hasValidImg = true;
+                    }
+
+                    if (!hasValidImg && typeof QRCode === 'function' && window._lastToxQrValidationUrl) {
+                        new QRCode(qrPreview, {
+                            text: window._lastToxQrValidationUrl,
+                            width: 180,
+                            height: 180,
+                            colorDark: '#000000',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.M
+                        });
+                    }
+                }
+
+                // Monta contêiner invisível offscreen fixo de 794x1123
+                var hiddenContainer = document.createElement('div');
+                hiddenContainer.style.cssText = 'position:fixed; left:-99999px; top:0; width:794px; height:1123px; background:#ffffff; z-index:-9999; overflow:hidden;';
+                hiddenContainer.appendChild(clone);
+                document.body.appendChild(hiddenContainer);
+
+                await new Promise(function(r) { setTimeout(r, 150); });
+
+                var canvas = null;
+                var h2c = window.html2canvas || (typeof html2canvas !== 'undefined' ? html2canvas : null);
+                if (h2c) {
+                    canvas = await h2c(clone, {
+                        scale: 2.4,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff',
+                        logging: false,
+                        width: 794,
+                        height: 1123,
+                        windowWidth: 794,
+                        windowHeight: 1123
+                    });
+                }
+
+                hiddenContainer.remove();
+
+                var JsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+
+                if (canvas && JsPDF) {
+                    var pdf = new JsPDF({
+                        orientation: 'portrait',
+                        unit: 'px',
+                        format: [794, 1123],
+                        hotfixes: ['px_scaling']
+                    });
+
+                    var imgData = canvas.toDataURL('image/jpeg', 0.98);
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 794, 1123);
+
+                    try {
+                        var blob = pdf.output('blob');
+                        var blobUrl = URL.createObjectURL(blob);
+                        var dlLink = document.createElement('a');
+                        dlLink.href = blobUrl;
+                        dlLink.download = filename;
+                        document.body.appendChild(dlLink);
+                        dlLink.click();
+                        setTimeout(function() { dlLink.remove(); URL.revokeObjectURL(blobUrl); }, 5000);
+                    } catch (eBlob) {
+                        pdf.save(filename);
+                    }
+                } else if (typeof html2pdf === 'function') {
+                    var opt = {
+                        margin: 0,
+                        filename: filename,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2.2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' },
+                        jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait', hotfixes: ['px_scaling'] }
+                    };
+                    await html2pdf().set(opt).from(clone).save();
+                } else {
+                    throw new Error('Nenhum motor de geração de PDF encontrado.');
+                }
+
+                if (btn) {
+                    btn.innerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span style="color:#22c55e;">Download Concluído!</span>';
+                    setTimeout(function() {
+                        if (btn && originalBtnHtml) {
+                            btn.disabled = false;
+                            btn.style.opacity = '1';
+                            btn.innerHTML = originalBtnHtml;
+                        }
+                    }, 3000);
+                }
+
+            } catch(err) {
+                console.error('Erro ao gerar laudo em PDF:', err);
+                alert('Não foi possível gerar o PDF do laudo diretamente. Por favor, tente novamente.');
+                if (btn && originalBtnHtml) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.innerHTML = originalBtnHtml;
+                }
+            }
         }
 
         function backFromToxicologicosToCondutor() {
