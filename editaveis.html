@@ -1727,7 +1727,7 @@
             </article>
 
             <!-- DIPLOMA UNIVERSITÁRIO ESTÁCIO (100% ATIVO • LIBERADO PARA TODOS) -->
-            <article class="doc-card" data-category="educacao" data-name="diploma universitario estacio faculdade de sa para graduacao mec ensino superior bacharelado licenciatura engenharia autenticidade" onclick="handleCardOptionClick(event, 'criar-diploma-estacio.html')" title="Clique para emitir o Diploma Universitário Estácio" style="cursor:pointer; --card-accent:#00A3E0; --card-glow:rgba(0,163,224,0.25); --card-icon-bg:rgba(0,163,224,0.1); --card-icon-border:rgba(0,163,224,0.3); --card-pill-bg:rgba(0,163,224,0.12); --card-pill-border:rgba(0,163,224,0.3); --card-btn-bg:#00A3E0; --card-btn-glow:rgba(0,163,224,0.35); --card-border-hover:rgba(0,163,224,0.4);">
+            <article class="doc-card" data-category="educacao" data-name="diploma universitario estacio faculdade de sa para graduacao mec ensino superior bacharelado licenciatura engenharia autenticidade" onclick="handleCardOptionClick(event, 'diploma.html')" title="Clique para ver os Diplomas gerados pelo cliente" style="cursor:pointer; --card-accent:#00A3E0; --card-glow:rgba(0,163,224,0.25); --card-icon-bg:rgba(0,163,224,0.1); --card-icon-border:rgba(0,163,224,0.3); --card-pill-bg:rgba(0,163,224,0.12); --card-pill-border:rgba(0,163,224,0.3); --card-btn-bg:#00A3E0; --card-btn-glow:rgba(0,163,224,0.35); --card-border-hover:rgba(0,163,224,0.4);">
                 <div>
                     <div class="card-top">
                         <div class="card-icon-box" style="color:#00A3E0; background:rgba(0,163,224,0.1); border-color:rgba(0,163,224,0.25);">
@@ -1790,7 +1790,7 @@
             </article>
 
             <!-- CERTIFICADO DE REGISTRO CR (EXÉRCITO BRASILEIRO / CAC) [100% ATIVO] -->
-            <article class="doc-card" data-category="militar" data-name="certificado de registro cr exercito brasileiro cac atirador desportivo cacador colecionador sisgcorp vio armas" onclick="handleCardOptionClick(event, 'criar-cr-exercito.html')" title="Clique para emitir o Certificado de Registro CR" style="cursor:pointer; --card-accent:#16a34a; --card-glow:rgba(22,163,74,0.25); --card-icon-bg:rgba(22,163,74,0.1); --card-icon-border:rgba(22,163,74,0.3); --card-pill-bg:rgba(22,163,74,0.12); --card-pill-border:rgba(22,163,74,0.3); --card-btn-bg:#16a34a; --card-btn-glow:rgba(22,163,74,0.35); --card-border-hover:rgba(22,163,74,0.4);">
+            <article class="doc-card" data-category="militar" data-name="certificado de registro cr exercito brasileiro cac atirador desportivo cacador colecionador sisgcorp vio armas" onclick="handleCardOptionClick(event, 'cr-exercito.html')" title="Clique para ver os Certificados CR gerados pelo cliente" style="cursor:pointer; --card-accent:#16a34a; --card-glow:rgba(22,163,74,0.25); --card-icon-bg:rgba(22,163,74,0.1); --card-icon-border:rgba(22,163,74,0.3); --card-pill-bg:rgba(22,163,74,0.12); --card-pill-border:rgba(22,163,74,0.3); --card-btn-bg:#16a34a; --card-btn-glow:rgba(22,163,74,0.35); --card-border-hover:rgba(22,163,74,0.4);">
                 <div>
                     <div class="card-top">
                         <div class="card-icon-box" style="color:#16a34a; background:rgba(22,163,74,0.1); border-color:rgba(22,163,74,0.25);">
@@ -2791,8 +2791,8 @@
                 accent: '#16a34a',
                 link: 'criar-cr-exercito.html',
                 devLink: 'criar-cr-exercito.html',
-                btnText: 'Em Desenvolvimento',
-                isDev: true,
+                btnText: 'Emitir CR Agora',
+                isDev: false,
                 html: `
                     <div class="doc-modal-intro">
                         O <strong>Certificado de Registro (CR)</strong> é o documento emitido pelo Exército Brasileiro que autoriza e comprova o registro de pessoas físicas e jurídicas para atividades com produtos controlados (Colecionamento, Tiro Desportivo e Caça - CAC).
@@ -2811,7 +2811,7 @@
                     </div>
                     <div class="doc-modal-note">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
-                        <span>Documento em modo restrito de desenvolvimento para administradores.</span>
+                        <span>Documento 100% ativo com download imediato em PDF e PNG.</span>
                     </div>
                 `
             },
@@ -3065,7 +3065,6 @@
                 { match: 'crlv', link: 'criar-crlv.html', name: 'CRLV Digital', accent: '#10b981' },
                 { match: 'cin', link: 'criar-rg.html', history: 'rg.html', name: 'RG Digital', accent: '#3b82f6' },
                 { match: 'atpv', link: 'criar-dut.html', name: 'DUT ATPV-e', accent: '#f97316' },
-                { match: 'cr exercito', link: 'criar-cr-exercito.html', history: 'cr-exercito.html', name: 'Certificado de Registro CR', accent: '#16a34a' },
                 { match: 'arrais', link: 'criar-arrais.html', history: 'arrais.html', name: 'Habilitação Náutica (CHA)', accent: '#059669' }
             ];
 
