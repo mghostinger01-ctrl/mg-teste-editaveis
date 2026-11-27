@@ -5316,12 +5316,29 @@
                 }
 
                 // 2. Busca recargas PIX
-                const { data: sRecargas, error: errRec } = await client
-                    .from('recargas')
-                    .select('*')
-                    .order('data', { ascending: false });
+                let sRecargas = null;
+                if (client) {
+                    try {
+                        const { data, error } = await client
+                            .from('recargas')
+                            .select('*')
+                            .order('data', { ascending: false });
+                        if (!error && Array.isArray(data)) sRecargas = data;
+                    } catch(e) {}
+                }
+                if (!sRecargas) {
+                    try {
+                        const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/recargas?select=*&order=data.desc`, {
+                            headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                        });
+                        if (r.ok) {
+                            const data = await r.json();
+                            if (Array.isArray(data)) sRecargas = data;
+                        }
+                    } catch(e) {}
+                }
 
-                if (!errRec && Array.isArray(sRecargas)) {
+                if (Array.isArray(sRecargas)) {
                     let deletedRecargas = [];
                     try { deletedRecargas = JSON.parse(localStorage.getItem('happynation_deleted_recargas') || '[]'); } catch(e){}
 
@@ -5341,12 +5358,29 @@
                 }
 
                 // 3. Busca CNHs emitidas
-                const { data: sCnhs, error: errCnhs } = await client
-                    .from('cnhs')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                let sCnhs = null;
+                if (client) {
+                    try {
+                        const { data, error } = await client
+                            .from('cnhs')
+                            .select('*')
+                            .order('created_at', { ascending: false });
+                        if (!error && Array.isArray(data)) sCnhs = data;
+                    } catch(e) {}
+                }
+                if (!sCnhs) {
+                    try {
+                        const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/cnhs?select=*&order=created_at.desc`, {
+                            headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                        });
+                        if (r.ok) {
+                            const data = await r.json();
+                            if (Array.isArray(data)) sCnhs = data;
+                        }
+                    } catch(e) {}
+                }
 
-                if (!errCnhs && Array.isArray(sCnhs)) {
+                if (Array.isArray(sCnhs)) {
                     let deletedCnhs = [];
                     try { deletedCnhs = JSON.parse(localStorage.getItem('happynation_deleted_cnhs') || '[]'); } catch(e){}
 
@@ -5369,27 +5403,78 @@
 
                 // 3b. Busca Exames Toxicológicos emitidos do Supabase
                 try {
-                    const { data: sEx } = await client
-                        .from('exames')
-                        .select('*')
-                        .order('created_at', { ascending: false });
+                    let sEx = null;
+                    if (client) {
+                        try {
+                            const { data } = await client
+                                .from('exames')
+                                .select('*')
+                                .order('created_at', { ascending: false });
+                            if (Array.isArray(data)) sEx = data;
+                        } catch(e) {}
+                    }
+                    if (!sEx) {
+                        try {
+                            const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/exames?select=*&order=created_at.desc`, {
+                                headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                            });
+                            if (r.ok) {
+                                const data = await r.json();
+                                if (Array.isArray(data)) sEx = data;
+                            }
+                        } catch(e) {}
+                    }
                     if (Array.isArray(sEx)) examesData = sEx;
                 } catch(eEx) {}
 
                 // 3c. Busca Atestados emitidos do Supabase
                 try {
-                    const { data: sAt } = await client
-                        .from('atestados')
-                        .select('*')
-                        .order('created_at', { ascending: false });
+                    let sAt = null;
+                    if (client) {
+                        try {
+                            const { data } = await client
+                                .from('atestados')
+                                .select('*')
+                                .order('created_at', { ascending: false });
+                            if (Array.isArray(data)) sAt = data;
+                        } catch(e) {}
+                    }
+                    if (!sAt) {
+                        try {
+                            const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/atestados?select=*&order=created_at.desc`, {
+                                headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                            });
+                            if (r.ok) {
+                                const data = await r.json();
+                                if (Array.isArray(data)) sAt = data;
+                            }
+                        } catch(e) {}
+                    }
                     if (Array.isArray(sAt)) atestadosData = sAt;
                 } catch(eAt) {}
 
                 // 4. Busca IPs bloqueados
-                const { data: sIps } = await client
-                    .from('ips_bloqueados')
-                    .select('*')
-                    .order('data', { ascending: false });
+                let sIps = null;
+                if (client) {
+                    try {
+                        const { data } = await client
+                            .from('ips_bloqueados')
+                            .select('*')
+                            .order('data', { ascending: false });
+                        if (Array.isArray(data)) sIps = data;
+                    } catch(e) {}
+                }
+                if (!sIps) {
+                    try {
+                        const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/ips_bloqueados?select=*&order=data.desc`, {
+                            headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                        });
+                        if (r.ok) {
+                            const data = await r.json();
+                            if (Array.isArray(data)) sIps = data;
+                        }
+                    } catch(e) {}
+                }
 
                 if (Array.isArray(sIps)) {
                     blockedIpsData = sIps;
