@@ -556,9 +556,28 @@
         }
 
         /* ════════════════════════════════════════════════════════════════
-           CARDS CR FRENTE E VERSO (622 x 368 px)
-           100% IDÊNTICOS AO CERTIFICADO DE REGISTRO DO EXÉRCITO (CAC)
+           FOLHA A4 OFICIAL (794 x 1123 px) E CARDS CR (622 x 368 px)
+           100% IDÊNTICOS AO MODELO OFICIAL DO EXÉRCITO BRASILEIRO (CAC)
            ════════════════════════════════════════════════════════════════ */
+        .cr-a4-sheet {
+            width: 794px;
+            min-height: 1123px;
+            background: #ffffff;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.75);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 72px 0;
+            box-sizing: border-box;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .cr-a4-sheet .cr-card {
+            box-shadow: none; /* Impresso plano na folha A4 */
+        }
+
         .cr-card {
             width: 622px;
             height: 368px;
@@ -566,8 +585,7 @@
             min-height: 368px;
             position: relative;
             background-color: #ffffff;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
-            border-radius: 2px;
+            border-radius: 0;
             overflow: hidden;
             box-sizing: border-box;
             user-select: none;
@@ -586,15 +604,15 @@
             pointer-events: none;
         }
 
-        /* Brasão das Armas da República Federativa do Brasil no fundo (Preto e Branco) */
+        /* Brasão das Armas da República Federativa do Brasil no fundo (Preto e Branco / Marca D'água Suave) */
         .cr-brasao-bg {
             position: absolute;
             left: 50%;
             top: 48%;
             transform: translate(-50%, -46%);
-            width: 240px;
-            height: 240px;
-            opacity: 0.85;
+            width: 250px;
+            height: 250px;
+            opacity: 0.28;
             z-index: 1;
             pointer-events: none;
             filter: grayscale(100%);
@@ -635,12 +653,12 @@
             margin-top: 2px;
         }
 
-        /* ─── N° CR E VALIDADE COM LINHAS ─── */
+        /* ─── N° CR E VALIDADE COM LINHAS CONTÍNUAS ─── */
         .cr-subhdr-row {
             position: absolute;
-            top: 94px;
-            left: 31px;
-            width: 560px;
+            top: 92px;
+            left: 32px;
+            width: 558px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
@@ -658,53 +676,61 @@
             gap: 10px;
         }
         .subhdr-lbl {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 800;
             color: #000000;
             letter-spacing: 0.2px;
+            white-space: nowrap;
         }
-        .subhdr-val-line {
+        .cr-subhdr-left .subhdr-val-line {
             font-size: 14.5px;
             font-weight: 800;
             color: #000000;
             border-bottom: 2px solid #000000;
             padding-bottom: 1px;
-            min-width: 150px;
+            min-width: 175px;
             text-align: center;
             display: inline-block;
         }
         .cr-subhdr-right .subhdr-val-line {
-            min-width: 175px;
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #000000;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 1px;
+            min-width: 180px;
             text-align: center;
+            display: inline-block;
         }
 
-        /* ─── CAIXAS COM NOTCH (NOME, CPF, RM, AMPARO) ─── */
+        /* ─── CAIXAS COM NOTCH OFICIAIS (NOME, CPF, RM, AMPARO) ─── */
         .cr-field-box {
             position: relative;
-            border: 1.8px solid #000000;
-            border-radius: 2px;
-            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #000000;
+            border-radius: 0;
+            background: rgba(255, 255, 255, 0.02);
             box-sizing: border-box;
             display: flex;
             align-items: center;
         }
         .box-notch-label {
             position: absolute;
-            top: -7px;
-            left: 12px;
+            top: -8px;
+            left: 14px;
             background: #ffffff;
             padding: 0 4px;
-            font-size: 8.5px;
+            font-size: 10px;
             font-weight: 800;
             color: #000000;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
             line-height: 1;
+            white-space: nowrap;
         }
         .box-val {
             font-size: 14.5px;
             font-weight: 800;
             color: #000000;
-            padding: 6px 10px;
+            padding: 6px 12px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -712,49 +738,50 @@
         }
         .box-nome {
             position: absolute;
-            top: 128px;
-            left: 31px;
-            width: 560px;
-            height: 38px;
+            top: 126px;
+            left: 32px;
+            width: 558px;
+            height: 40px;
             z-index: 4;
         }
         .cr-field-row {
             position: absolute;
-            top: 180px;
-            left: 31px;
-            width: 560px;
+            top: 178px;
+            left: 32px;
+            width: 558px;
             display: flex;
             justify-content: space-between;
             gap: 12px;
             z-index: 4;
         }
         .box-cpf {
-            width: 235px;
-            height: 38px;
+            width: 228px;
+            height: 40px;
         }
         .box-rm {
             flex: 1;
-            height: 38px;
+            height: 40px;
         }
         .box-amparo {
             position: absolute;
-            top: 232px;
-            left: 31px;
-            width: 560px;
-            height: 38px;
+            top: 230px;
+            left: 32px;
+            width: 558px;
+            height: 40px;
             z-index: 4;
         }
         .amparo-text {
-            font-size: 11.2px;
+            font-size: 11.5px;
             font-weight: 700;
             letter-spacing: -0.1px;
+            padding: 6px 10px;
         }
 
         /* ─── LINHA TRACEJADA OFICIAL ENTRE FRENTE E VERSO ─── */
         .cr-divider-dashed {
             width: 622px;
             border-top: 2px dashed #000000;
-            margin: 18px 0;
+            margin: 28px 0;
             opacity: 0.9;
         }
 
@@ -945,7 +972,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="inpValidade">Validade</label>
-                    <input type="text" id="inpValidade" class="form-input" placeholder="DD/MM/AAAA" value="29/12/2030" oninput="mascaraData(this); updateCR()">
+                    <input type="text" id="inpValidade" class="form-input" placeholder="DD/MM/AAAA" value="21/07/2026" oninput="mascaraData(this); updateCR()">
                 </div>
             </div>
 
@@ -967,13 +994,13 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="inpRm">SFPC de Vinculação (RM)</label>
-                    <input type="text" id="inpRm" class="form-input" placeholder="Ex: Cmdo 2°RM" value="Cmdo 2°RM" oninput="updateCR()">
+                    <input type="text" id="inpRm" class="form-input" placeholder="Ex: Cmdo 2ª RM" value="Cmdo 2ª RM" oninput="updateCR()">
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="inpAmparo">Amparo Legal</label>
-                <input type="text" id="inpAmparo" class="form-input" value="De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9.846, de 25 jun 2019" oninput="updateCR()">
+                <input type="text" id="inpAmparo" class="form-input" value="De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9.846, de 25 Jun 2019" oninput="updateCR()">
             </div>
 
             <!-- 3. ATIVIDADES AUTORIZADAS (VERSO) -->
@@ -1037,19 +1064,21 @@
             <div class="preview-toolbar">
                 <div class="preview-title-badge">
                     <span class="pulse-dot"></span>
-                    <span>Visualização Frente e Verso (Emissão ao Vivo • CAC)</span>
+                    <span>Visualização em Folha A4 (Frente e Verso • CAC)</span>
                 </div>
 
                 <div class="zoom-group">
                     <button type="button" class="btn-zoom" onclick="zoomChange(-0.05)" title="Reduzir">-</button>
-                    <span class="zoom-val" id="zoomVal">90%</span>
+                    <span class="zoom-val" id="zoomVal">80%</span>
                     <button type="button" class="btn-zoom" onclick="zoomChange(0.05)" title="Aumentar">+</button>
                     <button type="button" class="btn-zoom" onclick="zoomReset()" style="font-size:10px; width:auto; padding:0 6px;" title="Ajustar">100%</button>
                 </div>
             </div>
 
             <div class="doc-viewport" id="docViewport">
-                <div class="doc-zoom-wrapper" id="docZoomWrapper" style="transform: scale(0.90);">
+                <div class="doc-zoom-wrapper" id="docZoomWrapper" style="transform: scale(0.80);">
+
+                    <div class="cr-a4-sheet" id="crA4Sheet">
 
                     <!-- ════════ FRENTE DO CERTIFICADO DE REGISTRO (622 x 368 px) ════════ -->
                     <div class="cr-card" id="cardFrente">
@@ -1070,12 +1099,12 @@
                         <!-- Linha de N° CR e Validade -->
                         <div class="cr-subhdr-row">
                             <div class="cr-subhdr-left">
-                                <span class="subhdr-lbl">N°CR</span>
+                                <span class="subhdr-lbl">N° CR</span>
                                 <span class="subhdr-val-line" id="prevCrNum">210.021.012-52</span>
                             </div>
                             <div class="cr-subhdr-right">
                                 <span class="subhdr-lbl">VALIDADE</span>
-                                <span class="subhdr-val-line" id="prevValidade">29/12/2030</span>
+                                <span class="subhdr-val-line" id="prevValidade">21/07/2026</span>
                             </div>
                         </div>
 
@@ -1093,14 +1122,14 @@
                             </div>
                             <div class="cr-field-box box-rm">
                                 <span class="box-notch-label">SFPC DE VINCULAÇÃO (RM)</span>
-                                <span class="box-val" id="prevRm">Cmdo 2°RM</span>
+                                <span class="box-val" id="prevRm">Cmdo 2ª RM</span>
                             </div>
                         </div>
 
                         <!-- Caixa 4: Amparo Legal -->
                         <div class="cr-field-box box-amparo">
                             <span class="box-notch-label">AMPARO LEGAL</span>
-                            <span class="box-val amparo-text" id="prevAmparo">De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9.846, de 25 jun 2019</span>
+                            <span class="box-val amparo-text" id="prevAmparo">De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9.846, de 25 Jun 2019</span>
                         </div>
                     </div>
 
@@ -1139,6 +1168,8 @@
                         </div>
                     </div>
 
+                    </div> <!-- /.cr-a4-sheet -->
+
                 </div>
             </div>
         </section>
@@ -1148,17 +1179,17 @@
         // ─── DADOS PADRÃO OFICIAIS (CONFORME MODELO EXÉRCITO BRASILEIRO / CAC) ───
         const DEFAULT_CR = {
             crNum: '210.021.012-52',
-            validade: '29/12/2030',
+            validade: '21/07/2026',
             nome: 'SIDINEI MENESES',
             cpf: '575.678.242-72',
-            rm: 'Cmdo 2°RM',
-            amparo: 'De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9.846, de 25 jun 2019',
+            rm: 'Cmdo 2ª RM',
+            amparo: 'De acordo com a Lei 10.826, de 22 Dez 2003 e Decreto 9.846, de 25 Jun 2019',
             assinante: 'SFPC - Cmdo 2ª RM',
             localData: 'São Paulo/SP, 29/12/2020',
             sisgcorp: '7b35c3g63483d5bcc55997168a6926b74'
         };
 
-        let currentZoom = 0.90;
+        let currentZoom = 0.80;
         let qrCodeObj = null;
 
         // ─── CONTROLE DE ZOOM ───
@@ -1173,7 +1204,7 @@
             updateZoomUI();
         }
         function zoomReset() {
-            currentZoom = 1.0;
+            currentZoom = 0.80;
             updateZoomUI();
         }
 
@@ -1324,71 +1355,41 @@
                 }
             } catch(e) {}
 
-            // Gera o PDF
-            const cardFrente = document.getElementById('cardFrente');
-            const cardVerso = document.getElementById('cardVerso');
-            if (!cardFrente || !cardVerso) {
+            // Gera o PDF diretamente da Folha A4 Oficial
+            const sheet = document.getElementById('crA4Sheet');
+            if (!sheet) {
                 if (btn) btn.disabled = false;
                 if (txt) txt.textContent = 'Gerar PDF — Certificado de Registro CR';
                 return;
             }
 
+            const zoomWrapper = document.getElementById('docZoomWrapper');
+            const origTransform = zoomWrapper ? zoomWrapper.style.transform : '';
+
             try {
-                // Cria cópias limpas fora do zoom para captura nítida
-                const tempWrap = document.createElement('div');
-                tempWrap.style.cssText = 'position:fixed; left:-9999px; top:0; width:650px; background:#fff; z-index:-9999;';
-                const cloneFrente = cardFrente.cloneNode(true);
-                const cloneVerso = cardVerso.cloneNode(true);
-                tempWrap.appendChild(cloneFrente);
-                tempWrap.appendChild(cloneVerso);
-                document.body.appendChild(tempWrap);
+                if (zoomWrapper) zoomWrapper.style.transform = 'none';
 
-                await new Promise(r => setTimeout(r, 120));
-
-                const canvasFrente = await html2canvas(cloneFrente, {
+                const canvas = await html2canvas(sheet, {
                     scale: 2.5,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff'
                 });
 
-                const canvasVerso = await html2canvas(cloneVerso, {
-                    scale: 2.5,
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#ffffff'
-                });
-
-                tempWrap.remove();
+                if (zoomWrapper) zoomWrapper.style.transform = origTransform;
 
                 const JsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
                 if (!JsPDF) throw new Error('jsPDF não carregado');
 
                 const pdf = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
 
-                const cardW = 142;
-                const cardH = 84; // 142 * (368 / 622) = 84 mm
-                const marginX = (210 - cardW) / 2; // 34 mm
-
-                const imgFrente = canvasFrente.toDataURL('image/jpeg', 0.98);
-                const imgVerso = canvasVerso.toDataURL('image/jpeg', 0.98);
-
-                // Frente
-                pdf.addImage(imgFrente, 'JPEG', marginX, 28, cardW, cardH);
-
-                // Linha tracejada oficial entre Frente e Verso (100% idêntica ao modelo)
-                pdf.setLineDashPattern([2, 2], 0);
-                pdf.setDrawColor(0, 0, 0);
-                pdf.setLineWidth(0.35);
-                pdf.line(marginX - 6, 120, marginX + cardW + 6, 120);
-
-                // Verso
-                pdf.addImage(imgVerso, 'JPEG', marginX, 128, cardW, cardH);
+                // A4 padrão: 210 x 297 mm
+                pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
 
                 const nomeTitular = (nome || 'cr').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
                 const filename = `cr_exercito_${nomeTitular}.pdf`;
 
-                // Download universal via Blob
                 try {
                     const blob = pdf.output('blob');
                     const blobUrl = URL.createObjectURL(blob);
@@ -1402,7 +1403,7 @@
                     pdf.save(filename);
                 }
 
-                alert('✅ Certificado de Registro CR gerado com sucesso! O download foi iniciado.');
+                alert('✅ Certificado de Registro CR em Folha A4 gerado com sucesso! O download foi iniciado.');
             } catch(e) {
                 console.error('Erro ao gerar PDF:', e);
                 alert('Erro ao exportar PDF: ' + (e.message || 'Falha ao processar'));
