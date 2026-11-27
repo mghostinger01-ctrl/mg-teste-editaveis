@@ -389,7 +389,7 @@
         }
 
         /* ==========================================================================
-           2. DIPLOMA VERSO PAISAGEM (1024px x 722px) — REGISTRO OFICIAL
+           2. DIPLOMA VERSO PAISAGEM (1024px x 722px) — 100% IDÊNTICO À FOTO OFICIAL
            ========================================================================== */
         .diploma-verso-landscape {
             width: 1024px;
@@ -399,10 +399,10 @@
             box-shadow: 0 15px 45px rgba(0,0,0,0.65);
             overflow: hidden;
             box-sizing: border-box;
-            padding: 44px 58px;
+            padding: 26px 36px 30px 36px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 36px;
+            grid-template-columns: 1fr 1.05fr;
+            gap: 32px;
             align-items: start;
             flex-shrink: 0;
         }
@@ -410,147 +410,174 @@
         .verso-left-land {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
             font-family: var(--font-serif);
             color: #000;
-            line-height: 1.44;
+            line-height: 1.38;
         }
 
         .verso-inst-title-land {
-            font-size: 17px;
+            font-size: 15.5px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 4px;
+            letter-spacing: 0.2px;
+            margin-bottom: 12px;
+            color: #000;
         }
 
         .verso-mantenedora-land {
-            font-size: 12px;
+            font-size: 11.5px;
             line-height: 1.35;
-            color: #111;
+            color: #000;
         }
 
         .verso-cnpj-land {
-            font-size: 12px;
-            margin-bottom: 8px;
+            font-size: 11.5px;
+            margin-bottom: 12px;
+            color: #000;
         }
 
         .verso-cred-land {
-            font-size: 11.5px;
+            font-size: 11.2px;
             line-height: 1.35;
-            margin-bottom: 6px;
+            margin-bottom: 12px;
+            color: #000;
         }
 
         .verso-course-box-land {
-            margin-top: 14px;
-            padding: 14px;
-            background: #fbfbfb;
-            border: 1px dashed #d1d5db;
-            border-radius: 6px;
+            margin-top: 6px;
+            padding: 0;
+            background: transparent;
+            border: none;
         }
 
         .verso-course-title-land {
-            font-size: 14px;
+            font-size: 13.5px;
+            font-weight: 400;
+            margin-bottom: 4px;
+            color: #000;
+        }
+        .verso-course-title-land b {
+            font-style: italic;
             font-weight: 700;
-            margin-bottom: 6px;
         }
 
         .verso-course-detail-land {
-            font-size: 11.5px;
+            font-size: 11.2px;
             line-height: 1.35;
             margin-bottom: 4px;
+            color: #000;
         }
 
         .verso-right-box-land {
-            border: 1px solid #111;
-            padding: 24px 28px;
+            border: 2px solid #000;
+            padding: 20px 24px;
             background: #fff;
             display: flex;
             flex-direction: column;
             font-family: var(--font-serif);
             color: #000;
+            box-sizing: border-box;
         }
 
         .vbox-univ-title-land {
-            font-size: 16px;
+            font-size: 15.5px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.2px;
+            margin-bottom: 10px;
+            color: #000;
         }
 
         .vbox-mantenedora-land {
-            font-size: 11.8px;
+            font-size: 11.5px;
             line-height: 1.35;
+            color: #000;
         }
 
         .vbox-cnpj-land {
-            font-size: 11.8px;
-            margin-bottom: 8px;
+            font-size: 11.5px;
+            margin-bottom: 14px;
+            color: #000;
         }
 
         .vbox-cred-land {
-            font-size: 11.2px;
+            font-size: 11px;
             line-height: 1.35;
-            margin-bottom: 4px;
+            margin-bottom: 12px;
+            color: #000;
         }
 
         .vbox-reg-text-land {
-            font-size: 11.4px;
-            line-height: 1.45;
-            margin-top: 10px;
+            font-size: 11px;
+            line-height: 1.42;
+            margin-top: 4px;
+            margin-bottom: 12px;
             text-align: justify;
+            color: #000;
         }
 
         .vbox-processo-land {
             font-size: 12px;
-            font-weight: 700;
-            margin-top: 10px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #000;
         }
 
         .vbox-local-data-land {
             font-size: 12px;
-            font-weight: 700;
-            margin-top: 6px;
+            font-weight: 500;
+            margin-bottom: 12px;
             text-transform: uppercase;
+            color: #000;
         }
 
         .vbox-sig-zone-land {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 14px;
+            align-self: flex-end;
+            margin-right: 36px;
+            width: 250px;
+            margin-top: 8px;
         }
 
         .vbox-sig-img-land {
-            height: 28px;
+            height: 38px;
+            max-width: 230px;
             object-fit: contain;
-            margin-bottom: 2px;
+            margin-bottom: -4px;
             display: block;
         }
 
         .vbox-sig-line-land {
-            width: 270px;
+            width: 240px;
             height: 1px;
             background: #000;
             margin-bottom: 4px;
         }
 
         .vbox-signer-name-land {
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.2px;
+            text-align: center;
+            color: #000;
         }
 
         .vbox-signer-role-land {
-            font-size: 11.5px;
-            color: #222;
+            font-size: 11px;
+            color: #111;
+            text-align: center;
         }
 
         .vbox-resolucao-land {
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
-            margin-top: 2px;
+            margin-top: 1px;
+            text-align: center;
+            color: #000;
         }
 
         /* ==========================================================================
@@ -711,10 +738,10 @@
             background-color: #ffffff;
             box-sizing: border-box;
             overflow: hidden;
-            padding: 32px 48px;
+            padding: 20px 30px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 26px;
+            grid-template-columns: 1fr 1.05fr;
+            gap: 24px;
             align-items: start;
         }
         /* ==========================================================================
@@ -1218,22 +1245,28 @@
                     <span>Gerar PDF — Diploma Frente (Paisagem)</span>
                 </button>
 
-                <!-- BOTÃO SECUNDÁRIO: BAIXAR PNG ULTRA-HD -->
-                <button type="button" class="btn-export-sec" id="btnExportFrentePng" onclick="exportDiplomaFrentePng()">
+                <!-- BOTÃO: FOLHA A4 DUPLA (FRENTE E VERSO NA MESMA PÁGINA) -->
+                <button type="button" class="btn-action-primary" id="btnExportA4Sheet" onclick="exportA4SheetPdf()" style="background: linear-gradient(135deg, #0284c7, #0369a1);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+                    <span>Gerar PDF — Folha A4 Única (Frente &amp; Verso)</span>
+                </button>
+
+                <!-- BOTÃO SECUNDÁRIO: BAIXAR PNG ULTRA-HD (FOLHA A4) -->
+                <button type="button" class="btn-export-sec" id="btnExportA4Png" onclick="exportA4SheetPng()">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    <span>Baixar Imagem PNG Ultra-HD (Frente)</span>
+                    <span>Baixar Imagem PNG — Folha A4 Única</span>
                 </button>
 
                 <!-- BOTÃO PDF COMPLETO (2 PÁGINAS) -->
                 <button type="button" class="btn-export-sec" id="btnExportCompletePdf" onclick="exportCompleteDiplomaPdf()">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    <span>Gerar PDF Completo (Frente + Verso)</span>
+                    <span>Gerar PDF Completo (2 Págs: Frente + Verso)</span>
                 </button>
 
-                <!-- BOTÃO FOLHA A4 DUPLA (FRENTE E VERSO NA MESMA PÁGINA) -->
-                <button type="button" class="btn-export-sec" id="btnExportA4Sheet" onclick="exportA4SheetPdf()">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
-                    <span>Baixar Folha A4 Única (Frente &amp; Verso)</span>
+                <!-- BOTÃO SECUNDÁRIO: BAIXAR PNG ULTRA-HD FRENTE -->
+                <button type="button" class="btn-export-sec" id="btnExportFrentePng" onclick="exportDiplomaFrentePng()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>Baixar Imagem PNG Ultra-HD (Frente)</span>
                 </button>
             </div>
         </div>
@@ -1489,42 +1522,42 @@
                         <div class="sheet-divider-line"></div>
                     </div>
 
-                    <!-- METADE INFERIOR: VERSO A4 -->
+                    <!-- METADE INFERIOR: VERSO A4 (100% IDÊNTICO À FOTO OFICIAL) -->
                     <div class="verso-container-a4" id="versoContainerA4">
-                        <div class="verso-left-land" style="font-size: 9.5px; line-height: 1.35;">
-                            <div style="font-size: 13.5px; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;" id="outInstVersoA4">FACULDADE ESTÁCIO DO PARÁ</div>
-                            <div style="font-size: 9.8px;" id="outMantVersoA4">SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA</div>
-                            <div style="font-size: 9.8px; margin-bottom: 6px;" id="outCnpjVersoA4">CNP: 002.608.755/0001-07</div>
+                        <div class="verso-left-land" style="font-size: 8.8px; line-height: 1.35; gap: 4px;">
+                            <div style="font-size: 11.8px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;" id="outInstVersoA4">FACULDADE ESTÁCIO DO PARÁ</div>
+                            <div style="font-size: 8.8px;" id="outMantVersoA4">SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA</div>
+                            <div style="font-size: 8.8px; margin-bottom: 8px;" id="outCnpjVersoA4">CNPJ: 002.608.755/0001-07</div>
 
-                            <div style="font-size: 9.2px;" id="outCred1A4">Credenciamento: Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002</div>
-                            <div style="font-size: 9.2px; margin-bottom: 6px;" id="outCred2A4">Credenciamento: Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.</div>
+                            <div style="font-size: 8.4px; margin-bottom: 8px;" id="outCred1A4">Credenciamento: Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002</div>
+                            <div style="font-size: 8.4px; margin-bottom: 10px;" id="outCred2A4">Credenciamento: Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.</div>
 
-                            <div style="margin-top: 8px; padding: 8px; background: #fbfbfb; border: 1px dashed #d1d5db; border-radius: 4px;">
-                                <div style="font-size: 11px; font-weight: 700; margin-bottom: 4px;">Curso de <b id="outCursoVersoA4">ENGENHARIA AMBIENTAL</b></div>
-                                <div style="font-size: 9px;" id="outReconhecimentoA4">Reconhecimento: Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.</div>
-                                <div style="font-size: 9px;" id="outRenovacaoA4">Renovação: Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020</div>
+                            <div style="margin-top: 4px;">
+                                <div style="font-size: 10.2px; font-weight: 400; margin-bottom: 3px;">Curso de <b style="font-weight: 700; font-style: italic;" id="outCursoVersoA4">ENGENHARIA AMBIENTAL</b></div>
+                                <div style="font-size: 8.4px; margin-bottom: 3px;" id="outReconhecimentoA4">Reconhecimento: Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.</div>
+                                <div style="font-size: 8.4px;" id="outRenovacaoA4">Renovação: Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020</div>
                             </div>
                         </div>
 
-                        <div class="verso-right-box-land" style="padding: 16px 20px; font-size: 9.5px; line-height: 1.35;">
-                            <div style="font-size: 13px; font-weight: 700;" id="outUnivRegA4">UNIVERSIDADE ESTÁCIO DE SÁ</div>
-                            <div style="font-size: 9.6px;" id="outMantRegA4">SOCIEDADE DE ENSINO SUPERIOR ESTÁCIO DE SÁ</div>
-                            <div style="font-size: 9.6px; margin-bottom: 6px;" id="outCnpjRegA4">CNPJ: 034.075.739/0001-84</div>
+                        <div class="verso-right-box-land" style="border: 2px solid #000; padding: 14px 18px; font-size: 8.6px; line-height: 1.35;">
+                            <div style="font-size: 11.8px; font-weight: 700; margin-bottom: 4px;" id="outUnivRegA4">UNIVERSIDADE ESTÁCIO DE SÁ</div>
+                            <div style="font-size: 8.6px;" id="outMantRegA4">SOCIEDADE DE ENSINO SUPERIOR ESTÁCIO DE SÁ</div>
+                            <div style="font-size: 8.6px; margin-bottom: 8px;" id="outCnpjRegA4">CNPJ: 034.075.739/0001-84</div>
 
-                            <div style="font-size: 9.2px;" id="outUnivCred1A4">Credenciamento: Portaria nº 592, de 29/11/1988, DOU nº -, Seção 1, Pág. 23215 de 30/11/1988.</div>
-                            <div style="font-size: 9.2px;" id="outUnivCred2A4">Credenciamento: Portaria nº 1095, de 31/8/2012, DOU nº 172, Seção 1, Pág. 97, De 4/9/2012.</div>
+                            <div style="font-size: 8.2px; margin-bottom: 8px;" id="outUnivCred1A4">Credenciamento: Portaria nº 592, de 29/11/1988, DOU nº -, Seção 1, Pág. 23215 de 30/11/1988.</div>
+                            <div style="font-size: 8.2px; margin-bottom: 8px;" id="outUnivCred2A4">Credenciamento: Portaria nº 1095, de 31/8/2012, DOU nº 172, Seção 1, Pág. 97, De 4/9/2012.</div>
 
-                            <div style="font-size: 9.2px; margin-top: 6px; text-align: justify;" id="outTextoRegA4">Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.</div>
+                            <div style="font-size: 8.2px; margin-bottom: 8px; text-align: justify; line-height: 1.38;" id="outTextoRegA4">Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.</div>
 
-                            <div style="font-size: 10px; font-weight: 700; margin-top: 6px;" id="outProcessoA4">Processo nº SRD/6266607/2023</div>
-                            <div style="font-size: 10px; font-weight: 700; margin-top: 4px;" id="outLocalDataVersoA4">BELÉM – PA, 23/02/2023</div>
+                            <div style="font-size: 8.8px; font-weight: 500; margin-bottom: 4px;" id="outProcessoA4">Processo nº SRD/6266607/2023</div>
+                            <div style="font-size: 8.8px; font-weight: 500; margin-bottom: 10px;" id="outLocalDataVersoA4">BELÉM – PA, 23/02/2023</div>
 
-                            <div style="display: flex; flex-direction: column; align-items: center; margin-top: 10px;">
-                                <img src="assets/estacio_sig_adriana_clean.png" style="height: 22px; object-fit: contain; margin-bottom: 1px;" alt="Assinatura Adriana">
-                                <div style="width: 220px; height: 1px; background: #000; margin-bottom: 3px;"></div>
-                                <div style="font-size: 10.8px; font-weight: 700;" id="outSecretarioNomeA4">ADRIANA SILVA ARAUJO</div>
-                                <div style="font-size: 9.5px; color: #222;">Secretario(a) de Registro de Diplomas</div>
-                                <div style="font-size: 10px; font-weight: 700; margin-top: 1px;" id="outResolucaoA4">Resolução 092/GR/2016</div>
+                            <div style="display: flex; flex-direction: column; align-items: center; align-self: flex-end; margin-right: 20px; width: 180px; text-align: center;">
+                                <img src="assets/estacio_sig_adriana_clean.png" style="height: 26px; max-width: 165px; object-fit: contain; margin-bottom: -3px; display: block;" alt="Assinatura Adriana">
+                                <div style="width: 175px; height: 1px; background: #000; margin-bottom: 3px;"></div>
+                                <div style="font-size: 9.2px; font-weight: 700; text-transform: uppercase;" id="outSecretarioNomeA4">ADRIANA SILVA ARAUJO</div>
+                                <div style="font-size: 8.2px; color: #111;">Secretario(a) de Registro de Diplomas</div>
+                                <div style="font-size: 8.8px; font-weight: 700; margin-top: 1px;" id="outResolucaoA4">Resolução 092/GR/2016</div>
                             </div>
                         </div>
                     </div>
@@ -2047,9 +2080,10 @@
             setTxt('outUrlValLand', urlVal);
 
             // 2. Atualiza Verso Paisagem
+            const cnpjFormatted = cnpjVal.toUpperCase().startsWith('CNPJ') ? cnpjVal : 'CNPJ: ' + cnpjVal.replace(/^CNP:?\s*/i, '');
             setTxt('outInstVersoLand', inst);
             setTxt('outMantVersoLand', mantenedora);
-            setTxt('outCnpjVersoLand', cnpjVal.startsWith('CNP') ? cnpjVal : 'CNP: ' + cnpjVal);
+            setTxt('outCnpjVersoLand', cnpjFormatted);
             setTxt('outCred1Land', cred1.startsWith('Credenciamento:') ? cred1 : 'Credenciamento: ' + cred1);
             setTxt('outCred2Land', cred2.startsWith('Credenciamento:') ? cred2 : 'Credenciamento: ' + cred2);
             setTxt('outCursoVersoLand', cursoVerso);
@@ -2083,7 +2117,7 @@
 
             setTxt('outInstVersoA4', inst);
             setTxt('outMantVersoA4', mantenedora);
-            setTxt('outCnpjVersoA4', cnpjVal.startsWith('CNP') ? cnpjVal : 'CNP: ' + cnpjVal);
+            setTxt('outCnpjVersoA4', cnpjFormatted);
             setTxt('outCred1A4', cred1.startsWith('Credenciamento:') ? cred1 : 'Credenciamento: ' + cred1);
             setTxt('outCred2A4', cred2.startsWith('Credenciamento:') ? cred2 : 'Credenciamento: ' + cred2);
             setTxt('outCursoVersoA4', cursoVerso);
@@ -2375,6 +2409,56 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origHtml;
+                if (prevView !== 'a4') setDiplomaView(prevView);
+            }
+        }
+
+        // 5. BAIXAR IMAGEM PNG ULTRA-HD — FOLHA A4 ÚNICA
+        async function exportA4SheetPng() {
+            const btn = document.getElementById('btnExportA4Png');
+            const origHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.innerHTML = `<span>Gerando Imagem A4...</span>`;
+                btn.disabled = true;
+            }
+
+            const prevView = currentView;
+            setDiplomaView('a4');
+
+            const zoomWrapper = document.getElementById('zoomWrapper');
+            const origTransform = zoomWrapper ? zoomWrapper.style.transform : '';
+            if (zoomWrapper) zoomWrapper.style.transform = 'none';
+
+            await new Promise(r => setTimeout(r, 150));
+
+            try {
+                const sheetEl = document.getElementById('diplomaA4Sheet');
+                const canvas = await html2canvas(sheetEl, {
+                    scale: 3,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: 794,
+                    height: 1123,
+                    logging: false
+                });
+
+                if (zoomWrapper) zoomWrapper.style.transform = origTransform;
+
+                const link = document.createElement('a');
+                const nomeAluno = (document.getElementById('inpNome').value || 'ALUNO').trim().replace(/\s+/g, '_');
+                link.download = `Diploma_Estacio_FolhaA4_${nomeAluno}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch(e) {
+                console.error('Erro ao gerar PNG Folha A4:', e);
+                alert('Erro ao exportar imagem A4: ' + e.message);
+                if (zoomWrapper) zoomWrapper.style.transform = origTransform;
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                }
                 if (prevView !== 'a4') setDiplomaView(prevView);
             }
         }
