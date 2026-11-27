@@ -1852,14 +1852,14 @@
                 </div>
             </article>
 
-            <!-- CARTEIRA DE HABILITAÇÃO DE AMADOR (CHA - MARINHA DO BRASIL) [EM DESENVOLVIMENTO / ACESSO ADMIN] -->
-            <article class="doc-card card-crlv-em-desenvolvimento" data-category="maritimo" data-name="carteira de habilitacao de amador cha marinha arrais motonauta mestre capitao amador barco lancha embarcacao nautica" onclick="handleArraisEmBreve(event)" style="cursor:pointer; --card-accent:#059669; --card-glow:rgba(5,150,105,0.18); --card-icon-bg:rgba(5,150,105,0.1); --card-icon-border:rgba(5,150,105,0.3); --card-pill-bg:rgba(5,150,105,0.12); --card-pill-border:rgba(5,150,105,0.3); --card-btn-bg:#059669; --card-btn-glow:rgba(5,150,105,0.35); --card-border-hover:rgba(5,150,105,0.4);">
+            <!-- CARTEIRA DE HABILITAÇÃO DE AMADOR (CHA - MARINHA DO BRASIL) [100% ATIVO • LIBERADO PARA TODOS] -->
+            <article class="doc-card" data-category="maritimo" data-name="carteira de habilitacao de amador cha marinha arrais motonauta mestre capitao amador barco lancha embarcacao nautica" onclick="handleCardOptionClick(event, 'arrais.html')" title="Clique para ver as Habilitações Náuticas (CHA) geradas pelo cliente" style="cursor:pointer; --card-accent:#059669; --card-glow:rgba(5,150,105,0.25); --card-icon-bg:rgba(5,150,105,0.1); --card-icon-border:rgba(5,150,105,0.3); --card-pill-bg:rgba(5,150,105,0.12); --card-pill-border:rgba(5,150,105,0.3); --card-btn-bg:#059669; --card-btn-glow:rgba(5,150,105,0.35); --card-border-hover:rgba(5,150,105,0.4);">
                 <div>
                     <div class="card-top">
                         <div class="card-icon-box" style="color:#059669; background:rgba(5,150,105,0.1); border-color:rgba(5,150,105,0.25);">
                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 16 12 12 8"/></svg>
                         </div>
-                        <span class="card-badge-pill" style="color:#f59e0b; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.1);">🔧 EM DESENVOLVIMENTO</span>
+                        <span class="card-badge-pill" style="color:#34d399; border-color:rgba(52,211,153,0.4); background:rgba(5,150,105,0.15);">★ OFICIAL MARINHA</span>
                     </div>
 
                     <div class="card-title-group">
@@ -1897,18 +1897,18 @@
                             <span class="price-sub">VALOR UNITÁRIO</span>
                             <div class="price-main"><span class="price-currency" style="color:#059669;">R$</span><span id="priceArrais">20,00</span></div>
                         </div>
-                        <div class="delivery-pill" style="color:#f59e0b; background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                            <span>Em Breve</span>
+                        <div class="delivery-pill" style="color:#34d399; background:rgba(5,150,105,0.08); border-color:rgba(5,150,105,0.25);">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <span>Imediato &lt; 20s</span>
                         </div>
                     </div>
 
                     <div class="card-actions-group">
-                        <button type="button" class="btn-card-emitir" onclick="handleArraisEmBreve(event)" style="background:rgba(5,150,105,0.15); color:#34d399; border:1px solid rgba(5,150,105,0.3); opacity:0.85;">
-                            <span>Em Breve</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
-                        </button>
-                        <button type="button" class="btn-card-preview" onclick="openDocModal('arrais')" title="Ver detalhes da Habilitação Náutica CHA">
+                        <a href="criar-arrais.html" class="btn-card-emitir" onclick="event.stopPropagation()" style="background:#059669; color:#fff; box-shadow:0 4px 14px -2px rgba(5,150,105,0.4);">
+                            <span>Emitir CHA Agora</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <button type="button" class="btn-card-preview" onclick="event.stopPropagation(); window.location.href='arrais.html';" title="Ver Habilitações Náuticas (CHA) geradas pelo cliente">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                     </div>
@@ -2821,8 +2821,8 @@
                 accent: '#059669',
                 link: 'criar-arrais.html',
                 devLink: 'criar-arrais.html',
-                btnText: 'Em Desenvolvimento',
-                isDev: true,
+                btnText: 'Emitir CHA Agora',
+                isDev: false,
                 html: `
                     <div class="doc-modal-intro">
                         A <strong>Carteira de Habilitação de Amador (CHA)</strong> é o documento emitido pela Marinha do Brasil (Diretoria de Portos e Costas) que habilita condutores para embarcações de esporte e recreio (Arrais Amador e Motonauta).
@@ -2841,7 +2841,7 @@
                     </div>
                     <div class="doc-modal-note">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
-                        <span>Documento em modo restrito de desenvolvimento para administradores.</span>
+                        <span>Documento 100% ativo com download imediato em PDF e PNG.</span>
                     </div>
                 `
             },
@@ -3064,8 +3064,7 @@
             const devCards = [
                 { match: 'crlv', link: 'criar-crlv.html', name: 'CRLV Digital', accent: '#10b981' },
                 { match: 'cin', link: 'criar-rg.html', history: 'rg.html', name: 'RG Digital', accent: '#3b82f6' },
-                { match: 'atpv', link: 'criar-dut.html', name: 'DUT ATPV-e', accent: '#f97316' },
-                { match: 'arrais', link: 'criar-arrais.html', history: 'arrais.html', name: 'Habilitação Náutica (CHA)', accent: '#059669' }
+                { match: 'atpv', link: 'criar-dut.html', name: 'DUT ATPV-e', accent: '#f97316' }
             ];
 
             devCards.forEach(item => {
@@ -3212,17 +3211,13 @@
             return false;
         }
 
-        // Ação para a Carteira de Habilitação de Amador (CHA - Marinha do Brasil) em desenvolvimento
+        // Ação para a Carteira de Habilitação de Amador (CHA - Marinha do Brasil) [100% Liberado a Todos]
         function handleArraisEmBreve(e) {
             if (e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
-            if (isUserAdmin()) {
-                window.location.href = 'criar-arrais.html';
-                return false;
-            }
-            showToastDev('Habilitação Náutica (Arrais / CHA)', 'A emissão de Carteira de Habilitação de Amador está em homologação técnica e disponível exclusivamente em modo DEV para administradores.');
+            window.location.href = 'criar-arrais.html';
             return false;
         }
 

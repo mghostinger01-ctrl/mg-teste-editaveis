@@ -6,7 +6,6 @@
     <script src="js/supabase-client.js"></script>
     <script src="js/security-guard.js"></script>
     <script src="js/auth-guard.js"></script>
-    <script src="js/dev-guard.js"></script>
 
     <!-- Open Graph / Meta -->
     <meta property="og:type" content="website">
@@ -534,14 +533,14 @@
             transition: transform 0.2s ease-out;
         }
         .cha-sheet-container {
-            width: 960px;
+            width: 980px;
             background: #ffffff;
             border-radius: 4px;
-            padding: 24px;
+            padding: 26px;
             box-shadow: 0 16px 45px rgba(0, 0, 0, 0.55);
             display: grid;
-            grid-template-columns: 560px 320px;
-            gap: 24px;
+            grid-template-columns: 570px 340px;
+            gap: 28px;
             align-items: start;
             box-sizing: border-box;
             position: relative;
@@ -551,139 +550,195 @@
         .cha-cards-col {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            width: 560px;
+            gap: 24px;
+            width: 570px;
         }
 
         .cha-card {
-            width: 560px;
-            height: 335px;
-            background-color: #c9eed9;
-            background-image: 
-                radial-gradient(#97d5b1 1px, transparent 1px),
-                radial-gradient(#97d5b1 1px, #c9eed9 1px);
-            background-size: 20px 20px;
-            background-position: 0 0, 10px 10px;
-            border: 3px solid #84caa1;
-            border-radius: 6px;
+            width: 570px;
+            background-color: #cbeada;
+            border: 1.5px solid #72ba89;
+            border-radius: 2px;
             position: relative;
-            padding: 12px 14px;
+            padding: 14px 16px;
             box-sizing: border-box;
-            font-family: Arial, 'Plus Jakarta Sans', sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             color: #111111;
             overflow: hidden;
         }
 
+        /* Moldura decorativa com abas verdes nos 4 lados e cantos recortados */
+        .cha-frame-bar {
+            position: absolute;
+            background: #84caa1;
+            border-radius: 1px;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .cha-frame-bar.top {
+            top: 4px;
+            left: 20px;
+            right: 20px;
+            height: 7px;
+        }
+        .cha-frame-bar.bottom {
+            bottom: 4px;
+            left: 20px;
+            right: 20px;
+            height: 7px;
+        }
+        .cha-frame-bar.left {
+            top: 20px;
+            bottom: 20px;
+            left: 4px;
+            width: 8px;
+        }
+        .cha-frame-bar.right {
+            top: 20px;
+            bottom: 20px;
+            right: 4px;
+            width: 8px;
+        }
+
         /* Topo Frente */
+        .cha-card-frente {
+            height: 445px;
+            min-height: 445px;
+            display: flex;
+            flex-direction: column;
+        }
+
         .cha-header-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.08);
             padding-bottom: 6px;
+            position: relative;
+            z-index: 3;
         }
         .cha-brasao {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             object-fit: contain;
             flex-shrink: 0;
         }
         .cha-timao-icon {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             flex-shrink: 0;
         }
         .cha-header-titles {
             flex: 1;
             text-align: center;
-            line-height: 1.15;
+            line-height: 1.18;
+            font-family: Arial, Helvetica, sans-serif;
         }
         .cha-title-pt {
-            font-size: 10.5px;
+            font-size: 11.5px;
             font-weight: 800;
             color: #111111;
         }
         .cha-title-en {
-            font-size: 9px;
+            font-size: 9.5px;
             font-style: italic;
             color: #222222;
         }
 
         .cha-doc-title-box {
             text-align: center;
-            margin: 6px 0 6px 0;
+            margin: 8px 0 6px 0;
+            font-family: Arial, Helvetica, sans-serif;
+            position: relative;
+            z-index: 3;
         }
         .cha-doc-title-main {
             font-size: 12.5px;
             font-weight: 900;
             letter-spacing: 0.3px;
-            color: #0b1a13;
+            color: #000000;
         }
         .cha-doc-title-sub {
             font-size: 9.5px;
             font-style: italic;
             color: #222222;
+            margin-top: 1px;
         }
 
         /* Grid Frente */
         .cha-frente-body {
             display: grid;
-            grid-template-columns: 400px 120px;
-            gap: 12px;
-            margin-top: 4px;
+            grid-template-columns: 395px 135px;
+            gap: 10px;
+            margin-top: 6px;
+            position: relative;
+            z-index: 3;
         }
         .cha-fields-col {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
         .cha-box {
             background: #ffffff;
-            border: 1px solid #111111;
-            padding: 2px 6px;
-            border-radius: 1px;
+            border: 1px solid #000000;
+            position: relative;
+            padding: 6px 8px 5px 8px;
+            border-radius: 0;
             box-sizing: border-box;
+            margin-top: 7px;
         }
         .cha-lbl {
+            position: absolute;
+            top: -6px;
+            left: 6px;
+            background: #cbeada;
+            padding: 0 4px;
             font-size: 7.5px;
-            color: #334155;
-            font-weight: 600;
-            line-height: 1.1;
+            font-weight: 700;
+            color: #111111;
+            line-height: 1;
+            white-space: nowrap;
+            font-family: Arial, Helvetica, sans-serif;
         }
         .cha-val {
             font-size: 11px;
             font-weight: 800;
             color: #000000;
             text-transform: uppercase;
-            line-height: 1.25;
+            line-height: 1.2;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-family: Arial, Helvetica, sans-serif;
         }
         .cha-val-sub {
             font-size: 8px;
-            font-style: italic;
+            font-weight: 500;
             color: #222222;
             line-height: 1.1;
-            margin-top: 1px;
+            margin-top: 2px;
+            text-transform: uppercase;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         .cha-row-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px;
+            gap: 8px;
         }
 
         .cha-photo-box {
-            width: 114px;
-            height: 152px;
-            border: 1px solid #111111;
-            background: #e2e8f0;
+            width: 135px;
+            height: 262px;
+            border: 1px solid #000000;
+            background: #ffffff;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
+            margin-top: 7px;
         }
         .cha-photo-img {
             width: 100%;
@@ -693,10 +748,19 @@
         }
 
         /* Verso */
+        .cha-card-verso {
+            height: 260px;
+            min-height: 260px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
         .cha-verso-body {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 4px;
+            position: relative;
+            z-index: 3;
             height: 100%;
         }
         .cha-verso-footer {
@@ -706,65 +770,70 @@
             align-items: center;
             justify-content: center;
             gap: 2px;
-            padding-bottom: 6px;
+            padding-bottom: 2px;
+            position: relative;
+            z-index: 3;
         }
 
         /* ─── PAINEL DIREITO: QR CODE ─── */
         .cha-qr-col {
             display: flex;
             flex-direction: column;
-            width: 320px;
+            width: 340px;
         }
         .cha-qr-header-title {
             font-size: 16px;
-            font-weight: 800;
+            font-weight: 700;
             color: #111111;
             margin-bottom: 6px;
-            font-family: Arial, 'Plus Jakarta Sans', sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
         }
         .cha-qr-box {
             border: 2px solid #000000;
             background: #ffffff;
-            padding: 16px 14px;
+            padding: 20px 16px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            width: 100%;
+            height: 365px;
         }
         .cha-qr-render-area {
-            width: 250px;
-            height: 250px;
+            width: 240px;
+            height: 240px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .cha-qr-render-area img, .cha-qr-render-area canvas {
-            width: 250px !important;
-            height: 250px !important;
+            width: 240px !important;
+            height: 240px !important;
             image-rendering: pixelated;
         }
         .cha-qr-footer-titles {
             margin-top: 14px;
             text-align: center;
-            font-family: Arial, 'Plus Jakarta Sans', sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
         }
         .cha-qr-foot-main {
-            font-size: 11px;
-            font-weight: 800;
+            font-size: 11.5px;
+            font-weight: 900;
             color: #000000;
             letter-spacing: 0.2px;
         }
         .cha-qr-foot-sub {
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 11.5px;
+            font-weight: 800;
             color: #000000;
-            margin-top: 3px;
+            margin-top: 4px;
         }
         .cha-qr-foot-en {
-            font-size: 9.5px;
+            font-size: 10px;
             color: #222222;
             font-style: italic;
+            margin-top: 2px;
         }
 
         /* ─── MARCA D'ÁGUA DE PRÉVIA (DESAPARECE AO GERAR PDF) ─── */
@@ -845,8 +914,6 @@
             </a>
 
             <div class="header-right">
-                <span class="badge-dev-admin">👑 ACESSO ADMIN (DEV)</span>
-
                 <a href="recargas.html" class="saldo-pill" title="Clique para recarregar saldo">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                     <span id="userHeaderSaldo">Saldo R$ 0,00</span>
@@ -930,7 +997,7 @@
             <div class="form-group">
                 <label class="form-label">Foto 3x4 do Condutor</label>
                 <div class="photo-upload-row">
-                    <img id="thumbPhoto" src="assets/foto_alyson.png" class="photo-thumb-prev" alt="Foto Condutor">
+                    <img id="thumbPhoto" src="assets/foto_francisco_cha.jpg" class="photo-thumb-prev" alt="Foto Condutor">
                     <div style="display:flex; flex-direction:column; gap:6px;">
                         <input type="file" id="inpPhotoFile" accept="image/*" style="display:none;" onchange="handlePhotoUpload(event)">
                         <button type="button" class="btn-upload-file" onclick="document.getElementById('inpPhotoFile').click()">
@@ -1068,35 +1135,41 @@
                         <div class="cha-cards-col">
                             
                             <!-- 1. CARTÃO FRENTE -->
-                            <div class="cha-card" id="cardFrente">
+                            <div class="cha-card cha-card-frente" id="cardFrente">
+                                <!-- Moldura com abas e cantos recortados -->
+                                <span class="cha-frame-bar top"></span>
+                                <span class="cha-frame-bar bottom"></span>
+                                <span class="cha-frame-bar left"></span>
+                                <span class="cha-frame-bar right"></span>
+
                                 <div class="cha-header-row">
                                     <img src="assets/brasao_republica.svg" class="cha-brasao" alt="Brasão da República">
                                     
-                                    <!-- Timão Náutico em Verde -->
+                                    <!-- Timão Náutico em Verde Oficial -->
                                     <svg class="cha-timao-icon" viewBox="0 0 100 100">
-                                        <circle cx="50" cy="50" r="7" fill="#2d885a"/>
-                                        <circle cx="50" cy="50" r="14" fill="none" stroke="#2d885a" stroke-width="4.5"/>
-                                        <circle cx="50" cy="50" r="28" fill="none" stroke="#2d885a" stroke-width="5"/>
-                                        <line x1="50" y1="8" x2="50" y2="92" stroke="#2d885a" stroke-width="4.5" stroke-linecap="round"/>
-                                        <line x1="8" y1="50" x2="92" y2="50" stroke="#2d885a" stroke-width="4.5" stroke-linecap="round"/>
-                                        <line x1="20" y1="20" x2="80" y2="80" stroke="#2d885a" stroke-width="4.5" stroke-linecap="round"/>
-                                        <line x1="20" y1="80" x2="80" y2="20" stroke="#2d885a" stroke-width="4.5" stroke-linecap="round"/>
-                                        <circle cx="50" cy="8" r="3.5" fill="#2d885a"/>
-                                        <circle cx="50" cy="92" r="3.5" fill="#2d885a"/>
-                                        <circle cx="8" cy="50" r="3.5" fill="#2d885a"/>
-                                        <circle cx="92" cy="50" r="3.5" fill="#2d885a"/>
-                                        <circle cx="20" cy="20" r="3.5" fill="#2d885a"/>
-                                        <circle cx="80" cy="80" r="3.5" fill="#2d885a"/>
-                                        <circle cx="20" cy="80" r="3.5" fill="#2d885a"/>
-                                        <circle cx="80" cy="20" r="3.5" fill="#2d885a"/>
+                                        <circle cx="50" cy="50" r="6" fill="#3aa069"/>
+                                        <circle cx="50" cy="50" r="13" fill="none" stroke="#3aa069" stroke-width="4"/>
+                                        <circle cx="50" cy="50" r="28" fill="none" stroke="#3aa069" stroke-width="4.5"/>
+                                        <line x1="50" y1="8" x2="50" y2="92" stroke="#3aa069" stroke-width="4" stroke-linecap="round"/>
+                                        <line x1="8" y1="50" x2="92" y2="50" stroke="#3aa069" stroke-width="4" stroke-linecap="round"/>
+                                        <line x1="20" y1="20" x2="80" y2="80" stroke="#3aa069" stroke-width="4" stroke-linecap="round"/>
+                                        <line x1="20" y1="80" x2="80" y2="20" stroke="#3aa069" stroke-width="4" stroke-linecap="round"/>
+                                        <circle cx="50" cy="8" r="3.5" fill="#3aa069"/>
+                                        <circle cx="50" cy="92" r="3.5" fill="#3aa069"/>
+                                        <circle cx="8" cy="50" r="3.5" fill="#3aa069"/>
+                                        <circle cx="92" cy="50" r="3.5" fill="#3aa069"/>
+                                        <circle cx="20" cy="20" r="3.5" fill="#3aa069"/>
+                                        <circle cx="80" cy="80" r="3.5" fill="#3aa069"/>
+                                        <circle cx="20" cy="80" r="3.5" fill="#3aa069"/>
+                                        <circle cx="80" cy="20" r="3.5" fill="#3aa069"/>
                                     </svg>
 
                                     <div class="cha-header-titles">
                                         <div class="cha-title-pt">Republica Federativa do Brasil</div>
                                         <div class="cha-title-en">(Federative Republic of Brazil)</div>
-                                        <div class="cha-title-pt" style="margin-top:1px;">Autoridade Marítima Brasileira</div>
+                                        <div class="cha-title-pt" style="margin-top:2px;">Autoridade Marítima Brasileira</div>
                                         <div class="cha-title-en">(Brazilian Maritime Authority)</div>
-                                        <div class="cha-title-pt" style="margin-top:1px;">Diretoria de Portos e Costas</div>
+                                        <div class="cha-title-pt" style="margin-top:2px;">Diretoria de Portos e Costas</div>
                                         <div class="cha-title-en">(Directorate of Ports and Coasts)</div>
                                     </div>
                                 </div>
@@ -1148,28 +1221,34 @@
 
                                     <!-- Foto 3x4 -->
                                     <div class="cha-photo-box">
-                                        <img id="prevPhoto" src="assets/foto_alyson.png" class="cha-photo-img" alt="Foto">
+                                        <img id="prevPhoto" src="assets/foto_francisco_cha.jpg" class="cha-photo-img" alt="Foto Condutor">
                                     </div>
                                 </div>
                             </div>
 
                             <!-- 2. CARTÃO VERSO -->
-                            <div class="cha-card" id="cardVerso">
+                            <div class="cha-card cha-card-verso" id="cardVerso">
+                                <!-- Moldura com abas e cantos recortados -->
+                                <span class="cha-frame-bar top"></span>
+                                <span class="cha-frame-bar bottom"></span>
+                                <span class="cha-frame-bar left"></span>
+                                <span class="cha-frame-bar right"></span>
+
                                 <div class="cha-verso-body">
                                     <!-- Limites de Navegação -->
-                                    <div class="cha-box" style="min-height: 44px;">
+                                    <div class="cha-box" style="height: 44px; margin-top: 6px;">
                                         <div class="cha-lbl">Limites da Navegação (Navigation Limits)</div>
-                                        <div class="cha-val" id="prevLimites" style="margin-top: 3px;">INTERIOR. / INLAND WATERS.</div>
+                                        <div class="cha-val" id="prevLimites" style="margin-top: 2px;">INTERIOR. / INLAND WATERS.</div>
                                     </div>
 
                                     <!-- Requisitos para Conduzir -->
-                                    <div class="cha-box" style="min-height: 44px;">
+                                    <div class="cha-box" style="height: 44px; margin-top: 8px;">
                                         <div class="cha-lbl">Requisitos para conduzir a embarcação (Requirements to conduct the boat)</div>
-                                        <div class="cha-val" id="prevRequisitos" style="margin-top: 3px;">*************/*************</div>
+                                        <div class="cha-val" id="prevRequisitos" style="margin-top: 2px;">***********/************</div>
                                     </div>
 
                                     <!-- Órgão de Emissão e Data -->
-                                    <div class="cha-row-2">
+                                    <div class="cha-row-2" style="margin-top: 8px;">
                                         <div class="cha-box">
                                             <div class="cha-lbl">Órgão de Emissão (Issuing Organization)</div>
                                             <div class="cha-val" id="prevOrgao">AGÊNCIA FLUVIAL DE GOIÁS</div>
@@ -1182,28 +1261,23 @@
 
                                     <!-- Emblema Oficial da Marinha do Brasil -->
                                     <div class="cha-verso-footer">
-                                        <svg width="78" height="78" viewBox="0 0 100 100">
-                                            <!-- Borda corda dourada -->
-                                            <circle cx="50" cy="50" r="47" fill="none" stroke="#e5b839" stroke-width="4.5" stroke-dasharray="3 1.5"/>
-                                            <circle cx="50" cy="50" r="43.5" fill="#081e36" stroke="#b89326" stroke-width="1.5"/>
-                                            <!-- Âncora Branca -->
-                                            <circle cx="50" cy="24" r="6" fill="none" stroke="#ffffff" stroke-width="3"/>
-                                            <!-- Estrela Dourada no topo -->
-                                            <polygon points="50,14 52,19 57,19 53,22 55,27 50,24 45,27 47,22 43,19 48,19" fill="#e5b839"/>
+                                        <svg width="68" height="68" viewBox="0 0 100 100">
+                                            <!-- Círculo Azul Marinho com Borda Dourada Oficial -->
+                                            <circle cx="50" cy="50" r="46" fill="#002b54" stroke="#e5b839" stroke-width="4"/>
+                                            <!-- Âncora Branca Oficial -->
+                                            <circle cx="50" cy="22" r="6" fill="none" stroke="#ffffff" stroke-width="3"/>
                                             <!-- Travessão transversal -->
-                                            <rect x="32" y="32" width="36" height="4.5" rx="1.5" fill="#ffffff"/>
-                                            <circle cx="31.5" cy="34.2" r="2.5" fill="#ffffff"/>
-                                            <circle cx="68.5" cy="34.2" r="2.5" fill="#ffffff"/>
+                                            <rect x="30" y="31" width="40" height="4.5" rx="1" fill="#ffffff"/>
                                             <!-- Haste vertical -->
-                                            <rect x="47.5" y="28" width="5" height="46" rx="1.5" fill="#ffffff"/>
-                                            <!-- Braços curvados inferiores -->
-                                            <path d="M 24 54 C 24 78, 76 78, 76 54 C 73 54, 70 56, 68 62 C 60 72, 40 72, 32 62 C 30 56, 27 54, 24 54 Z" fill="#ffffff"/>
-                                            <!-- Pontas da âncora -->
-                                            <polygon points="21,52 27,52 24,45" fill="#ffffff"/>
-                                            <polygon points="73,52 79,52 76,45" fill="#ffffff"/>
+                                            <rect x="47.5" y="26" width="5" height="48" rx="1" fill="#ffffff"/>
+                                            <!-- Braços curvados inferiores e unhas da âncora -->
+                                            <path d="M 22 56 C 22 78, 78 78, 78 56 C 75 56, 72 58, 70 63 C 62 73, 38 73, 30 63 C 28 58, 25 56, 22 56 Z" fill="#ffffff"/>
+                                            <!-- Palhetas / Pontas da âncora -->
+                                            <polygon points="19,55 26,55 22.5,47" fill="#ffffff"/>
+                                            <polygon points="74,55 81,55 77.5,47" fill="#ffffff"/>
                                             <circle cx="50" cy="74" r="3.5" fill="#ffffff"/>
                                         </svg>
-                                        <div style="font-family:'Plus Jakarta Sans', Arial, sans-serif; font-weight:900; font-size:13.5px; color:#081e36; line-height:1.1; letter-spacing:0.8px; text-align:center;">
+                                        <div style="font-family:Arial, sans-serif; font-weight:900; font-size:13.5px; color:#002b54; line-height:1.1; letter-spacing:0.5px; text-align:center; margin-top:2px;">
                                             MARINHA<br>DO BRASIL
                                         </div>
                                     </div>
@@ -1390,8 +1464,8 @@
             document.getElementById('inpDataEmissao').value = DEFAULT_CHA.emissao;
             document.getElementById('inpQrUrl').value = DEFAULT_CHA.qrUrl;
 
-            document.getElementById('prevPhoto').src = 'assets/foto_alyson.png';
-            document.getElementById('thumbPhoto').src = 'assets/foto_alyson.png';
+            document.getElementById('prevPhoto').src = 'assets/foto_francisco_cha.jpg';
+            document.getElementById('thumbPhoto').src = 'assets/foto_francisco_cha.jpg';
 
             updateCha();
         }
