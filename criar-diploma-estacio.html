@@ -1327,36 +1327,17 @@
                     </button>
                 </div>
 
-                <!-- BOTÃO: FOLHA A4 DUPLA (FRENTE E VERSO NA MESMA PÁGINA) -->
+                <!-- BOTÃO: GERAR PDF — FOLHA A4 DUPLA (FRENTE E VERSO NA MESMA PÁGINA) -->
                 <button type="button" class="btn-action-primary" id="btnExportA4Sheet" onclick="exportA4SheetPdf()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
                     <span>Gerar PDF — Folha A4 Única (Frente &amp; Verso)</span>
                 </button>
-
-                <!-- BOTÃO: GERAR PDF DIPLOMA FRENTE (PAISAGEM) -->
-                <button type="button" class="btn-action-primary" id="btnExportFrentePdf" onclick="exportDiplomaFrentePdf()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    <span>Gerar PDF — Diploma Frente (Paisagem)</span>
-                </button>
             </div>
         </div>
 
-        <!-- PAINEL DE VISUALIZAÇÃO COM ALTERNÂNCIA (FRENTE / VERSO / A4) E ZOOM -->
+        <!-- PAINEL DE VISUALIZAÇÃO: FOLHA A4 DUPLA DIRETA COM ZOOM -->
         <div class="preview-panel">
-            <div class="preview-controls">
-                <!-- SELETOR DE MODO -->
-                <div class="view-mode-pill">
-                    <button type="button" class="btn-mode active" id="tabModeFrente" onclick="setDiplomaView('frente')">
-                        🎓 Frente (Diploma 100% Idem)
-                    </button>
-                    <button type="button" class="btn-mode" id="tabModeVerso" onclick="setDiplomaView('verso')">
-                        📄 Verso (Registro Oficial)
-                    </button>
-                    <button type="button" class="btn-mode" id="tabModeA4" onclick="setDiplomaView('a4')">
-                        📜 Folha A4 Dupla
-                    </button>
-                </div>
-
+            <div class="preview-controls" style="justify-content: flex-end;">
                 <!-- CONTROLES DE ZOOM -->
                 <div class="zoom-pill">
                     <button type="button" class="btn-zoom" onclick="zoomDoc(-0.1)" title="Diminuir Zoom">−</button>
@@ -1369,10 +1350,8 @@
             <!-- ZOOM WRAPPER QUE RESPONDE AOS CONTROLES (+ - Fit) -->
             <div id="zoomWrapper" style="transition: transform 0.15s ease-out; transform-origin: top center; width: 100%; display: flex; justify-content: center;">
 
-                <!-- ==========================================================
-                     1. VISTA FRENTE PAISAGEM (1024px x 722px) - 100% IDÊNTICO AO MODELO
-                     ========================================================== -->
-                <div class="diploma-frente-landscape" id="diplomaFrenteLandscape">
+                <!-- 1. VISTA FRENTE PAISAGEM (OCULTA - MODO DIRETO FOLHA A4) -->
+                <div class="diploma-frente-landscape" id="diplomaFrenteLandscape" style="display: none;">
 
                     <!-- Brasão da República Oficial -->
                     <img src="assets/estacio_selo_republica.png" class="frente-selo-img-land" alt="Selo República">
@@ -1515,9 +1494,9 @@
                 </div>
 
                 <!-- ==========================================================
-                     3. VISTA FOLHA A4 DUPLA (FRENTE + VERSO NA MESMA PÁGINA)
+                     FOLHA A4 DUPLA (FRENTE + VERSO NA MESMA PÁGINA)
                      ========================================================== -->
-                <div class="a4-sheet" id="diplomaA4Sheet" style="display: none;">
+                <div class="a4-sheet" id="diplomaA4Sheet" style="display: flex;">
 
                     <!-- METADE SUPERIOR: FRENTE A4 -->
                     <div class="frente-container-a4" id="frenteContainerA4">
@@ -1640,38 +1619,19 @@
 
     <!-- SCRIPT DE SINCRONIZAÇÃO, ALTERNÂNCIA, ZOOM E EXPORTAÇÕES -->
     <script>
-        let currentView = 'frente'; // 'frente' | 'verso' | 'a4'
+        let currentView = 'a4'; // Modo Direto Folha A4 Dupla
         let currentZoom = 0.80;
 
-        // ALTERNÂNCIA DE VISTAS (FRENTE / VERSO / A4)
+        // VISTA DIRETA: FOLHA A4 DUPLA
         function setDiplomaView(mode) {
-            currentView = mode;
+            currentView = 'a4';
             const elFrente = document.getElementById('diplomaFrenteLandscape');
             const elVerso = document.getElementById('diplomaVersoLandscape');
             const elA4 = document.getElementById('diplomaA4Sheet');
 
-            const tabF = document.getElementById('tabModeFrente');
-            const tabV = document.getElementById('tabModeVerso');
-            const tabA = document.getElementById('tabModeA4');
-
-            if (tabF) tabF.classList.remove('active');
-            if (tabV) tabV.classList.remove('active');
-            if (tabA) tabA.classList.remove('active');
-
             if (elFrente) elFrente.style.display = 'none';
             if (elVerso) elVerso.style.display = 'none';
-            if (elA4) elA4.style.display = 'none';
-
-            if (mode === 'frente') {
-                if (elFrente) elFrente.style.display = 'block';
-                if (tabF) tabF.classList.add('active');
-            } else if (mode === 'verso') {
-                if (elVerso) elVerso.style.display = 'grid';
-                if (tabV) tabV.classList.add('active');
-            } else if (mode === 'a4') {
-                if (elA4) elA4.style.display = 'flex';
-                if (tabA) tabA.classList.add('active');
-            }
+            if (elA4) elA4.style.display = 'flex';
 
             resetZoom();
         }
@@ -1693,7 +1653,7 @@
             const panel = document.querySelector('.preview-panel');
             if (panel) {
                 const w = panel.clientWidth - 56;
-                const targetW = (currentView === 'a4') ? 810 : 1050;
+                const targetW = 810;
                 currentZoom = Math.min(1.0, Math.max(0.4, Math.round((w / targetW) * 100) / 100));
             } else {
                 currentZoom = 0.80;
@@ -2446,12 +2406,22 @@
 
         // 4. GERAR FOLHA A4 ÚNICA (FRENTE E VERSO JUNTOS)
         async function exportA4SheetPdf() {
+            const rawCusto = parseFloat(localStorage.getItem('happynation_diploma_price')) || 15.00;
+            let loggedUser = JSON.parse(localStorage.getItem('happynation_user') || '{}');
+            let userSaldo = (window.MGSaldo ? window.MGSaldo.get() : (loggedUser.saldo !== undefined ? parseFloat(loggedUser.saldo) : 0));
+            const custoFinal = (window.MGSaldo && typeof window.MGSaldo.calcDiscount === 'function') ? window.MGSaldo.calcDiscount(rawCusto) : rawCusto;
+
+            if (userSaldo < custoFinal) {
+                alert('Saldo insuficiente para emitir o documento (R$ ' + custoFinal.toFixed(2).replace('.', ',') + '). Faça uma recarga para continuar.');
+                window.location.href = 'recargas.html';
+                return;
+            }
+
             const btn = document.getElementById('btnExportA4Sheet');
             const origHtml = btn.innerHTML;
             btn.innerHTML = `<span>Gerando Folha A4...</span>`;
             btn.disabled = true;
 
-            const prevView = currentView;
             setDiplomaView('a4');
 
             const zoomWrapper = document.getElementById('zoomWrapper');
@@ -2488,6 +2458,16 @@
                 const nomeAluno = (document.getElementById('inpNome').value || 'ALUNO').trim().replace(/\s+/g, '_');
                 pdf.save(`Diploma_Estacio_FolhaA4_${nomeAluno}.pdf`);
 
+                // Deduz saldo após emissão bem sucedida
+                if (window.MGSaldo) {
+                    window.MGSaldo.update(-custoFinal);
+                } else {
+                    loggedUser.saldo = userSaldo - custoFinal;
+                    localStorage.setItem('happynation_user', JSON.stringify(loggedUser));
+                    const sEl = document.getElementById('userHeaderSaldo');
+                    if (sEl) sEl.textContent = `Saldo R$ ${(loggedUser.saldo).toFixed(2).replace('.', ',')}`;
+                }
+
             } catch(e) {
                 console.error('Erro na geração do PDF A4:', e);
                 alert('Erro ao exportar Folha A4: ' + e.message);
@@ -2495,7 +2475,6 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origHtml;
-                if (prevView !== 'a4') setDiplomaView(prevView);
             }
         }
 
@@ -2572,7 +2551,7 @@
             } catch(e) {}
 
             syncDiploma();
-            setDiplomaView('frente');
+            setDiplomaView('a4');
         });
 
         window.addEventListener('resize', () => {
