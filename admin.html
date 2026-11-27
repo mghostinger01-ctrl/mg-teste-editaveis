@@ -1211,11 +1211,11 @@
         .data-table th {
             background: #141617;
             color: #64748b;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 8px 10px;
+            letter-spacing: 0.6px;
+            padding: 12px 14px;
             border-bottom: 1px solid #232729;
             white-space: nowrap;
         }
@@ -1223,12 +1223,12 @@
         .data-table th:last-child,
         .data-table td:last-child {
             text-align: right;
-            padding-right: 12px;
+            padding-right: 14px;
         }
 
         .data-table td {
-            padding: 7px 10px;
-            border-bottom: 1px solid #202426;
+            padding: 12px 14px;
+            border-bottom: 1px solid #1e2225;
             color: #cbd5e1;
             vertical-align: middle;
             transition: background 0.12s ease;
@@ -1239,43 +1239,205 @@
         }
 
         .data-table tr:hover td {
-            background: rgba(255, 255, 255, 0.025);
+            background: rgba(255, 255, 255, 0.028);
         }
 
         .user-cell {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .user-avatar-sm {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 1px solid rgba(0, 220, 130, 0.3);
-            color: #00dc82;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(15, 23, 42, 0.95));
+            border: 1px solid rgba(0, 220, 130, 0.35);
+            color: #34d399;
             font-weight: 800;
-            font-size: 11.5px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
         }
 
         .user-name {
             font-weight: 700;
             color: #ffffff;
-            font-size: 13px;
-            line-height: 1.2;
+            font-size: 13.5px;
+            line-height: 1.25;
+            letter-spacing: -0.2px;
             white-space: nowrap;
         }
 
         .user-email {
-            font-size: 11px;
-            color: #64748b;
-            margin-top: 1px;
+            font-size: 11.5px;
+            color: #94a3b8;
+            margin-top: 2px;
             white-space: nowrap;
+        }
+
+        /* ─── PRESENCE BADGES (Indicador de Atividade em Tempo Real) ─── */
+        @keyframes presencePulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .presence-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10.5px;
+            font-weight: 700;
+            line-height: 1.2;
+            padding: 2.5px 8.5px;
+            border-radius: 9999px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .presence-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        /* 🟢 ONLINE */
+        .presence-badge.online {
+            color: #34d399;
+            background: rgba(16, 185, 129, 0.16);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+        .presence-dot.online {
+            background: #10b981;
+            animation: presencePulse 1.8s infinite;
+        }
+
+        /* 🔵 MINUTOS */
+        .presence-badge.minutes {
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.14);
+            border: 1px solid rgba(56, 189, 248, 0.38);
+        }
+        .presence-dot.minutes {
+            background: #38bdf8;
+            box-shadow: 0 0 5px #38bdf8;
+        }
+
+        /* 🟡 HORAS */
+        .presence-badge.hours {
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.14);
+            border: 1px solid rgba(245, 158, 11, 0.38);
+        }
+        .presence-dot.hours {
+            background: #fbbf24;
+            box-shadow: 0 0 5px #fbbf24;
+        }
+
+        /* 🔴 ONTEM */
+        .presence-badge.yesterday {
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.14);
+            border: 1px solid rgba(239, 68, 68, 0.38);
+        }
+        .presence-dot.yesterday {
+            background: #f87171;
+            box-shadow: 0 0 5px #f87171;
+        }
+
+        /* 🔴 DIAS DE AUSÊNCIA */
+        .presence-badge.days {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.18);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            font-weight: 800;
+        }
+        .presence-dot.days {
+            background: #ef4444;
+            box-shadow: 0 0 6px #ef4444;
+        }
+
+        /* ⚪ OFFLINE / NUNCA ACESSOU */
+        .presence-badge.offline {
+            color: #94a3b8;
+            background: rgba(148, 163, 184, 0.08);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        .presence-dot.offline {
+            background: #64748b;
+        }
+
+        /* ─── IP STATUS TAGS ─── */
+        .ip-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-family: var(--font-mono, monospace);
+            padding: 2px 6px;
+            border-radius: 4px;
+            line-height: 1.2;
+            margin-top: 3px;
+        }
+        .ip-tag.verified {
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+        }
+        .ip-tag.divergent {
+            background: rgba(239, 68, 68, 0.18);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            font-weight: 700;
+        }
+        .ip-tag.none {
+            background: rgba(148, 163, 184, 0.08);
+            color: #64748b;
+            border: 1px dashed rgba(148, 163, 184, 0.25);
+            font-style: italic;
+        }
+
+        /* ─── WHATSAPP LINK BUTTON ─── */
+        .whatsapp-cell-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            transition: all 0.15s ease;
+        }
+        .whatsapp-cell-link svg {
+            color: #25d366;
+            flex-shrink: 0;
+        }
+        .whatsapp-cell-link:hover {
+            color: #25d366;
+            background: rgba(37, 211, 102, 0.12);
+            border-color: rgba(37, 211, 102, 0.35);
+            transform: translateY(-1px);
         }
 
         .badge {
@@ -1335,22 +1497,22 @@
             display: inline-flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 4px;
+            gap: 5px;
             flex-wrap: nowrap !important;
             white-space: nowrap !important;
         }
 
         .btn-act {
-            padding: 3.5px 7px;
-            border-radius: 5px;
+            padding: 4.5px 8.5px;
+            border-radius: 6px;
             border: 1px solid transparent;
             font-family: var(--font);
-            font-size: 10.5px;
+            font-size: 11px;
             font-weight: 700;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             transition: all 0.15s ease;
             white-space: nowrap;
             line-height: 1.2;
@@ -5091,6 +5253,7 @@
                                 plano_validade: u.plano_validade || 'Vitalício',
                                 plano_ativado_em: u.plano_ativado_em || null,
                                 created_at: u.created_at,
+                                last_seen: u.last_seen || null,
                                 register_ip: u.register_ip || u.ip || null,
                                 last_ip: u.last_ip || u.register_ip || null
                             };
@@ -5121,8 +5284,13 @@
                         const listPres = await rPres.json();
                         if (Array.isArray(listPres)) {
                             listPres.forEach(p => {
-                                const uid = String(p.chave || '').replace('presence_', '').trim();
-                                if (uid) usersPresenceMap[uid] = p.valor;
+                                const rawKey = String(p.chave || '').replace('presence_', '').trim();
+                                if (!rawKey) return;
+                                usersPresenceMap[rawKey] = p.valor;
+                                usersPresenceMap[rawKey.toLowerCase()] = p.valor;
+                                if (rawKey.startsWith('email_')) {
+                                    usersPresenceMap[rawKey.replace('email_', '').toLowerCase().trim()] = p.valor;
+                                }
                             });
                         }
                     }
@@ -6490,17 +6658,74 @@ function updateDashboardMetrics() {
             return isNaN(t) ? null : t;
         }
 
+        function formatWhatsAppNumber(phone) {
+            if (!phone) return '<span style="color:#64748b; font-size:12px;">--</span>';
+            const digits = String(phone).replace(/\D/g, '');
+            if (!digits) return '<span style="color:#64748b; font-size:12px;">--</span>';
+            
+            let formatted = phone;
+            if (digits.length === 11) {
+                formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+            } else if (digits.length === 10) {
+                formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+            } else if (digits.length === 13 && digits.startsWith('55')) {
+                formatted = `+55 (${digits.slice(2, 4)}) ${digits.slice(4, 9)}-${digits.slice(9)}`;
+            } else if (digits.length === 12 && digits.startsWith('55')) {
+                formatted = `+55 (${digits.slice(2, 4)}) ${digits.slice(4, 8)}-${digits.slice(8)}`;
+            }
+            
+            const cleanNumber = digits.length <= 11 ? (digits.startsWith('55') ? digits : '55' + digits) : digits;
+            return `
+                <a href="https://wa.me/${cleanNumber}" target="_blank" rel="noopener noreferrer" class="whatsapp-cell-link" title="Abrir conversa no WhatsApp (${formatted})">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.24-.75-.67-1.25-1.49-1.4-1.74-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.17.04-.32-.02-.45-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.45.06-.68.32-.23.25-.89.87-.89 2.12 0 1.25.91 2.46 1.04 2.63.13.17 1.8 2.75 4.36 3.86.61.26 1.09.42 1.46.54.61.2 1.17.17 1.61.1.49-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.22-.16-.47-.28z"/></svg>
+                    <span>${formatted}</span>
+                </a>
+            `;
+        }
+
         function getUserActivityBadge(user) {
             if (!user) return '';
-            const uId = String(user.id);
+            const uId = String(user.id || '');
+            const uEmail = (user.email || '').toLowerCase().trim();
             let latestTs = null;
 
-            // 1. Prioridade: presença em tempo real (heartbeat)
-            if (usersPresenceMap && usersPresenceMap[uId]) {
-                latestTs = parseActivityTimestamp(usersPresenceMap[uId]);
+            // 0. Verifica se o usuário atual logado no painel é este usuário (Admin ou próprio cliente)
+            const curUser = (typeof AuthGuard !== 'undefined' && AuthGuard.getUser) ? AuthGuard.getUser() : null;
+            const curId = curUser ? String(curUser.id || '') : '';
+            const curEmail = curUser ? String(curUser.email || '').toLowerCase().trim() : '';
+            if ((curId && curId === uId) || (curEmail && curEmail === uEmail)) {
+                latestTs = Date.now();
             }
 
-            // 2. Verifica se houve geração de CNH mais recente que a presença ou fallback
+            // 1. Presença em tempo real (heartbeat Supabase configuracoes ou localStorage)
+            if (!latestTs && usersPresenceMap) {
+                if (usersPresenceMap[uId]) {
+                    latestTs = parseActivityTimestamp(usersPresenceMap[uId]);
+                } else if (uEmail && usersPresenceMap[uEmail]) {
+                    latestTs = parseActivityTimestamp(usersPresenceMap[uEmail]);
+                } else if (usersPresenceMap['email_' + uEmail]) {
+                    latestTs = parseActivityTimestamp(usersPresenceMap['email_' + uEmail]);
+                }
+            }
+
+            // 2. Campo nativo last_seen do Supabase se preenchido
+            if (user.last_seen) {
+                const lsTs = parseActivityTimestamp(user.last_seen);
+                if (lsTs && (!latestTs || lsTs > latestTs)) {
+                    latestTs = lsTs;
+                }
+            }
+
+            // 3. Fallback no localStorage caso tenha ping local recente
+            if (!latestTs && typeof localStorage !== 'undefined') {
+                const locTs = localStorage.getItem('presence_ts_' + uId) || (uEmail ? localStorage.getItem('presence_ts_' + uEmail) : null);
+                if (locTs) {
+                    const parsedLoc = parseActivityTimestamp(locTs);
+                    if (parsedLoc) latestTs = parsedLoc;
+                }
+            }
+
+            // 4. Verifica se houve geração de CNH ou documento recente
             if (Array.isArray(cnhsData) && cnhsData.length > 0) {
                 const uNameClean = (user.nome || '').toLowerCase().trim();
                 cnhsData.forEach(c => {
@@ -6515,13 +6740,13 @@ function updateDashboardMetrics() {
                 });
             }
 
-            // 3. Fallback: data de cadastro do usuário
+            // 5. Fallback: data de cadastro do usuário
             if (!latestTs && user.created_at) {
                 latestTs = parseActivityTimestamp(user.created_at);
             }
 
             if (!latestTs) {
-                return '<span style="display:inline-flex; align-items:center; gap:4px; font-size:9.5px; font-weight:600; color:#cbd5e1; background:rgba(255,255,255,0.06); padding:2px 7px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); line-height:1.2;"><span style="color:#64748b;">•</span> Sem atividade</span>';
+                return '<span class="presence-badge offline" title="Nenhuma atividade registrada ainda"><span class="presence-dot offline"></span> Nunca acessou</span>';
             }
 
             const now = Date.now();
@@ -6533,31 +6758,31 @@ function updateDashboardMetrics() {
 
             const dateFmt = new Date(latestTs).toLocaleString('pt-BR');
 
-            // 1. ONLINE (ativo nos últimos 4 minutos)
+            // 1. ONLINE (ativo nos últimos 4 minutos) - 🟢 Verde esmeralda com pulso animado
             if (diffMin <= 4) {
-                return `<span style="display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; color:#34d399; background:rgba(16,185,129,0.16); padding:2px 8px; border-radius:12px; border:1px solid rgba(16,185,129,0.45); line-height:1.2;" title="Cliente online agora no painel (Última atividade: ${dateFmt})"><span style="width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></span> Online</span>`;
+                return `<span class="presence-badge online" title="Cliente Online agora no painel (Última atividade: ${dateFmt})"><span class="presence-dot online"></span> Online</span>`;
             }
 
-            // 2. MINUTOS (ativo há menos de 1 hora)
+            // 2. MINUTOS (ativo há menos de 1 hora) - 🔵 Ciano suave
             if (diffMin < 60) {
                 const m = Math.max(1, Math.floor(diffMin));
-                return `<span style="display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; color:#38bdf8; background:rgba(56,189,248,0.15); padding:2px 7px; border-radius:12px; border:1px solid rgba(56,189,248,0.4); line-height:1.2;" title="Última atividade: ${dateFmt}"><span style="width:5px; height:5px; border-radius:50%; background:#38bdf8; box-shadow:0 0 5px #38bdf8;"></span> há ${m} min</span>`;
+                return `<span class="presence-badge minutes" title="Última atividade registrada: ${dateFmt}"><span class="presence-dot minutes"></span> há ${m} min</span>`;
             }
 
-            // 3. HORAS (ativo há menos de 24 horas)
+            // 3. HORAS (ativo há menos de 24 horas) - 🟡 Âmbar/Laranja
             if (diffHours < 24) {
                 const h = Math.floor(diffHours);
-                return `<span style="display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; color:#818cf8; background:rgba(99,102,241,0.15); padding:2px 7px; border-radius:12px; border:1px solid rgba(129,140,248,0.4); line-height:1.2;" title="Última atividade: ${dateFmt}"><span style="width:5px; height:5px; border-radius:50%; background:#818cf8; box-shadow:0 0 5px #818cf8;"></span> há ${h} ${h === 1 ? 'hora' : 'horas'}</span>`;
+                return `<span class="presence-badge hours" title="Última atividade registrada: ${dateFmt}"><span class="presence-dot hours"></span> há ${h} ${h === 1 ? 'hora' : 'horas'}</span>`;
             }
 
-            // 4. ONTEM (entre 24 e 48 horas)
+            // 4. ONTEM (entre 24 e 48 horas) - 🔴 Vermelho suave / Coral marcando ausência
             if (diffDays < 2) {
-                return `<span style="display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; color:#fbbf24; background:rgba(245,158,11,0.15); padding:2px 7px; border-radius:12px; border:1px solid rgba(251,191,36,0.4); line-height:1.2;" title="Última atividade: ${dateFmt}"><span style="width:5px; height:5px; border-radius:50%; background:#fbbf24; box-shadow:0 0 5px #fbbf24;"></span> ontem</span>`;
+                return `<span class="presence-badge yesterday" title="Ausente desde ontem (Última atividade: ${dateFmt})"><span class="presence-dot yesterday"></span> ontem</span>`;
             }
 
-            // 5. DIAS (2 dias ou mais) — COR VIBRANTE EM DESTAQUE (VIOLETA LUMINOSO, ALTO CONTRASTE)
+            // 5. DIAS (2 dias ou mais de ausência) - 🔴 Vermelho marcante / rubi
             const d = Math.floor(diffDays);
-            return `<span style="display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; color:#f3e8ff; background:rgba(168,85,247,0.22); padding:2px 8px; border-radius:12px; border:1px solid rgba(192,132,252,0.55); line-height:1.2;" title="Última atividade: ${dateFmt}"><span style="width:5px; height:5px; border-radius:50%; background:#c084fc; box-shadow:0 0 6px #c084fc;"></span> há ${d} dias</span>`;
+            return `<span class="presence-badge days" title="Ausente há ${d} dias (Última atividade: ${dateFmt})"><span class="presence-dot days"></span> há ${d} dias</span>`;
         }
 
         function buildUserRow(u) {
@@ -6578,26 +6803,44 @@ function updateDashboardMetrics() {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>
-                    <div class="user-cell" style="gap:8px;">
-                        <div class="user-avatar-sm" style="width:25px; height:25px; font-size:11px;">${uNome.charAt(0).toUpperCase()}</div>
+                    <div class="user-cell">
+                        <div class="user-avatar-sm">${uNome.charAt(0).toUpperCase()}</div>
                         <div>
-                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                <div class="user-name" style="font-size:12.5px;">${uNome}</div>
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <span class="user-name">${uNome}</span>
                                 ${getUserActivityBadge(u)}
                             </div>
-                            <div class="user-email" style="font-size:10.5px;">${u.email || ''}</div>
-                            <div style="font-size:9.5px; color:#94a3b8; font-family:var(--font-mono); margin-top:2px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
-                                <span>🔒 IP Cad: ${hasIp ? `<strong style="color:${isDivergent ? '#f87171' : '#38bdf8'}">${ipReg}</strong>` : `<span style="color:#64748b; font-style:italic;">Não registrado</span>`}</span>
-                                ${isDivergent ? `<span title="Tentativa de login com IP divergente: ${ipLast}" style="background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(239,68,68,0.4); padding:0 4px; border-radius:4px; font-weight:700; font-size:9px;">⚠️ Divergente (${ipLast})</span>` : ''}
+                            <div class="user-email">${u.email || ''}</div>
+                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:3px;">
+                                ${hasIp ? `
+                                    <span class="ip-tag verified" title="IP de cadastro verificado">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        <span>IP: <strong>${ipReg}</strong></span>
+                                    </span>
+                                ` : `
+                                    <span class="ip-tag none" title="IP será vinculado automaticamente no primeiro login">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                        <span>IP Livre (1º acesso)</span>
+                                    </span>
+                                `}
+                                ${isDivergent ? `
+                                    <span class="ip-tag divergent" title="Tentativa de acesso com IP divergente: ${ipLast}">⚠️ Divergente (${ipLast})</span>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
                 </td>
-                <td style="white-space:nowrap; font-size:12px; color:#cbd5e1; font-weight:500;">${u.phone || '--'}</td>
-                <td style="white-space:nowrap; font-weight:800; color:#00dc82; font-size:12.5px;">R$ ${uSaldo.toFixed(2).replace('.', ',')}</td>
-                <td style="white-space:nowrap; color:#cbd5e1; font-size:11.5px;"><strong>${uCount}</strong> Docs</td>
-                <td style="white-space:nowrap;">${badgeHtml}</td>
+                <td style="white-space:nowrap;">${formatWhatsAppNumber(u.phone)}</td>
                 <td style="white-space:nowrap;">
+                    <span style="font-weight:800; color:#00dc82; font-size:13.5px; font-family:var(--font-mono, monospace); letter-spacing:-0.3px;">R$ ${uSaldo.toFixed(2).replace('.', ',')}</span>
+                </td>
+                <td style="white-space:nowrap;">
+                    <span style="display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:3.5px 8px; border-radius:6px; font-size:11.5px; color:#cbd5e1;">
+                        <strong style="color:#38bdf8; font-weight:800;">${uCount}</strong> Docs
+                    </span>
+                </td>
+                <td style="white-space:nowrap;">${badgeHtml}</td>
+                <td style="white-space:nowrap; text-align:right;">
                     <div class="actions-row">
                         ${u.status === 'approved' ? `
                             <button class="btn-act add-balance" onclick="openAddSaldoModal('${u.id}')" title="Adicionar Saldo">+ Saldo</button>
@@ -6605,13 +6848,13 @@ function updateDashboardMetrics() {
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                                 <span>Editar</span>
                             </button>
-                            <button class="btn-act" onclick="adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.35); font-size:10.5px; padding:3px 7px; border-radius:5px;" title="Resetar IP (Permite vincular novo IP no próximo acesso)">🔄 Reset IP</button>
+                            <button class="btn-act" onclick="adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.35); font-size:11px; padding:4px 8px; border-radius:6px;" title="Resetar IP (Permite vincular novo IP no próximo acesso)">🔄 Reset IP</button>
                             <button class="btn-act block" onclick="changeUserStatus('${u.id}', 'blocked')" title="Bloquear Cliente">Bloquear</button>
                             <button class="btn-act delete" onclick="deleteUser('${u.id}')" title="Excluir Usuário">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                             </button>
                         ` : u.status === 'blocked' ? `
-                            <button class="btn-act" onclick="adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); font-size:11px; padding:4px 8px; border-radius:6px; font-weight:700;" title="Desbloqueia e reseta a trava de IP">🔄 Reset IP & Desbloquear</button>
+                            <button class="btn-act" onclick="adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); font-size:11px; padding:4.5px 9px; border-radius:6px; font-weight:700;" title="Desbloqueia e reseta a trava de IP">🔄 Reset IP & Desbloquear</button>
                             <button class="btn-act approve" onclick="changeUserStatus('${u.id}', 'approved')" title="Desbloquear Cliente">Desbloquear</button>
                             <button class="btn-act delete" onclick="deleteUser('${u.id}')" title="Excluir Usuário">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -6811,6 +7054,34 @@ function updateDashboardMetrics() {
             document.getElementById('badgePendingUsers').textContent = pendingCount;
             updateDashboardMetrics();
             updateAdminCnhSelectCount();
+        }
+
+        // ─── ATUALIZAÇÃO AUTOMÁTICA DE PRESENÇA EM TEMPO REAL (a cada 25s) ───
+        if (!window._presencePollInterval) {
+            window._presencePollInterval = setInterval(async () => {
+                try {
+                    const rPres = await fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes?chave=like.presence_*`, {
+                        headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                    });
+                    if (rPres.ok) {
+                        const listPres = await rPres.json();
+                        if (Array.isArray(listPres) && listPres.length > 0) {
+                            listPres.forEach(p => {
+                                const rawKey = String(p.chave || '').replace('presence_', '').trim();
+                                if (!rawKey) return;
+                                usersPresenceMap[rawKey] = p.valor;
+                                usersPresenceMap[rawKey.toLowerCase()] = p.valor;
+                                if (rawKey.startsWith('email_')) {
+                                    usersPresenceMap[rawKey.replace('email_', '').toLowerCase().trim()] = p.valor;
+                                }
+                            });
+                            if (typeof renderUsersTable === 'function') {
+                                renderUsersTable();
+                            }
+                        }
+                    }
+                } catch(e) {}
+            }, 25000);
         }
 
         let currentRecargaFilter = 'all';

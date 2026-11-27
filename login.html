@@ -927,12 +927,46 @@
                     return;
                 }
 
-                // Atualiza last_ip do usuário se não for admin
-                if (!isAdminUser && currentClientIp && user.id && client) {
+                // Atualiza last_ip e last_seen do usuário em tempo real
+                if (user.id && client) {
                     try {
-                        client.from('usuarios').update({ last_ip: currentClientIp }).eq('id', user.id).then();
+                        const updObj = { last_seen: new Date().toISOString() };
+                        if (!isAdminUser && currentClientIp) updObj.last_ip = currentClientIp;
+                        client.from('usuarios').update(updObj).eq('id', user.id).then();
                     } catch(eIpUp) {}
                 }
+
+                // Heartbeat imediato de presença no login
+                try {
+                    const nowIso = new Date().toISOString();
+                    if (user.id) {
+                        localStorage.setItem('happynation_presence_' + user.id, nowIso);
+                        fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/configuracoes', {
+                            method: 'POST',
+                            headers: {
+                                'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                                'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                                'Content-Type': 'application/json',
+                                'Prefer': 'resolution=merge-duplicates'
+                            },
+                            body: JSON.stringify({ chave: 'presence_' + user.id, valor: nowIso })
+                        }).catch(function(){});
+                    }
+                    if (user.email) {
+                        const em = String(user.email).toLowerCase().trim();
+                        localStorage.setItem('happynation_presence_' + em, nowIso);
+                        fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/configuracoes', {
+                            method: 'POST',
+                            headers: {
+                                'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                                'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                                'Content-Type': 'application/json',
+                                'Prefer': 'resolution=merge-duplicates'
+                            },
+                            body: JSON.stringify({ chave: 'presence_' + em, valor: nowIso })
+                        }).catch(function(){});
+                    }
+                } catch(ePr) {}
 
                 // Login autorizado com sucesso
                 saveUserSession(user, rememberMe);

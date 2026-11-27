@@ -71,9 +71,89 @@
             return;
         }
 
-        // ── VERIFICAÇÃO ATIVA DE CONTA EXCLUÍDA, IP E PRESENÇA (ONLINE) ──
+        // ── REGISTRO GLOBAL DE PRESENÇA EM TEMPO REAL (ONLINE) PARA TODOS OS USUÁRIOS ──
+        if (user && (user.id || user.email)) {
+            (function startRealtimePresence() {
+                var SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                var SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
+                var uid = user.id ? String(user.id).trim() : '';
+                var uemail = user.email ? String(user.email).toLowerCase().trim() : '';
+                var lastPing = 0;
+
+                function pingPresence() {
+                    var nowIso = new Date().toISOString();
+
+                    // 1. Salva imediatamente em localStorage para consulta instantânea
+                    try {
+                        if (uid) localStorage.setItem('happynation_presence_' + uid, nowIso);
+                        if (uemail) localStorage.setItem('happynation_presence_' + uemail, nowIso);
+                    } catch(e) {}
+
+                    // 2. Registra na tabela 'configuracoes' (chave presence_{uid} e presence_{uemail})
+                    try {
+                        if (uid) {
+                            fetch(SUP_URL + '/rest/v1/configuracoes', {
+                                method: 'POST',
+                                headers: {
+                                    'apikey': SUP_KEY,
+                                    'Authorization': 'Bearer ' + SUP_KEY,
+                                    'Content-Type': 'application/json',
+                                    'Prefer': 'resolution=merge-duplicates'
+                                },
+                                body: JSON.stringify({ chave: 'presence_' + uid, valor: nowIso })
+                            }).catch(function(){});
+                        }
+                        if (uemail) {
+                            fetch(SUP_URL + '/rest/v1/configuracoes', {
+                                method: 'POST',
+                                headers: {
+                                    'apikey': SUP_KEY,
+                                    'Authorization': 'Bearer ' + SUP_KEY,
+                                    'Content-Type': 'application/json',
+                                    'Prefer': 'resolution=merge-duplicates'
+                                },
+                                body: JSON.stringify({ chave: 'presence_' + uemail, valor: nowIso })
+                            }).catch(function(){});
+                        }
+                    } catch(e) {}
+
+                    // 3. Atualiza coluna 'last_seen' diretamente na tabela 'usuarios'
+                    try {
+                        var q = uid ? ('id=eq.' + encodeURIComponent(uid)) : ('email=eq.' + encodeURIComponent(uemail));
+                        fetch(SUP_URL + '/rest/v1/usuarios?' + q, {
+                            method: 'PATCH',
+                            headers: {
+                                'apikey': SUP_KEY,
+                                'Authorization': 'Bearer ' + SUP_KEY,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ last_seen: nowIso })
+                        }).catch(function(){});
+                    } catch(e) {}
+                }
+
+                function throttledPing() {
+                    var n = Date.now();
+                    if (n - lastPing > 20000) {
+                        lastPing = n;
+                        pingPresence();
+                    }
+                }
+
+                pingPresence();
+                setInterval(pingPresence, 25000); // Heartbeat a cada 25 segundos
+                window.addEventListener('click', throttledPing, { passive: true });
+                window.addEventListener('keydown', throttledPing, { passive: true });
+                window.addEventListener('scroll', throttledPing, { passive: true });
+                document.addEventListener('visibilitychange', function() {
+                    if (!document.hidden) pingPresence();
+                });
+            })();
+        }
+
+        // ── VERIFICAÇÃO ATIVA DE CONTA EXCLUÍDA E IP (CLIENTES) ──
         if (user && user.role !== 'admin' && String(user.email).trim().toUpperCase() !== 'MG') {
-            (async function verifySessionAndPresence() {
+            (async function verifySessionAndSecurity() {
                 var SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
                 var SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 var isSub = window.location.pathname.includes('/app/');
@@ -107,28 +187,7 @@
                     }
                 } catch(eAccountChk) {}
 
-                // 2. Heartbeat de presença em tempo real (registra status Online)
-                function pingPresence() {
-                    try {
-                        fetch(SUP_URL + '/rest/v1/configuracoes', {
-                            method: 'POST',
-                            headers: {
-                                'apikey': SUP_KEY,
-                                'Authorization': 'Bearer ' + SUP_KEY,
-                                'Content-Type': 'application/json',
-                                'Prefer': 'resolution=merge-duplicates'
-                            },
-                            body: JSON.stringify({
-                                chave: 'presence_' + user.id,
-                                valor: new Date().toISOString()
-                            })
-                        }).catch(function(){});
-                    } catch(ePing) {}
-                }
-                pingPresence();
-                setInterval(pingPresence, 60000); // atualiza a cada 1 minuto
-
-                // 3. Verificação de IP de segurança (anti-venda de contas)
+                // 2. Verificação de IP de segurança (anti-venda de contas)
                 try {
                     // Carrega ip-security dinamicamente se ainda não estiver na página
                     if (!window.MGIpSecurity) {
