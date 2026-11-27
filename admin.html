@@ -4849,6 +4849,7 @@
         let examesData = [];
         let atestadosData = [];
         let activeUserForSaldo = null;
+        let usersPresenceMap = {};
 
         function saveStorage() {
             localStorage.setItem('happynation_admin_users', JSON.stringify(usersData));
@@ -5110,6 +5111,41 @@
                         localStorage.setItem('happynation_assinantes', JSON.stringify(assinantesData));
                     }
                 } catch(eAss) {}
+
+                // 1.2. Busca dados de presença / online dos clientes em tempo real
+                try {
+                    const rPres = await fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes?chave=like.presence_*`, {
+                        headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                    });
+                    if (rPres.ok) {
+                        const listPres = await rPres.json();
+                        if (Array.isArray(listPres)) {
+                            listPres.forEach(p => {
+                                const uid = String(p.chave || '').replace('presence_', '').trim();
+                                if (uid) usersPresenceMap[uid] = p.valor;
+                            });
+                        }
+                    }
+                } catch(ePres) {}
+
+                // 1.3. Purga permanente no Supabase para qualquer ID/email previamente excluído
+                if (deletedUsers && deletedUsers.length > 0) {
+                    deletedUsers.forEach(delItem => {
+                        const sItem = String(delItem).trim();
+                        if (!sItem) return;
+                        if (sItem.includes('@')) {
+                            fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?email=ilike.${encodeURIComponent(sItem)}`, {
+                                method: 'DELETE',
+                                headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                            }).catch(function(){});
+                        } else if (!isNaN(parseInt(sItem, 10))) {
+                            fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(sItem)}`, {
+                                method: 'DELETE',
+                                headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                            }).catch(function(){});
+                        }
+                    });
+                }
 
                 // 2. Busca recargas PIX
                 const { data: sRecargas, error: errRec } = await client
@@ -6429,6 +6465,63 @@ function updateDashboardMetrics() {
             if (elPrice) elPrice.textContent = `R$ ${parseFloat(savedPrice).toFixed(2).replace('.', ',')}`;
         }
 
+        function getUserActivityBadge(user) {
+            if (!user) return '';
+            const uId = String(user.id);
+            let lastTimeStr = usersPresenceMap[uId];
+
+            // Fallback: se não tiver presença recente gravada, verifica última CNH gerada pelo cliente ou data de cadastro
+            if (!lastTimeStr) {
+                if (Array.isArray(cnhsData)) {
+                    const uNameClean = (user.nome || '').toLowerCase().trim();
+                    const foundCnh = cnhsData.find(c => {
+                        const cUser = (c.user || '').toLowerCase().trim();
+                        const cUserId = c.user_id ? String(c.user_id) : '';
+                        return (cUser && cUser === uNameClean) || (cUserId && cUserId === uId);
+                    });
+                    if (foundCnh) {
+                        lastTimeStr = foundCnh.created_at || foundCnh.data;
+                    }
+                }
+            }
+
+            if (!lastTimeStr && user.created_at) {
+                lastTimeStr = user.created_at;
+            }
+
+            if (!lastTimeStr) {
+                return '<span style="font-size:10px; color:#64748b; font-style:italic;">Sem atividade</span>';
+            }
+
+            const now = Date.now();
+            const actTime = new Date(lastTimeStr).getTime();
+            if (isNaN(actTime)) {
+                return '<span style="font-size:10px; color:#64748b; font-style:italic;">Sem atividade</span>';
+            }
+
+            let diffMs = now - actTime;
+            if (diffMs < 0) diffMs = 0;
+            const diffMin = diffMs / (1000 * 60);
+            const diffHours = diffMin / 60;
+            const diffDays = diffHours / 24;
+
+            // Se esteve ativo nos últimos 4 minutos: ONLINE
+            if (diffMin <= 4) {
+                return '<span style="display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; color:#10b981; background:rgba(16,185,129,0.12); padding:1px 6px; border-radius:10px; border:1px solid rgba(16,185,129,0.3); line-height:1.2;" title="Cliente online agora"><span style="width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span> Online</span>';
+            } else if (diffMin < 60) {
+                const m = Math.floor(diffMin);
+                return `<span style="font-size:10px; color:#94a3b8;" title="Última atividade"><span style="color:#38bdf8;">•</span> há ${m} min</span>`;
+            } else if (diffHours < 24) {
+                const h = Math.floor(diffHours);
+                return `<span style="font-size:10px; color:#94a3b8;" title="Última atividade"><span style="color:#64748b;">•</span> há ${h} ${h === 1 ? 'hora' : 'horas'}</span>`;
+            } else if (diffDays < 2) {
+                return `<span style="font-size:10px; color:#94a3b8;" title="Última atividade"><span style="color:#64748b;">•</span> ontem</span>`;
+            } else {
+                const d = Math.floor(diffDays);
+                return `<span style="font-size:10px; color:#94a3b8;" title="Última atividade"><span style="color:#64748b;">•</span> há ${d} dias</span>`;
+            }
+        }
+
         function buildUserRow(u) {
             let badgeHtml = '';
             if (u.status === 'approved') badgeHtml = `<span class="badge approved">✓ Aprovado</span>`;
@@ -6450,7 +6543,10 @@ function updateDashboardMetrics() {
                     <div class="user-cell" style="gap:8px;">
                         <div class="user-avatar-sm" style="width:25px; height:25px; font-size:11px;">${uNome.charAt(0).toUpperCase()}</div>
                         <div>
-                            <div class="user-name" style="font-size:12.5px;">${uNome}</div>
+                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                <div class="user-name" style="font-size:12.5px;">${uNome}</div>
+                                ${getUserActivityBadge(u)}
+                            </div>
                             <div class="user-email" style="font-size:10.5px;">${u.email || ''}</div>
                             <div style="font-size:9.5px; color:#94a3b8; font-family:var(--font-mono); margin-top:2px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
                                 <span>🔒 IP Cad: ${hasIp ? `<strong style="color:${isDivergent ? '#f87171' : '#38bdf8'}">${ipReg}</strong>` : `<span style="color:#64748b; font-style:italic;">Não registrado</span>`}</span>
@@ -7235,13 +7331,13 @@ function updateDashboardMetrics() {
         async function deleteUser(id) {
             const u = usersData.find(user => String(user.id) === String(id));
             if (!u) return;
-            if (confirm(`Tem certeza que deseja excluir o cliente "${u.nome}"?`)) {
+            if (confirm(`Tem certeza que deseja excluir permanentemente a conta de "${u.nome}"?\n\nO cliente perderá totalmente o acesso e todos os dados vinculados serão encerrados.`)) {
                 const uEmail = (u.email || '').toLowerCase().trim();
                 const uIdStr = String(id);
                 try {
                     let delList = JSON.parse(localStorage.getItem('happynation_deleted_users') || '[]');
                     if (!delList.includes(uIdStr)) delList.push(uIdStr);
-                    delList = delList.filter(d => d !== uEmail);
+                    if (uEmail && !delList.includes(uEmail)) delList.push(uEmail);
                     localStorage.setItem('happynation_deleted_users', JSON.stringify(delList));
                 } catch(eDel) {}
 
@@ -7253,22 +7349,39 @@ function updateDashboardMetrics() {
                 const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
                 const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 const client = window.supabaseInstance || window.supabaseClient;
+
+                const numId = parseInt(id, 10);
+                const targetId = isNaN(numId) ? id : numId;
+
+                // 1. Exclui no Supabase por ID e por E-mail
                 if (client) {
-                    try {
-                        await client.from('usuarios').delete().eq('id', id);
-                    } catch(e) {}
+                    try { await client.from('usuarios').delete().eq('id', targetId); } catch(e) {}
+                    if (uEmail) { try { await client.from('usuarios').delete().ilike('email', uEmail); } catch(e2) {} }
                 }
                 try {
-                    await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(id)}`, {
+                    await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(targetId)}`, {
                         method: 'DELETE',
-                        headers: {
-                            'apikey': SUP_KEY,
-                            'Authorization': `Bearer ${SUP_KEY}`
-                        }
+                        headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}` }
                     });
                 } catch(eREST) {}
+                if (uEmail) {
+                    try {
+                        await fetch(`${SUP_URL}/rest/v1/usuarios?email=ilike.${encodeURIComponent(uEmail)}`, {
+                            method: 'DELETE',
+                            headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}` }
+                        });
+                    } catch(eREST2) {}
+                }
 
-                showToast(`Cliente ${u.nome} excluído com sucesso do sistema!`);
+                // 2. Remove registro de presença
+                try {
+                    await fetch(`${SUP_URL}/rest/v1/configuracoes?chave=eq.presence_${encodeURIComponent(id)}`, {
+                        method: 'DELETE',
+                        headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}` }
+                    });
+                } catch(ePres) {}
+
+                showToast(`✓ Conta de ${u.nome} excluída permanentemente! Acesso revogado.`);
             }
         }
 
@@ -7281,7 +7394,7 @@ function updateDashboardMetrics() {
                 try {
                     let delList = JSON.parse(localStorage.getItem('happynation_deleted_users') || '[]');
                     if (!delList.includes(uIdStr)) delList.push(uIdStr);
-                    delList = delList.filter(d => d !== uEmail);
+                    if (uEmail && !delList.includes(uEmail)) delList.push(uEmail);
                     localStorage.setItem('happynation_deleted_users', JSON.stringify(delList));
                 } catch(eDel) {}
 
@@ -7293,20 +7406,28 @@ function updateDashboardMetrics() {
                 const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
                 const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
                 const client = window.supabaseInstance || window.supabaseClient;
+
+                const numId = parseInt(id, 10);
+                const targetId = isNaN(numId) ? id : numId;
+
                 if (client) {
-                    try {
-                        await client.from('usuarios').delete().eq('id', id);
-                    } catch(e) {}
+                    try { await client.from('usuarios').delete().eq('id', targetId); } catch(e) {}
+                    if (uEmail) { try { await client.from('usuarios').delete().ilike('email', uEmail); } catch(e2) {} }
                 }
                 try {
-                    await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(id)}`, {
+                    await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(targetId)}`, {
                         method: 'DELETE',
-                        headers: {
-                            'apikey': SUP_KEY,
-                            'Authorization': `Bearer ${SUP_KEY}`
-                        }
+                        headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}` }
                     });
                 } catch(eREST) {}
+                if (uEmail) {
+                    try {
+                        await fetch(`${SUP_URL}/rest/v1/usuarios?email=ilike.${encodeURIComponent(uEmail)}`, {
+                            method: 'DELETE',
+                            headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}` }
+                        });
+                    } catch(eREST2) {}
+                }
 
                 showToast(`❌ Cadastro de ${u.nome} recusado e removido do sistema.`);
             }

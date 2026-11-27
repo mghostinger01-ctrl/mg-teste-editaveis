@@ -1462,6 +1462,13 @@
                     }, 400);
                 }
 
+                // Verifica se a conta foi excluída pelo Administrador
+                if (urlParams.get('motivo') === 'conta_excluida') {
+                    setTimeout(() => {
+                        showToast('⛔ Esta conta foi excluída permanentemente pelo Administrador e o acesso foi revogado.', false);
+                    }, 400);
+                }
+
                 // Verifica parâmetro de bloqueio por IP divergente
                 if (urlParams.get('bloqueado') === 'ip_divergente' && window.MGIpSecurity) {
                     window.MGIpSecurity.showBlockedModal({

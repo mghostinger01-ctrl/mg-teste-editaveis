@@ -71,15 +71,69 @@
             return;
         }
 
-        // ── VERIFICAÇÃO ATIVA DE IP EM BACKGROUND (ANTI-VENDA DE CONTAS) ──
+        // ── VERIFICAÇÃO ATIVA DE CONTA EXCLUÍDA, IP E PRESENÇA (ONLINE) ──
         if (user && user.role !== 'admin' && String(user.email).trim().toUpperCase() !== 'MG') {
-            (async function verifySessionIp() {
+            (async function verifySessionAndPresence() {
+                var SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                var SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
+                var isSub = window.location.pathname.includes('/app/');
+
+                // 1. Verifica se a conta do cliente foi excluída ou bloqueada no Supabase
+                try {
+                    var rCheck = await fetch(SUP_URL + '/rest/v1/usuarios?id=eq.' + encodeURIComponent(user.id) + '&select=id,status', {
+                        headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+                    });
+                    if (rCheck.ok) {
+                        var dUsers = await rCheck.json();
+                        // Se não retornou o usuário, a conta foi EXCLUÍDA pelo Administrador!
+                        if (!dUsers || dUsers.length === 0) {
+                            console.warn('[AuthGuard] Conta excluída pelo Administrador. Acesso revogado.');
+                            try {
+                                localStorage.removeItem('happynation_user');
+                                sessionStorage.removeItem('happynation_user');
+                            } catch(eWipe) {}
+                            window.location.replace((isSub ? '../' : '') + 'login.html?logged_out=1&motivo=conta_excluida');
+                            return;
+                        }
+                        var uStat = String(dUsers[0].status || '').toLowerCase().trim();
+                        if (uStat === 'blocked' || uStat === 'bloqueado') {
+                            try {
+                                localStorage.removeItem('happynation_user');
+                                sessionStorage.removeItem('happynation_user');
+                            } catch(eWipe2) {}
+                            window.location.replace((isSub ? '../' : '') + 'login.html?bloqueado=1');
+                            return;
+                        }
+                    }
+                } catch(eAccountChk) {}
+
+                // 2. Heartbeat de presença em tempo real (registra status Online)
+                function pingPresence() {
+                    try {
+                        fetch(SUP_URL + '/rest/v1/configuracoes', {
+                            method: 'POST',
+                            headers: {
+                                'apikey': SUP_KEY,
+                                'Authorization': 'Bearer ' + SUP_KEY,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'resolution=merge-duplicates'
+                            },
+                            body: JSON.stringify({
+                                chave: 'presence_' + user.id,
+                                valor: new Date().toISOString()
+                            })
+                        }).catch(function(){});
+                    } catch(ePing) {}
+                }
+                pingPresence();
+                setInterval(pingPresence, 60000); // atualiza a cada 1 minuto
+
+                // 3. Verificação de IP de segurança (anti-venda de contas)
                 try {
                     // Carrega ip-security dinamicamente se ainda não estiver na página
                     if (!window.MGIpSecurity) {
                         await new Promise(function(resolve) {
                             var s = document.createElement('script');
-                            var isSub = window.location.pathname.includes('/app/');
                             s.src = (isSub ? '../' : '') + 'js/ip-security.js';
                             s.onload = resolve;
                             s.onerror = resolve;
@@ -88,7 +142,7 @@
                     }
                     if (window.MGIpSecurity && typeof window.MGIpSecurity.detectIp === 'function') {
                         var curIp = await window.MGIpSecurity.detectIp();
-                        if (curIp) {
+                        if (curIp && curIp !== '127.0.0.1' && curIp !== '::1') {
                             // Se o usuário ainda não tiver register_ip gravado, vincula imediatamente
                             if (!user.register_ip) {
                                 user.register_ip = curIp;
@@ -108,7 +162,6 @@
                                     localStorage.removeItem('happynation_user');
                                     sessionStorage.removeItem('happynation_user');
                                 } catch(eWipe) {}
-                                var isSub = window.location.pathname.includes('/app/');
                                 var redirectUrl = (isSub ? '../' : '') + 'login.html?bloqueado=ip_divergente' +
                                     '&nome=' + encodeURIComponent(user.nome || '') +
                                     '&email=' + encodeURIComponent(user.email || '') +
