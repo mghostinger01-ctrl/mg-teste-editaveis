@@ -13,13 +13,18 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
+    <!-- Fontes Caligráficas e do Sistema (Estilo Atestado) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Allura&family=Caveat:wght@600;700&family=Cedarville+Cursive&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Homemade+Apple&family=La+Belle+Aurore&family=Marck+Script&family=Mr+Dafoe&family=Pinyon+Script&family=Sacramento&display=swap" rel="stylesheet">
+
     <!-- Bibliotecas de Renderização e Exportação em Ultra-HD -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="saldo-sync.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@500;700&family=Alex+Brush&family=Allura&family=Caveat:wght@600;700&family=Cedarville+Cursive&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Homemade+Apple&family=La+Belle+Aurore&family=Marck+Script&family=Mr+Dafoe&family=Pinyon+Script&family=Sacramento&display=swap');
 
         :root {
             --bg-color: #0b0d0e;
@@ -305,6 +310,29 @@
             padding-right: 8px;
         }
 
+        .frente-sig-zone-land {
+            height: 42px;
+            width: 295px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: -5px;
+            z-index: 10;
+            overflow: visible;
+        }
+        .frente-sig-zone-land img {
+            height: 32px;
+            max-width: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .frente-sig-zone-land svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            display: block;
+        }
+
         .frente-sig-img-land {
             height: 32px;
             object-fit: contain;
@@ -337,10 +365,10 @@
             text-align: center;
         }
 
-        /* Rodapé de Validação Oficial */
+        /* Rodapé de Validação Oficial (Calibrado para não cortar na borda interna) */
         .frente-footer-land {
             position: absolute;
-            bottom: 44px;
+            bottom: 62px;
             left: 0;
             width: 100%;
             text-align: center;
@@ -356,7 +384,7 @@
         }
 
         .frente-footer-val {
-            font-size: 10px;
+            font-size: 9.5px;
             letter-spacing: 0.1px;
         }
 
@@ -632,6 +660,29 @@
             z-index: 10;
         }
         .frente-date-a4 { font-family: var(--font-serif); font-size: 10.2px; color: #111; margin-bottom: 1px; text-align: right; width: 100%; }
+        .frente-sig-zone-a4 {
+            height: 30px;
+            width: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: -4px;
+            z-index: 10;
+            overflow: visible;
+        }
+        .frente-sig-zone-a4 img {
+            height: 24px;
+            max-width: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .frente-sig-zone-a4 svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            display: block;
+        }
+
         .frente-sig-img-a4 { height: 24px; object-fit: contain; margin-bottom: -3px; }
         .frente-sig-line-a4 { width: 230px; height: 1px; background: #000; margin-bottom: 3px; }
         .frente-sig-name-a4 { font-family: var(--font-serif); font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: #000; text-align: center; }
@@ -639,7 +690,7 @@
 
         .frente-footer-a4 {
             position: absolute;
-            bottom: 33px;
+            bottom: 48px;
             left: 0;
             width: 100%;
             text-align: center;
@@ -648,7 +699,7 @@
             z-index: 10;
         }
         .frente-footer-inst-a4 { font-size: 8px; font-weight: 600; margin-bottom: 1px; }
-        .frente-footer-val-a4 { font-size: 7.5px; }
+        .frente-footer-val-a4 { font-size: 7.2px; }
 
         .sheet-divider-zone { width: 100%; height: 9px; display: flex; align-items: center; justify-content: center; }
         .sheet-divider-line { width: 100%; height: 1.5px; background: #000; }
@@ -665,6 +716,232 @@
             grid-template-columns: 1fr 1fr;
             gap: 26px;
             align-items: start;
+        }
+        /* ==========================================================================
+           MODAL DE ASSINATURAS MANUSCRITAS (13 ESTILOS - IDÊNTICO AO ATESTADO)
+           ========================================================================== */
+        .sig-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: sigFadeIn 0.2s ease-out;
+        }
+        .sig-modal-backdrop.open {
+            display: flex;
+        }
+
+        @keyframes sigFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .sig-modal-box {
+            background: #141718;
+            border: 1px solid #2a2e30;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 720px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+            animation: sigSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes sigSlideUp {
+            from { transform: translateY(20px) scale(0.97); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .sig-modal-header {
+            padding: 16px 20px 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #101213;
+        }
+
+        .sig-modal-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sig-modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .sig-modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ff4757;
+        }
+
+        .sig-modal-toolbar {
+            padding: 12px 20px;
+            background: #16191b;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sig-modal-input-wrap {
+            flex: 1;
+            min-width: 220px;
+            position: relative;
+        }
+
+        .sig-modal-input {
+            width: 100%;
+            background: #1f2326;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+        }
+        .sig-modal-input:focus {
+            border-color: #00A3E0;
+            box-shadow: 0 0 0 3px rgba(0, 163, 224, 0.2);
+        }
+
+        .btn-modal-gerar {
+            background: #00A3E0;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0, 163, 224, 0.35);
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .btn-modal-gerar:hover {
+            background: #008cc2;
+            transform: translateY(-1px);
+        }
+
+        .sig-modal-body {
+            padding: 16px 20px;
+            overflow-y: auto;
+            max-height: calc(88vh - 145px);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 580px) {
+            .sig-modal-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sig-modal-card {
+            background: #ffffff;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 8px 10px 6px 10px;
+            height: 105px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+        .sig-modal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            border-color: rgba(0, 163, 224, 0.4);
+        }
+
+        .sig-modal-card.active {
+            border-color: #00A3E0;
+            box-shadow: 0 0 0 1px #00A3E0, 0 6px 18px rgba(0, 163, 224, 0.28);
+        }
+
+        .sig-card-check-badge {
+            position: absolute;
+            top: 5px;
+            right: 7px;
+            color: #00A3E0;
+            font-size: 13px;
+            font-weight: 900;
+            display: none;
+        }
+        .sig-modal-card.active .sig-card-check-badge {
+            display: block;
+        }
+
+        .sig-card-svg-wrap {
+            width: 100%;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .sig-card-svg-wrap img {
+            max-height: 50px;
+            max-width: 90%;
+            object-fit: contain;
+            display: block;
+        }
+        .sig-card-svg-wrap svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .sig-card-label {
+            font-family: Arial, sans-serif;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #334155;
+            text-align: center;
+            line-height: 1;
+            padding-bottom: 2px;
+        }
+
+        .btn-cor-caneta {
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .btn-cor-caneta:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -789,6 +1066,48 @@
                 <div class="form-group">
                     <label class="form-label">Cargo Diretor</label>
                     <input type="text" class="form-input" id="inpDiretorCargo" value="Diretor(a) Geral" oninput="syncDiploma()">
+                </div>
+            </div>
+
+            <!-- CONTROLE DE ASSINATURA MANUSCRITA (SISTEMA IGUAL ATESTADO: DIGITAÇÃO, LETRAS E CORES) -->
+            <div style="background: rgba(0, 163, 224, 0.06); border: 1px solid rgba(0, 163, 224, 0.25); border-radius: 12px; padding: 13px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="font-size:11px; font-weight:800; color:#38bdf8; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        <span>Assinatura da Direção</span>
+                    </div>
+                    <span id="lblCorCaneta" style="font-size:11px; font-weight:700; color:#cbd5e1;">Preto Tinta</span>
+                </div>
+
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" style="font-size:10px;">Nome / Texto para Assinar</label>
+                    <input type="text" class="form-input" id="inpSigTexto" value="ELAINE CRISTINA GRECCHI GONÇALVES" oninput="onSigTextInput()" placeholder="Digite o nome da assinatura">
+                </div>
+
+                <!-- Cores da Caneta -->
+                <div style="display:flex; align-items:center; justify-content:space-between; background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid #232729;">
+                    <span style="font-size:11px; color:#94a3b8; font-weight:600;">Cor da Tinta:</span>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button type="button" class="btn-cor-caneta" id="btnCorPreto" onclick="setCorCaneta('#18181b', this)" style="background:#18181b; width:24px; height:24px; border-radius:50%; border:2px solid #fff; cursor:pointer;" title="Preto Tinta"></button>
+                        <button type="button" class="btn-cor-caneta" id="btnCorAzul" onclick="setCorCaneta('#1040cf', this)" style="background:#1040cf; width:24px; height:24px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="Azul Caneta"></button>
+                        <button type="button" class="btn-cor-caneta" id="btnCorAzulMarinho" onclick="setCorCaneta('#002b80', this)" style="background:#002b80; width:24px; height:24px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="Azul Marinho"></button>
+                    </div>
+                </div>
+
+                <!-- Botões de Estilo e Variação -->
+                <div style="display:grid; grid-template-columns: 1fr auto; gap:8px;">
+                    <button type="button" onclick="openSigModal()" style="background:#00A3E0; color:#fff; border:none; border-radius:8px; padding:8px 12px; font-size:11.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; box-shadow: 0 2px 10px rgba(0,163,224,0.3);">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        <span>Escolher Caligrafia (13 Opções)</span>
+                    </button>
+                    <button type="button" onclick="proximaVariacaoAssinatura()" style="background:rgba(255,255,255,0.08); border:1px solid #334155; color:#cbd5e1; border-radius:8px; padding:8px 10px; font-size:11px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Varia inclinação e traçado da assinatura">
+                        🎲 Traço
+                    </button>
+                </div>
+
+                <!-- Mini Preview da Assinatura no Painel -->
+                <div id="sigFormPreviewBox" style="background:#ffffff; border-radius:8px; height:52px; display:flex; align-items:center; justify-content:center; border:1px solid #2c3437; padding:4px; overflow:hidden;">
+                    <!-- SVG ou Rubrica -->
                 </div>
             </div>
 
@@ -1034,7 +1353,7 @@
                     <!-- Data, Rubrica e Assinatura da Direção (Canto Inferior Direito) -->
                     <div class="frente-sig-block-land">
                         <div class="frente-date-land" id="outDataExpLand">Belém – PA, 23 de Fevereiro de 2023.</div>
-                        <img src="assets/estacio_sig_elaine_clean.png" class="frente-sig-img-land" alt="Assinatura">
+                        <div id="outSigZoneLand" class="frente-sig-zone-land"></div>
                         <div class="frente-sig-line-land"></div>
                         <div class="frente-sig-name-land" id="outDiretorNomeLand">ELAINE CRISTINA GRECCHI GONÇALVES</div>
                         <div class="frente-sig-role-land" id="outDiretorCargoLand">Diretor(a) Geral</div>
@@ -1153,7 +1472,7 @@
 
                         <div class="frente-sig-block-a4">
                             <div class="frente-date-a4" id="outDataExpA4">Belém – PA, 23 de Fevereiro de 2023.</div>
-                            <img src="assets/estacio_sig_elaine_clean.png" class="frente-sig-img-a4" alt="Assinatura">
+                            <div id="outSigZoneA4" class="frente-sig-zone-a4"></div>
                             <div class="frente-sig-line-a4"></div>
                             <div class="frente-sig-name-a4" id="outDiretorNomeA4">ELAINE CRISTINA GRECCHI GONÇALVES</div>
                             <div class="frente-sig-role-a4" id="outDiretorCargoA4">Diretor(a) Geral</div>
@@ -1296,6 +1615,378 @@
             window.location.href = 'login.html';
         }
 
+        // ─── GERADOR INTELIGENTE DE ASSINATURAS & CALIGRAFIA (13 OPÇÕES - ESTILO ATESTADO) ───
+        const SIGNATURE_STYLES = [
+            { id: 0, name: "Rubrica Oficial Estácio", desc: "Rubrica autêntica do modelo original Estácio" },
+            { id: 1, name: "Cursiva clássica", desc: "Traço natural à mão livre (Cedarville)" },
+            { id: 2, name: "Cursiva inclinada", desc: "Inclinação suave e elegante (Allura)" },
+            { id: 3, name: "Tinta forte", desc: "Caneta pesada e marcante (Mr Dafoe)" },
+            { id: 4, name: "Elegante", desc: "Caligrafia nobre com floreio (Great Vibes)" },
+            { id: 5, name: "Caneta fina", desc: "Ponta fina e traço rápido (La Belle)" },
+            { id: 6, name: "Clássica reta", desc: "Alinhamento sóbrio e formal (Marck Script)" },
+            { id: 7, name: "Manuscrita formal", desc: "Estilo cartorial acadêmico (Homemade Apple)" },
+            { id: 8, name: "Caligrafia expressiva", desc: "Escrita rítmica e moderna (Dancing Script)" },
+            { id: 9, name: "Rubrica ágil", desc: "Laço superior e oscilações dinâmicas" },
+            { id: 10, name: "Traço com paraph", desc: "Inicial + Sobrenome e paraph (Alex Brush)" },
+            { id: 11, name: "Scribble veloz", desc: "Assinatura executiva rápida" },
+            { id: 12, name: "Rubrica circular", desc: "Laço envolvente 360° (Caveat)" }
+        ];
+
+        let currentSigStyleIndex = 0;
+        let currentSigVariation = 0;
+        let currentSigColor = '#18181b'; // Preto por padrão como na foto da Estácio
+
+        function setCorCaneta(color, btn) {
+            currentSigColor = color;
+            const mainBtns = [document.getElementById('btnCorPreto'), document.getElementById('btnCorAzul'), document.getElementById('btnCorAzulMarinho')];
+            const modalBtns = [document.getElementById('modalCorPreto'), document.getElementById('modalCorAzul'), document.getElementById('modalCorAzulMarinho')];
+
+            mainBtns.forEach(b => { if (b) b.style.borderColor = 'transparent'; });
+            modalBtns.forEach(b => { if (b) b.style.borderColor = 'transparent'; });
+
+            let targetIdx = 0;
+            if (color === '#18181b') targetIdx = 0;
+            else if (color === '#1040cf') targetIdx = 1;
+            else if (color === '#002b80') targetIdx = 2;
+
+            if (mainBtns[targetIdx]) mainBtns[targetIdx].style.borderColor = '#fff';
+            if (modalBtns[targetIdx]) modalBtns[targetIdx].style.borderColor = '#fff';
+
+            const lbl = document.getElementById('lblCorCaneta');
+            if (lbl) {
+                if (color === '#1040cf') lbl.textContent = 'Azul Caneta';
+                else if (color === '#002b80') lbl.textContent = 'Azul Marinho';
+                else lbl.textContent = 'Preto Tinta';
+            }
+
+            renderAssinatura();
+        }
+
+        function formatSignatureText(raw) {
+            let s = (raw || 'Elaine Cristina Grecchi Gonçalves').trim();
+            // Se todo em maiúsculo, converte para Title Case (para caligrafia cursiva harmoniosa)
+            if (s === s.toUpperCase() && s !== s.toLowerCase()) {
+                const words = s.toLowerCase().split(/\s+/);
+                s = words.map(w => {
+                    if (['de', 'da', 'do', 'das', 'dos', 'e'].includes(w)) return w;
+                    return w.charAt(0).toUpperCase() + w.slice(1);
+                }).join(' ');
+            }
+            return s;
+        }
+
+        function hashSignatureString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function getInkFilter(color) {
+            if (color === '#1040cf') {
+                return 'invert(19%) sepia(87%) saturate(4645%) hue-rotate(219deg) brightness(91%) contrast(101%)';
+            } else if (color === '#002b80') {
+                return 'invert(13%) sepia(95%) saturate(3855%) hue-rotate(214deg) brightness(88%) contrast(105%)';
+            }
+            return 'contrast(170%) brightness(0.2)';
+        }
+
+        function generateDirectorSignature(rawName, styleId, color, variation) {
+            const formatted = formatSignatureText(rawName);
+            const hash = hashSignatureString(formatted) + (variation * 41);
+            const parts = formatted.split(/\s+/).filter(Boolean);
+            const first = parts[0] || 'Elaine';
+            const last = parts.length > 1 ? parts[parts.length - 1] : first;
+            const initialF = first.charAt(0).toUpperCase();
+
+            // Caso 0: Rubrica Oficial Estácio
+            if (styleId === 0) {
+                return `<img src="assets/estacio_sig_elaine_clean.png" style="height:32px; max-width:85%; object-fit:contain; filter:${getInkFilter(color)};" alt="Rubrica Oficial">`;
+            }
+
+            function getFontSize(base, min) {
+                if (formatted.length > 28) return min;
+                if (formatted.length > 18) return Math.round(base * 0.82);
+                return base;
+            }
+
+            let innerSvg = '';
+            switch(styleId) {
+                case 1: { // Cursiva clássica
+                    const fSize = getFontSize(25, 19);
+                    const rot = -2 + (hash % 3);
+                    const uY = 64;
+                    innerSvg = `
+                        <g transform="rotate(${rot}, 100, 52)">
+                            <text x="24" y="54" style="font-family:'Cedarville Cursive', cursive;" font-family="Cedarville Cursive, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.4">${formatted}</text>
+                            <path d="M 22 ${uY} C 70 ${uY + 4}, 140 ${uY - 3}, 205 ${uY + 1} Q 215 ${uY + 2}, 222 ${uY - 2}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" />
+                            <circle cx="225" cy="${uY - 3}" r="1.4" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 2: { // Cursiva inclinada
+                    const fSize = getFontSize(31, 22);
+                    const rot = -5 + (hash % 3);
+                    const uY = 67;
+                    innerSvg = `
+                        <g transform="rotate(${rot}, 100, 54)">
+                            <text x="25" y="51" style="font-family:'Allura', cursive;" font-family="Allura, cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.8">${formatted}</text>
+                            <path d="M 24 ${uY} C 65 ${uY + 3}, 125 ${uY - 4}, 185 ${uY + 2} C 198 ${uY + 4}, 210 ${uY - 2}, 222 ${uY - 5}" fill="none" stroke="${color}" stroke-width="1.9" stroke-linecap="round" />
+                            <circle cx="224" cy="${uY - 6}" r="1.5" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 3: { // Tinta forte
+                    const fSize = getFontSize(27, 20);
+                    const rot = -3 + (hash % 3);
+                    const uY = 65;
+                    innerSvg = `
+                        <g transform="rotate(${rot}, 100, 52)">
+                            <text x="22" y="52" style="font-family:'Mr Dafoe', cursive;" font-family="Mr Dafoe, cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.5">${formatted}</text>
+                            <path d="M 20 ${uY} C 60 ${uY + 2}, 130 ${uY - 2}, 190 ${uY + 1} Q 205 ${uY + 2}, 224 ${uY - 1}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" />
+                            <circle cx="226" cy="${uY - 2}" r="1.8" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 4: { // Elegante
+                    const fSize = getFontSize(32, 23);
+                    const rot = -4 + (hash % 3);
+                    const uY = 66;
+                    innerSvg = `
+                        <g transform="rotate(${rot}, 100, 52)">
+                            <text x="24" y="50" style="font-family:'Great Vibes', cursive;" font-family="Great Vibes, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.8">${formatted}</text>
+                            <path d="M 22 ${uY} C 50 ${uY - 4}, 90 ${uY + 6}, 150 ${uY - 3} C 185 ${uY - 8}, 205 ${uY + 4}, 225 ${uY}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" />
+                            <circle cx="227" cy="${uY}" r="1.4" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 5: { // Caneta fina
+                    const fSize = getFontSize(25, 18);
+                    const rot = -3 + (hash % 4);
+                    const uY = 65;
+                    innerSvg = `
+                        <g transform="rotate(${rot}, 100, 52)">
+                            <text x="22" y="53" style="font-family:'La Belle Aurore', cursive;" font-family="La Belle Aurore, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.2">${formatted}</text>
+                            <path d="M 20 ${uY} C 70 ${uY + 2}, 140 ${uY - 3}, 220 ${uY}" fill="none" stroke="${color}" stroke-width="1.3" stroke-linecap="round" />
+                            <circle cx="222" cy="${uY}" r="1.2" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 6: { // Clássica reta
+                    const fSize = getFontSize(26, 19);
+                    const uY = 66;
+                    innerSvg = `
+                        <g>
+                            <text x="24" y="52" style="font-family:'Marck Script', cursive;" font-family="Marck Script, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.4">${formatted}</text>
+                            <path d="M 22 ${uY} L 220 ${uY}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" />
+                            <path d="M 32 ${uY + 4} L 180 ${uY + 4}" fill="none" stroke="${color}" stroke-width="1.0" stroke-linecap="round" opacity="0.85" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 7: { // Manuscrita formal
+                    const fSize = getFontSize(22, 16);
+                    const rot = -4 + (hash % 3);
+                    const uY = 65;
+                    innerSvg = `
+                        <g transform="rotate(${rot}, 100, 52)">
+                            <text x="22" y="51" style="font-family:'Homemade Apple', cursive;" font-family="Homemade Apple, cursive" font-size="${fSize}" font-weight="600" fill="${color}" letter-spacing="0.3">${formatted}</text>
+                            <path d="M 20 ${uY} C 60 ${uY + 4}, 120 ${uY - 4}, 180 ${uY + 3} Q 200 ${uY + 5}, 224 ${uY - 4}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 8: { // Caligrafia expressiva
+                    const fSize = getFontSize(27, 20);
+                    const rot = -4 + (hash % 3);
+                    const uY = 66;
+                    innerSvg = `
+                        <g transform="rotate(${rot}, 100, 52)">
+                            <text x="24" y="52" style="font-family:'Dancing Script', cursive;" font-family="Dancing Script, cursive" font-size="${fSize}" font-weight="700" fill="${color}" letter-spacing="0.6">${formatted}</text>
+                            <path d="M 22 ${uY} C 65 ${uY - 3}, 120 ${uY + 5}, 175 ${uY - 2} C 190 ${uY - 5}, 208 ${uY + 2}, 225 ${uY - 2}" fill="none" stroke="${color}" stroke-width="2.1" stroke-linecap="round" />
+                            <circle cx="227" cy="${uY - 3}" r="1.5" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 9: { // Rubrica ágil
+                    const startX = 46 + (hash % 12);
+                    const startY = 56 + ((hash >> 2) % 6);
+                    const loopTopY = 24 + ((hash >> 4) % 9);
+                    const loopWidth = 36 + ((hash >> 6) % 12);
+                    const waveLen = Math.min(8, Math.max(4, last.length));
+                    let wavePath = `M ${startX} ${startY} C ${startX + 2} ${loopTopY + 12}, ${startX + loopWidth * 0.4} ${loopTopY}, ${startX + loopWidth * 0.9} ${loopTopY + 2} C ${startX + loopWidth * 1.3} ${loopTopY + 2}, ${startX + loopWidth * 1.4} ${startY + 15}, ${startX + loopWidth} ${startY + 22}`;
+
+                    let currX = startX + loopWidth * 0.8;
+                    let currY = startY + 20;
+
+                    for (let w = 0; w < waveLen; w++) {
+                        const charCode = last.charCodeAt(w % last.length) || 100;
+                        const waveH = 10 + (charCode % 12);
+                        const stepX = 8 + (charCode % 5);
+                        const cpY1 = currY - waveH;
+                        const cpY2 = currY + waveH * 0.6;
+                        wavePath += ` Q ${currX + stepX * 0.5} ${cpY1}, ${currX + stepX} ${currY - 2} Q ${currX + stepX * 1.5} ${cpY2}, ${currX + stepX * 2} ${currY}`;
+                        currX += stepX * 2;
+                    }
+
+                    const endX = Math.min(215, currX + 22);
+                    const endY = currY - 6;
+                    wavePath += ` C ${currX + 8} ${currY + 8}, ${endX - 10} ${endY + 12}, ${endX} ${endY}`;
+                    const dotX = endX - 8;
+                    const dotY = endY - 18;
+
+                    innerSvg = `
+                        <path d="${wavePath}" fill="none" stroke="${color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="${dotX}" cy="${dotY}" r="1.6" fill="${color}" />
+                    `;
+                    break;
+                }
+                case 10: { // Traço com paraph
+                    const shortName = `${initialF}. ${last}`;
+                    let fontSize = 30;
+                    if (shortName.length > 18) fontSize = 24;
+                    innerSvg = `
+                        <g transform="rotate(-4, 95, 52)">
+                            <text x="32" y="50" style="font-family:'Alex Brush', cursive;" font-family="Alex Brush, cursive" font-size="${fontSize}" font-weight="700" fill="${color}" letter-spacing="1">${shortName}</text>
+                            <path d="M 30 64 C 75 58, 130 60, 185 56 C 200 55, 180 70, 145 72 C 105 74, 60 72, 40 70" fill="none" stroke="${color}" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="192" cy="54" r="1.7" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+                case 11: { // Scribble veloz
+                    const startX = 40 + (hash % 10);
+                    const peakY = 24 + ((hash >> 2) % 8);
+                    const valleyY = 78 + ((hash >> 4) % 6);
+                    const waveCount = 5 + (hash % 4);
+                    let p = `M ${startX} 62 C ${startX + 5} 41, ${startX + 18} ${peakY}, ${startX + 28} ${peakY + 6} C ${startX + 38} ${peakY + 12}, ${startX + 32} ${valleyY}, ${startX + 44} ${valleyY - 6}`;
+
+                    let cx = startX + 44;
+                    let cy = valleyY - 6;
+                    for (let i = 0; i < waveCount; i++) {
+                        const h = 8 + (i % 3) * 4;
+                        p += ` L ${cx + 8} ${cy - h} L ${cx + 16} ${cy + 2}`;
+                        cx += 16;
+                    }
+                    p += ` C ${cx + 10} ${cy - 8}, ${cx + 26} ${cy - 12}, ${Math.min(215, cx + 38)} ${cy - 6}`;
+
+                    innerSvg = `
+                        <path d="${p}" fill="none" stroke="${color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="${startX + 26}" cy="${peakY + 2}" r="1.6" fill="${color}" />
+                    `;
+                    break;
+                }
+                case 12: { // Rubrica circular
+                    const rot = -5 + (hash % 4);
+                    innerSvg = `
+                        <g transform="rotate(${rot}, 95, 54)">
+                            <text x="58" y="54" style="font-family:'Caveat', cursive;" font-family="Caveat, cursive" font-size="28" font-weight="700" fill="${color}">${first}</text>
+                            <path d="M 40 58 C 30 34, 70 18, 130 20 C 185 22, 210 46, 198 68 C 185 88, 105 92, 50 82 C 25 77, 30 64, 60 61 L 200 58" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="203" cy="58" r="1.6" fill="${color}" />
+                        </g>
+                    `;
+                    break;
+                }
+            }
+
+            return `
+                <svg viewBox="15 15 210 75" preserveAspectRatio="xMidYMid meet" style="width:100%; height:100%; overflow:visible;">
+                    ${innerSvg}
+                </svg>
+            `;
+        }
+
+        function renderAssinatura() {
+            const sigText = document.getElementById('inpSigTexto')?.value || document.getElementById('inpDiretorNome')?.value || 'ELAINE CRISTINA GRECCHI GONÇALVES';
+            const outputHtml = generateDirectorSignature(sigText, currentSigStyleIndex, currentSigColor, currentSigVariation);
+
+            const zoneLand = document.getElementById('outSigZoneLand');
+            if (zoneLand) zoneLand.innerHTML = outputHtml;
+
+            const zoneA4 = document.getElementById('outSigZoneA4');
+            if (zoneA4) zoneA4.innerHTML = outputHtml;
+
+            const previewBox = document.getElementById('sigFormPreviewBox');
+            if (previewBox) previewBox.innerHTML = outputHtml;
+
+            // Atualiza modal se estiver aberto
+            renderModalCards(sigText);
+        }
+
+        function onSigTextInput() {
+            renderAssinatura();
+        }
+
+        function selectSigStyle(idx) {
+            currentSigStyleIndex = idx;
+            renderAssinatura();
+            closeSigModal();
+        }
+
+        function proximaVariacaoAssinatura() {
+            currentSigVariation++;
+            renderAssinatura();
+        }
+
+        function openSigModal() {
+            const sigText = document.getElementById('inpSigTexto')?.value || document.getElementById('inpDiretorNome')?.value || 'ELAINE CRISTINA GRECCHI GONÇALVES';
+            const modalInp = document.getElementById('modalInpNome');
+            if (modalInp) modalInp.value = sigText;
+
+            renderModalCards(sigText);
+
+            const modal = document.getElementById('sigModalBackdrop');
+            if (modal) modal.classList.add('open');
+        }
+
+        function closeSigModal() {
+            const modal = document.getElementById('sigModalBackdrop');
+            if (modal) modal.classList.remove('open');
+        }
+
+        function handleSigModalBackdropClick(e) {
+            if (e.target.id === 'sigModalBackdrop') {
+                closeSigModal();
+            }
+        }
+
+        function gerarEstilosModal() {
+            const modalInp = document.getElementById('modalInpNome');
+            if (modalInp && modalInp.value.trim()) {
+                const formInp = document.getElementById('inpSigTexto');
+                if (formInp) formInp.value = modalInp.value.trim();
+            }
+            currentSigVariation++;
+            renderAssinatura();
+        }
+
+        function renderModalCards(rawName) {
+            const grid = document.getElementById('sigModalGrid');
+            if (!grid) return;
+
+            grid.innerHTML = SIGNATURE_STYLES.map((style) => {
+                const isActive = (style.id === currentSigStyleIndex);
+                const previewHtml = generateDirectorSignature(rawName, style.id, currentSigColor, currentSigVariation);
+                return `
+                    <div class="sig-modal-card ${isActive ? 'active' : ''}" onclick="selectSigStyle(${style.id})" title="${style.name} - ${style.desc}">
+                        <span class="sig-card-check-badge">✓</span>
+                        <div class="sig-card-svg-wrap">
+                            ${previewHtml}
+                        </div>
+                        <div class="sig-card-label">${style.name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         // SINCRONIZAÇÃO EM TEMPO REAL DE TODOS OS ELEMENTOS (FRENTE, VERSO E A4)
         function syncDiploma() {
             const g = (id, fallback) => {
@@ -1404,6 +2095,9 @@
             setTxt('outLocalDataVersoA4', localDataVerso);
             setTxt('outSecretarioNomeA4', secretario);
             setTxt('outResolucaoA4', resolucao);
+
+            // 4. Renderiza Assinatura da Direção (Manuscrita / Rubrica)
+            renderAssinatura();
         }
 
         // RESTAURAR PADRÃO DO MODELO ESTÁCIO
@@ -1422,6 +2116,12 @@
             document.getElementById('inpDataExp').value = "Belém – PA, 23 de Fevereiro de 2023.";
             document.getElementById('inpDiretorNome').value = "ELAINE CRISTINA GRECCHI GONÇALVES";
             document.getElementById('inpDiretorCargo').value = "Diretor(a) Geral";
+            if (document.getElementById('inpSigTexto')) {
+                document.getElementById('inpSigTexto').value = "ELAINE CRISTINA GRECCHI GONÇALVES";
+            }
+            currentSigStyleIndex = 0;
+            currentSigVariation = 0;
+            setCorCaneta('#18181b');
             document.getElementById('inpMantenedora').value = "SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA";
             document.getElementById('inpCnpjFaculdade').value = "002.608.755/0001-07";
             document.getElementById('inpCursoVerso').value = "ENGENHARIA AMBIENTAL";
@@ -1709,5 +2409,36 @@
             resetZoom();
         });
     </script>
+    <!-- ════════ MODAL DE SELEÇÃO DE CALIGRAFIA & ASSINATURAS (13 ESTILOS) ════════ -->
+    <div class="sig-modal-backdrop" id="sigModalBackdrop" onclick="handleSigModalBackdropClick(event)">
+        <div class="sig-modal-box">
+            <div class="sig-modal-header">
+                <div class="sig-modal-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00A3E0" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    <span>Estilos de Caligrafia &amp; Assinatura Feita à Mão</span>
+                </div>
+                <button type="button" class="sig-modal-close" onclick="closeSigModal()" title="Fechar">✕</button>
+            </div>
+
+            <div class="sig-modal-toolbar">
+                <div class="sig-modal-input-wrap">
+                    <input type="text" class="sig-modal-input" id="modalInpNome" placeholder="Digite o nome da assinatura" onkeydown="if(event.key==='Enter') gerarEstilosModal()">
+                </div>
+                <button type="button" class="btn-modal-gerar" onclick="gerarEstilosModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    <span>Gerar estilos</span>
+                </button>
+                <div style="display:flex; gap:6px; align-items:center; margin-left:auto;">
+                    <button type="button" class="btn-cor-caneta" id="modalCorPreto" onclick="setCorCaneta('#18181b', this)" style="background:#18181b; width:22px; height:22px; border-radius:50%; border:2px solid #fff; cursor:pointer;" title="Preto Tinta"></button>
+                    <button type="button" class="btn-cor-caneta" id="modalCorAzul" onclick="setCorCaneta('#1040cf', this)" style="background:#1040cf; width:22px; height:22px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="Azul Caneta"></button>
+                    <button type="button" class="btn-cor-caneta" id="modalCorAzulMarinho" onclick="setCorCaneta('#002b80', this)" style="background:#002b80; width:22px; height:22px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="Azul Marinho"></button>
+                </div>
+            </div>
+
+            <div class="sig-modal-body" id="sigModalGrid">
+                <!-- Gerado dinamicamente com 13 opções -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>
