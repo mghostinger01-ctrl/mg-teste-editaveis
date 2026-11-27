@@ -3203,17 +3203,13 @@
             return false;
         }
 
-        // Ação para o Certificado de Registro CR Exército em desenvolvimento (Acesso exclusivo Admin)
+        // Ação para o Certificado de Registro CR Exército (100% Liberado a Todos)
         function handleCrExercitoEmBreve(e) {
             if (e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
-            if (isUserAdmin()) {
-                window.location.href = 'criar-cr-exercito.html';
-                return false;
-            }
-            showToastDev('Certificado de Registro CR (Exército / CAC)', 'A emissão de Certificado de Registro CR está em homologação técnica e disponível exclusivamente em modo DEV para administradores.');
+            window.location.href = 'criar-cr-exercito.html';
             return false;
         }
 
