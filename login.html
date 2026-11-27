@@ -980,6 +980,21 @@
                 }
             }
 
+            // Fallback direto de garantia máxima para nunca registrar sem IP
+            if (!detectedIp || detectedIp === '127.0.0.1' || detectedIp === '::1') {
+                try {
+                    const fallbackIp = await Promise.any([
+                        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip),
+                        fetch('https://www.cloudflare.com/cdn-cgi/trace').then(r => r.text()).then(t => (t.match(/ip=([^\n]+)/) || [])[1]),
+                        fetch('https://icanhazip.com').then(r => r.text()).then(t => t.trim()),
+                        fetch('https://api64.ipify.org?format=json').then(r => r.json()).then(d => d.ip)
+                    ]);
+                    if (fallbackIp && fallbackIp.trim().length >= 7) {
+                        detectedIp = fallbackIp.trim();
+                    }
+                } catch(eDir) {}
+            }
+
             try {
                 const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
                 const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';

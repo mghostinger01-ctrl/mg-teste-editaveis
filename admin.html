@@ -5333,11 +5333,9 @@
 
                         let ipBadge = '';
                         if (regIp === 'Não registrado') {
-                            ipBadge = '<span style="color:#64748b; font-style:italic; font-size:11px;">Não registrado</span>' +
-                                      ' <button type="button" onclick="adminManualSetUserIp(\'' + u.id + '\', \'' + safeNome.replace(/'/g, "\\'") + '\')" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:2px 6px; border-radius:4px; font-size:10px; cursor:pointer; margin-left:4px;" title="Definir IP manualmente">+ Definir IP</button>';
+                            ipBadge = '<span style="color:#64748b; font-style:italic; font-size:11px;">Aguardando 1º acesso</span>';
                         } else {
-                            ipBadge = '<span style="font-family:var(--font-mono); font-size:11.5px; color:#38bdf8; font-weight:700;">' + regIp + '</span>' +
-                                      ' <button type="button" onclick="adminManualSetUserIp(\'' + u.id + '\', \'' + safeNome.replace(/'/g, "\\'") + '\', \'' + regIp + '\')" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:11px; margin-left:4px;" title="Editar IP">✏️</button>';
+                            ipBadge = '<span style="font-family:var(--font-mono); font-size:11.5px; color:#38bdf8; font-weight:700;">' + regIp + '</span>';
                         }
 
                         if (isDup) {
@@ -5351,14 +5349,13 @@
                             '<td style="color:var(--text-secondary); font-size:12px;">' + safeEmail + '</td>' +
                             '<td style="color:var(--text-muted); font-size:11.5px;">' + safePhone + '</td>' +
                             '<td>' + ipBadge + '</td>' +
-                            '<td><span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">' + lastIp + '</span></td>' +
+                            '<td><span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">' + (lastIp !== 'Não registrado' ? lastIp : '--') + '</span></td>' +
                             '<td style="color:var(--text-muted); font-size:11px;">' + created + '</td>' +
                             '<td>' + statusBadge + '</td>' +
                             '<td style="text-align:right; white-space:nowrap;">' +
                                 '<div style="display:inline-flex; gap:4px; align-items:center; justify-content:flex-end;">' +
                                     (regIp !== 'Não registrado' ?
-                                        '<button type="button" class="btn-act" onclick="adminResetUserIp(\'' + u.id + '\', \'' + safeNome.replace(/'/g, "\\'") + '\')" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;" title="Resetar IP">🔄 Reset</button>' :
-                                        '<button type="button" class="btn-act" onclick="adminManualSetUserIp(\'' + u.id + '\', \'' + safeNome.replace(/'/g, "\\'") + '\')" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;" title="Definir IP">✏️ IP</button>'
+                                        '<button type="button" class="btn-act" onclick="adminResetUserIp(\'' + u.id + '\', \'' + safeNome.replace(/'/g, "\\'") + '\')" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;" title="Resetar IP para permitir novo login">🔄 Reset IP</button>' : ''
                                     ) +
                                     (isBlocked ? 
                                         '<button type="button" class="btn-act" onclick="unblockIp(\'' + (regIp !== 'Não registrado' ? regIp : lastIp) + '\')" style="background:rgba(0,220,130,0.12); color:#00dc82; border:1px solid rgba(0,220,130,0.3); padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">Desbloquear</button>' :
@@ -6457,9 +6454,6 @@ function updateDashboardMetrics() {
                             <div class="user-email" style="font-size:10.5px;">${u.email || ''}</div>
                             <div style="font-size:9.5px; color:#94a3b8; font-family:var(--font-mono); margin-top:2px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
                                 <span>🔒 IP Cad: ${hasIp ? `<strong style="color:${isDivergent ? '#f87171' : '#38bdf8'}">${ipReg}</strong>` : `<span style="color:#64748b; font-style:italic;">Não registrado</span>`}</span>
-                                ${hasIp 
-                                    ? `<button type="button" onclick="adminManualSetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}', '${ipReg}')" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:10px; padding:0 2px;" title="Editar IP">✏️</button>` 
-                                    : `<button type="button" onclick="adminManualSetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:1px 5px; border-radius:4px; font-size:9.5px; cursor:pointer;" title="Definir IP manualmente">+ Definir IP</button>`}
                                 ${isDivergent ? `<span title="Tentativa de login com IP divergente: ${ipLast}" style="background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(239,68,68,0.4); padding:0 4px; border-radius:4px; font-weight:700; font-size:9px;">⚠️ Divergente (${ipLast})</span>` : ''}
                             </div>
                         </div>
