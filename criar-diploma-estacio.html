@@ -1160,26 +1160,6 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Credenciamento 1</label>
-                <input type="text" class="form-input" id="inpCred1" value="Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002" oninput="syncDiploma()">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Credenciamento 2</label>
-                <input type="text" class="form-input" id="inpCred2" value="Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017." oninput="syncDiploma()">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Reconhecimento MEC</label>
-                <input type="text" class="form-input" id="inpReconhecimento" value="Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011." oninput="syncDiploma()">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Renovação MEC</label>
-                <input type="text" class="form-input" id="inpRenovacao" value="Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020" oninput="syncDiploma()">
-            </div>
-
-            <div class="form-group">
                 <label class="form-label">Universidade Registradora</label>
                 <input type="text" class="form-input" id="inpUnivReg" value="UNIVERSIDADE ESTÁCIO DE SÁ" oninput="syncDiploma()">
             </div>
@@ -1211,21 +1191,6 @@
                 </div>
             </div>
 
-            <div class="form-section-title">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-                <span>4. Autenticidade &amp; Validação</span>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Código de Validação</label>
-                <input type="text" class="form-input" id="inpCodigoVal" value="2036, 163.518f4ed3e83e" oninput="syncDiploma()">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">URL Oficial de Validação</label>
-                <input type="text" class="form-input" id="inpUrlVal" value="https://consultadiploma.Estacio.br/diploma/2036.163.518f4ed3e83e" oninput="syncDiploma()">
-            </div>
-
             <!-- CHECKOUT E BOTÕES DE EXPORTAÇÃO -->
             <div class="checkout-actions-card">
                 <div class="checkout-price-row">
@@ -1239,34 +1204,16 @@
                     </button>
                 </div>
 
-                <!-- BOTÃO PRINCIPAL: GERAR PDF DIPLOMA FRENTE (PAISAGEM - 100% IDEM) -->
-                <button type="button" class="btn-action-primary" id="btnExportFrentePdf" onclick="exportDiplomaFrentePdf()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    <span>Gerar PDF — Diploma Frente (Paisagem)</span>
-                </button>
-
                 <!-- BOTÃO: FOLHA A4 DUPLA (FRENTE E VERSO NA MESMA PÁGINA) -->
-                <button type="button" class="btn-action-primary" id="btnExportA4Sheet" onclick="exportA4SheetPdf()" style="background: linear-gradient(135deg, #0284c7, #0369a1);">
+                <button type="button" class="btn-action-primary" id="btnExportA4Sheet" onclick="exportA4SheetPdf()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
                     <span>Gerar PDF — Folha A4 Única (Frente &amp; Verso)</span>
                 </button>
 
-                <!-- BOTÃO SECUNDÁRIO: BAIXAR PNG ULTRA-HD (FOLHA A4) -->
-                <button type="button" class="btn-export-sec" id="btnExportA4Png" onclick="exportA4SheetPng()">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    <span>Baixar Imagem PNG — Folha A4 Única</span>
-                </button>
-
-                <!-- BOTÃO PDF COMPLETO (2 PÁGINAS) -->
-                <button type="button" class="btn-export-sec" id="btnExportCompletePdf" onclick="exportCompleteDiplomaPdf()">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    <span>Gerar PDF Completo (2 Págs: Frente + Verso)</span>
-                </button>
-
-                <!-- BOTÃO SECUNDÁRIO: BAIXAR PNG ULTRA-HD FRENTE -->
-                <button type="button" class="btn-export-sec" id="btnExportFrentePng" onclick="exportDiplomaFrentePng()">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    <span>Baixar Imagem PNG Ultra-HD (Frente)</span>
+                <!-- BOTÃO: GERAR PDF DIPLOMA FRENTE (PAISAGEM) -->
+                <button type="button" class="btn-action-primary" id="btnExportFrentePdf" onclick="exportDiplomaFrentePdf()" style="background: linear-gradient(135deg, #00A3E0, #005596);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Gerar PDF — Diploma Frente (Paisagem)</span>
                 </button>
             </div>
         </div>
@@ -2159,18 +2106,12 @@
             document.getElementById('inpMantenedora').value = "SOCIEDADE DE ENSINO SUPERIOR, MÉDIO E FUNDAMENTAL LTDA";
             document.getElementById('inpCnpjFaculdade').value = "002.608.755/0001-07";
             document.getElementById('inpCursoVerso').value = "ENGENHARIA AMBIENTAL";
-            document.getElementById('inpCred1').value = "Portaria nº 1826, de 20/6/2002, DOU nº 118, seção 1, Pág, 25, de 21/6/2002";
-            document.getElementById('inpCred2').value = "Portaria nº 977, de 11/5/2017, DOU nº 155, seção 1, Pág, 19, de 14/8/2017.";
-            document.getElementById('inpReconhecimento').value = "Portaria MEC nº 431, de 21/10/2011, DOU nº 204, Seção 1, Pág. 20, de 24/10/2011.";
-            document.getElementById('inpRenovacao').value = "Portaria MEC nº 207, de 25/06/2020, DOU nº 128, Seção 1, Pág. 69, de 07/07/2020";
             document.getElementById('inpUnivReg').value = "UNIVERSIDADE ESTÁCIO DE SÁ";
             document.getElementById('inpTextoReg').value = "Diploma registrado sob o nº 1301, Livro 1, fls 67, em 23/02/2023, por delegação de competência do Ministério da Educação, nos termos da Lei nº 9.394 de 20 de dezembro de 1996, e do Decreto nº 9.235, de 15 de Dezembro de 2017.";
             document.getElementById('inpProcesso').value = "Processo nº SRD/6266607/2023";
             document.getElementById('inpLocalDataVerso').value = "BELÉM – PA, 23/02/2023";
             document.getElementById('inpSecretarioNome').value = "ADRIANA SILVA ARAUJO";
             document.getElementById('inpResolucao').value = "Resolução 092/GR/2016";
-            document.getElementById('inpCodigoVal').value = "2036, 163.518f4ed3e83e";
-            document.getElementById('inpUrlVal').value = "https://consultadiploma.Estacio.br/diploma/2036.163.518f4ed3e83e";
 
             syncDiploma();
         }
