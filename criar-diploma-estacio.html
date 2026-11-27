@@ -760,55 +760,28 @@
         .frente-mec-a4 { font-family: var(--font-serif); font-size: 9.2px; letter-spacing: 0.8px; text-transform: uppercase; color: #111; margin-top: 1px; }
         .frente-fac-a4 { font-family: var(--font-serif); font-size: 20px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: #000; margin-top: 4px; }
 
-        /* ─── MÚLTIPLAS MARCAS D'ÁGUA ESTÁCIO (FRENTE A4) ─── */
-        .frente-wm-pattern-bg {
+        /* ════════════════════════════════════════════════════════════════
+           MARCA D'ÁGUA DE PRÉVIA ESTÁCIO (EXIBIDA APENAS NO EDITOR)
+           DESAPARECE AUTOMATICAMENTE AO GERAR O PDF OFICIAL
+           ════════════════════════════════════════════════════════════════ */
+        .watermark-previa {
             position: absolute;
-            top: 25px;
-            left: 25px;
-            width: 718px;
-            height: 493px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
-            opacity: 0.16;
-            z-index: 4;
-        }
-
-        .frente-wm-sub {
-            position: absolute;
-            pointer-events: none;
-            z-index: 5;
+            z-index: 50;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .frente-wm-sub svg { width: 100%; height: 100%; display: block; }
-
-        .frente-wm-tl {
-            top: 60px;
-            left: 75px;
-            width: 135px;
-            height: 135px;
-            opacity: 0.32;
-        }
-        .frente-wm-tr {
-            top: 60px;
-            right: 75px;
-            width: 135px;
-            height: 135px;
-            opacity: 0.32;
-        }
-        .frente-wm-bl {
-            top: 275px;
-            left: 85px;
-            width: 135px;
-            height: 135px;
-            opacity: 0.28;
-        }
-        .frente-wm-br {
-            top: 275px;
-            right: 85px;
-            width: 135px;
-            height: 135px;
-            opacity: 0.28;
+        .watermark-previa-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            opacity: 0.22;
         }
 
         .frente-wm-a4 {
@@ -1170,30 +1143,10 @@
                 <stop offset="100%" stop-color="#0d7a82"/>
             </linearGradient>
 
-            <!-- Padrão de Micro-Marcas d'Água de Segurança Estácio -->
-            <pattern id="estacioSecPattern" width="120" height="120" patternUnits="userSpaceOnUse" patternTransform="rotate(25)">
-                <g transform="translate(60, 60) scale(0.22) rotate(45)">
-                    <rect x="-97" y="-97" width="94" height="94" rx="2" fill="url(#gradTopLand)"/>
-                    <rect x="3" y="-97" width="94" height="94" rx="2" fill="url(#gradRightLand)"/>
-                    <rect x="3" y="3" width="94" height="94" rx="2" fill="url(#gradBottomLand)"/>
-                    <rect x="-97" y="3" width="94" height="94" rx="2" fill="url(#gradLeftLand)"/>
-                    <line x1="-66" y1="-97" x2="-66" y2="-3" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="-35" y1="-97" x2="-35" y2="-3" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="-97" y1="-66" x2="-3" y2="-66" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="-97" y1="-35" x2="-3" y2="-35" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="34" y1="-97" x2="34" y2="-3" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="65" y1="-97" x2="65" y2="-3" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="3" y1="-66" x2="97" y2="-66" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="3" y1="-35" x2="97" y2="-35" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="34" y1="3" x2="34" y2="97" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="65" y1="3" x2="65" y2="97" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="3" y1="34" x2="97" y2="34" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="3" y1="65" x2="97" y2="65" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="-66" y1="3" x2="-66" y2="97" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="-35" y1="3" x2="-35" y2="97" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="-97" y1="34" x2="-3" y2="34" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                    <line x1="-97" y1="65" x2="-3" y2="65" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-                </g>
+            <!-- Marca d'Água Oficial de Prévia Estácio (Visível no Editor • Removida no PDF) -->
+            <pattern id="patternPreviaEstacio" width="320" height="200" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">
+                <text x="20" y="55" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="24" font-weight="900" fill="#00A3E0" letter-spacing="4">PRÉVIA ESTÁCIO</text>
+                <text x="80" y="145" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="16" font-weight="800" fill="#64748b" letter-spacing="3">DOCUMENTO DE PRÉVIA</text>
             </pattern>
         </defs>
     </svg>
@@ -1598,6 +1551,13 @@
                      ========================================================== -->
                 <div class="a4-sheet" id="diplomaA4Sheet" style="display: flex;">
 
+                    <!-- Marca d'Água de Prévia Estácio (Visível no Editor • Removida no PDF Oficial) -->
+                    <div class="watermark-previa" id="watermarkPreviaA4">
+                        <svg class="watermark-previa-svg" width="100%" height="100%">
+                            <rect width="100%" height="100%" fill="url(#patternPreviaEstacio)"/>
+                        </svg>
+                    </div>
+
                     <!-- METADE SUPERIOR: FRENTE A4 -->
                     <div class="frente-container-a4" id="frenteContainerA4">
                         <img src="assets/estacio_selo_republica.png" class="frente-selo-img-a4" alt="Selo República">
@@ -1606,118 +1566,6 @@
                             <div class="frente-rep-a4">REPÚBLICA FEDERATIVA DO BRASIL</div>
                             <div class="frente-mec-a4">MINISTÉRIO DA EDUCAÇÃO</div>
                             <div class="frente-fac-a4" id="outInstituicaoHeaderA4">FACULDADE ESTÁCIO DO PARÁ</div>
-                        </div>
-
-                        <!-- Múltiplas Marcas d'Água Oficiais Estácio -->
-                        <!-- 1. Grade de Segurança com Micro-Marcas d'Água -->
-                        <svg class="frente-wm-pattern-bg" width="100%" height="100%" viewBox="0 0 718 493">
-                            <rect width="718" height="493" fill="url(#estacioSecPattern)"/>
-                        </svg>
-
-                        <!-- 2. Marcas d'Água Laterais/Cantos Estácio -->
-                        <div class="frente-wm-sub frente-wm-tl">
-                            <svg viewBox="0 0 300 300" width="100%" height="100%">
-                                <g transform="translate(150, 150) rotate(45)">
-                                    <rect x="-97" y="-97" width="94" height="94" rx="2" fill="url(#gradTopLand)"/>
-                                    <rect x="3" y="-97" width="94" height="94" rx="2" fill="url(#gradRightLand)"/>
-                                    <rect x="3" y="3" width="94" height="94" rx="2" fill="url(#gradBottomLand)"/>
-                                    <rect x="-97" y="3" width="94" height="94" rx="2" fill="url(#gradLeftLand)"/>
-                                    <line x1="-66" y1="-97" x2="-66" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-35" y1="-97" x2="-35" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="-66" x2="-3" y2="-66" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="-35" x2="-3" y2="-35" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="34" y1="-97" x2="34" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="65" y1="-97" x2="65" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="-66" x2="97" y2="-66" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="-35" x2="97" y2="-35" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="34" y1="3" x2="34" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="65" y1="3" x2="65" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="34" x2="97" y2="34" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="65" x2="97" y2="65" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-66" y1="3" x2="-66" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-35" y1="3" x2="-35" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="34" x2="-3" y2="34" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="65" x2="-3" y2="65" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                </g>
-                            </svg>
-                        </div>
-                        <div class="frente-wm-sub frente-wm-tr">
-                            <svg viewBox="0 0 300 300" width="100%" height="100%">
-                                <g transform="translate(150, 150) rotate(45)">
-                                    <rect x="-97" y="-97" width="94" height="94" rx="2" fill="url(#gradTopLand)"/>
-                                    <rect x="3" y="-97" width="94" height="94" rx="2" fill="url(#gradRightLand)"/>
-                                    <rect x="3" y="3" width="94" height="94" rx="2" fill="url(#gradBottomLand)"/>
-                                    <rect x="-97" y="3" width="94" height="94" rx="2" fill="url(#gradLeftLand)"/>
-                                    <line x1="-66" y1="-97" x2="-66" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-35" y1="-97" x2="-35" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="-66" x2="-3" y2="-66" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="-35" x2="-3" y2="-35" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="34" y1="-97" x2="34" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="65" y1="-97" x2="65" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="-66" x2="97" y2="-66" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="-35" x2="97" y2="-35" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="34" y1="3" x2="34" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="65" y1="3" x2="65" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="34" x2="97" y2="34" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="65" x2="97" y2="65" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-66" y1="3" x2="-66" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-35" y1="3" x2="-35" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="34" x2="-3" y2="34" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="65" x2="-3" y2="65" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                </g>
-                            </svg>
-                        </div>
-                        <div class="frente-wm-sub frente-wm-bl">
-                            <svg viewBox="0 0 300 300" width="100%" height="100%">
-                                <g transform="translate(150, 150) rotate(45)">
-                                    <rect x="-97" y="-97" width="94" height="94" rx="2" fill="url(#gradTopLand)"/>
-                                    <rect x="3" y="-97" width="94" height="94" rx="2" fill="url(#gradRightLand)"/>
-                                    <rect x="3" y="3" width="94" height="94" rx="2" fill="url(#gradBottomLand)"/>
-                                    <rect x="-97" y="3" width="94" height="94" rx="2" fill="url(#gradLeftLand)"/>
-                                    <line x1="-66" y1="-97" x2="-66" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-35" y1="-97" x2="-35" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="-66" x2="-3" y2="-66" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="-35" x2="-3" y2="-35" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="34" y1="-97" x2="34" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="65" y1="-97" x2="65" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="-66" x2="97" y2="-66" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="-35" x2="97" y2="-35" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="34" y1="3" x2="34" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="65" y1="3" x2="65" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="34" x2="97" y2="34" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="65" x2="97" y2="65" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-66" y1="3" x2="-66" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-35" y1="3" x2="-35" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="34" x2="-3" y2="34" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="65" x2="-3" y2="65" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                </g>
-                            </svg>
-                        </div>
-                        <div class="frente-wm-sub frente-wm-br">
-                            <svg viewBox="0 0 300 300" width="100%" height="100%">
-                                <g transform="translate(150, 150) rotate(45)">
-                                    <rect x="-97" y="-97" width="94" height="94" rx="2" fill="url(#gradTopLand)"/>
-                                    <rect x="3" y="-97" width="94" height="94" rx="2" fill="url(#gradRightLand)"/>
-                                    <rect x="3" y="3" width="94" height="94" rx="2" fill="url(#gradBottomLand)"/>
-                                    <rect x="-97" y="3" width="94" height="94" rx="2" fill="url(#gradLeftLand)"/>
-                                    <line x1="-66" y1="-97" x2="-66" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-35" y1="-97" x2="-35" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="-66" x2="-3" y2="-66" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="-35" x2="-3" y2="-35" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="34" y1="-97" x2="34" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="65" y1="-97" x2="65" y2="-3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="-66" x2="97" y2="-66" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="-35" x2="97" y2="-35" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="34" y1="3" x2="34" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="65" y1="3" x2="65" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="34" x2="97" y2="34" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="3" y1="65" x2="97" y2="65" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-66" y1="3" x2="-66" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-35" y1="3" x2="-35" y2="97" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="34" x2="-3" y2="34" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                    <line x1="-97" y1="65" x2="-3" y2="65" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
-                                </g>
-                            </svg>
                         </div>
 
                         <!-- 3. Marca d'Água Central Principal Estácio -->
@@ -2466,7 +2314,23 @@
         // =====================================================================
 
         // 1. GERAR PDF — DIPLOMA FRENTE (PAISAGEM ULTRA-HD)
+        
+        // ─── GERENCIADOR DA MARCA D'ÁGUA DE PRÉVIA ESTÁCIO ───
+        function hidePreviaWatermarks() {
+            const wms = document.querySelectorAll('.watermark-previa');
+            wms.forEach(w => w.style.display = 'none');
+        }
+
+        function finalizeGeneratedDocument() {
+            window.previaWatermarkRemoved = true;
+            try { sessionStorage.setItem('estacio_diploma_gerado', 'true'); } catch(e){}
+            hidePreviaWatermarks();
+            const badge = document.getElementById('previewBadgeTitle');
+            if (badge) badge.textContent = 'Visualização em Folha A4 • Documento Emitido Oficial';
+        }
+
         async function exportDiplomaFrentePdf() {
+            hidePreviaWatermarks();
             const btn = document.getElementById('btnExportFrentePdf');
             const origHtml = btn.innerHTML;
             btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg><span>Gerando PDF Frente...</span>`;
@@ -2510,6 +2374,7 @@
 
                 const nomeAluno = (document.getElementById('inpNome').value || 'ALUNO').trim().replace(/\s+/g, '_');
                 pdf.save(`Diploma_Estacio_Frente_${nomeAluno}.pdf`);
+                finalizeGeneratedDocument();
 
             } catch(e) {
                 console.error('Erro na geração do PDF:', e);
@@ -2571,6 +2436,7 @@
 
         // 3. GERAR PDF COMPLETO (FRENTE + VERSO - 2 PÁGINAS PAISAGEM)
         async function exportCompleteDiplomaPdf() {
+            hidePreviaWatermarks();
             const btn = document.getElementById('btnExportCompletePdf');
             const origHtml = btn.innerHTML;
             btn.innerHTML = `<span>Gerando PDF Completo (2 Págs)...</span>`;
@@ -2632,6 +2498,7 @@
 
                 const nomeAluno = (document.getElementById('inpNome').value || 'ALUNO').trim().replace(/\s+/g, '_');
                 pdf.save(`Diploma_Estacio_Completo_${nomeAluno}.pdf`);
+                finalizeGeneratedDocument();
 
             } catch(e) {
                 console.error('Erro na geração do PDF:', e);
@@ -2663,6 +2530,7 @@
             btn.disabled = true;
 
             setDiplomaView('a4');
+            hidePreviaWatermarks();
 
             const zoomWrapper = document.getElementById('zoomWrapper');
             const origTransform = zoomWrapper ? zoomWrapper.style.transform : '';
@@ -2697,6 +2565,8 @@
 
                 const nomeAluno = (document.getElementById('inpNome').value || 'ALUNO').trim().replace(/\s+/g, '_');
                 pdf.save(`Diploma_Estacio_FolhaA4_${nomeAluno}.pdf`);
+                finalizeGeneratedDocument();
+                alert('✅ Diploma da Estácio gerado com sucesso! O PDF foi baixado sem a marca d\'água de prévia.');
 
                 // Deduz saldo após emissão bem sucedida
                 if (window.MGSaldo) {
@@ -2720,6 +2590,7 @@
 
         // 5. BAIXAR IMAGEM PNG ULTRA-HD — FOLHA A4 ÚNICA
         async function exportA4SheetPng() {
+            hidePreviaWatermarks();
             const btn = document.getElementById('btnExportA4Png');
             const origHtml = btn ? btn.innerHTML : '';
             if (btn) {
@@ -2753,6 +2624,7 @@
                 const link = document.createElement('a');
                 const nomeAluno = (document.getElementById('inpNome').value || 'ALUNO').trim().replace(/\s+/g, '_');
                 link.download = `Diploma_Estacio_FolhaA4_${nomeAluno}.png`;
+                finalizeGeneratedDocument();
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             } catch(e) {
