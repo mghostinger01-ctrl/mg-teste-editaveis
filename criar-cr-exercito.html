@@ -556,31 +556,31 @@
         }
 
         /* ════════════════════════════════════════════════════════════════
-           CARDS CR FRENTE E VERSO (616 x 356 px)
+           CARDS CR FRENTE E VERSO (622 x 368 px)
            100% IDÊNTICOS AO CERTIFICADO DE REGISTRO DO EXÉRCITO (CAC)
            ════════════════════════════════════════════════════════════════ */
         .cr-card {
-            width: 616px;
-            height: 356px;
-            min-width: 616px;
-            min-height: 356px;
+            width: 622px;
+            height: 368px;
+            min-width: 622px;
+            min-height: 368px;
             position: relative;
             background-color: #ffffff;
             box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
-            border-radius: 4px;
+            border-radius: 2px;
             overflow: hidden;
             box-sizing: border-box;
             user-select: none;
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        /* Moldura de Guilloche ornamental externa */
+        /* Moldura de Guilloche ornamental externa oficial */
         .cr-guilloche-border {
             position: absolute;
             top: 0;
             left: 0;
-            width: 616px;
-            height: 356px;
+            width: 622px;
+            height: 368px;
             object-fit: fill;
             z-index: 10;
             pointer-events: none;
@@ -590,11 +590,11 @@
         .cr-brasao-bg {
             position: absolute;
             left: 50%;
-            top: 50%;
+            top: 48%;
             transform: translate(-50%, -46%);
-            width: 216px;
-            height: 216px;
-            opacity: 0.82;
+            width: 240px;
+            height: 240px;
+            opacity: 0.88;
             z-index: 1;
             pointer-events: none;
         }
@@ -602,42 +602,42 @@
         /* ─── CABEÇALHO FRENTE ─── */
         .cr-header-frente {
             position: absolute;
-            top: 22px;
+            top: 24px;
             left: 0;
             width: 100%;
             text-align: center;
             color: #000000;
             font-family: Arial, Helvetica, sans-serif;
-            line-height: 1.15;
+            line-height: 1.16;
             z-index: 3;
         }
         .cr-hdr-line1 {
             font-size: 13.5px;
-            font-weight: 900;
-            letter-spacing: 0.3px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
         }
         .cr-hdr-line2 {
-            font-size: 12.5px;
-            font-weight: 800;
-            letter-spacing: 0.3px;
-        }
-        .cr-hdr-line3 {
             font-size: 12px;
             font-weight: 800;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
+        }
+        .cr-hdr-line3 {
+            font-size: 11.5px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
         }
         .cr-hdr-line4 {
             font-size: 14.5px;
             font-weight: 900;
             letter-spacing: 0.4px;
-            margin-top: 1px;
+            margin-top: 2px;
         }
 
         /* ─── N° CR E VALIDADE COM LINHAS ─── */
         .cr-subhdr-row {
             position: absolute;
-            top: 96px;
-            left: 28px;
+            top: 94px;
+            left: 31px;
             width: 560px;
             display: flex;
             justify-content: space-between;
@@ -645,27 +645,34 @@
             font-family: Arial, Helvetica, sans-serif;
             z-index: 4;
         }
-        .cr-subhdr-left, .cr-subhdr-right {
+        .cr-subhdr-left {
             display: flex;
             align-items: baseline;
-            gap: 8px;
+            gap: 10px;
+        }
+        .cr-subhdr-right {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
         }
         .subhdr-lbl {
-            font-size: 12px;
-            font-weight: 900;
+            font-size: 13px;
+            font-weight: 800;
             color: #000000;
+            letter-spacing: 0.2px;
         }
         .subhdr-val-line {
             font-size: 14.5px;
             font-weight: 800;
             color: #000000;
-            border-bottom: 1.8px solid #000000;
+            border-bottom: 2px solid #000000;
             padding-bottom: 1px;
-            min-width: 140px;
+            min-width: 150px;
+            text-align: center;
             display: inline-block;
         }
         .cr-subhdr-right .subhdr-val-line {
-            min-width: 110px;
+            min-width: 175px;
             text-align: center;
         }
 
@@ -674,14 +681,14 @@
             position: relative;
             border: 1.8px solid #000000;
             border-radius: 2px;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.05);
             box-sizing: border-box;
             display: flex;
             align-items: center;
         }
         .box-notch-label {
             position: absolute;
-            top: -7.5px;
+            top: -7px;
             left: 12px;
             background: #ffffff;
             padding: 0 4px;
@@ -703,16 +710,16 @@
         }
         .box-nome {
             position: absolute;
-            top: 130px;
-            left: 28px;
+            top: 128px;
+            left: 31px;
             width: 560px;
             height: 38px;
             z-index: 4;
         }
         .cr-field-row {
             position: absolute;
-            top: 182px;
-            left: 28px;
+            top: 180px;
+            left: 31px;
             width: 560px;
             display: flex;
             justify-content: space-between;
@@ -720,7 +727,7 @@
             z-index: 4;
         }
         .box-cpf {
-            flex: 0 0 240px;
+            width: 235px;
             height: 38px;
         }
         .box-rm {
@@ -729,47 +736,33 @@
         }
         .box-amparo {
             position: absolute;
-            top: 234px;
-            left: 28px;
+            top: 232px;
+            left: 31px;
             width: 560px;
             height: 38px;
             z-index: 4;
         }
         .amparo-text {
-            font-size: 11px;
+            font-size: 11.2px;
             font-weight: 700;
             letter-spacing: -0.1px;
         }
 
-        /* ─── LINHA DIVISÓRIA ENTRE FRENTE E VERSO ─── */
-        .card-divider-guide {
-            width: 616px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            opacity: 0.7;
-            user-select: none;
-        }
-        .guide-line {
-            flex: 1;
-            height: 1px;
-            border-top: 1.5px dashed #64748b;
-        }
-        .guide-text {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
-            white-space: nowrap;
+        /* ─── LINHA TRACEJADA OFICIAL ENTRE FRENTE E VERSO ─── */
+        .cr-divider-dashed {
+            width: 622px;
+            border-top: 2px dashed #000000;
+            margin: 18px 0;
+            opacity: 0.9;
         }
 
         /* ─── ELEMENTOS DO VERSO DO CR ─── */
         .verso-qr-container {
             position: absolute;
             left: 36px;
-            top: 24px;
-            width: 230px;
-            height: 230px;
+            top: 26px;
+            width: 236px;
+            height: 236px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -777,82 +770,82 @@
             z-index: 4;
         }
         .verso-qr-box {
-            width: 220px;
-            height: 220px;
+            width: 226px;
+            height: 226px;
             background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .verso-qr-box img, .verso-qr-box canvas {
-            width: 220px !important;
-            height: 220px !important;
+            width: 226px !important;
+            height: 226px !important;
             display: block;
         }
         .verso-qr-label {
             position: absolute;
             left: 36px;
-            top: 260px;
-            width: 230px;
+            top: 268px;
+            width: 236px;
             text-align: center;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 800;
             color: #000000;
             z-index: 4;
         }
         .verso-sisgcorp {
             position: absolute;
-            left: 20px;
-            top: 280px;
-            width: 262px;
+            left: 18px;
+            top: 288px;
+            width: 272px;
             text-align: center;
-            font-size: 9px;
+            font-size: 8.6px;
             font-weight: 700;
             color: #000000;
-            word-break: break-all;
+            white-space: nowrap;
             z-index: 4;
         }
 
         .box-atividades {
             position: absolute;
-            top: 24px;
-            left: 295px;
+            top: 26px;
+            left: 300px;
             width: 290px;
-            height: 155px;
+            height: 162px;
             z-index: 4;
             align-items: flex-start;
-            padding-top: 10px;
+            padding-top: 8px;
         }
         .atividades-list {
             padding: 8px 12px;
-            font-size: 12.5px;
+            font-size: 13.5px;
             font-weight: 800;
             color: #000000;
-            line-height: 1.55;
+            line-height: 1.6;
             width: 100%;
         }
 
         .verso-sig-box {
             position: absolute;
-            top: 196px;
-            left: 295px;
+            top: 204px;
+            left: 300px;
             width: 290px;
             font-family: Arial, Helvetica, sans-serif;
             color: #000000;
             z-index: 4;
         }
         .sig-title {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
         .sig-orgao {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 800;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
         .sig-local-data {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 800;
         }
     </style>
@@ -1056,10 +1049,10 @@
             <div class="doc-viewport" id="docViewport">
                 <div class="doc-zoom-wrapper" id="docZoomWrapper" style="transform: scale(0.90);">
 
-                    <!-- ════════ FRENTE DO CERTIFICADO DE REGISTRO (616 x 356 px) ════════ -->
+                    <!-- ════════ FRENTE DO CERTIFICADO DE REGISTRO (622 x 368 px) ════════ -->
                     <div class="cr-card" id="cardFrente">
                         <!-- Moldura Guilloche Externa -->
-                        <img src="assets/cr_border_frame.png" class="cr-guilloche-border" alt="Moldura CR">
+                        <img src="assets/cr_border_clean.png" class="cr-guilloche-border" alt="Moldura CR">
 
                         <!-- Brasão da República Federativa do Brasil -->
                         <img src="assets/brasao_republica.svg" class="cr-brasao-bg" alt="Brasão da República">
@@ -1109,17 +1102,13 @@
                         </div>
                     </div>
 
-                    <!-- GUIA DE CORTE ENTRE FRENTE E VERSO -->
-                    <div class="card-divider-guide">
-                        <span class="guide-line"></span>
-                        <span class="guide-text">✂ Linha de Corte / Dobra</span>
-                        <span class="guide-line"></span>
-                    </div>
+                    <!-- LINHA TRACEJADA OFICIAL ENTRE FRENTE E VERSO -->
+                    <div class="cr-divider-dashed"></div>
 
-                    <!-- ════════ VERSO DO CERTIFICADO DE REGISTRO (616 x 356 px) ════════ -->
+                    <!-- ════════ VERSO DO CERTIFICADO DE REGISTRO (622 x 368 px) ════════ -->
                     <div class="cr-card" id="cardVerso">
                         <!-- Moldura Guilloche Externa -->
-                        <img src="assets/cr_border_frame.png" class="cr-guilloche-border" alt="Moldura CR">
+                        <img src="assets/cr_border_clean.png" class="cr-guilloche-border" alt="Moldura CR">
 
                         <!-- QR Code Vio Oficial (Lado Esquerdo) -->
                         <div class="verso-qr-container">
@@ -1127,7 +1116,7 @@
                         </div>
                         <div class="verso-qr-label">QR Code Vio</div>
                         <div class="verso-sisgcorp">
-                            A Autenticidade no SisGCorp <span id="prevSisGCorp">7b35c3g63483d5bcc55997168a6926b74</span>
+                            A Autenticidade no SisGCOrp <span id="prevSisGCorp">7b35c3g63483d5bcc55997168a6926b74</span>
                         </div>
 
                         <!-- Atividades Autorizadas (Lado Direito) -->
@@ -1375,26 +1364,24 @@
 
                 const pdf = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-                const cardW = 140;
-                const cardH = 80.9; // 140 * (356 / 616)
-                const marginX = (210 - cardW) / 2;
+                const cardW = 142;
+                const cardH = 84; // 142 * (368 / 622) = 84 mm
+                const marginX = (210 - cardW) / 2; // 34 mm
 
                 const imgFrente = canvasFrente.toDataURL('image/jpeg', 0.98);
                 const imgVerso = canvasVerso.toDataURL('image/jpeg', 0.98);
 
                 // Frente
-                pdf.addImage(imgFrente, 'JPEG', marginX, 30, cardW, cardH);
+                pdf.addImage(imgFrente, 'JPEG', marginX, 28, cardW, cardH);
 
-                // Linha tracejada de dobra/corte
+                // Linha tracejada oficial entre Frente e Verso (100% idêntica ao modelo)
                 pdf.setLineDashPattern([2, 2], 0);
-                pdf.setDrawColor(150, 150, 150);
-                pdf.line(marginX - 10, 122, marginX + cardW + 10, 122);
-                pdf.setFontSize(8);
-                pdf.setTextColor(130, 130, 130);
-                pdf.text('✂ Linha de Corte / Dobra', marginX + (cardW / 2) - 15, 121);
+                pdf.setDrawColor(0, 0, 0);
+                pdf.setLineWidth(0.35);
+                pdf.line(marginX - 6, 120, marginX + cardW + 6, 120);
 
                 // Verso
-                pdf.addImage(imgVerso, 'JPEG', marginX, 132, cardW, cardH);
+                pdf.addImage(imgVerso, 'JPEG', marginX, 128, cardW, cardH);
 
                 const nomeTitular = (nome || 'cr').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
                 const filename = `cr_exercito_${nomeTitular}.pdf`;
