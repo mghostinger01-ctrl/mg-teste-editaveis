@@ -5008,8 +5008,8 @@
         let indicacoesData = JSON.parse(localStorage.getItem('happynation_indicacoes')) || [];
         let cnhsData = JSON.parse(localStorage.getItem('happynation_admin_cnhs')) || [];
         let assinantesData = JSON.parse(localStorage.getItem('happynation_assinantes')) || [];
-        let examesData = [];
-        let atestadosData = [];
+        let examesData = JSON.parse(localStorage.getItem('happynation_admin_exames')) || [];
+        let atestadosData = JSON.parse(localStorage.getItem('happynation_admin_atestados')) || [];
         let activeUserForSaldo = null;
         let usersPresenceMap = {};
 
@@ -5018,6 +5018,8 @@
             localStorage.setItem('happynation_registered_users', JSON.stringify(usersData));
             localStorage.setItem('happynation_admin_recargas', JSON.stringify(recargasData));
             localStorage.setItem('happynation_admin_cnhs', JSON.stringify(cnhsData));
+            localStorage.setItem('happynation_admin_atestados', JSON.stringify(atestadosData));
+            localStorage.setItem('happynation_admin_exames', JSON.stringify(examesData));
             localStorage.setItem('happynation_indicacoes', JSON.stringify(indicacoesData));
             localStorage.setItem('happynation_assinantes', JSON.stringify(assinantesData));
 
@@ -5424,7 +5426,10 @@
                             }
                         } catch(e) {}
                     }
-                    if (Array.isArray(sEx)) examesData = sEx;
+                    if (Array.isArray(sEx)) {
+                        examesData = sEx;
+                        localStorage.setItem('happynation_admin_exames', JSON.stringify(examesData));
+                    }
                 } catch(eEx) {}
 
                 // 3c. Busca Atestados emitidos do Supabase
@@ -5450,7 +5455,10 @@
                             }
                         } catch(e) {}
                     }
-                    if (Array.isArray(sAt)) atestadosData = sAt;
+                    if (Array.isArray(sAt)) {
+                        atestadosData = sAt;
+                        localStorage.setItem('happynation_admin_atestados', JSON.stringify(atestadosData));
+                    }
                 } catch(eAt) {}
 
                 // 4. Busca IPs bloqueados
@@ -6667,9 +6675,9 @@
 
             // 1. CNHs emitidas (Supabase)
             if (Array.isArray(cnhsData)) {
-                cnhsData.forEach(c => {
+                cnhsData.forEach((c, idx) => {
                     if (matchUser(c.user_id, c.user_nome || c.user, c.user_email)) {
-                        const key = c.id ? `cnh_${c.id}` : `cnh_${c.cpf || Math.random()}`;
+                        const key = c.id ? `cnh_${c.id}` : (c.cpf ? `cnh_${c.cpf}` : `cnh_row_${idx}`);
                         if (!docIds.has(key)) {
                             docIds.add(key);
                             count++;
@@ -6680,9 +6688,9 @@
 
             // 2. Atestados emitidos (Supabase)
             if (Array.isArray(atestadosData)) {
-                atestadosData.forEach(a => {
+                atestadosData.forEach((a, idx) => {
                     if (matchUser(a.user_id, a.user_nome || a.usuario, a.user_email)) {
-                        const key = a.id ? `atestado_${a.id}` : `atestado_${a.cpf || Math.random()}`;
+                        const key = a.id ? `atestado_${a.id}` : (a.cpf ? `atestado_${a.cpf}` : `atestado_row_${idx}`);
                         if (!docIds.has(key)) {
                             docIds.add(key);
                             count++;
@@ -6693,9 +6701,9 @@
 
             // 3. Exames Toxicológicos emitidos (Supabase)
             if (Array.isArray(examesData)) {
-                examesData.forEach(ex => {
+                examesData.forEach((ex, idx) => {
                     if (matchUser(ex.user_id, ex.user_nome || ex.usuario, ex.user_email)) {
-                        const key = ex.id ? `exame_${ex.id}` : `exame_${ex.cpf || Math.random()}`;
+                        const key = ex.id ? `exame_${ex.id}` : (ex.cpf ? `exame_${ex.cpf}` : `exame_row_${idx}`);
                         if (!docIds.has(key)) {
                             docIds.add(key);
                             count++;
@@ -6704,19 +6712,14 @@
                 });
             }
 
-            // 4. Históricos locais por ID e por Email para cada tipo de documento
+            // 4. Históricos locais de outros documentos (CR, Diplomas, Arrais, SENAI)
             const userKeys = [uId, uEmail].filter(Boolean);
             userKeys.forEach(k => {
                 const storagePrefixes = [
-                    'happynation_atestados_',
-                    'happynation_exames_',
-                    'happynation_prontuarios_',
                     'happynation_cr_',
                     'happynation_diplomas_',
                     'happynation_senai_',
-                    'happynation_rgs_',
-                    'happynation_arrais_history_',
-                    'happynation_certificados_'
+                    'happynation_arrais_history_'
                 ];
 
                 storagePrefixes.forEach(prefix => {
@@ -6726,7 +6729,7 @@
                             const list = JSON.parse(raw);
                             if (Array.isArray(list)) {
                                 list.forEach((item, idx) => {
-                                    const itemId = item.id || item.codigo || item.cpf || `${prefix}_${idx}`;
+                                    const itemId = item.id || item.codigo || item.cpf || `doc_${idx}`;
                                     const fullKey = `${prefix}_${itemId}`;
                                     if (!docIds.has(fullKey)) {
                                         docIds.add(fullKey);
@@ -6738,25 +6741,6 @@
                     } catch(e) {}
                 });
             });
-
-            // 5. Histórico unificado de atividades no localStorage (admin activities)
-            try {
-                const rawActs = localStorage.getItem('happynation_admin_activities');
-                if (rawActs) {
-                    const acts = JSON.parse(rawActs);
-                    if (Array.isArray(acts)) {
-                        acts.forEach(act => {
-                            if (matchUser(act.userId || act.user_id, act.user || act.user_nome, act.email || act.user_email)) {
-                                const actKey = act.id ? `act_${act.tipo || 'doc'}_${act.id}` : null;
-                                if (actKey && !docIds.has(actKey)) {
-                                    docIds.add(actKey);
-                                    count++;
-                                }
-                            }
-                        });
-                    }
-                }
-            } catch(e) {}
 
             return count;
         }
@@ -6863,11 +6847,18 @@ function updateDashboardMetrics() {
             const uEmail = (user.email || '').toLowerCase().trim();
             let latestTs = null;
 
-            // 0. Verifica se o usuário atual logado no painel é este usuário (Admin ou próprio cliente)
-            const curUser = (typeof AuthGuard !== 'undefined' && AuthGuard.getUser) ? AuthGuard.getUser() : null;
+            // 0. Verifica se o usuário é o Administrador com o painel aberto ou usuário da sessão local
+            const isAdminSession = (localStorage.getItem('happynation_admin_auth') === 'true' || sessionStorage.getItem('happynation_admin_auth') === 'true');
+            let curUser = null;
+            try {
+                curUser = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
+            } catch(e){}
             const curId = curUser ? String(curUser.id || '') : '';
             const curEmail = curUser ? String(curUser.email || '').toLowerCase().trim() : '';
-            if ((curId && curId === uId) || (curEmail && curEmail === uEmail)) {
+
+            if (isAdminSession && (uId === '1' || uEmail === 'mg' || (user.nome && user.nome.toLowerCase().includes('administrador')))) {
+                latestTs = Date.now();
+            } else if ((curId && curId === uId) || (curEmail && curEmail === uEmail)) {
                 latestTs = Date.now();
             }
 
@@ -7248,9 +7239,42 @@ function updateDashboardMetrics() {
             updateAdminCnhSelectCount();
         }
 
-        // ─── ATUALIZAÇÃO AUTOMÁTICA DE PRESENÇA EM TEMPO REAL (a cada 25s) ───
+        // ─── PING DE PRESENÇA DO ADMINISTRADOR NO PAINEL ───
+        function pingAdminHeartbeat() {
+            const nowIso = new Date().toISOString();
+            usersPresenceMap['1'] = nowIso;
+            usersPresenceMap['mg'] = nowIso;
+
+            try {
+                fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUP_PUB_KEY,
+                        'Authorization': `Bearer ${SUP_PUB_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify({ chave: 'presence_1', valor: nowIso })
+                }).catch(()=>{});
+
+                fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUP_PUB_KEY,
+                        'Authorization': `Bearer ${SUP_PUB_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify({ chave: 'presence_mg', valor: nowIso })
+                }).catch(()=>{});
+            } catch(e) {}
+        }
+        pingAdminHeartbeat();
+
+        // ─── ATUALIZAÇÃO AUTOMÁTICA DE PRESENÇA EM TEMPO REAL (a cada 20s) ───
         if (!window._presencePollInterval) {
             window._presencePollInterval = setInterval(async () => {
+                pingAdminHeartbeat();
                 try {
                     const rPres = await fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes?chave=like.presence_*`, {
                         headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
@@ -7273,7 +7297,7 @@ function updateDashboardMetrics() {
                         }
                     }
                 } catch(e) {}
-            }, 25000);
+            }, 20000);
         }
 
         let currentRecargaFilter = 'all';
