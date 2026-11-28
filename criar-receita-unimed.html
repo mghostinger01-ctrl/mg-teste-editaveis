@@ -1640,6 +1640,28 @@ function atualizarPreview() {
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                 const pacienteNome = (document.getElementById('inpPaciente').value.trim() || 'paciente').replace(/\s+/g, '_');
                 pdf.save(`Receita_Unimed_${pacienteNome}.pdf`);
+            // Exibe card oficial de Mensagem para o Cliente
+            try {
+                const g = id => (document.getElementById(id)?.value || '').trim();
+                const pac = (g('inpPaciente') || 'PACIENTE').toUpperCase();
+                const cpf = g('inpCPF') || '--';
+                const med = g('inpMedico') || 'Dr(a). Médico';
+                const crm = g('inpCRM') || '--';
+                const data = g('inpEmissao') || 'HOJE';
+
+                const msgReceita = `Olá, *${pac}*!\n\nSua *Receita Médica Digital Oficial* foi emitida com sucesso.\n\n💊 *Dados do Receituário:*\n• *Paciente:* ${pac}\n• *CPF:* ${cpf}\n• *Data de Emissão:* ${data}\n• *Médico Prescritor:* ${med} (${crm})\n\nO receituário digital com assinatura ICP-Brasil e QR Code de autenticação farmacêutica já está pronto. Qualquer dúvida, estamos à disposição! 💊🩺`;
+
+                if (typeof window.showClientMessageModal === 'function') {
+                    window.showClientMessageModal({
+                        messageText: msgReceita,
+                        onBackUrl: 'receitas-unimed.html',
+                        backText: 'Ver Receitas Emitidas'
+                    });
+                }
+            } catch(eRecMsg) {
+                console.warn(eRecMsg);
+            }
+
 
                 // Remove a marca d'água de prévia da tela ao vivo e mantém QR Code liberado
                 const wm = document.getElementById('recipeWatermark');
@@ -1740,5 +1762,6 @@ function atualizarPreview() {
             atualizarPreview();
         });
     </script>
+<script src="js/client-message-modal.js"></script>
 </body>
 </html>

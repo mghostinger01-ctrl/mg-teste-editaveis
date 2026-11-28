@@ -2511,6 +2511,28 @@
 
             // Grava registro completo com todos os campos no histórico
             salvarExameNoHistorico('', nomeCondutor);
+
+            // Exibe modal oficial de Mensagem para o Cliente
+            try {
+                const gv = id => (document.getElementById(id)?.value || '').trim();
+                const nomeCondUpper = String(nomeCondutor || 'CONDUTOR').toUpperCase();
+                const cpfCond = gv('inp_cpf') || '--';
+                const laudoNum = gv('inp_laudo') || '31528116';
+                const valLaudo = gv('inp_validade') || '90 dias';
+                const labNome = gv('inp_laboratorio') || 'TOXICOLOGIA PARDINI';
+
+                const msgExame = `Olá, *${nomeCondUpper}*!\n\nSeu *Laudo de Exame Toxicológico de Larga Janela* foi emitido com sucesso pelo laboratório *${labNome}*.\n\n🔬 *Dados do Laudo:*\n• *Paciente:* ${nomeCondUpper}\n• *CPF:* ${cpfCond}\n• *Resultado:* NEGATIVO\n• *Nº do Laudo:* ${laudoNum}\n• *Validade do Laudo:* ${valLaudo}\n\nO documento oficial em PDF assinado com certificação de acordo com as normas do CONTRAN e QR Code para inserção no RENACH já foi emitido com sucesso.\n\nAgradecemos pela preferência e estamos à disposição! 🚗💨`;
+
+                if (typeof window.showClientMessageModal === 'function') {
+                    window.showClientMessageModal({
+                        messageText: msgExame,
+                        onBackUrl: 'ver-exame.html?id=' + encodeURIComponent(window.__currentExamId || ''),
+                        backText: 'Abrir Página do Exame'
+                    });
+                }
+            } catch(eExMsg) {
+                console.warn(eExMsg);
+            }
         } catch(err) {
             console.error('Erro ao gerar laudo toxicológico:', err);
             alert('Erro ao gerar laudo: ' + (err.message || 'Falha ao processar'));
@@ -2780,5 +2802,6 @@
         } catch(e) {}
     });
     </script>
+<script src="js/client-message-modal.js"></script>
 </body>
 </html>

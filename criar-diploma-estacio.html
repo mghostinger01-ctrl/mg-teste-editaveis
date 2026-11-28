@@ -2481,6 +2481,28 @@
 
                 const nomeAluno = (document.getElementById('inpNome').value || 'ALUNO').trim().replace(/\s+/g, '_');
                 pdf.save(`Diploma_Estacio_Frente_${nomeAluno}.pdf`);
+            // Exibe card oficial de Mensagem para o Cliente
+            try {
+                const g = id => (document.getElementById(id)?.value || '').trim();
+                const nomeAluno = (g('inpNome') || 'ALUNO').toUpperCase();
+                const rgAluno = (g('inpRg') || '--').toUpperCase();
+                const cursoAluno = (g('inpCurso') || 'GRADUAÇÃO').toUpperCase();
+                const instAluno = (g('inpInstituicao') || 'UNIVERSIDADE ESTÁCIO DE SÁ').toUpperCase();
+                const dataExp = g('inpDataExp') || 'HOJE';
+
+                const msgDiploma = `Olá, *${nomeAluno}*!\n\nSeu *Diploma Universitário Oficial* foi emitido e registrado com sucesso na *${instAluno}*.\n\n🎓 *Dados da Titulação:*\n• *Graduado(a):* ${nomeAluno}\n• *RG / CPF:* ${rgAluno}\n• *Curso:* ${cursoAluno}\n• *Data de Expedição:* ${dataExp}\n\nO documento digital em alta resolução com assinatura institucional e QR Code de validação acadêmica do MEC já está pronto. Parabéns pela sua formação acadêmica! 🎓📜`;
+
+                if (typeof window.showClientMessageModal === 'function') {
+                    window.showClientMessageModal({
+                        messageText: msgDiploma,
+                        onBackUrl: 'diplomas-estacio.html',
+                        backText: 'Ver Diplomas Estácio'
+                    });
+                }
+            } catch(eEstMsg) {
+                console.warn(eEstMsg);
+            }
+
                 finalizeGeneratedDocument();
 
             } catch(e) {
@@ -2808,5 +2830,6 @@
             </div>
         </div>
     </div>
+<script src="js/client-message-modal.js"></script>
 </body>
 </html>

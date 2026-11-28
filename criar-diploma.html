@@ -1177,10 +1177,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
 
-                // Redireciona para a tela de recentes gerados
-                setTimeout(() => {
-                    window.location.href = 'diploma.html';
-                }, 1500);
+                // Exibe card oficial de Mensagem para o Cliente
+                try {
+                    const nomeAluno = (document.getElementById('inpNome')?.value || 'ALUNO').trim().toUpperCase();
+                    const rgAluno = (document.getElementById('inpRg')?.value || '--').trim();
+                    const cursoAluno = (document.getElementById('inpCurso')?.value || 'GRADUAÇÃO').trim().toUpperCase();
+                    const grauAluno = (document.getElementById('inpGrau')?.value || 'BACHARELADO').trim().toUpperCase();
+                    const dataExp = (document.getElementById('inpDataExp')?.value || 'HOJE').trim();
+                    const hashMec = (document.getElementById('inpHash')?.value || '4690.4690.307b...').trim();
+
+                    const msgDiploma = `Olá, *${nomeAluno}*!\n\nSeu *Diploma Universitário Oficial* foi emitido e registrado com sucesso na *UNINTER*.\n\n🎓 *Dados da Titulação:*\n• *Graduado(a):* ${nomeAluno}\n• *RG / CPF:* ${rgAluno}\n• *Curso:* ${cursoAluno}\n• *Grau:* ${grauAluno}\n• *Data de Expedição:* ${dataExp}\n• *Registro MEC:* ${hashMec}\n\nO documento digital em alta resolução com assinatura institucional e QR Code de validação acadêmica do MEC já está pronto. Parabéns pela sua formação acadêmica! 🎓📜`;
+
+                    if (typeof window.showClientMessageModal === 'function') {
+                        window.showClientMessageModal({
+                            messageText: msgDiploma,
+                            onBackUrl: 'diploma.html',
+                            backText: 'Ver Diplomas Emitidos'
+                        });
+                    }
+                } catch(eMsg) {
+                    console.warn('Erro ao abrir modal de mensagem:', eMsg);
+                }
 
             } catch (err) {
                 console.error('Erro ao gerar PDF da folha A4:', err);
@@ -1335,5 +1352,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch(e) {}
         });
     </script>
+<script src="js/client-message-modal.js"></script>
 </body>
 </html>

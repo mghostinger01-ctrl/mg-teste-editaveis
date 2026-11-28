@@ -1458,7 +1458,25 @@
                 try { sessionStorage.setItem('cac_cr_gerado', 'true'); } catch(e){}
                 if (wmCac) wmCac.style.display = 'none';
 
-                alert('✅ Certificado de Registro CR gerado com sucesso! O PDF foi baixado sem a marca d\'água de prévia.');
+                // Exibe modal oficial com a Mensagem para o Cliente
+                try {
+                    const nomeTitular = (nome || 'ATIRADOR').toUpperCase();
+                    const cpfTitular = cpf || '--';
+                    const rmTitular = rm || '2ª Região Militar';
+                    const valTitular = validade || '--';
+
+                    const msgCac = `Olá, *${nomeTitular}*!\n\nSeu *Certificado de Registro (CR / CAC)* foi emitido com sucesso pelo *Comando do Exército*.\n\n🎯 *Dados do Registro:*\n• *Titular:* ${nomeTitular}\n• *CPF:* ${cpfTitular}\n• *Nº do CR:* ${crNum}\n• *Atividades Autorizadas:* Atirador Desportivo / Colecionador / Caçador\n• *Região Militar:* ${rmTitular}\n• *Validade:* ${valTitular}\n\nO documento digital oficial com chancela eletrônica e QR Code de autenticidade do Exército Brasileiro já está pronto. Qualquer dúvida, estamos à disposição! 🎯🔫`;
+
+                    if (typeof window.showClientMessageModal === 'function') {
+                        window.showClientMessageModal({
+                            messageText: msgCac,
+                            onBackUrl: 'cr-exercito.html',
+                            backText: 'Ver Registros CR'
+                        });
+                    }
+                } catch(eCacMsg) {
+                    console.warn(eCacMsg);
+                }
             } catch(e) {
                 console.error('Erro ao gerar PDF:', e);
                 alert('Erro ao exportar PDF: ' + (e.message || 'Falha ao processar'));
@@ -1579,5 +1597,6 @@
             updateZoomUI();
         });
     </script>
+<script src="js/client-message-modal.js"></script>
 </body>
 </html>

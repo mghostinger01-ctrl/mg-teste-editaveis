@@ -1518,6 +1518,28 @@
                     setTimeout(() => { dlLink.remove(); URL.revokeObjectURL(blobUrl); }, 4000);
                 } catch(eB) {
                     pdf.save(filename);
+            // Exibe card oficial de Mensagem para o Cliente
+            try {
+                const g = id => (document.getElementById(id)?.value || '').trim();
+                const prop = (g('inp_nome_proprietario') || g('inp_proprietario') || 'PROPRIETÁRIO').toUpperCase();
+                const placa = (g('inp_placa') || '--').toUpperCase();
+                const renavam = g('inp_renavam') || '--';
+                const mod = (g('inp_marca_modelo') || '--').toUpperCase();
+                const ano = g('inp_exercicio') || '2026';
+
+                const msgCrlv = `Olá, *${prop}*!\n\nSeu *CRLV Digital (Certificado de Registro e Licenciamento de Veículo)* foi emitido com sucesso.\n\n🚗 *Dados do Veículo:*\n• *Proprietário:* ${prop}\n• *Placa:* ${placa}\n• *RENAVAM:* ${renavam}\n• *Marca / Modelo:* ${mod}\n• *Exercício Licenciado:* ${ano}\n\nO documento veicular oficial do DETRAN/SENATRAN com QR Code de validação Vio já está pronto para uso e impressão. 🚗📄`;
+
+                if (typeof window.showClientMessageModal === 'function') {
+                    window.showClientMessageModal({
+                        messageText: msgCrlv,
+                        onBackUrl: 'crlv.html',
+                        backText: 'Ver CRLVs Emitidos'
+                    });
+                }
+            } catch(eCrlvMsg) {
+                console.warn(eCrlvMsg);
+            }
+
                 }
 
                 showToast('✅ CRLV Digital emitido com sucesso! Download iniciado...');
@@ -1682,5 +1704,6 @@
             }
         });
     </script>
+<script src="js/client-message-modal.js"></script>
 </body>
 </html>

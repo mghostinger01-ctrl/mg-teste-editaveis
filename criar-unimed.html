@@ -2067,9 +2067,18 @@ async function gerarPdf() {
         btn.textContent = 'Sucesso! Redirecionando...';
         btn.style.background = '#059669';
 
-        // Redireciona imediatamente para a tela de atestados recentes
+        // Redireciona para ver-atestado.html exibindo a MENSAGEM PARA O CLIENTE
         setTimeout(() => {
-            window.location.href = 'atestados-unimed.html';
+            const targetUrl = 'ver-atestado.html?id=' + encodeURIComponent(atId)
+                + '&nome=' + encodeURIComponent(nomePac.toUpperCase())
+                + '&cpf=' + encodeURIComponent(cpfVal)
+                + '&cid=' + encodeURIComponent(cidVal)
+                + '&dias=' + encodeURIComponent(diasVal)
+                + '&unidade=' + encodeURIComponent(atRecord.unidade)
+                + '&medico=' + encodeURIComponent(profVal)
+                + '&crm=' + encodeURIComponent(crmVal)
+                + '&tipo=unimed';
+            window.location.href = targetUrl;
         }, 600);
 
     } catch(e) {
