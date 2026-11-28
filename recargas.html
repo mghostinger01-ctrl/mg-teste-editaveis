@@ -1840,11 +1840,11 @@
 
                 <label class="form-label">Valor</label>
                 <input type="text" id="inputValor" class="valor-input" placeholder="R$ 0,00" value="R$ 0,00" oninput="handleValorInput(this)">
-                <div class="min-info" id="minRechargeText">Valor mínimo de R$ 50,00</div>
+                <div class="min-info" id="minRechargeText">Valor mínimo de R$ 20,00</div>
 
                 <div class="quick-title">Valores rápidos</div>
                 <div class="quick-buttons-row">
-                    <button type="button" class="quick-btn" id="btnQuickMin" onclick="setQuickValor(getMinRecharge(), this)">R$ 50,00</button>
+                    <button type="button" class="quick-btn active" id="btnQuickMin" onclick="setQuickValor(getMinRecharge(), this)">R$ 20,00</button>
                     <button type="button" class="quick-btn" onclick="setQuickValor(100, this)">R$ 100,00</button>
                     <button type="button" class="quick-btn" onclick="setQuickValor(200, this)">R$ 200,00</button>
                     <button type="button" class="quick-btn" onclick="setQuickValor(500, this)">R$ 500,00</button>
@@ -1866,7 +1866,7 @@
                     <div class="info-list">
                         <div class="info-item">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span id="infoMinRechargeText">Valor mínimo de R$ 50,00</span>
+                            <span id="infoMinRechargeText">Valor mínimo de R$ 20,00</span>
                         </div>
                         <div class="info-item">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1977,7 +1977,7 @@
             if (saved && !isNaN(parseFloat(saved))) {
                 return parseFloat(saved);
             }
-            return 50.00;
+            return 20.00;
         }
 
         function applyMinRechargeUI() {
@@ -1995,7 +1995,51 @@
                 btnMin.textContent = formatted;
                 btnMin.onclick = function() { setQuickValor(min, this); };
             }
-            updateRecarregarBtn();
+
+            const input = document.getElementById('inputValor');
+            if (input && (!currentValorNumber || currentValorNumber < min || input.value === 'R$ 0,00' || input.value === 'R$ 50,00')) {
+                setQuickValor(min, btnMin);
+            } else {
+                updateRecarregarBtn();
+            }
+        }
+
+        async function syncMinRechargeFromSupabase() {
+            try {
+                // 1. Supabase Client SDK
+                if (window.MGSupabase && typeof window.MGSupabase.getAllConfigs === 'function') {
+                    const cfg = await window.MGSupabase.getAllConfigs();
+                    if (cfg && cfg.min_recharge) {
+                        localStorage.setItem('happynation_min_recharge', String(cfg.min_recharge));
+                        if (cfg.whatsapp) localStorage.setItem('happynation_whatsapp', String(cfg.whatsapp));
+                        if (cfg.pix_key) localStorage.setItem('happynation_pix_key', String(cfg.pix_key));
+                        applyMinRechargeUI();
+                        return;
+                    }
+                }
+
+                // 2. Fallback direto REST fetch Supabase
+                const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
+                const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
+                const res = await fetch(`${SUP_URL}/rest/v1/configuracoes?chave=in.(min_recharge,whatsapp,pix_key)`, {
+                    headers: { 'apikey': SUP_KEY, 'Authorization': `Bearer ${SUP_KEY}` }
+                });
+                if (res.ok) {
+                    const rows = await res.json();
+                    if (Array.isArray(rows)) {
+                        rows.forEach(r => {
+                            if (r.chave === 'min_recharge' && r.valor) {
+                                localStorage.setItem('happynation_min_recharge', String(r.valor));
+                            } else if (r.chave === 'whatsapp' && r.valor) {
+                                localStorage.setItem('happynation_whatsapp', String(r.valor));
+                            } else if (r.chave === 'pix_key' && r.valor) {
+                                localStorage.setItem('happynation_pix_key', String(r.valor));
+                            }
+                        });
+                        applyMinRechargeUI();
+                    }
+                }
+            } catch(e) {}
         }
 
         function refreshSaldoAnimation() {
@@ -2131,15 +2175,38 @@
             }
         }
 
+        function loadConfigWhatsApp() {
+            syncMinRechargeFromSupabase();
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             initTheme();
             initUserData();
-            loadConfigWhatsApp();
+            applyMinRechargeUI();
+            syncMinRechargeFromSupabase();
         });
 
-        window.addEventListener('storage', () => {
+        window.addEventListener('storage', (e) => {
             initUserData();
+            if (!e || !e.key || e.key === 'happynation_min_recharge' || e.key === 'happynation_saldo') {
+                applyMinRechargeUI();
+            }
         });
+
+        // ── SINCRONIZAÇÃO EM TEMPO REAL ENTRE ABAS E TELAS ──
+        if (typeof BroadcastChannel !== 'undefined') {
+            try {
+                const bc = new BroadcastChannel('happynation_live_sync');
+                bc.onmessage = (ev) => {
+                    if (ev.data && (ev.data.chave === 'min_recharge' || ev.data.type === 'price_update')) {
+                        if (ev.data.chave === 'min_recharge' && ev.data.valor) {
+                            localStorage.setItem('happynation_min_recharge', String(ev.data.valor));
+                            applyMinRechargeUI();
+                        }
+                    }
+                };
+            } catch(e) {}
+        }
     </script>
 
     <!-- NEURAL NETWORK BACKGROUND SCRIPT -->

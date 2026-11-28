@@ -9555,6 +9555,18 @@ function updateDashboardMetrics() {
             if (window.MGSupabase && typeof window.MGSupabase.saveConfig === 'function') {
                 window.MGSupabase.saveConfig(chave, valStr);
             }
+            try {
+                fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUP_PUB_KEY,
+                        'Authorization': `Bearer ${SUP_PUB_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify({ chave: chave, valor: valStr })
+                }).catch(() => {});
+            } catch(e) {}
             // 2. Broadcast em tempo real para abas e telas abertas
             if (typeof BroadcastChannel !== 'undefined') {
                 try {
