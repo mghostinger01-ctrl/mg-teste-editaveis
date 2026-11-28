@@ -4438,41 +4438,82 @@
         const _recentlyUpdatedUsers = {};
         const SUP_PROJECT_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
         const SUP_PUB_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
+        let _isLoadingAdminData = false;
 
-        // ─── GESTÃO DE DADOS VIA SUPABASE (SEM PHP/XAMPP) ───
+        // ─── GESTÃO DE DADOS VIA SUPABASE (OTIMIZADO EM PARALELO ULTRA RÁPIDO) ───
         async function loadAdminDataFromSupabase() {
+            if (_isLoadingAdminData) return;
+            _isLoadingAdminData = true;
+
             const client = window.supabaseInstance || window.supabaseClient;
 
             try {
-                // 1. Busca todos os usuários cadastrados na tabela 'usuarios'
-                let sUsers = null;
-                if (client) {
+                // Helpers de fetch resiliente e ultra rápido em paralelo
+                const fetchTable = async (table, orderCol = 'id', orderAsc = false, limit = null) => {
+                    if (client) {
+                        try {
+                            let q = client.from(table).select('*');
+                            if (orderCol) q = q.order(orderCol, { ascending: orderAsc });
+                            if (limit) q = q.limit(limit);
+                            const { data, error } = await q;
+                            if (!error && Array.isArray(data)) return data;
+                        } catch(e) {}
+                    }
                     try {
-                        const { data, error } = await client
-                            .from('usuarios')
-                            .select('*')
-                            .order('id', { ascending: false });
-                        if (!error && Array.isArray(data)) sUsers = data;
-                    } catch(e) {}
-                }
-
-                // Fallback direto via REST fetch nativo se client falhar ou não estiver pronto
-                if (!sUsers) {
-                    try {
-                        const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?select=*&order=id.desc`, {
-                            headers: {
-                                'apikey': SUP_PUB_KEY,
-                                'Authorization': `Bearer ${SUP_PUB_KEY}`
-                            }
+                        let url = `${SUP_PROJECT_URL}/rest/v1/${table}?select=*`;
+                        if (orderCol) url += `&order=${orderCol}.${orderAsc ? 'asc' : 'desc'}`;
+                        if (limit) url += `&limit=${limit}`;
+                        const r = await fetch(url, {
+                            headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
                         });
                         if (r.ok) {
                             const data = await r.json();
-                            if (Array.isArray(data)) sUsers = data;
+                            if (Array.isArray(data)) return data;
                         }
                     } catch(eREST) {}
-                }
+                    return null;
+                };
 
-                if (Array.isArray(sUsers)) {
+                const fetchPresenca = async () => {
+                    try {
+                        const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes?chave=like.presence_*`, {
+                            headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                        });
+                        if (r.ok) return await r.json();
+                    } catch(e) {}
+                    return null;
+                };
+
+                const fetchIndicacoes = async () => {
+                    try {
+                        if (window.MGSupabase && typeof window.MGSupabase.listIndicacoes === 'function') {
+                            return await window.MGSupabase.listIndicacoes();
+                        }
+                        return await fetchTable('indicacoes', 'created_at', false);
+                    } catch(e) {}
+                    return null;
+                };
+
+                // Executa TODAS as consultas ao banco SIMULTANEAMENTE em paralelo
+                const [
+                    resUsers, resAssinantes, resRecargas, resCnhs, resExames,
+                    resAtestados, resAtividades, resIps, resIndicacoes, resPres
+                ] = await Promise.allSettled([
+                    fetchTable('usuarios', 'id', false),
+                    fetchTable('assinantes', 'id', false),
+                    fetchTable('recargas', 'data', false),
+                    fetchTable('cnhs', 'created_at', false),
+                    fetchTable('exames', 'created_at', false),
+                    fetchTable('atestados', 'created_at', false),
+                    fetchTable('atividades', 'created_at', false, 60),
+                    fetchTable('ips_bloqueados', 'data', false),
+                    fetchIndicacoes(),
+                    fetchPresenca()
+                ]);
+
+                // 1. Processa Usuários
+                const sUsers = resUsers.status === 'fulfilled' ? resUsers.value : null;
+                if (Array.isArray(sUsers) && sUsers.length > 0) {
                     let deletedUsers = [];
                     try {
                         deletedUsers = JSON.parse(localStorage.getItem('happynation_deleted_users') || '[]');
@@ -4528,86 +4569,32 @@
                     localStorage.setItem('happynation_admin_users', JSON.stringify(usersData));
                 }
 
-                // 1.1. Busca dados da tabela 'assinantes' se existir no Supabase
-                try {
-                    const { data: sAssinantes } = await client
-                        .from('assinantes')
-                        .select('*')
-                        .order('id', { ascending: false });
+                // 2. Assinantes
+                const sAssinantes = resAssinantes.status === 'fulfilled' ? resAssinantes.value : null;
+                if (Array.isArray(sAssinantes)) {
+                    assinantesData = sAssinantes;
+                    localStorage.setItem('happynation_assinantes', JSON.stringify(assinantesData));
+                }
 
-                    if (Array.isArray(sAssinantes) && sAssinantes.length > 0) {
-                        assinantesData = sAssinantes;
-                        localStorage.setItem('happynation_assinantes', JSON.stringify(assinantesData));
-                    }
-                } catch(eAss) {}
-
-                // 1.2. Busca dados de presença / online dos clientes em tempo real
-                try {
-                    const rPres = await fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes?chave=like.presence_*`, {
-                        headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
-                    });
-                    if (rPres.ok) {
-                        const listPres = await rPres.json();
-                        if (Array.isArray(listPres)) {
-                            listPres.forEach(p => {
-                                const rawKey = String(p.chave || '').replace('presence_', '').trim();
-                                if (!rawKey) return;
-                                usersPresenceMap[rawKey] = p.valor;
-                                usersPresenceMap[rawKey.toLowerCase()] = p.valor;
-                                if (rawKey.startsWith('email_')) {
-                                    usersPresenceMap[rawKey.replace('email_', '').toLowerCase().trim()] = p.valor;
-                                }
-                            });
-                        }
-                    }
-                } catch(ePres) {}
-
-                // 1.3. Purga permanente no Supabase para qualquer ID/email previamente excluído
-                if (deletedUsers && deletedUsers.length > 0) {
-                    deletedUsers.forEach(delItem => {
-                        const sItem = String(delItem).trim();
-                        if (!sItem) return;
-                        if (sItem.includes('@')) {
-                            fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?email=ilike.${encodeURIComponent(sItem)}`, {
-                                method: 'DELETE',
-                                headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
-                            }).catch(function(){});
-                        } else if (!isNaN(parseInt(sItem, 10))) {
-                            fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(sItem)}`, {
-                                method: 'DELETE',
-                                headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
-                            }).catch(function(){});
+                // 3. Presença
+                const listPres = resPres.status === 'fulfilled' ? resPres.value : null;
+                if (Array.isArray(listPres)) {
+                    listPres.forEach(p => {
+                        const rawKey = String(p.chave || '').replace('presence_', '').trim();
+                        if (!rawKey) return;
+                        usersPresenceMap[rawKey] = p.valor;
+                        usersPresenceMap[rawKey.toLowerCase()] = p.valor;
+                        if (rawKey.startsWith('email_')) {
+                            usersPresenceMap[rawKey.replace('email_', '').toLowerCase().trim()] = p.valor;
                         }
                     });
                 }
 
-                // 2. Busca recargas PIX
-                let sRecargas = null;
-                if (client) {
-                    try {
-                        const { data, error } = await client
-                            .from('recargas')
-                            .select('*')
-                            .order('data', { ascending: false });
-                        if (!error && Array.isArray(data)) sRecargas = data;
-                    } catch(e) {}
-                }
-                if (!sRecargas) {
-                    try {
-                        const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/recargas?select=*&order=data.desc`, {
-                            headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
-                        });
-                        if (r.ok) {
-                            const data = await r.json();
-                            if (Array.isArray(data)) sRecargas = data;
-                        }
-                    } catch(e) {}
-                }
-
+                // 4. Recargas
+                const sRecargas = resRecargas.status === 'fulfilled' ? resRecargas.value : null;
                 if (Array.isArray(sRecargas)) {
                     let deletedRecargas = [];
                     try { deletedRecargas = JSON.parse(localStorage.getItem('happynation_deleted_recargas') || '[]'); } catch(e){}
-
                     recargasData = sRecargas
                         .filter(r => !deletedRecargas.includes(String(r.id)))
                         .map(r => ({
@@ -4619,37 +4606,14 @@
                             status: r.status || 'pending',
                             comprovante: r.comprovante
                         }));
-
                     localStorage.setItem('happynation_admin_recargas', JSON.stringify(recargasData));
                 }
 
-                // 3. Busca CNHs emitidas
-                let sCnhs = null;
-                if (client) {
-                    try {
-                        const { data, error } = await client
-                            .from('cnhs')
-                            .select('*')
-                            .order('created_at', { ascending: false });
-                        if (!error && Array.isArray(data)) sCnhs = data;
-                    } catch(e) {}
-                }
-                if (!sCnhs) {
-                    try {
-                        const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/cnhs?select=*&order=created_at.desc`, {
-                            headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
-                        });
-                        if (r.ok) {
-                            const data = await r.json();
-                            if (Array.isArray(data)) sCnhs = data;
-                        }
-                    } catch(e) {}
-                }
-
+                // 5. CNHs
+                const sCnhs = resCnhs.status === 'fulfilled' ? resCnhs.value : null;
                 if (Array.isArray(sCnhs)) {
                     let deletedCnhs = [];
                     try { deletedCnhs = JSON.parse(localStorage.getItem('happynation_deleted_cnhs') || '[]'); } catch(e){}
-
                     cnhsData = sCnhs
                         .filter(c => !deletedCnhs.includes(String(c.id)))
                         .map(c => ({
@@ -4663,179 +4627,69 @@
                             data: c.created_at,
                             valor: `R$ ${(parseFloat(c.valor_cobrado) || 26).toFixed(2).replace('.', ',')}`
                         }));
-
                     localStorage.setItem('happynation_admin_cnhs', JSON.stringify(cnhsData));
                 }
 
-                // 3b. Busca Exames Toxicológicos emitidos do Supabase
-                try {
-                    let sEx = null;
-                    if (client) {
-                        try {
-                            const { data } = await client
-                                .from('exames')
-                                .select('*')
-                                .order('created_at', { ascending: false });
-                            if (Array.isArray(data)) sEx = data;
-                        } catch(e) {}
-                    }
-                    if (!sEx) {
-                        try {
-                            const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/exames?select=*&order=created_at.desc`, {
-                                headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
-                            });
-                            if (r.ok) {
-                                const data = await r.json();
-                                if (Array.isArray(data)) sEx = data;
-                            }
-                        } catch(e) {}
-                    }
-                    if (Array.isArray(sEx)) {
-                        examesData = sEx;
-                        localStorage.setItem('happynation_admin_exames', JSON.stringify(examesData));
-                    }
-                } catch(eEx) {}
-
-                // 3d. Busca Atividades gerais do Supabase (logins, saldos manuais, etc.)
-                try {
-                    let sAtiv = null;
-                    if (client) {
-                        try {
-                            const { data } = await client
-                                .from('atividades')
-                                .select('*')
-                                .order('created_at', { ascending: false })
-                                .limit(150);
-                            if (Array.isArray(data)) sAtiv = data;
-                        } catch(e) {}
-                    }
-                    if (!sAtiv) {
-                        try {
-                            const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/atividades?select=*&order=created_at.desc&limit=150`, {
-                                headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
-                            });
-                            if (r.ok) {
-                                const data = await r.json();
-                                if (Array.isArray(data)) sAtiv = data;
-                            }
-                        } catch(e) {}
-                    }
-                    if (Array.isArray(sAtiv)) {
-                        supabaseAtividades = sAtiv;
-                    }
-                } catch(eAtiv) {}
-
-                // 3c. Busca Atestados emitidos do Supabase
-                try {
-                    let sAt = null;
-                    if (client) {
-                        try {
-                            const { data } = await client
-                                .from('atestados')
-                                .select('*')
-                                .order('created_at', { ascending: false });
-                            if (Array.isArray(data)) sAt = data;
-                        } catch(e) {}
-                    }
-                    if (!sAt) {
-                        try {
-                            const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/atestados?select=*&order=created_at.desc`, {
-                                headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
-                            });
-                            if (r.ok) {
-                                const data = await r.json();
-                                if (Array.isArray(data)) sAt = data;
-                            }
-                        } catch(e) {}
-                    }
-                    if (Array.isArray(sAt)) {
-                        atestadosData = sAt;
-                        localStorage.setItem('happynation_admin_atestados', JSON.stringify(atestadosData));
-                    }
-                } catch(eAt) {}
-
-                // 4. Busca IPs bloqueados
-                let sIps = null;
-                if (client) {
-                    try {
-                        const { data } = await client
-                            .from('ips_bloqueados')
-                            .select('*')
-                            .order('data', { ascending: false });
-                        if (Array.isArray(data)) sIps = data;
-                    } catch(e) {}
-                }
-                if (!sIps) {
-                    try {
-                        const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/ips_bloqueados?select=*&order=data.desc`, {
-                            headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
-                        });
-                        if (r.ok) {
-                            const data = await r.json();
-                            if (Array.isArray(data)) sIps = data;
-                        }
-                    } catch(e) {}
+                // 6. Exames
+                const sEx = resExames.status === 'fulfilled' ? resExames.value : null;
+                if (Array.isArray(sEx)) {
+                    examesData = sEx;
+                    localStorage.setItem('happynation_admin_exames', JSON.stringify(examesData));
                 }
 
+                // 7. Atestados
+                const sAt = resAtestados.status === 'fulfilled' ? resAtestados.value : null;
+                if (Array.isArray(sAt)) {
+                    atestadosData = sAt;
+                    localStorage.setItem('happynation_admin_atestados', JSON.stringify(atestadosData));
+                }
+
+                // 8. Atividades
+                const sAtividades = resAtividades.status === 'fulfilled' ? resAtividades.value : null;
+                if (Array.isArray(sAtividades)) {
+                    supabaseAtividades = sAtividades;
+                }
+
+                // 9. IPs Bloqueados
+                const sIps = resIps.status === 'fulfilled' ? resIps.value : null;
                 if (Array.isArray(sIps)) {
                     blockedIpsData = sIps;
                 }
 
-                // Vincula quantidade total de documentos a cada usuário com precisão
+                // 10. Indicações
+                const sInd = resIndicacoes.status === 'fulfilled' ? resIndicacoes.value : null;
+                if (Array.isArray(sInd)) {
+                    let localInd = [];
+                    try { localInd = JSON.parse(localStorage.getItem('happynation_indicacoes') || '[]'); } catch(e){}
+                    const map = new Map();
+                    sInd.forEach(item => map.set(String(item.id || item.indicado_id || item.indicado_email), item));
+                    localInd.forEach(item => {
+                        const key = String(item.id || item.indicado_id || item.indicado_email);
+                        if (!map.has(key)) map.set(key, item);
+                    });
+                    indicacoesData = Array.from(map.values());
+                    localStorage.setItem('happynation_indicacoes', JSON.stringify(indicacoesData));
+                }
+
+                // Vincula contadores de documentos aos usuários
                 usersData.forEach(u => {
-                if (typeof isMasterAdminAccount === "function" && isMasterAdminAccount(u)) return;
-                    u.docsCount = countUserDocuments(u);
+                    u.docsCount = typeof countUserDocuments === 'function' ? countUserDocuments(u) : 0;
                     u.cnhsCount = u.docsCount;
                 });
 
-                // 5. Busca dados de Indicações & Afiliados
-                try {
-                    let sInd = null;
-                    if (window.MGSupabase && typeof window.MGSupabase.listIndicacoes === 'function') {
-                        sInd = await window.MGSupabase.listIndicacoes();
-                    } else {
-                        const { data: qInd } = await client.from('indicacoes').select('*').order('created_at', { ascending: false });
-                        sInd = qInd;
-                    }
-                    if (Array.isArray(sInd)) {
-                        let localInd = [];
-                        try { localInd = JSON.parse(localStorage.getItem('happynation_indicacoes') || '[]'); } catch(e){}
-                        const map = new Map();
-                        sInd.forEach(item => map.set(String(item.id || item.indicado_id || item.indicado_email), item));
-                        localInd.forEach(item => {
-                            const key = String(item.id || item.indicado_id || item.indicado_email);
-                            if (!map.has(key)) map.set(key, item);
-                        });
-                        indicacoesData = Array.from(map.values());
-                        localStorage.setItem('happynation_indicacoes', JSON.stringify(indicacoesData));
-                    }
-                } catch(eInd) {
-                    console.warn('[Admin] Indicação fallback local:', eInd);
-                }
-
-                // Sincroniza inputs de regras de indicação
-                try {
-                    const savedMinDep = localStorage.getItem('happynation_ref_min_deposit') || '20.00';
-                    const savedBInd = localStorage.getItem('happynation_ref_bonus_indicador') || '40.00';
-                    const savedBAmi = localStorage.getItem('happynation_ref_bonus_indicado') || '20.00';
-                    const elMinDep = document.getElementById('cfgRefMinDeposit');
-                    const elBInd = document.getElementById('cfgRefBonusIndicador');
-                    const elBAmi = document.getElementById('cfgRefBonusIndicado');
-                    if (elMinDep && !elMinDep.matches(':focus')) elMinDep.value = savedMinDep;
-                    if (elBInd && !elBInd.matches(':focus')) elBInd.value = savedBInd;
-                    if (elBAmi && !elBAmi.matches(':focus')) elBAmi.value = savedBAmi;
-                } catch(eCfg) {}
-
-                renderIndicadosAdmin();
+                // Renderiza tabelas de forma suave sem travar ou piscar a interface
                 renderUsersTable();
                 renderAssinantesTable();
                 renderRecargasTable();
                 renderCnhsTable();
                 renderAdminActivities();
                 renderSecurityView();
+                renderIndicadosAdmin();
                 updateDashboardMetrics();
             } catch(err) {
-                console.error('[Admin] Erro ao carregar dados do Supabase:', err);
+                console.error('[Admin BR7] Erro ao carregar dados do Supabase:', err);
+            } finally {
+                _isLoadingAdminData = false;
             }
         }
 
@@ -4846,38 +4700,39 @@
             loadAdminDataFromSupabase();
 
             // Ouvinte de sincronização em tempo real entre painéis e abas (0ms de latência)
-            try {
-                const bcLive = new BroadcastChannel('happynation_live_sync');
-                bcLive.onmessage = function(ev) {
-                    if (!ev || !ev.data) return;
-                    const t = ev.data.type;
-                    if (t === 'admin_data_updated' || t === 'activity_created' || t === 'saldo_updated' || t === 'status_updated' ||
-                        t === 'cnh_created' || t === 'cnh_deleted' || t === 'cnh_unblocked' || t === 'doc_created' || t === 'document_created' ||
-                        t === 'user_deleted' || t === 'user_created' || t === 'ip_blocked' || t === 'ip_unblocked' || t === 'tickets_updated') {
-                        
-                        if (t === 'activity_created' && ev.data.activity) {
-                            try {
-                                let acts = JSON.parse(localStorage.getItem(ADMIN_ACTS_KEY) || '[]');
-                                const isDup = acts.some(a => a.descricao === ev.data.activity.descricao && a.usuario === ev.data.activity.usuario && Math.abs(new Date(a.created_at).getTime() - new Date(ev.data.activity.created_at).getTime()) < 10000);
-                                if (!isDup) {
-                                    acts.unshift(ev.data.activity);
-                                    if (acts.length > MAX_ACTS) acts = acts.slice(0, MAX_ACTS);
-                                    localStorage.setItem(ADMIN_ACTS_KEY, JSON.stringify(acts));
-                                    renderAdminActivities();
-                                }
-                            } catch(eAct) {}
+            if (!window._bcLiveRegisteredBR7) {
+                window._bcLiveRegisteredBR7 = true;
+                try {
+                    const bcLive = new BroadcastChannel('happynation_live_sync');
+                    bcLive.onmessage = function(ev) {
+                        if (!ev || !ev.data) return;
+                        const t = ev.data.type;
+                        if (t === 'admin_data_updated' || t === 'activity_created' || t === 'saldo_updated' || t === 'status_updated' ||
+                            t === 'cnh_created' || t === 'cnh_deleted' || t === 'cnh_unblocked' || t === 'doc_created' || t === 'document_created' ||
+                            t === 'user_deleted' || t === 'user_created' || t === 'ip_blocked' || t === 'ip_unblocked' || t === 'tickets_updated') {
+                            
+                            if (t === 'activity_created' && ev.data.activity) {
+                                try {
+                                    let acts = JSON.parse(localStorage.getItem(ADMIN_ACTS_KEY) || '[]');
+                                    const isDup = acts.some(a => a.descricao === ev.data.activity.descricao && a.usuario === ev.data.activity.usuario && Math.abs(new Date(a.created_at).getTime() - new Date(ev.data.activity.created_at).getTime()) < 10000);
+                                    if (!isDup) {
+                                        acts.unshift(ev.data.activity);
+                                        if (acts.length > MAX_ACTS) acts = acts.slice(0, MAX_ACTS);
+                                        localStorage.setItem(ADMIN_ACTS_KEY, JSON.stringify(acts));
+                                        renderAdminActivities();
+                                    }
+                                } catch(eAct) {}
+                            }
+                            if (typeof loadAdminDataFromSupabase === 'function') {
+                                loadAdminDataFromSupabase();
+                            }
+                            if (typeof loadAdminTickets === 'function') {
+                                loadAdminTickets();
+                            }
                         }
-                        if (typeof loadAdminDataFromSupabase === 'function') {
-                            loadAdminDataFromSupabase();
-                        }
-                        if (typeof loadAdminTickets === 'function') {
-                            loadAdminTickets();
-                        }
-                    }
-                };
-            } catch(eBcLive) {}
-
-            setInterval(loadAdminDataFromSupabase, 3000);
+                    };
+                } catch(eBcLive) {}
+            }
         }
 
         function renderSecurityView() {
@@ -6735,7 +6590,6 @@
 
             // 1. Tabela Principal (De acordo com o filtro ativo)
             if (tbody) {
-                tbody.innerHTML = '';
                 let baseList = usersData;
                 if (currentUserFilter === 'approved') baseList = allApproved;
                 else if (currentUserFilter === 'pending') baseList = allPending;
@@ -6783,29 +6637,41 @@
                     footerEl.style.display = totalItems === 0 ? 'none' : 'flex';
                 }
 
-                if (pageUsers.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">${qMain ? 'Nenhum cliente encontrado para esta busca.' : 'Nenhum cliente cadastrado nesta categoria.'}</td></tr>`;
-                } else {
-                    pageUsers.forEach(u => tbody.appendChild(buildUserRow(u)));
+                // Renderiza sem apagar/piscar se os dados forem idênticos
+                const sigMain = `${currentUserFilter}_${currentUsersPage}_${qMain}_` + pageUsers.map(u => `${u.id}_${u.nome}_${u.email}_${u.phone}_${u.status}_${u.saldo}_${u.docsCount || 0}_${u.register_ip || ''}_${u.last_ip || ''}`).join('|');
+                if (tbody._currentSig !== sigMain) {
+                    tbody._currentSig = sigMain;
+                    tbody.innerHTML = '';
+                    if (pageUsers.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">${qMain ? 'Nenhum cliente encontrado para esta busca.' : 'Nenhum cliente cadastrado nesta categoria.'}</td></tr>`;
+                    } else {
+                        pageUsers.forEach(u => tbody.appendChild(buildUserRow(u)));
+                    }
                 }
             }
 
-            // 2. Seção Prioritária: Pendentes (Aguardando Aprovação)
+            // 2. Seção Prioritária: Pendentes (Aguardando Aprovação) - SEMPRE ESTÁVEL SEM PISCAR
             if (pendingSection && pendingTbody) {
                 if (allPending.length > 0) {
                     pendingSection.style.display = 'block';
                     if (pendingCountEl) pendingCountEl.textContent = allPending.length;
-                    pendingTbody.innerHTML = '';
+
                     const filteredPend = qPending
                         ? allPending.filter(u => (u.nome||'').toLowerCase().includes(qPending) || (u.email||'').toLowerCase().includes(qPending) || (u.phone||'').includes(qPending))
                         : allPending;
 
-                    if (filteredPend.length === 0) {
-                        pendingTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:18px; color:var(--text-muted);">${qPending ? 'Nenhum cadastro pendente encontrado para esta busca.' : 'Nenhum cadastro pendente.'}</td></tr>`;
-                    } else {
-                        filteredPend.forEach(u => pendingTbody.appendChild(buildUserRow(u)));
+                    const sigPend = `${qPending}_` + filteredPend.map(u => `${u.id}_${u.nome}_${u.email}_${u.phone}_${u.status}_${u.saldo}_${u.register_ip || ''}`).join('|');
+                    if (pendingTbody._currentSig !== sigPend) {
+                        pendingTbody._currentSig = sigPend;
+                        pendingTbody.innerHTML = '';
+                        if (filteredPend.length === 0) {
+                            pendingTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:18px; color:var(--text-muted);">${qPending ? 'Nenhum cadastro pendente encontrado para esta busca.' : 'Nenhum cadastro pendente.'}</td></tr>`;
+                        } else {
+                            filteredPend.forEach(u => pendingTbody.appendChild(buildUserRow(u)));
+                        }
                     }
                 } else {
+                    pendingTbody._currentSig = '';
                     pendingSection.style.display = 'none';
                 }
             }
@@ -6815,17 +6681,22 @@
                 if (allBlocked.length > 0 && currentUserFilter === 'blocked') {
                     blockedSection.style.display = 'block';
                     if (blockedCountEl) blockedCountEl.textContent = allBlocked.length;
-                    blockedTbody.innerHTML = '';
                     const filteredBlk = qBlocked
                         ? allBlocked.filter(u => (u.nome||'').toLowerCase().includes(qBlocked) || (u.email||'').toLowerCase().includes(qBlocked) || (u.phone||'').includes(qBlocked))
                         : allBlocked;
 
-                    if (filteredBlk.length === 0) {
-                        blockedTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:18px; color:var(--text-muted);">${qBlocked ? 'Nenhum cliente bloqueado encontrado para esta busca.' : 'Nenhum cliente bloqueado.'}</td></tr>`;
-                    } else {
-                        filteredBlk.forEach(u => blockedTbody.appendChild(buildUserRow(u)));
+                    const sigBlk = `${qBlocked}_` + filteredBlk.map(u => `${u.id}_${u.nome}_${u.email}_${u.phone}_${u.status}`).join('|');
+                    if (blockedTbody._currentSig !== sigBlk) {
+                        blockedTbody._currentSig = sigBlk;
+                        blockedTbody.innerHTML = '';
+                        if (filteredBlk.length === 0) {
+                            blockedTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:18px; color:var(--text-muted);">${qBlocked ? 'Nenhum cliente bloqueado encontrado para esta busca.' : 'Nenhum cliente bloqueado.'}</td></tr>`;
+                        } else {
+                            filteredBlk.forEach(u => blockedTbody.appendChild(buildUserRow(u)));
+                        }
                     }
                 } else {
+                    blockedTbody._currentSig = '';
                     blockedSection.style.display = 'none';
                 }
             }
@@ -9256,6 +9127,8 @@
         function filterBlockedUsersTable() {
             renderUsersTable();
         }
+        // Renderiza imediatamente com dados em cache (sem esperar window.onload)
+        try { renderUsersTable(); } catch(e){}
 
         function filterCnhsTable() {
             const query = document.getElementById('searchCnhInp').value.toLowerCase();
@@ -10110,7 +9983,6 @@
 
             // Carrega dados oficiais em tempo real direto do banco PostgreSQL / Supabase
             loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000);
 
             // 1. Atualização via Realtime + Foco com debounce (sem travar a digitação ou cliques no mobile)
             let lastAdminSync = 0;
@@ -10118,10 +9990,9 @@
 
             const throttledAdminReload = () => {
                 const now = Date.now();
-                if (now - lastAdminSync > 10000 && !document.hidden) {
+                if (now - lastAdminSync > 5000 && !document.hidden) {
                     lastAdminSync = now;
                     loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000);
                 }
             };
 
@@ -10165,13 +10036,14 @@
 
             document.addEventListener('visibilitychange', throttledAdminReload);
             window.addEventListener('focus', throttledAdminReload);
-            // Polling contínuo rápido a cada 3 segundos para sincronização sem atrasos
-            setInterval(() => {
+            // Polling suave periódico para sincronização sem sobrecarregar
+            if (window._adminBr7MainPollTimer) clearInterval(window._adminBr7MainPollTimer);
+            window._adminBr7MainPollTimer = setInterval(() => {
                 if (!document.hidden) {
                     throttledAdminReload();
                     checkNovosCadastros();
                 }
-            }, 3000);
+            }, 8000);
 
             // 2. Listener instantâneo de storage (atualiza na mesma hora se houver ação em outra aba)
             window.addEventListener('storage', () => {

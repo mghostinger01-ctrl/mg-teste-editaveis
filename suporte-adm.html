@@ -4483,7 +4483,7 @@
             };
         } catch(eBcLive) {}
 
-        setInterval(loadAdminDataFromSupabase, 15000);
+
         }
 
         function renderSecurityView() {
@@ -9517,7 +9517,7 @@
 
             // Carrega dados oficiais em tempo real direto do banco PostgreSQL / Supabase
             loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000);
+
 
             // 1. Atualização via Realtime + Foco com debounce (sem travar a digitação ou cliques no mobile)
             let lastAdminSync = 0;
@@ -9528,7 +9528,7 @@
                 if (now - lastAdminSync > 10000 && !document.hidden) {
                     lastAdminSync = now;
                     loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000);
+
                 }
             };
 
@@ -9583,7 +9583,7 @@
             // 2. Listener instantâneo de storage (atualiza na mesma hora se houver ação em outra aba)
             window.addEventListener('storage', () => {
                 loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000);
+
             });
 
             // 3. Supabase Realtime (websocket instantâneo para mudanças no banco de dados)
@@ -9597,15 +9597,15 @@
                     sClient.channel('admin-realtime-sync')
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, reloadAndCheck)
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'recargas' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000); })
+ })
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'cnhs' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000); })
+ })
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'exames' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000); })
+ })
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'atestados' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000); })
+ })
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'indicacoes' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000); })
+ })
                         .subscribe((status) => {
                             if (status === 'SUBSCRIBED') console.log('[Admin] Realtime ativo — recebendo novos cadastros em tempo real.');
                         });
