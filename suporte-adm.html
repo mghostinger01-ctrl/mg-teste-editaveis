@@ -6085,6 +6085,9 @@
                         ` : u.status === 'blocked' ? `
                             <button class="btn-act approve" onclick="event.stopPropagation(); changeUserStatus('${u.id}', 'approved')" title="Desbloquear Cliente">Desbloquear</button>
                             <button class="btn-act" onclick="event.stopPropagation(); adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\'")}')" style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.3); font-size:11px; padding:3.5px 7px; border-radius:6px;" title="Resetar IP">🔄 Reset IP</button>
+                            <button class="btn-act delete" onclick="event.stopPropagation(); adminDeleteUser('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(239, 68, 68, 0.12); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.3); padding:3.5px 7px; border-radius:6px; cursor:pointer;" title="Excluir Cliente (Perda imediata de acesso)">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            </button>
                         ` : `
                             <button class="btn-act approve" onclick="event.stopPropagation(); approvePendingUserDirect('${u.id}')" style="padding:4px 9px;" title="Aprovar Cadastro">✓ Aprovar</button>
                             <button class="btn-act block" onclick="event.stopPropagation(); rejectAndDeleteUser('${u.id}')" style="padding:4px 9px;" title="Recusar Cadastro">✕ Recusar</button>
@@ -6124,7 +6127,7 @@
 
         function nextUsersPage() {
             const q = (document.getElementById('searchUserInp')?.value || '').toLowerCase().trim();
-            const allApproved = usersData.filter(u => u.status === 'approved');
+            const allApproved = usersData.filter(u => u.status === 'approved' && u.status !== 'deleted');
             const allPending = usersData.filter(u => u.status === 'pending');
             const allBlocked = usersData.filter(u => u.status === 'blocked');
             let baseList = usersData;
@@ -6161,12 +6164,12 @@
                 if (u.status === 'blocked') blockedCount++;
             });
 
-            const allApproved = usersData.filter(u => u.status === 'approved');
+            const allApproved = usersData.filter(u => u.status === 'approved' && u.status !== 'deleted');
             const allPending = usersData.filter(u => u.status === 'pending');
             const allBlocked = usersData.filter(u => u.status === 'blocked');
 
             // Atualiza contadores dos filtros
-            const nonPendingList = usersData.filter(u => u.status !== 'pending');
+            const nonPendingList = usersData.filter(u => u.status !== 'pending' && u.status !== 'deleted' && u.status !== 'excluido');
             const elCountAll = document.getElementById('countFilterAll');
             if (elCountAll) elCountAll.textContent = `(${nonPendingList.length})`;
             const elCountPend = document.getElementById('countFilterPending');
@@ -6840,6 +6843,56 @@
             if (!ok) {
                 console.error('[Admin] Falha ao persistir status no Supabase.');
                 showToast(`⚠️ Status salvo no painel, mas verifique a conexão com o banco.`, false);
+            }
+        }
+
+        
+        // ─── EXCLUSÃO DE CLIENTE COM PERDA IMEDIATA DE ACESSO ───
+        async function adminDeleteUser(userId, userName) {
+            const targetU = (usersData || []).find(u => String(u.id) === String(userId));
+            if (targetU && isAdmUser(targetU)) {
+                if (typeof showToast === 'function') showToast('Não é permitido excluir uma conta de Administrador.', 'warning');
+                return;
+            }
+
+            if (!confirm(`Deseja realmente EXCLUIR o cliente "${userName}"?\n\n⚠️ O cliente perderá IMEDIATAMENTE o acesso ao sistema.\nCaso tente entrar novamente, o sistema abrirá automaticamente o suporte do WhatsApp.`)) {
+                return;
+            }
+
+            try {
+                // 1. Atualiza status no Supabase para 'deleted'
+                const client = window.supabaseInstance || window.supabaseClient;
+                if (client) {
+                    await client.from('usuarios').update({ status: 'deleted', register_ip: null, last_ip: null }).eq('id', userId);
+                } else {
+                    await fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(userId)}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUP_PUB_KEY,
+                            'Authorization': `Bearer ${SUP_PUB_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'deleted', register_ip: null, last_ip: null })
+                    });
+                }
+
+                // 2. Transmite sinal de desconexão instantânea para qualquer aba ativa daquele cliente
+                if (typeof BroadcastChannel !== 'undefined') {
+                    const bc = new BroadcastChannel('happynation_live_sync');
+                    bc.postMessage({ type: 'user_deleted', id: userId, email: targetU ? targetU.email : '' });
+                    bc.close();
+                }
+
+                // 3. Remove localmente de usersData
+                usersData = usersData.filter(u => String(u.id) !== String(userId));
+                renderUsersTable();
+
+                if (typeof showToast === 'function') {
+                    showToast(`✓ Cliente "${userName}" excluído! Acesso encerrado imediatamente.`, 'success');
+                }
+            } catch(err) {
+                console.error('Erro ao excluir usuário:', err);
+                alert('Erro ao excluir usuário: ' + err.message);
             }
         }
 
@@ -10837,6 +10890,8 @@
                 copyIpBtn.style.display = isAdm ? 'none' : 'inline-block';
             }
 
+            const modalBtnDel = document.getElementById('modalBtnDelete');
+            if (modalBtnDel) modalBtnDel.style.display = isAdm ? 'none' : 'inline-flex';
             const blockBtn = document.getElementById('modalBtnBlock');
             if (blockBtn) {
                 if (isAdm) {
@@ -10885,6 +10940,15 @@
             if (!u) return;
             closeModal('modalUserDetails');
             adminResetUserIp(u.id, u.nome || 'Cliente');
+        }
+
+        
+        function handleModalDeleteUser() {
+            if (!activeDetailUserId) return;
+            const u = usersData.find(user => String(user.id) === String(activeDetailUserId));
+            if (!u) return;
+            closeModal('modalUserDetails');
+            adminDeleteUser(u.id, u.nome || 'Cliente');
         }
 
         function handleModalToggleBlock() {
@@ -10985,6 +11049,7 @@
                     <button type="button" id="modalBtnEdit" class="btn-act edit-btn" style="padding:6px 12px; font-size:12px;" onclick="handleModalEdit()">✏️ Editar</button>
                     <button type="button" id="modalBtnResetIp" class="btn-act" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); padding:6px 12px; font-size:12px;" onclick="handleModalResetIp()">🔄 Resetar IP</button>
                     <button type="button" id="modalBtnBlock" class="btn-act block" style="padding:6px 12px; font-size:12px;" onclick="handleModalToggleBlock()">Bloquear</button>
+                    <button type="button" id="modalBtnDelete" class="btn-act" style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.35); padding:6px 12px; font-size:12px; font-weight:700; cursor:pointer;" onclick="handleModalDeleteUser()">🗑️ Excluir</button>
                 </div>
                 <button type="button" onclick="closeModal('modalUserDetails')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#94a3b8; padding:6px 14px; border-radius:6px; font-size:12px; cursor:pointer; font-weight:600;">Fechar</button>
             </div>

@@ -911,6 +911,17 @@
 
                 const userStatus = String(user.status || '').toLowerCase().trim();
 
+                // ── CONTA EXCLUÍDA PELO ADMINISTRADOR (ABRE SUPORTE WHATSAPP) ──
+                if (userStatus === 'deleted' || userStatus === 'excluido' || userStatus === 'excluida') {
+                    const supPhone = getActiveSupportPhone();
+                    const whatsUrl = 'https://wa.me/' + supPhone + '?text=' + encodeURIComponent('Olá, minha conta no MG Editáveis (' + (user.email || email) + ') foi excluída/desativada pelo Administrador. Gostaria de solicitar atendimento do suporte.');
+                    openDeletedModal(user.nome || '', user.email || email, whatsUrl);
+                    try { window.open(whatsUrl, '_blank'); } catch(eOpen){}
+                    btn.disabled = false;
+                    btn.textContent = 'Entrar';
+                    return;
+                }
+
                 if (userStatus === 'blocked' || userStatus === 'bloqueado') {
                     if (user.register_ip && currentClientIp && String(user.register_ip).trim() !== String(currentClientIp).trim() && window.MGIpSecurity) {
                         window.MGIpSecurity.showBlockedModal({
@@ -1312,6 +1323,33 @@
         }
 
         
+        
+        function openDeletedModal(name, email, whatsUrl) {
+            const modal = document.getElementById('modalDeletedAccount');
+            const txt = document.getElementById('deletedModalText');
+            const btnWhats = document.getElementById('btnDeletedWhatsApp');
+            
+            const safeName = name ? name.replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
+            if (txt) {
+                txt.innerHTML = `Olá${safeName ? ' <strong>' + safeName + '</strong>' : ''}! Sua conta no MG Editáveis foi <strong>desativada e excluída pelo Administrador</strong>.<br><br>Para verificar a situação do seu cadastro ou solicitar reativação, entre em contato direto com o Suporte Oficial.`;
+            }
+            
+            const supPhone = getActiveSupportPhone();
+            const finalWhats = whatsUrl || ('https://wa.me/' + supPhone + '?text=' + encodeURIComponent('Olá, minha conta no MG Editáveis (' + (email || '') + ') foi desativada/excluída. Gostaria de atendimento com o suporte.'));
+            if (btnWhats) {
+                btnWhats.href = finalWhats;
+            }
+            
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+        function closeDeletedModal() {
+            const modal = document.getElementById('modalDeletedAccount');
+            if (modal) modal.style.display = 'none';
+        }
+
         function openPendingModal(name, email, whatsUrl) {
             const modal = document.getElementById('modalPendingApproval');
             const txt = document.getElementById('pendingModalText');
@@ -1578,7 +1616,36 @@
                 Entendido / Ir para o Login
             </button>
         </div>
+    </d
+    <!-- MODAL DE CONTA EXCLUÍDA / SUPORTE WHATSAPP -->
+    <div id="modalDeletedAccount" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:999999; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;">
+        <div style="background:#111514; border:1px solid rgba(239, 68, 68, 0.4); box-shadow:0 25px 60px rgba(0,0,0,0.85), 0 0 35px rgba(239, 68, 68, 0.2); border-radius:24px; max-width:440px; width:100%; padding:32px 24px; text-align:center; animation:modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-sizing:border-box;">
+            <div style="width:72px; height:72px; margin:0 auto 18px; border-radius:22px; background:rgba(239, 68, 68, 0.12); border:1.5px solid #ef4444; display:flex; align-items:center; justify-content:center; font-size:32px; box-shadow:0 0 25px rgba(239, 68, 68, 0.25);">
+                🚫
+            </div>
+            
+            <h3 style="margin:0 0 10px; font-size:22px; font-weight:800; color:#ffffff; letter-spacing:-0.5px;">Conta Desativada / Excluída</h3>
+            
+            <p id="deletedModalText" style="margin:0 0 20px; font-size:14px; color:#cbd5e1; line-height:1.6;">
+                Esta conta foi desativada e excluída pelo Administrador. Para verificar sua situação ou solicitar reativação do acesso, entre em contato direto com o Suporte Oficial no WhatsApp.
+            </p>
+            
+            <div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); border-radius:14px; padding:12px; margin-bottom:24px; display:flex; align-items:center; gap:10px; text-align:left;">
+                <span style="font-size:20px;">🛡️</span>
+                <span style="font-size:12.5px; color:#fca5a5; line-height:1.4;">Acesso cancelado imediatamente. Fale com nosso suporte para verificar seu cadastro.</span>
+            </div>
+            
+            <a id="btnDeletedWhatsApp" href="#" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; background:#00dc82; color:#062517; font-weight:800; font-size:15px; border-radius:14px; text-decoration:none; box-shadow:0 10px 25px rgba(0, 220, 130, 0.35); transition:all 0.2s ease; box-sizing:border-box;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                <span>Falar com o Suporte</span>
+            </a>
+            
+            <button type="button" onclick="closeDeletedModal()" style="margin-top:14px; background:none; border:none; color:#64748b; font-size:13px; font-weight:600; cursor:pointer; padding:6px 14px; transition:color 0.2s;">
+                Fechar
+            </button>
+        </div>
     </div>
+iv>
 
 </body>
 </html>

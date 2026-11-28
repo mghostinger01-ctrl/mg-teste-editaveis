@@ -71,6 +71,41 @@
             return;
         }
 
+        // ── VERIFICAÇÃO DE EXCLUSÃO DE CONTA (PERDA INSTANTÂNEA DE ACESSO) ──
+        var uStatus = String(user.status || '').toLowerCase().trim();
+        if (uStatus === 'deleted' || uStatus === 'excluido' || uStatus === 'excluida') {
+            try {
+                localStorage.removeItem('happynation_user');
+                sessionStorage.removeItem('happynation_user');
+            } catch(e) {}
+            var isSubdir = window.location.pathname.includes('/app/');
+            window.location.replace((isSubdir ? '../' : '') + 'login.html?deleted=1');
+            return;
+        }
+
+        // ── MONITORAMENTO INSTANTÂNEO DE EXCLUSÃO VIA BROADCAST CHANNEL ──
+        try {
+            if (typeof BroadcastChannel !== 'undefined') {
+                var bcLiveAuth = new BroadcastChannel('happynation_live_sync');
+                bcLiveAuth.onmessage = function(ev) {
+                    if (ev && ev.data && (ev.data.type === 'user_deleted' || ev.data.type === 'user_kicked')) {
+                        var targetId = String(ev.data.id || '');
+                        var targetEmail = String(ev.data.email || '').toLowerCase().trim();
+                        var curId = String(user.id || '');
+                        var curEmail = String(user.email || '').toLowerCase().trim();
+                        if ((targetId && targetId === curId) || (targetEmail && targetEmail === curEmail)) {
+                            try {
+                                localStorage.removeItem('happynation_user');
+                                sessionStorage.removeItem('happynation_user');
+                            } catch(e) {}
+                            var isSubdir = window.location.pathname.includes('/app/');
+                            window.location.replace((isSubdir ? '../' : '') + 'login.html?deleted=1');
+                        }
+                    }
+                };
+            }
+        } catch(eBc) {}
+
         // ── REGISTRO GLOBAL DE PRESENÇA EM TEMPO REAL (ONLINE) PARA TODOS OS USUÁRIOS ──
         if (user && (user.id || user.email)) {
             (function startRealtimePresence() {
@@ -88,6 +123,27 @@
                         if (uid) localStorage.setItem('happynation_presence_' + uid, nowIso);
                         if (uemail) localStorage.setItem('happynation_presence_' + uemail, nowIso);
                     } catch(e) {}
+
+                    // 1.5. Verifica se o usuário foi excluído em segundo plano no Supabase
+                    if (uid && user.role !== 'admin') {
+                        try {
+                            fetch(SUP_URL + '/rest/v1/usuarios?id=eq.' + encodeURIComponent(uid) + '&select=status', {
+                                headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+                            }).then(function(res) { return res.json(); }).then(function(rows) {
+                                if (rows && rows.length > 0) {
+                                    var st = String(rows[0].status || '').toLowerCase().trim();
+                                    if (st === 'deleted' || st === 'excluido' || st === 'excluida') {
+                                        try {
+                                            localStorage.removeItem('happynation_user');
+                                            sessionStorage.removeItem('happynation_user');
+                                        } catch(e) {}
+                                        var isSubdir = window.location.pathname.includes('/app/');
+                                        window.location.replace((isSubdir ? '../' : '') + 'login.html?deleted=1');
+                                    }
+                                }
+                            }).catch(function(){});
+                        } catch(eStatusCheck) {}
+                    }
 
                     // 2. Registra na tabela 'configuracoes' (chave presence_{uid} e presence_{uemail})
                     try {
