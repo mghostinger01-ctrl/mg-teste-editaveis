@@ -277,6 +277,7 @@
     <title>Painel ADM BR7 • MG Editáveis</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+    <script src="js/tickets-sync.js"></script>
     <script src="js/security-guard.js"></script>
     <script src="js/ip-security.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2918,6 +2919,15 @@
                         </div>
                     </li>
                     <li>
+                        <div class="nav-item" onclick="switchTab('suporte', this)">
+                            <div class="nav-item-left">
+                                <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+                                <span>Suporte & Chat</span>
+                            </div>
+                            <span class="nav-badge" id="badgePendingTickets" style="background:#ef4444; color:#fff; display:none;">0</span>
+                        </div>
+                    </li>
+                    <li>
                         <div class="nav-item" onclick="adminLogout(event)">
                             <div class="nav-item-left" style="color: #f87171;">
                                 <span class="nav-icon" style="color: #f87171;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
@@ -5138,7 +5148,8 @@
             window.scrollTo({ top: 300, behavior: 'smooth' });
         }
 
-        // ─── SUPORTE / GESTÃO DE CHAMADOS ───
+        // ─── SUPORTE / GESTÃO DE CHAMADOS SINCRONIZADA EM TEMPO REAL ───
+        const CURRENT_ADMIN_DISPLAY_NAME = 'ADM BR7';
         let adminTickets = [];
         let selectedAdminTicketId = null;
         let currentAdminFilter = 'todos';
@@ -5150,34 +5161,53 @@
             });
         }
 
-        function loadAdminTickets() {
-            try {
-                const raw = localStorage.getItem('happynation_tickets');
-                if (raw) {
-                    adminTickets = JSON.parse(raw);
-                } else {
-                    adminTickets = [
-                        {
-                            id: 't_1',
-                            assunto: '[TTG] TT',
-                            descricao: 'PRECISO DE AJUDA COM A EMISSÃO',
-                            data: '27 de dez. de 2025',
-                            status: 'Resolvido',
-                            mensagens: [
-                                { autor: 'user', texto: 'PRECISO DE AJUDA COM A EMISSÃO', data: '27/12/2025 14:20' },
-                                { autor: 'suporte', texto: 'Olá! Como posso ajudar você hoje?', data: '27/12/2025 14:25' }
-                            ]
-                        }
-                    ];
-                    localStorage.setItem('happynation_tickets', JSON.stringify(adminTickets));
-                }
-            } catch(e) {
-                adminTickets = [];
+        function updatePendingTicketsBadge() {
+            const badge = document.getElementById('badgePendingTickets');
+            if (!badge) return;
+            const count = (window.MGTicketsSync && typeof window.MGTicketsSync.getPendingCount === 'function')
+                ? window.MGTicketsSync.getPendingCount(adminTickets)
+                : adminTickets.filter(t => t.status === 'Aberto' || t.status === 'Em andamento').length;
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'inline-flex';
+            } else {
+                badge.style.display = 'none';
             }
+        }
+
+        function loadAdminTickets() {
+            if (window.MGTicketsSync && typeof window.MGTicketsSync.getTickets === 'function') {
+                adminTickets = window.MGTicketsSync.getTickets();
+            } else {
+                try {
+                    const raw = localStorage.getItem('happynation_tickets');
+                    adminTickets = raw ? JSON.parse(raw) : [];
+                } catch(e) { adminTickets = []; }
+            }
+            updatePendingTicketsBadge();
             renderAdminTicketsList();
             if (adminTickets.length > 0 && !selectedAdminTicketId) {
                 selectAdminTicket(adminTickets[0].id);
             }
+        }
+
+        // Listener de sincronização em tempo real (Supabase + BroadcastChannel)
+        if (typeof window !== 'undefined') {
+            setTimeout(() => {
+                if (window.MGTicketsSync && typeof window.MGTicketsSync.startPolling === 'function') {
+                    window.MGTicketsSync.startPolling(function(updatedTickets) {
+                        if (Array.isArray(updatedTickets)) {
+                            adminTickets = updatedTickets;
+                            updatePendingTicketsBadge();
+                            renderAdminTicketsList();
+                            if (selectedAdminTicketId) {
+                                const cur = adminTickets.find(t => t.id === selectedAdminTicketId);
+                                if (cur) renderAdminChat(cur);
+                            }
+                        }
+                    }, 3500);
+                }
+            }, 300);
         }
 
         function setAdminFilter(status, btn) {
@@ -5202,7 +5232,8 @@
                 const matchSearch = !searchVal || 
                     (t.assunto && t.assunto.toLowerCase().includes(searchVal)) || 
                     (t.descricao && t.descricao.toLowerCase().includes(searchVal)) ||
-                    (t.id && t.id.toLowerCase().includes(searchVal));
+                    (t.id && t.id.toLowerCase().includes(searchVal)) ||
+                    (t.user_nome && t.user_nome.toLowerCase().includes(searchVal));
                 return matchStatus && matchSearch;
             });
 
@@ -5217,16 +5248,18 @@
             filtered.forEach(t => {
                 const isSel = t.id === selectedAdminTicketId ? 'selected' : '';
                 const badgeClass = t.status === 'Resolvido' ? 'resolvido' : (t.status === 'Em andamento' ? 'andamento' : 'aberto');
+                const userTag = t.user_nome ? `<span style="font-size:11px; color:#cbd5e1; font-weight:600; display:block; margin-bottom:2px;">👤 ${escapeAdmHtml(t.user_nome)}</span>` : '';
                 html += `
                     <div class="adm-ticket-row ${isSel}" onclick="selectAdminTicket('${t.id}')">
                         <div class="adm-ticket-top">
                             <span class="adm-ticket-subj">${escapeAdmHtml(t.assunto || 'Sem assunto')}</span>
                             <span class="adm-badge ${badgeClass}">${t.status || 'Aberto'}</span>
                         </div>
+                        ${userTag}
                         <div class="adm-ticket-desc">${escapeAdmHtml(t.descricao || '')}</div>
                         <div class="adm-ticket-footer">
                             <span class="adm-ticket-date">${escapeAdmHtml(t.data || '')}</span>
-                            <span style="font-size:10px; color:#00dc82; font-weight:700;">#${t.id || ''}</span>
+                            <span style="font-size:10px; color:var(--primary); font-weight:700;">#${t.id || ''}</span>
                         </div>
                     </div>
                 `;
@@ -5250,7 +5283,10 @@
             if (subjEl) subjEl.textContent = ticket.assunto || 'Chamado';
 
             const metaEl = document.getElementById('adminDetailMeta');
-            if (metaEl) metaEl.textContent = `ID: ${ticket.id} • ${ticket.data || ''}`;
+            if (metaEl) {
+                const uInfo = ticket.user_nome ? ` • Cliente: ${ticket.user_nome}` : '';
+                metaEl.textContent = `ID: ${ticket.id} • ${ticket.data || ''}${uInfo}`;
+            }
             
             const sel = document.getElementById('adminStatusSelect');
             if (sel) sel.value = ticket.status || 'Aberto';
@@ -5262,15 +5298,32 @@
             const chatEl = document.getElementById('adminChatMessages');
             if (!chatEl) return;
             const msgs = ticket.mensagens || [];
+            const isPurple = document.body.classList.contains('theme-purple');
             
             let html = '';
             msgs.forEach(m => {
                 const isSupport = m.autor === 'suporte' || m.autor === 'admin';
-                const bg = isSupport ? 'rgba(0, 220, 130, 0.12)' : 'rgba(255, 255, 255, 0.05)';
-                const border = isSupport ? '1px solid rgba(0, 220, 130, 0.3)' : '1px solid var(--border-color)';
+                const adminName = m.admin_nome || 'Suporte';
+                const label = isSupport ? `Suporte (${adminName})` : `Cliente (${ticket.user_nome || 'Cliente'})`;
+                
+                let bg, border, labelColor;
+                if (isSupport) {
+                    if (isPurple) {
+                        bg = 'rgba(168, 85, 247, 0.15)';
+                        border = '1px solid rgba(168, 85, 247, 0.35)';
+                        labelColor = '#c084fc';
+                    } else {
+                        bg = 'rgba(0, 220, 130, 0.12)';
+                        border = '1px solid rgba(0, 220, 130, 0.3)';
+                        labelColor = '#00dc82';
+                    }
+                } else {
+                    bg = 'rgba(255, 255, 255, 0.05)';
+                    border = '1px solid var(--border-color)';
+                    labelColor = '#9aa2a6';
+                }
+
                 const align = isSupport ? 'flex-end' : 'flex-start';
-                const label = isSupport ? 'Suporte (Admin)' : 'Cliente';
-                const labelColor = isSupport ? '#00dc82' : '#9aa2a6';
 
                 html += `
                     <div style="align-self:${align};max-width:75%;display:flex;flex-direction:column;gap:4px;">
@@ -5295,6 +5348,7 @@
             if (t) {
                 t.status = newStatus;
                 saveAdminTickets();
+                updatePendingTicketsBadge();
                 renderAdminTicketsList();
                 showToast(`Status alterado para: ${newStatus}`);
             }
@@ -5313,8 +5367,9 @@
             const now = new Date();
             t.mensagens.push({
                 autor: 'suporte',
+                admin_nome: CURRENT_ADMIN_DISPLAY_NAME,
                 texto: txt,
-                data: `${now.toLocaleDateString()} ${now.toLocaleTimeString().slice(0,5)}`
+                data: `${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR').slice(0,5)}`
             });
 
             if (t.status === 'Aberto') {
@@ -5325,15 +5380,20 @@
 
             saveAdminTickets();
             inp.value = '';
+            updatePendingTicketsBadge();
             renderAdminChat(t);
             renderAdminTicketsList();
-            showToast('Resposta enviada ao cliente!');
+            showToast('Resposta enviada com sucesso!');
         }
 
         function saveAdminTickets() {
-            try {
-                localStorage.setItem('happynation_tickets', JSON.stringify(adminTickets));
-            } catch(e) {}
+            if (window.MGTicketsSync && typeof window.MGTicketsSync.saveTickets === 'function') {
+                window.MGTicketsSync.saveTickets(adminTickets);
+            } else {
+                try {
+                    localStorage.setItem('happynation_tickets', JSON.stringify(adminTickets));
+                } catch(e) {}
+            }
         }
 
 
@@ -6448,8 +6508,13 @@
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                                 <span>Editar</span>
                             </button>
-                            <button class="btn-act" onclick="event.stopPropagation(); adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\'")}')" style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.3); font-size:11px; padding:3.5px 7px; border-radius:6px;" title="Resetar trava de IP">🔄 IP</button>
-                            <button class="btn-act block" onclick="event.stopPropagation(); changeUserStatus('${u.id}', 'blocked')" style="padding:3.5px 7px;" title="Bloquear Cliente">Bloquear</button>
+                            ${!isAdm ? `
+                                <button class="btn-act" onclick="event.stopPropagation(); adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\'")}')" style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.3); font-size:11px; padding:3.5px 7px; border-radius:6px;" title="Resetar trava de IP">🔄 IP</button>
+                                <button class="btn-act block" onclick="event.stopPropagation(); changeUserStatus('${u.id}', 'blocked')" style="padding:3.5px 7px;" title="Bloquear Cliente">Bloquear</button>
+                                <button class="btn-act delete" onclick="event.stopPropagation(); adminDeleteUser('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(239, 68, 68, 0.12); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.3); padding:3.5px 7px; border-radius:6px; cursor:pointer;" title="Excluir Cliente (Perda imediata de acesso)">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                </button>
+                            ` : ''}
                         ` : u.status === 'blocked' ? `
                             <button class="btn-act approve" onclick="event.stopPropagation(); changeUserStatus('${u.id}', 'approved')" title="Desbloquear Cliente">Desbloquear</button>
                             <button class="btn-act" onclick="event.stopPropagation(); adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\'")}')" style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.3); font-size:11px; padding:3.5px 7px; border-radius:6px;" title="Resetar IP">🔄 Reset IP</button>

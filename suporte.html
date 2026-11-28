@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+    <script src="js/tickets-sync.js"></script>
             <!-- Open Graph / Compartilhamento de Links (WhatsApp Banner Grande em Cima) -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MG Editáveis">
@@ -1547,22 +1548,35 @@ let currentFilter = 'Todos';
 let selectedTicketId = null;
 
 function loadTickets() {
-    try {
-        const stored = localStorage.getItem('happynation_tickets');
-        if (stored) {
-            allTickets = JSON.parse(stored);
-            if (!Array.isArray(allTickets) || allTickets.length === 0) {
-                allTickets = [...DEFAULT_TICKETS];
-                localStorage.setItem('happynation_tickets', JSON.stringify(allTickets));
-            }
-        } else {
+    if (window.MGTicketsSync && typeof window.MGTicketsSync.getTickets === 'function') {
+        allTickets = window.MGTicketsSync.getTickets();
+    } else {
+        try {
+            const stored = localStorage.getItem('happynation_tickets');
+            allTickets = stored ? JSON.parse(stored) : [...DEFAULT_TICKETS];
+        } catch(e) {
             allTickets = [...DEFAULT_TICKETS];
-            localStorage.setItem('happynation_tickets', JSON.stringify(allTickets));
         }
-    } catch(e) {
-        allTickets = [...DEFAULT_TICKETS];
     }
     renderTicketsList();
+}
+
+// Sincronização em tempo real (Supabase + BroadcastChannel)
+if (typeof window !== 'undefined') {
+    setTimeout(() => {
+        if (window.MGTicketsSync && typeof window.MGTicketsSync.startPolling === 'function') {
+            window.MGTicketsSync.startPolling(function(updatedTickets) {
+                if (Array.isArray(updatedTickets)) {
+                    allTickets = updatedTickets;
+                    renderTicketsList();
+                    if (selectedTicketId) {
+                        const cur = allTickets.find(t => t.id === selectedTicketId);
+                        if (cur) renderChatMessages(cur);
+                    }
+                }
+            }, 3500);
+        }
+    }, 300);
 }
 
 function renderTicketsList() {
@@ -1681,21 +1695,29 @@ function submitTicket() {
     const meses = ['jan.', 'fev.', 'mar.', 'abr.', 'mai.', 'jun.', 'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.'];
     const dataStr = `${now.getDate()} de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
 
+    let uLocal = {};
+    try { uLocal = JSON.parse(localStorage.getItem('happynation_user') || '{}'); } catch(e) {}
+
     const newT = {
         id: 't_' + Date.now(),
+        user_id: uLocal.id || '',
+        user_nome: uLocal.nome || 'Cliente',
+        user_email: uLocal.email || '',
         assunto: sub,
         descricao: desc,
         data: dataStr,
         status: 'Aberto',
         mensagens: [
-            { autor: 'user', texto: desc, data: `${now.toLocaleDateString()} ${now.toLocaleTimeString().slice(0,5)}` }
+            { autor: 'user', texto: desc, data: `${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR').slice(0,5)}` }
         ]
     };
 
     allTickets.unshift(newT);
-    try {
-        localStorage.setItem('happynation_tickets', JSON.stringify(allTickets));
-    } catch(e) {}
+    if (window.MGTicketsSync && typeof window.MGTicketsSync.saveTickets === 'function') {
+        window.MGTicketsSync.saveTickets(allTickets);
+    } else {
+        try { localStorage.setItem('happynation_tickets', JSON.stringify(allTickets)); } catch(e) {}
+    }
 
     showToast('✅ Chamado aberto com sucesso!');
     selectTicket(newT.id);
@@ -1730,8 +1752,10 @@ function renderChatMessages(ticket) {
     let html = '';
     (ticket.mensagens || []).forEach(m => {
         const isUser = m.autor === 'user';
+        const senderName = isUser ? 'Você' : (m.admin_nome ? `Suporte (${m.admin_nome})` : 'Suporte Oficial');
         html += `
             <div class="chat-bubble ${isUser ? 'user' : 'support'}">
+                <span style="font-size:10.5px; font-weight:700; color:${isUser ? '#38bdf8' : '#00dc82'}; display:block; margin-bottom:3px;">${senderName}</span>
                 <span>${m.texto}</span>
                 <span class="chat-bubble-date">${m.data || ''}</span>
             </div>
@@ -1753,7 +1777,7 @@ function sendReply() {
     if (!ticket) return;
 
     const now = new Date();
-    const dataHora = `${now.toLocaleDateString()} ${now.toLocaleTimeString().slice(0,5)}`;
+    const dataHora = `${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR').slice(0,5)}`;
 
     if (!ticket.mensagens) ticket.mensagens = [];
     ticket.mensagens.push({ autor: 'user', texto: texto, data: dataHora });
@@ -1763,28 +1787,14 @@ function sendReply() {
         ticket.status = 'Em andamento';
     }
 
-    try {
-        localStorage.setItem('happynation_tickets', JSON.stringify(allTickets));
-    } catch(e) {}
+    if (window.MGTicketsSync && typeof window.MGTicketsSync.saveTickets === 'function') {
+        window.MGTicketsSync.saveTickets(allTickets);
+    } else {
+        try { localStorage.setItem('happynation_tickets', JSON.stringify(allTickets)); } catch(e) {}
+    }
 
     renderChatMessages(ticket);
     renderTicketsList();
-
-    // Resposta automática do suporte após 1.5s
-    setTimeout(() => {
-        const autoReply = {
-            autor: 'suporte',
-            texto: 'Recebemos sua mensagem! Nossa equipe de suporte está analisando e responderá em breve.',
-            data: `${now.toLocaleDateString()} ${now.toLocaleTimeString().slice(0,5)}`
-        };
-        ticket.mensagens.push(autoReply);
-        try {
-            localStorage.setItem('happynation_tickets', JSON.stringify(allTickets));
-        } catch(e) {}
-        if (selectedTicketId === ticket.id) {
-            renderChatMessages(ticket);
-        }
-    }, 1500);
 }
 
 // ─── CARREGAR DADOS DO USUÁRIO ───
