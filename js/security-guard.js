@@ -15,7 +15,17 @@
                 var r = String(user.role || '').toLowerCase().trim();
                 var e = String(user.email || '').toLowerCase().trim();
                 var n = String(user.nome || '').toLowerCase().trim();
-                if (r === 'admin' || r === 'adm' || r === 'operator' || r === 'suporte' || e === 'mg' || e === 'br7' || e.includes('admin') || e.includes('gustavo') || n.includes('admin') || n.includes('br7')) {
+                var uid = String(user.id || '');
+
+                // B7 e Juan NÃO são contas isentas de segurança
+                if (e.includes('11vitorgomes') || e.includes('b7ofc') || n === 'b7' || n.includes('juan brito')) {
+                    return false;
+                }
+
+                if (e === 'mg' || e === 'br7' || uid === '1' || uid === '45' || n === 'administrador mg' || n === 'adm br7') {
+                    return true;
+                }
+                if (r === 'admin' || r === 'adm' || r === 'operator' || r === 'suporte') {
                     return true;
                 }
             }

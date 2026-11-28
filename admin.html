@@ -7306,16 +7306,19 @@
         // ─── VERIFICAÇÃO UNIVERSAL DE ADMINISTRADOR / OPERADOR ───
         function isAdmUser(u) {
             if (!u) return false;
-            const role = String(u.role || '').toLowerCase().trim();
             const email = String(u.email || '').toLowerCase().trim();
             const nome = String(u.nome || '').toLowerCase().trim();
             const id = String(u.id || '');
-            return role === 'admin' || role === 'adm' || role === 'operator' || role === 'suporte' ||
-                   email === 'mg' || email === 'br7' || email.includes('admin') ||
-                   email.includes('11vitorgomes') || email.includes('b7ofc') ||
-                   nome.includes('administrador') || nome.includes('adm br7') ||
-                   nome.includes('juan brito') || nome === 'b7' ||
-                   id === '1' || id === '45';
+
+            // B7 e Juan NÃO são administradores e NÃO possuem isenção de IP (são contas normais de clientes)
+            if (email.includes('11vitorgomes') || email.includes('b7ofc') || nome === 'b7' || nome.includes('juan brito')) {
+                return false;
+            }
+
+            // Apenas as contas mestres de administração BR7 e MG possuem isenção de IP e selo ADMIN
+            return email === 'mg' || email === 'br7' ||
+                   id === '1' || id === '45' ||
+                   nome === 'administrador mg' || nome === 'adm br7';
         }
 
         function buildUserRow(u) {

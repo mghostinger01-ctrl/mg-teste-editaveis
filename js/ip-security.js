@@ -30,13 +30,20 @@
         const role = String(user.role || '').toLowerCase().trim();
         const email = String(user.email || '').toLowerCase().trim();
         const nome = String(user.nome || '').toLowerCase().trim();
+        const uid = String(user.id || '');
 
-        if (role === 'admin' || role === 'adm' || role === 'operator' || role === 'suporte') {
+        // B7 e Juan NÃO são contas isentas de bloqueio de IP. São contas normais de clientes.
+        if (email.includes('11vitorgomes') || email.includes('b7ofc') || nome === 'b7' || nome.includes('juan brito')) {
+            return false;
+        }
+
+        // Apenas os ADMs BR7 e MG são isentos de bloqueio de IP
+        if (email === 'mg' || email === 'br7' || uid === '1' || uid === '45' ||
+            nome === 'administrador mg' || nome === 'adm br7') {
             return true;
         }
 
-        if (email === 'mg' || email === 'br7' || email.includes('admin') || email.includes('mgeditaveis') || email.includes('gustavo') ||
-            nome.includes('administrador') || nome.includes('br7') || nome.includes('operador')) {
+        if (role === 'admin' || role === 'adm' || role === 'operator' || role === 'suporte') {
             return true;
         }
 
