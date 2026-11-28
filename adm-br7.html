@@ -7,13 +7,21 @@
     
     
 
-    <!-- ADMIN AUTH GATE INITIAL CHECK -->
+    <!-- ADMIN AUTH GATE & THEME INITIAL CHECK -->
     <script>
         (function() {
             try {
                 var isAuth = sessionStorage.getItem('happynation_admin_auth') === 'true' || localStorage.getItem('happynation_admin_auth') === 'true';
                 if (isAuth) {
                     document.documentElement.classList.add('admin-authorized');
+                }
+                var br7Theme = localStorage.getItem('happynation_br7_theme') || 'purple';
+                if (br7Theme === 'green') {
+                    document.documentElement.classList.add('theme-green');
+                    document.documentElement.classList.remove('theme-purple');
+                } else {
+                    document.documentElement.classList.add('theme-purple');
+                    document.documentElement.classList.remove('theme-green');
                 }
             } catch(e) {}
         })();
@@ -2342,6 +2350,333 @@
         .networking-fab {
             display: none !important;
         }
+
+        /* ══════════════════════════════════════════════════════════════
+           TEMA ROXO NEON (BR SETE) & SELETOR DE CORES NO HEADER
+           ══════════════════════════════════════════════════════════════ */
+        
+        /* Dropdown Seletor de Cores no Header */
+        .admin-profile-badge {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        .admin-profile-badge:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .br7-theme-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 275px;
+            background: #14161a;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            backdrop-filter: blur(14px);
+            animation: br7DropdownIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes br7DropdownIn {
+            from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .theme-dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 2px 6px 10px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 8px;
+        }
+        .theme-dropdown-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .theme-option-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .theme-option-item:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        .theme-option-item.active {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+        .theme-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+        }
+        .theme-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            min-width: 0;
+            gap: 1px;
+        }
+        .theme-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .theme-desc {
+            font-size: 10.5px;
+            color: #94a3b8;
+        }
+        .theme-check {
+            font-size: 15px;
+            font-weight: 900;
+            display: none;
+            margin-left: auto;
+        }
+        .theme-option-item.active .theme-check {
+            display: block;
+        }
+        #optThemePurple.active .theme-check {
+            color: #c084fc;
+        }
+        #optThemeGreen.active .theme-check {
+            color: #00dc82;
+        }
+
+        /* ─── APLICAÇÃO GLOBAL DO TEMA ROXO NEON (BR SETE) ─── */
+        html.theme-purple {
+            --primary: #a855f7 !important;
+            --primary-rgb: 168, 85, 247 !important;
+            --primary-hover: #9333ea !important;
+            --primary-glow: rgba(168, 85, 247, 0.35) !important;
+            --primary-gradient: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%) !important;
+            --border-glow: rgba(168, 85, 247, 0.3) !important;
+            --border-color: #2b223c !important;
+            --border-subtle: #332847 !important;
+        }
+
+        html.theme-purple .brand-logo-box {
+            background: linear-gradient(135deg, #a855f7, #7e22ce) !important;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.5) !important;
+        }
+        html.theme-purple .brand-logo-box svg {
+            color: #ffffff !important;
+        }
+        html.theme-purple .brand-title span {
+            color: #c084fc !important;
+        }
+        html.theme-purple .brand-sub {
+            color: #c084fc !important;
+        }
+        html.theme-purple .avatar-circle {
+            background: #a855f7 !important;
+            color: #ffffff !important;
+        }
+        html.theme-purple .admin-tag {
+            background: rgba(168, 85, 247, 0.18) !important;
+            color: #c084fc !important;
+            border-color: rgba(168, 85, 247, 0.35) !important;
+        }
+        html.theme-purple .status-dot {
+            background: #a855f7 !important;
+            box-shadow: 0 0 10px #a855f7 !important;
+        }
+        html.theme-purple .system-status-chip {
+            border-color: rgba(168, 85, 247, 0.3) !important;
+        }
+        html.theme-purple .nav-item.active {
+            background: rgba(168, 85, 247, 0.14) !important;
+            color: #ffffff !important;
+            border-left: 3px solid #a855f7 !important;
+        }
+        html.theme-purple .nav-item.active .nav-icon svg {
+            stroke: #a855f7 !important;
+            filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.8)) !important;
+        }
+        html.theme-purple .nav-item:hover {
+            background: rgba(168, 85, 247, 0.08) !important;
+            color: #e9d5ff !important;
+        }
+        html.theme-purple .nav-item:hover .nav-icon svg {
+            stroke: #c084fc !important;
+        }
+        html.theme-purple .nav-badge {
+            background: rgba(168, 85, 247, 0.22) !important;
+            color: #c084fc !important;
+        }
+        html.theme-purple .nav-item.active .nav-badge {
+            background: #a855f7 !important;
+            color: #ffffff !important;
+        }
+        html.theme-purple .btn-act.add-balance,
+        html.theme-purple button.btn-act[onclick*="openAddUserModal"],
+        html.theme-purple button.btn-act[onclick*="openAddCnhModal"],
+        html.theme-purple .btn-primary,
+        html.theme-purple .admin-gate-btn {
+            background: #a855f7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35) !important;
+        }
+        html.theme-purple .btn-act.add-balance:hover,
+        html.theme-purple button.btn-act[onclick*="openAddUserModal"]:hover,
+        html.theme-purple button.btn-act[onclick*="openAddCnhModal"]:hover,
+        html.theme-purple .btn-primary:hover,
+        html.theme-purple .admin-gate-btn:hover {
+            background: #9333ea !important;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.55) !important;
+        }
+        html.theme-purple .btn-act.edit-btn {
+            background: rgba(168, 85, 247, 0.12) !important;
+            color: #c084fc !important;
+            border-color: rgba(168, 85, 247, 0.35) !important;
+        }
+        html.theme-purple .badge.approved {
+            background: rgba(168, 85, 247, 0.15) !important;
+            color: #c084fc !important;
+            border: 1px solid rgba(168, 85, 247, 0.35) !important;
+        }
+        html.theme-purple .badge-user {
+            background: rgba(168, 85, 247, 0.15) !important;
+            color: #c084fc !important;
+            border-color: rgba(168, 85, 247, 0.35) !important;
+        }
+        html.theme-purple .user-row-clickable:hover td {
+            background: rgba(168, 85, 247, 0.05) !important;
+        }
+        html.theme-purple .user-row-clickable:active td {
+            background: rgba(168, 85, 247, 0.08) !important;
+        }
+        html.theme-purple .user-avatar-sm {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(15, 23, 42, 0.95)) !important;
+            border: 1.5px solid #a855f7 !important;
+            color: #c084fc !important;
+        }
+        html.theme-purple .ip-tag.exempt {
+            background: rgba(168, 85, 247, 0.14) !important;
+            color: #c084fc !important;
+            border: 1px solid rgba(168, 85, 247, 0.35) !important;
+        }
+        html.theme-purple .adm-filter.active {
+            background: rgba(168, 85, 247, 0.18) !important;
+            color: #c084fc !important;
+            border-color: rgba(168, 85, 247, 0.45) !important;
+        }
+        html.theme-purple .search-inp:focus {
+            border-color: #a855f7 !important;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.18) !important;
+        }
+        html.theme-purple .search-box-wrap svg {
+            color: #a855f7 !important;
+        }
+        html.theme-purple .table-title svg {
+            stroke: #a855f7 !important;
+        }
+        html.theme-purple .sec-icon {
+            color: #c084fc !important;
+        }
+        html.theme-purple .sec-live-dot {
+            background: #a855f7 !important;
+            box-shadow: 0 0 8px #a855f7 !important;
+        }
+        html.theme-purple .stat-chip-dot,
+        html.theme-purple .stat-sub-dot {
+            background: #a855f7 !important;
+        }
+        html.theme-purple .stat-card.primary {
+            border-color: rgba(168, 85, 247, 0.35) !important;
+        }
+        html.theme-purple .stat-card.primary .stat-icon-wrap {
+            background: rgba(168, 85, 247, 0.15) !important;
+            color: #c084fc !important;
+        }
+        html.theme-purple .admin-gate-card {
+            border-color: rgba(168, 85, 247, 0.3) !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 50px rgba(168, 85, 247, 0.2) !important;
+        }
+        html.theme-purple .admin-gate-badge {
+            background: rgba(168, 85, 247, 0.15) !important;
+            border-color: rgba(168, 85, 247, 0.35) !important;
+            color: #c084fc !important;
+        }
+        html.theme-purple .admin-gate-system {
+            color: #c084fc !important;
+        }
+        html.theme-purple .admin-gate-input:focus {
+            border-color: #a855f7 !important;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2) !important;
+        }
+        html.theme-purple .admin-gate-toggle-btn:hover {
+            color: #c084fc !important;
+        }
+        html.theme-purple .admin-gate-msg.success {
+            background: rgba(168, 85, 247, 0.15) !important;
+            border-color: rgba(168, 85, 247, 0.35) !important;
+            color: #c084fc !important;
+        }
+        html.theme-purple input[type="checkbox"]:checked {
+            accent-color: #a855f7 !important;
+        }
+
+        /* Overrides dinâmicos para elementos com inline styles em tons de verde */
+        html.theme-purple [style*="color:#00dc82"],
+        html.theme-purple [style*="color: #00dc82"],
+        html.theme-purple [style*="color:#00DC82"],
+        html.theme-purple [style*="color: #00DC82"] {
+            color: #c084fc !important;
+        }
+        html.theme-purple [style*="background:#00dc82"],
+        html.theme-purple [style*="background: #00dc82"],
+        html.theme-purple [style*="background:#00DC82"],
+        html.theme-purple [style*="background: #00DC82"] {
+            background: #a855f7 !important;
+            color: #ffffff !important;
+        }
+        html.theme-purple [style*="background:rgba(0,220,130"],
+        html.theme-purple [style*="background: rgba(0, 220, 130"],
+        html.theme-purple [style*="background:rgba(0, 220, 130"] {
+            background: rgba(168, 85, 247, 0.16) !important;
+        }
+        html.theme-purple [style*="border:1px solid rgba(0,220,130"],
+        html.theme-purple [style*="border: 1px solid rgba(0, 220, 130"],
+        html.theme-purple [style*="border:1.5px solid #00dc82"] {
+            border-color: rgba(168, 85, 247, 0.4) !important;
+        }
+        html.theme-purple [style*="border-color: rgba(0, 220, 130"],
+        html.theme-purple [style*="border-color:rgba(0, 220, 130"] {
+            border-color: rgba(168, 85, 247, 0.4) !important;
+        }
+        html.theme-purple [style*="box-shadow: 0 0 8px #00dc82"],
+        html.theme-purple [style*="box-shadow:0 0 8px #00dc82"],
+        html.theme-purple [style*="box-shadow:0 0 6px #00dc82"],
+        html.theme-purple [style*="box-shadow: 0 0 6px #00dc82"] {
+            box-shadow: 0 0 8px #a855f7 !important;
+        }
+        html.theme-purple [style*="accent-color:#00dc82"],
+        html.theme-purple [style*="accent-color: #00dc82"] {
+            accent-color: #a855f7 !important;
+        }
+        html.theme-purple [style*="stroke:#00dc82"],
+        html.theme-purple [style*="stroke: #00dc82"] {
+            stroke: #a855f7 !important;
+        }
 </style>
 <script src="/db-sync.js"></script>
 <script src="/saldo-sync.js"></script>
@@ -2470,11 +2805,41 @@
                     <span class="desktop-only">Área do Cliente</span>
                 </a>
 
-                <div class="admin-profile-badge">
-                    <div class="avatar-circle" style="background:#00dc82; color:#062517; font-weight:800;">B7</div>
+                <div class="admin-profile-badge" id="br7ThemeToggleBadge" onclick="toggleBr7ThemeDropdown(event)" style="cursor:pointer; position:relative;" title="Clique para trocar a cor do painel">
+                    <div class="avatar-circle" id="br7ThemeAvatar" style="background:#00dc82; color:#062517; font-weight:800;">B7</div>
                     <div class="admin-role-info desktop-only">
                         <span class="admin-name" id="adminHeaderName">ADM BR7</span>
-                        <span class="admin-tag" style="background:rgba(0,220,130,0.15); color:#00dc82;">OPERADOR</span>
+                        <span class="admin-tag" id="br7ThemeTag" style="background:rgba(0,220,130,0.15); color:#00dc82;">OPERADOR</span>
+                    </div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:4px; opacity:0.75;"><polyline points="6 9 12 15 18 9"/></svg>
+
+                    <!-- DROPDOWN DE SELEÇÃO DE TEMA / COR -->
+                    <div class="br7-theme-dropdown" id="br7ThemeDropdown" style="display:none;" onclick="event.stopPropagation();">
+                        <div class="theme-dropdown-header">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 0 0 0 14v6"/></svg>
+                            <span>Cor do Painel ADM BR7</span>
+                        </div>
+                        <div class="theme-dropdown-options">
+                            <!-- 1. ROXO NEON (BR SETE) -->
+                            <div class="theme-option-item" id="optThemePurple" onclick="setBr7Theme('purple')">
+                                <div class="theme-swatch" style="background:linear-gradient(135deg, #a855f7, #7e22ce); box-shadow:0 0 12px rgba(168,85,247,0.6);"></div>
+                                <div class="theme-info">
+                                    <span class="theme-name" style="color:#c084fc;">Roxo Neon (BR SETE)</span>
+                                    <span class="theme-desc">Visual oficial BR SETE</span>
+                                </div>
+                                <span class="theme-check" id="checkThemePurple">✓</span>
+                            </div>
+
+                            <!-- 2. VERDE EMERALD (PADRÃO ATUAL) - ABAIXO CONFORME SOLICITADO -->
+                            <div class="theme-option-item" id="optThemeGreen" onclick="setBr7Theme('green')">
+                                <div class="theme-swatch" style="background:linear-gradient(135deg, #00dc82, #00b368); box-shadow:0 0 12px rgba(0,220,130,0.6);"></div>
+                                <div class="theme-info">
+                                    <span class="theme-name" style="color:#00dc82;">Verde Emerald</span>
+                                    <span class="theme-desc">Versão verde atual</span>
+                                </div>
+                                <span class="theme-check" id="checkThemeGreen">✓</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -9739,12 +10104,19 @@
                     const pulse = (Math.sin(this.pulsePhase) + 1) * 0.5; // 0 to 1
                     const r = this.baseRadius + pulse * (this.isHub ? 2.0 : 0.9);
                     const alpha = 0.5 + pulse * 0.5;
+                    const isPurple = document.documentElement.classList.contains('theme-purple');
 
-                    // Halo radial neon — verde esmeralda
+                    // Halo radial neon — roxo neon ou verde esmeralda conforme o tema ativo
                     const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, r * 3.8);
-                    grad.addColorStop(0, this.isHub ? `rgba(0, 220, 130, ${alpha * 0.85})` : `rgba(0, 200, 110, ${alpha * 0.65})`);
-                    grad.addColorStop(0.4, `rgba(0, 180, 100, ${alpha * 0.2})`);
-                    grad.addColorStop(1, 'rgba(0, 220, 130, 0)');
+                    if (isPurple) {
+                        grad.addColorStop(0, this.isHub ? `rgba(168, 85, 247, ${alpha * 0.85})` : `rgba(147, 51, 234, ${alpha * 0.65})`);
+                        grad.addColorStop(0.4, `rgba(126, 34, 206, ${alpha * 0.2})`);
+                        grad.addColorStop(1, 'rgba(168, 85, 247, 0)');
+                    } else {
+                        grad.addColorStop(0, this.isHub ? `rgba(0, 220, 130, ${alpha * 0.85})` : `rgba(0, 200, 110, ${alpha * 0.65})`);
+                        grad.addColorStop(0.4, `rgba(0, 180, 100, ${alpha * 0.2})`);
+                        grad.addColorStop(1, 'rgba(0, 220, 130, 0)');
+                    }
 
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, r * 3.8, 0, Math.PI * 2);
@@ -9754,9 +10126,15 @@
                     // Núcleo brilhante (bolinha pulsante)
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, r * 0.9, 0, Math.PI * 2);
-                    ctx.fillStyle = this.isHub ? `rgba(200, 255, 230, ${alpha})` : `rgba(0, 220, 130, ${alpha * 0.9})`;
-                    ctx.shadowBlur = this.isHub ? 16 : 8;
-                    ctx.shadowColor = '#00dc82';
+                    if (isPurple) {
+                        ctx.fillStyle = this.isHub ? `rgba(245, 220, 255, ${alpha})` : `rgba(168, 85, 247, ${alpha * 0.9})`;
+                        ctx.shadowBlur = this.isHub ? 16 : 8;
+                        ctx.shadowColor = '#a855f7';
+                    } else {
+                        ctx.fillStyle = this.isHub ? `rgba(200, 255, 230, ${alpha})` : `rgba(0, 220, 130, ${alpha * 0.9})`;
+                        ctx.shadowBlur = this.isHub ? 16 : 8;
+                        ctx.shadowColor = '#00dc82';
+                    }
                     ctx.fill();
                     ctx.shadowBlur = 0;
                 }
@@ -9768,13 +10146,21 @@
 
             function animate() {
                 ctx.clearRect(0, 0, width, height);
+                const isPurple = document.documentElement.classList.contains('theme-purple');
 
-                // Fundo sutil com leve toque esmeralda profundo
+                // Fundo sutil com toque roxo ou esmeralda conforme tema
                 const bgGrad = ctx.createRadialGradient(width * 0.5, height * 0.4, 60, width * 0.5, height * 0.5, width * 0.85);
-                bgGrad.addColorStop(0, 'rgba(0, 40, 22, 0.18)');
-                bgGrad.addColorStop(0.35, 'rgba(0, 22, 14, 0.10)');
-                bgGrad.addColorStop(0.7, 'rgba(0, 10, 6, 0.06)');
-                bgGrad.addColorStop(1, 'rgba(18, 20, 20, 0.98)');
+                if (isPurple) {
+                    bgGrad.addColorStop(0, 'rgba(38, 10, 56, 0.22)');
+                    bgGrad.addColorStop(0.35, 'rgba(22, 6, 34, 0.12)');
+                    bgGrad.addColorStop(0.7, 'rgba(14, 4, 22, 0.08)');
+                    bgGrad.addColorStop(1, 'rgba(16, 12, 22, 0.98)');
+                } else {
+                    bgGrad.addColorStop(0, 'rgba(0, 40, 22, 0.18)');
+                    bgGrad.addColorStop(0.35, 'rgba(0, 22, 14, 0.10)');
+                    bgGrad.addColorStop(0.7, 'rgba(0, 10, 6, 0.06)');
+                    bgGrad.addColorStop(1, 'rgba(18, 20, 20, 0.98)');
+                }
                 ctx.fillStyle = bgGrad;
                 ctx.fillRect(0, 0, width, height);
 
@@ -9792,7 +10178,7 @@
                             ctx.beginPath();
                             ctx.moveTo(p1.x, p1.y);
                             ctx.lineTo(mouse.x, mouse.y);
-                            ctx.strokeStyle = `rgba(0, 220, 130, ${mAlpha})`;
+                            ctx.strokeStyle = isPurple ? `rgba(168, 85, 247, ${mAlpha})` : `rgba(0, 220, 130, ${mAlpha})`;
                             ctx.lineWidth = 1;
                             ctx.stroke();
                         }
@@ -9811,7 +10197,7 @@
                             ctx.beginPath();
                             ctx.moveTo(p1.x, p1.y);
                             ctx.lineTo(p2.x, p2.y);
-                            ctx.strokeStyle = `rgba(0, 200, 110, ${lineAlpha})`;
+                            ctx.strokeStyle = isPurple ? `rgba(147, 51, 234, ${lineAlpha})` : `rgba(0, 200, 110, ${lineAlpha})`;
                             ctx.lineWidth = dist < 55 ? 1.2 : 0.7;
                             ctx.stroke();
                         }
@@ -10664,6 +11050,98 @@
             sessionStorage.setItem('happynation_user', JSON.stringify(br7UserObj));
             window.location.href = 'index.html';
         }
+
+        // ─── SELETOR DE CORES / TEMAS ADM BR7 (ROXO NEON / VERDE EMERALD) ───
+        function toggleBr7ThemeDropdown(e) {
+            if (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            const dd = document.getElementById('br7ThemeDropdown');
+            if (!dd) return;
+            if (dd.style.display === 'none' || !dd.style.display) {
+                dd.style.display = 'block';
+            } else {
+                dd.style.display = 'none';
+            }
+        }
+
+        function setBr7Theme(theme) {
+            if (theme !== 'green' && theme !== 'purple') theme = 'purple';
+            try { localStorage.setItem('happynation_br7_theme', theme); } catch(err) {}
+
+            const isPurple = (theme === 'purple');
+
+            if (isPurple) {
+                document.documentElement.classList.add('theme-purple');
+                document.documentElement.classList.remove('theme-green');
+                document.body.classList.add('theme-purple');
+                document.body.classList.remove('theme-green');
+
+                const optP = document.getElementById('optThemePurple');
+                const optG = document.getElementById('optThemeGreen');
+                if (optP) optP.classList.add('active');
+                if (optG) optG.classList.remove('active');
+
+                const av = document.getElementById('br7ThemeAvatar');
+                if (av) {
+                    av.style.background = '#a855f7';
+                    av.style.color = '#ffffff';
+                }
+                const tag = document.getElementById('br7ThemeTag');
+                if (tag) {
+                    tag.style.background = 'rgba(168,85,247,0.18)';
+                    tag.style.color = '#c084fc';
+                }
+            } else {
+                document.documentElement.classList.add('theme-green');
+                document.documentElement.classList.remove('theme-purple');
+                document.body.classList.add('theme-green');
+                document.body.classList.remove('theme-purple');
+
+                const optP = document.getElementById('optThemePurple');
+                const optG = document.getElementById('optThemeGreen');
+                if (optP) optP.classList.remove('active');
+                if (optG) optG.classList.add('active');
+
+                const av = document.getElementById('br7ThemeAvatar');
+                if (av) {
+                    av.style.background = '#00dc82';
+                    av.style.color = '#062517';
+                }
+                const tag = document.getElementById('br7ThemeTag');
+                if (tag) {
+                    tag.style.background = 'rgba(0,220,130,0.15)';
+                    tag.style.color = '#00dc82';
+                }
+            }
+
+            const dd = document.getElementById('br7ThemeDropdown');
+            if (dd) dd.style.display = 'none';
+        }
+
+        // Fechar dropdown ao clicar fora
+        document.addEventListener('click', function(e) {
+            const dd = document.getElementById('br7ThemeDropdown');
+            const badge = document.getElementById('br7ThemeToggleBadge');
+            if (dd && dd.style.display !== 'none') {
+                if (!badge || !badge.contains(e.target)) {
+                    dd.style.display = 'none';
+                }
+            }
+        });
+
+        // Inicializa tema imediatamente no DOM
+        (function initBr7ThemeActive() {
+            var saved = 'purple';
+            try { saved = localStorage.getItem('happynation_br7_theme') || 'purple'; } catch(e) {}
+            if (saved !== 'green') saved = 'purple';
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() { setBr7Theme(saved); });
+            } else {
+                setBr7Theme(saved);
+            }
+        })();
 
         // Garante campos sempre vazios para digitação obrigatória
         document.addEventListener('DOMContentLoaded', function() {
