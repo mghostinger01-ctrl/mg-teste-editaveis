@@ -3037,7 +3037,6 @@
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                             <span>Últimas Atividades de Clientes</span>
                         </div>
-                        <button onclick="clearAdminActivities()" style="background:transparent; border:1px solid #374151; color:#94a3b8; font-size:11px; padding:4px 10px; border-radius:6px; cursor:pointer;">🗑 Limpar</button>
                     </div>
                     <div class="table-responsive">
                         <table class="data-table">
@@ -4846,19 +4845,39 @@
         function refreshSecurityData() {
             loadAdminDataFromSupabase();
 
-        // Ouvinte de sincronização em tempo real entre painéis e abas
-        try {
-            const bcLive = new BroadcastChannel('happynation_live_sync');
-            bcLive.onmessage = function(ev) {
-                if (ev.data && (ev.data.type === 'admin_data_updated' || ev.data.type === 'activity_created' || ev.data.type === 'saldo_updated' || ev.data.type === 'status_updated')) {
-                    if (typeof loadAdminDataFromSupabase === 'function') {
-                        loadAdminDataFromSupabase();
+            // Ouvinte de sincronização em tempo real entre painéis e abas (0ms de latência)
+            try {
+                const bcLive = new BroadcastChannel('happynation_live_sync');
+                bcLive.onmessage = function(ev) {
+                    if (!ev || !ev.data) return;
+                    const t = ev.data.type;
+                    if (t === 'admin_data_updated' || t === 'activity_created' || t === 'saldo_updated' || t === 'status_updated' ||
+                        t === 'cnh_created' || t === 'cnh_deleted' || t === 'cnh_unblocked' || t === 'doc_created' || t === 'document_created' ||
+                        t === 'user_deleted' || t === 'user_created' || t === 'ip_blocked' || t === 'ip_unblocked' || t === 'tickets_updated') {
+                        
+                        if (t === 'activity_created' && ev.data.activity) {
+                            try {
+                                let acts = JSON.parse(localStorage.getItem(ADMIN_ACTS_KEY) || '[]');
+                                const isDup = acts.some(a => a.descricao === ev.data.activity.descricao && a.usuario === ev.data.activity.usuario && Math.abs(new Date(a.created_at).getTime() - new Date(ev.data.activity.created_at).getTime()) < 10000);
+                                if (!isDup) {
+                                    acts.unshift(ev.data.activity);
+                                    if (acts.length > MAX_ACTS) acts = acts.slice(0, MAX_ACTS);
+                                    localStorage.setItem(ADMIN_ACTS_KEY, JSON.stringify(acts));
+                                    renderAdminActivities();
+                                }
+                            } catch(eAct) {}
+                        }
+                        if (typeof loadAdminDataFromSupabase === 'function') {
+                            loadAdminDataFromSupabase();
+                        }
+                        if (typeof loadAdminTickets === 'function') {
+                            loadAdminTickets();
+                        }
                     }
-                }
-            };
-        } catch(eBcLive) {}
+                };
+            } catch(eBcLive) {}
 
-        setInterval(loadAdminDataFromSupabase, 15000);
+            setInterval(loadAdminDataFromSupabase, 3000);
         }
 
         function renderSecurityView() {
@@ -5074,6 +5093,18 @@
                     showToast('✅ IP ' + ip + ' desbloqueado com sucesso!');
                     renderSecurityView();
                     refreshSecurityData();
+                    logAdminActivity('bloqueio', 'Desbloqueio de IP: ' + ip, 'Sistema / BR7', '—', 'concluido', {
+                        subRotulo: 'Acesso de Rede Liberado',
+                        tagClass: 'badge-user',
+                        tagText: 'IP LIBERADO',
+                        cor: '#00dc82'
+                    });
+                    try {
+                        const bc = new BroadcastChannel('happynation_live_sync');
+                        bc.postMessage({ type: 'ip_unblocked', ip: ip });
+                        bc.postMessage({ type: 'admin_data_updated' });
+                        bc.close();
+                    } catch(eBc) {}
                 } else {
                     showToast('Erro ao desbloquear IP. Tente novamente.');
                 }
@@ -5128,6 +5159,18 @@
                     document.getElementById('inputManualBlockIp').value = '';
                     document.getElementById('inputManualBlockMotivo').value = '';
                     refreshSecurityData();
+                    logAdminActivity('bloqueio', 'Bloqueio de IP: ' + ip, 'Sistema / BR7', '—', 'concluido', {
+                        subRotulo: motivo || 'Trava Manual de Rede',
+                        tagClass: 'badge-user',
+                        tagText: 'IP BLOQ',
+                        cor: '#ef4444'
+                    });
+                    try {
+                        const bc = new BroadcastChannel('happynation_live_sync');
+                        bc.postMessage({ type: 'ip_blocked', ip: ip });
+                        bc.postMessage({ type: 'admin_data_updated' });
+                        bc.close();
+                    } catch(eBc) {}
                 } else {
                     const err = await res.json();
                     showToast('Erro ao bloquear IP: ' + (err.message || res.status));
@@ -5422,6 +5465,14 @@
             try { localStorage.setItem(ADMIN_ACTS_KEY, JSON.stringify(acts)); } catch(e) {}
             renderAdminActivities();
 
+            // Sincronização instantânea (0ms) entre painéis administrativos via BroadcastChannel
+            try {
+                const bcAct = new BroadcastChannel('happynation_live_sync');
+                bcAct.postMessage({ type: 'activity_created', activity: newAct });
+                bcAct.postMessage({ type: 'admin_data_updated' });
+                bcAct.close();
+            } catch(eBc) {}
+
             // Sincroniza em tempo real com o Supabase para que outros operadores/dispositivos vejam imediatamente
             try {
                 let numVal = 0.00;
@@ -5494,21 +5545,12 @@
             const tbody = document.getElementById('adminActivitiesTbody');
             if (!tbody) return;
 
-            // Filtro de limpeza: ignorar itens anteriores ao ultimo clear
-            const clearedAt = localStorage.getItem('happynation_activities_cleared_at');
-            const clearedTime = clearedAt ? new Date(clearedAt).getTime() : 0;
-
             const feed = [];
             const seenKeys = new Set();
 
             const recentKeys = [];
             function addAct(item) {
                 if (!item || !item.descricao) return;
-                // Bloquear itens anteriores ao ultimo clear
-                if (clearedTime > 0 && item.created_at) {
-                    const itemTime = new Date(item.created_at).getTime();
-                    if (!isNaN(itemTime) && itemTime <= clearedTime) return;
-                }
                 // Mesmo documento (tipo + nome) em janela de 3 min = mesma emissão: mantém o 1º (valor realmente cobrado)
                 if (item.tipo && ['saldo', 'recarga', 'cadastro'].indexOf(item.tipo) === -1) {
                     const _tms = item.created_at ? new Date(item.created_at).getTime() : NaN;
@@ -6018,28 +6060,7 @@
             }).join('');
         }
         function clearAdminActivities() {
-            if (!confirm('Limpar todo o histórico de atividades?')) return;
-            // 1. Marca flag de limpeza para não recriar do histórico antigo
-            const clearTime = new Date().toISOString();
-            localStorage.setItem('happynation_activities_cleared_at', clearTime);
-            localStorage.setItem(ADMIN_ACTS_KEY, '[]');
-            
-            // 2. Limpa também chaves locais antigas de atestados/exames/diplomas que alimentam a lista
-            try {
-                const keysToRemove = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && (k.startsWith('happynation_atestados_') || k.startsWith('happynation_exames_') || k.startsWith('happynation_prontuarios_') || k.startsWith('happynation_rgs_') || k.startsWith('happynation_diplomas_') || k === 'happynation_admin_diplomas')) {
-                        keysToRemove.push(k);
-                    }
-                }
-                keysToRemove.forEach(k => localStorage.removeItem(k));
-            } catch(e) {}
-
-            const tbody = document.getElementById('adminActivitiesTbody');
-            if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#475569; padding:24px;">Nenhuma atividade registrada ainda.</td></tr>';
-            if (window.MGSync) window.MGSync.api.clear('activities');
-            currentActivitiesPage = 1;
+            // Desativado no painel BR7 para manter sincronia permanente com o Admin Principal
             renderAdminActivities();
         }
 
@@ -7277,6 +7298,28 @@
                 console.error('[Admin] Falha ao persistir status no Supabase.');
                 showToast(`⚠️ Status salvo no painel, mas verifique a conexão com o banco.`, false);
             }
+
+            // Registra atividade e notifica o outro painel admin instantaneamente
+            try {
+                if (normStatus === 'blocked') {
+                    logAdminActivity('bloqueio', 'Cliente Bloqueado', u.nome, '—', 'concluido', {
+                        subRotulo: 'Trava de Segurança',
+                        tagClass: 'badge-user',
+                        tagText: 'BLOQUEIO',
+                        cor: '#ef4444'
+                    });
+                } else if (normStatus === 'approved') {
+                    logAdminActivity('bloqueio', 'Cliente Desbloqueado/Aprovado', u.nome, '—', 'concluido', {
+                        subRotulo: 'Acesso Liberado',
+                        tagClass: 'badge-user',
+                        tagText: 'DESBLOQUEIO',
+                        cor: '#00dc82'
+                    });
+                }
+                const bc = new BroadcastChannel('happynation_live_sync');
+                bc.postMessage({ type: 'admin_data_updated', action: 'status_changed', id: id, status: normStatus });
+                bc.close();
+            } catch(eBc) {}
         }
 
         
@@ -7320,6 +7363,13 @@
                 usersData = usersData.filter(u => String(u.id) !== String(userId));
                 renderUsersTable();
 
+                logAdminActivity('seguranca', 'Cliente Excluído', userName, '—', 'concluido', {
+                    subRotulo: 'Conta Desativada / Lixeira',
+                    tagClass: 'badge-user',
+                    tagText: 'EXCLUÍDO',
+                    cor: '#ef4444'
+                });
+
                 if (typeof showToast === 'function') {
                     showToast(`✓ Cliente "${userName}" excluído! Acesso encerrado imediatamente.`, 'success');
                 }
@@ -7347,6 +7397,12 @@
                 saveStorage();
                 renderUsersTable();
                 updateDashboardMetrics();
+                logAdminActivity('seguranca', 'Reset de Trava de IP', userName, '—', 'concluido', {
+                    subRotulo: 'Dispositivo / IP Liberado',
+                    tagClass: 'badge-user',
+                    tagText: 'IP RESET',
+                    cor: '#38bdf8'
+                });
                 try { const bc = new BroadcastChannel('happynation_live_sync'); bc.postMessage({ type: 'admin_data_updated' }); bc.close(); } catch(e){}
             }
 
@@ -7418,6 +7474,12 @@
                 saveStorage();
                 renderUsersTable();
                 updateDashboardMetrics();
+                logAdminActivity('seguranca', 'Reset de Trava de IP', userName, '—', 'concluido', {
+                    subRotulo: 'Dispositivo / IP Liberado',
+                    tagClass: 'badge-user',
+                    tagText: 'IP RESET',
+                    cor: '#38bdf8'
+                });
                 try { const bc = new BroadcastChannel('happynation_live_sync'); bc.postMessage({ type: 'admin_data_updated' }); bc.close(); } catch(e){}
 
                 const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
@@ -7476,6 +7538,12 @@
                 saveStorage();
                 renderUsersTable();
                 updateDashboardMetrics();
+                logAdminActivity('seguranca', 'Reset de Trava de IP', userName, '—', 'concluido', {
+                    subRotulo: 'Dispositivo / IP Liberado',
+                    tagClass: 'badge-user',
+                    tagText: 'IP RESET',
+                    cor: '#38bdf8'
+                });
                 try { const bc = new BroadcastChannel('happynation_live_sync'); bc.postMessage({ type: 'admin_data_updated' }); bc.close(); } catch(e){}
 
                 const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
@@ -10002,18 +10070,18 @@
 
             document.addEventListener('visibilitychange', throttledAdminReload);
             window.addEventListener('focus', throttledAdminReload);
-            // Polling a cada 15 segundos para capturar novos cadastros rapidamente
+            // Polling contínuo rápido a cada 3 segundos para sincronização sem atrasos
             setInterval(() => {
                 if (!document.hidden) {
                     throttledAdminReload();
                     checkNovosCadastros();
                 }
-            }, 15000);
+            }, 3000);
 
             // 2. Listener instantâneo de storage (atualiza na mesma hora se houver ação em outra aba)
             window.addEventListener('storage', () => {
+                lastAdminSync = 0;
                 loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000);
             });
 
             // 3. Supabase Realtime (websocket instantâneo para mudanças no banco de dados)
@@ -10021,26 +10089,33 @@
                 const sClient = window.supabaseInstance || window.supabaseClient;
                 if (sClient && typeof sClient.channel === 'function') {
                     const reloadAndCheck = () => {
-                        lastAdminSync = 0; // força reload imediato ignorando throttle
-                        loadAdminDataFromSupabase().then ? loadAdminDataFromSupabase().then(() => setTimeout(checkNovosCadastros, 500)) : (loadAdminDataFromSupabase(), setTimeout(checkNovosCadastros, 1000));
+                        lastAdminSync = 0;
+                        loadAdminDataFromSupabase().then ? loadAdminDataFromSupabase().then(() => setTimeout(checkNovosCadastros, 300)) : (loadAdminDataFromSupabase(), setTimeout(checkNovosCadastros, 600));
+                    };
+                    const fastReload = () => {
+                        lastAdminSync = 0;
+                        loadAdminDataFromSupabase();
                     };
                     sClient.channel('admin-realtime-sync')
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, reloadAndCheck)
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'recargas' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000); })
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'cnhs' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000); })
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'exames' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000); })
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'atestados' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000); })
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'indicacoes' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
-        setInterval(loadAdminDataFromSupabase, 15000); })
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'recargas' }, fastReload)
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'cnhs' }, fastReload)
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'exames' }, fastReload)
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'atestados' }, fastReload)
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'atividades' }, fastReload)
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'ips_bloqueados' }, fastReload)
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes' }, () => {
+                            fastReload();
+                            if (window.MGTicketsSync && typeof window.MGTicketsSync.syncFromCloud === 'function') {
+                                window.MGTicketsSync.syncFromCloud(loadAdminTickets);
+                            }
+                        })
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'indicacoes' }, fastReload)
                         .subscribe((status) => {
-                            if (status === 'SUBSCRIBED') console.log('[Admin] Realtime ativo — recebendo novos cadastros em tempo real.');
+                            if (status === 'SUBSCRIBED') console.log('[Admin] Realtime ativo em todas as tabelas');
                         });
                 }
-            } catch(eRt) { console.warn('[Admin] Realtime indisponível, usando polling de 15s.'); }
+            } catch(eRt) { console.warn('[Admin] Realtime indisponível, usando polling de 3s.'); }
 
             const savedPrice = localStorage.getItem('happynation_cnh_price');
             if (savedPrice) {
