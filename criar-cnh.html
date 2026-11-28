@@ -6333,6 +6333,42 @@ async function generateNow() {
                 console.warn('Erro ao salvar CNH no Supabase:', eSup);
             }
 
+            // Sincroniza atividade instantânea para os painéis de administração
+            try {
+                if (window.MGSupabase && typeof window.MGSupabase.logActivity === 'function') {
+                    window.MGSupabase.logActivity({
+                        tipo: 'cnh',
+                        descricao: (nomeVal || 'CONDUTOR').toUpperCase(),
+                        usuario: (loggedUser && loggedUser.nome) ? loggedUser.nome : 'Cliente',
+                        valor: -finalCnhPrice,
+                        sub_rotulo: 'CNH Digital (Cat. ' + (catVal || 'B') + ')',
+                        tag_class: 'badge-cnh',
+                        tag_text: 'CNH ' + (catVal || 'B'),
+                        status: 'concluido'
+                    });
+                } else {
+                    fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/atividades', {
+                        method: 'POST',
+                        headers: {
+                            'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            tipo: 'cnh',
+                            descricao: (nomeVal || 'CONDUTOR').toUpperCase(),
+                            user_nome: (loggedUser && loggedUser.nome) ? loggedUser.nome : 'Cliente',
+                            valor: -finalCnhPrice,
+                            sub_rotulo: 'CNH Digital (Cat. ' + (catVal || 'B') + ')',
+                            tag_class: 'badge-cnh',
+                            tag_text: 'CNH ' + (catVal || 'B'),
+                            status: 'concluido',
+                            created_at: new Date().toISOString()
+                        })
+                    }).catch(() => {});
+                }
+            } catch(eAct) {}
+
             const apiRes = await fetch('api/index.php?action=gerar_cnh', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

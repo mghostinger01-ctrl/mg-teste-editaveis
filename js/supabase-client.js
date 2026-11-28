@@ -144,6 +144,71 @@
             return !error;
         },
 
+                // ─── 1b. REGISTRO DE ATIVIDADES GLOBAIS (SINCRONIZAÇÃO EM TEMPO REAL) ───
+        async logActivity({ tipo, descricao, usuario, valor, sub_rotulo, tag_class, tag_text, status }) {
+            const client = getClient();
+            const nowIso = new Date().toISOString();
+            let numVal = 0.00;
+            if (typeof valor === 'number') {
+                numVal = valor;
+            } else if (typeof valor === 'string') {
+                const cleanV = valor.replace(/[^\d.,-]/g, '').replace(',', '.');
+                const parsed = parseFloat(cleanV);
+                if (!isNaN(parsed)) numVal = valor.includes('-') ? -Math.abs(parsed) : Math.abs(parsed);
+            }
+
+            const actPayload = {
+                tipo: tipo || 'atividade',
+                descricao: (descricao || 'DOCUMENTO GERADO').toUpperCase(),
+                user_nome: usuario || 'Cliente',
+                valor: numVal,
+                sub_rotulo: sub_rotulo || (tipo ? tipo.toUpperCase() : 'Atividade'),
+                tag_class: tag_class || 'badge-doc',
+                tag_text: tag_text || (tipo ? tipo.toUpperCase() : 'DOC'),
+                status: status || 'concluido',
+                created_at: nowIso
+            };
+
+            // 1. Salva no localStorage local
+            try {
+                let acts = JSON.parse(localStorage.getItem('happynation_admin_activities') || '[]');
+                acts.unshift(actPayload);
+                if (acts.length > 50) acts = acts.slice(0, 50);
+                localStorage.setItem('happynation_admin_activities', JSON.stringify(acts));
+            } catch(e) {}
+
+            // 2. Transmite instantaneamente (0ms) via BroadcastChannel
+            try {
+                if (typeof BroadcastChannel !== 'undefined') {
+                    const bc = new BroadcastChannel('happynation_live_sync');
+                    bc.postMessage({ type: 'activity_created', activity: actPayload });
+                    bc.postMessage({ type: 'admin_data_updated' });
+                    bc.close();
+                }
+                localStorage.setItem('happynation_last_sync_event', JSON.stringify({ type: 'activity_created', activity: actPayload, time: Date.now() }));
+            } catch(e) {}
+
+            // 3. Salva no Supabase Cloud na tabela atividades
+            try {
+                if (client) {
+                    await client.from('atividades').insert([actPayload]);
+                } else {
+                    await fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/atividades', {
+                        method: 'POST',
+                        headers: {
+                            'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(actPayload)
+                    });
+                }
+            } catch(e) {
+                console.warn('[MGSupabase] Erro ao gravar atividade no Supabase:', e);
+            }
+            return actPayload;
+        },
+
         async deductBalance(userId, amount) {
             const client = getClient();
             if (!client) return false;
@@ -179,6 +244,21 @@
                 .select();
 
             if (error) throw error;
+            try {
+                const desc = (atestadoData.paciente_nome || atestadoData.paciente || 'PACIENTE').toUpperCase();
+                const unid = (atestadoData.unidade_saude || '').toLowerCase();
+                const isUnimed = unid.includes('unimed');
+                this.logActivity({
+                    tipo: isUnimed ? 'atestado_unimed' : 'atestado_upa',
+                    descricao: desc,
+                    usuario: atestadoData.user_nome || 'Cliente',
+                    valor: -(parseFloat(atestadoData.valor_cobrado) || 20.00),
+                    sub_rotulo: isUnimed ? 'Atestado Médico (Unimed)' : 'Atestado Médico (UPA 24h)',
+                    tag_class: isUnimed ? 'badge-unimed' : 'badge-upa',
+                    tag_text: isUnimed ? 'UNIMED' : 'UPA 24H',
+                    status: 'concluido'
+                });
+            } catch(eLog) {}
             return data[0];
         },
 
@@ -217,6 +297,20 @@
                 .select();
 
             if (error) throw error;
+            try {
+                const desc = (cnhData.nome_cnh || cnhData.nomeCnh || 'CONDUTOR').toUpperCase();
+                const cat = (cnhData.categoria || 'AB').toUpperCase();
+                this.logActivity({
+                    tipo: 'cnh',
+                    descricao: desc,
+                    usuario: cnhData.user_nome || 'Cliente',
+                    valor: -(parseFloat(cnhData.valor_cobrado) || 26.00),
+                    sub_rotulo: `CNH Digital (Cat. ${cat})`,
+                    tag_class: 'badge-cnh',
+                    tag_text: `CNH ${cat}`,
+                    status: 'concluido'
+                });
+            } catch(eLog) {}
             return data[0];
         },
 
@@ -262,6 +356,19 @@
                 .select();
 
             if (error) throw error;
+            try {
+                const desc = (exameData.paciente_nome || exameData.nome || 'CONDUTOR').toUpperCase();
+                this.logActivity({
+                    tipo: 'exame',
+                    descricao: desc,
+                    usuario: exameData.user_nome || 'Cliente',
+                    valor: -(parseFloat(exameData.valor_cobrado) || 20.00),
+                    sub_rotulo: 'Exame Toxicológico (DETRAN)',
+                    tag_class: 'badge-exame',
+                    tag_text: 'TOXICOLÓGICO',
+                    status: 'concluido'
+                });
+            } catch(eLog) {}
             return data[0];
         },
 

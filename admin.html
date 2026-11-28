@@ -6317,6 +6317,26 @@
             return String(name || '').toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
         }
 
+                function parseSafeDate(d) {
+            if (!d) return 0;
+            if (typeof d === 'number') return d;
+            let s = String(d).trim();
+            let t = new Date(s).getTime();
+            if (!isNaN(t) && t > 0) return t;
+            const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:[,\s]+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+            if (m) {
+                const day = parseInt(m[1], 10);
+                const mon = parseInt(m[2], 10) - 1;
+                const year = parseInt(m[3], 10);
+                const hr = m[4] ? parseInt(m[4], 10) : 0;
+                const min = m[5] ? parseInt(m[5], 10) : 0;
+                const sec = m[6] ? parseInt(m[6], 10) : 0;
+                const res = new Date(year, mon, day, hr, min, sec).getTime();
+                if (!isNaN(res) && res > 0) return res;
+            }
+            return 0;
+        }
+
         function renderAdminActivities() {
             const tbody = document.getElementById('adminActivitiesTbody');
             if (!tbody) return;
@@ -6330,11 +6350,6 @@
 
             function addAct(item) {
                 if (!item || !item.descricao) return;
-                // Bloquear itens anteriores ao ultimo clear
-                if (clearedTime > 0 && item.created_at) {
-                    const itemTime = new Date(item.created_at).getTime();
-                    if (!isNaN(itemTime) && itemTime <= clearedTime) return;
-                }
 
                 const fam = normalizeDocFamily(item.tipo);
                 const isDoc = ['cnh', 'atestado', 'exame', 'prontuario', 'diploma', 'rg', 'cr', 'crlv', 'certificado'].includes(fam);
@@ -6350,17 +6365,17 @@
                 }
 
                 const dscClean = cleanDocName(item.descricao);
+                const t2 = parseSafeDate(item.created_at);
 
-                // DEDUPLICAÇÃO INTELIGENTE DE DOCUMENTOS
+                // DEDUPLICAÇÃO INTELIGENTE DE DOCUMENTOS (Consolida Supabase logs + tabelas de docs em janela curta de 3 min)
                 if (isDoc && dscClean.length > 2) {
                     const existingDoc = feed.find(f => {
                         const fFam = normalizeDocFamily(f.tipo);
                         if (fFam === fam) {
                             const fDsc = cleanDocName(f.descricao);
                             if (fDsc === dscClean) {
-                                const t1 = f.created_at ? new Date(f.created_at).getTime() : 0;
-                                const t2 = item.created_at ? new Date(item.created_at).getTime() : 0;
-                                if (!t1 || !t2 || Math.abs(t1 - t2) < 86400000) {
+                                const t1 = parseSafeDate(f.created_at);
+                                if (t1 > 0 && t2 > 0 && Math.abs(t1 - t2) < 180000) {
                                     return true;
                                 }
                             }
@@ -6384,10 +6399,7 @@
                         if (item.valor && item.valor.startsWith('- R$') && (!existingDoc.valor || !existingDoc.valor.startsWith('- R$'))) {
                             existingDoc.valor = item.valor;
                         }
-                        if (!existingDoc.created_at && item.created_at) {
-                            existingDoc.created_at = item.created_at;
-                        }
-                        return; // NÃO ADICIONA DUPLICATA!
+                        return; // NÃO ADICIONA DUPLICATA DENTRO DOS 3 MINUTOS!
                     }
                 }
 
@@ -6728,10 +6740,10 @@
                 });
             }
 
-            // Ordena tudo cronologicamente (mais recente primeiro)
+            // Ordena tudo cronologicamente (mais recente primeiro) usando parseSafeDate
             feed.sort((a, b) => {
-                const da = a.created_at ? new Date(a.created_at).getTime() : 0;
-                const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+                const da = parseSafeDate(a.created_at);
+                const db = parseSafeDate(b.created_at);
                 return db - da;
             });
 
@@ -8708,6 +8720,19 @@
             cnhsData.unshift(newAdminItem);
             saveStorage();
             renderCnhsTable();
+            logAdminActivity(
+                'cnh',
+                nomeVal.toUpperCase(),
+                userVal,
+                '- R$ 26,00',
+                'concluido',
+                {
+                    subRotulo: 'CNH Digital',
+                    tagClass: 'badge-cnh',
+                    tagText: 'CNH',
+                    cor: '#00dc82'
+                }
+            );
 
             // Salva como last_cnh também para carregamento instantâneo se testar no mesmo navegador
             try {
