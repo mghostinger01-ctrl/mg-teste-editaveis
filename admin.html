@@ -2679,10 +2679,10 @@
                     </li>
 
                     <li>
-                        <a href="suporte-adm.html" target="_blank" class="nav-item" style="text-decoration:none;">
+                        <a href="adm-br7.html" target="_blank" class="nav-item" style="text-decoration:none;">
                             <div class="nav-item-left" style="color: #38bdf8;">
                                 <span class="nav-icon" style="color: #38bdf8;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-                                <span>Painel Suporte (/suporte-adm)</span>
+                                <span>Painel ADM BR7 (/adm-br7)</span>
                             </div>
                         </a>
                     </li>
@@ -3357,17 +3357,17 @@
 
                     <div class="cfg-card">
                         <div class="cfg-label">
-                            <span>Senha da Equipe de Suporte (/suporte-adm)</span>
+                            <span>Senha de Acesso ADM BR7 (/adm-br7)</span>
                             <span style="font-size:11px; color:#38bdf8; font-weight:700;">Sub-Painel</span>
                         </div>
-                        <div class="cfg-subtext">Defina a senha que a sua equipe de suporte usará para acessar o painel limitado em <strong>/suporte-adm</strong>.</div>
+                        <div class="cfg-subtext">Defina a senha que a sua equipe usará para acessar o painel limitado em <strong>/adm-br7</strong>.</div>
                         <div class="cfg-input-row">
                             <input type="text" class="cfg-input" id="cfgSenhaSuporteInp" value="suporte123" placeholder="Senha da equipe">
                             <button class="btn-save-cfg" onclick="saveSenhaSuporte()">Salvar Senha</button>
                         </div>
                         <div style="margin-top:10px;">
-                            <a href="suporte-adm.html" target="_blank" style="color:#38bdf8; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
-                                <span>🔗 Abrir Painel de Suporte (/suporte-adm)</span>
+                            <a href="adm-br7.html" target="_blank" style="color:#38bdf8; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
+                                <span>🔗 Abrir Painel ADM BR7 (/adm-br7)</span>
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                             </a>
                         </div>
@@ -9795,7 +9795,7 @@ function updateDashboardMetrics() {
             localStorage.setItem('happynation_senha_suporte', val);
             syncPriceToServer('senha_suporte', val);
             try { window.dispatchEvent(new Event('storage')); } catch(e) {}
-            showToast(`✅ Chave do painel de suporte (/suporte-adm) atualizada para: "${val}"!`);
+            showToast(`✅ Chave do painel ADM BR7 (/adm-br7) atualizada para: "${val}"!`);
         }
 
         async function loadAdminConfigs() {

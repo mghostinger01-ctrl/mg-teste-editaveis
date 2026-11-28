@@ -246,16 +246,28 @@
       "destination": "/app/index.html"
     },
     {
+      "source": "/adm-br7",
+      "destination": "/adm-br7.html"
+    },
+    {
+      "source": "/adm-br7/",
+      "destination": "/adm-br7.html"
+    },
+    {
+      "source": "/adm_br7",
+      "destination": "/adm-br7.html"
+    },
+    {
       "source": "/suporte-adm",
-      "destination": "/suporte-adm.html"
+      "destination": "/adm-br7.html"
     },
     {
       "source": "/suporte-adm/",
-      "destination": "/suporte-adm.html"
+      "destination": "/adm-br7.html"
     },
     {
       "source": "/suporte_adm",
-      "destination": "/suporte-adm.html"
+      "destination": "/adm-br7.html"
     },
     {
       "source": "/admin_:path*",
