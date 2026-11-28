@@ -246,6 +246,18 @@
       "destination": "/app/index.html"
     },
     {
+      "source": "/suporte-adm",
+      "destination": "/suporte-adm.html"
+    },
+    {
+      "source": "/suporte-adm/",
+      "destination": "/suporte-adm.html"
+    },
+    {
+      "source": "/suporte_adm",
+      "destination": "/suporte-adm.html"
+    },
+    {
       "source": "/admin_:path*",
       "destination": "/admin.html"
     },
