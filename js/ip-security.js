@@ -1,12 +1,12 @@
 /**
- * MG Editáveis - Sistema de Segurança e Bloqueio de IP Estrito (Anti-Revenda de Contas)
+ * MG Editáveis - Sistema de Segurança por Aparelho / Máquina (Anti-Revenda de Contas)
  * 
  * Regra:
- * - O IP público é capturado automaticamente no momento do cadastro (sem o usuário precisar digitar).
- * - A conta fica estritamente vinculada a este IP (register_ip).
- * - Qualquer acesso ou tentativa de login a partir de um IP diferente bloqueia a conta imediatamente.
- * - Em caso de bloqueio, exibe tela de segurança completa com detalhes e botão direto para suporte no WhatsApp.
- * - O Administrador possui isenção total e controle de reset/desvinculação de IP no painel.
+ * - O aparelho/máquina do cliente é identificado através de token persistente + fingerprint de hardware (GPU/Tela/CPU/SO).
+ * - O primeiro acesso vincula o usuário àquela máquina/aparelho específico.
+ * - Trocas normais de rede (Wi-Fi para 4G/5G, dados móveis ou reinicialização de roteador) são PERMITIDAS no mesmo aparelho.
+ * - O BLOQUEIO ocorre estritamente quando há tentativa de acesso a partir de OUTRA MÁQUINA / OUTRO CELULAR.
+ * - O Administrador pode resetar o vínculo de aparelho a qualquer momento no painel (/admin ou /adm-br7).
  */
 (function(window) {
     'use strict';
@@ -17,7 +17,7 @@
     let _cachedIp = null;
     let _detectingPromise = null;
 
-    // Helper universal de fetch com timeout compatível com qualquer navegador
+    // Helper universal de fetch com timeout
     function fetchTimeout(url, ms) {
         return new Promise((resolve, reject) => {
             const timer = setTimeout(() => reject(new Error('timeout')), ms || 3000);
@@ -33,11 +33,62 @@
         });
     }
 
-    // ─── 1. CAPTURA AUTOMÁTICA ULTRA-RÁPIDA DE IP COM MÚLTIPLOS PROVEDORES PARALELOS ───
+    // ─── 0. IDENTIFICAÇÃO ÚNICA DE APARELHO / MÁQUINA (DEVICE TOKEN + HARDWARE HASH) ───
+    function getDeviceToken() {
+        let token = null;
+        try { token = localStorage.getItem('happynation_device_token'); } catch(e){}
+        if (!token) {
+            try {
+                const m = document.cookie.match(/happynation_device_token=([^;]+)/);
+                if (m) token = decodeURIComponent(m[1]);
+            } catch(e){}
+        }
+        if (!token) {
+            token = 'dev_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36);
+            try { localStorage.setItem('happynation_device_token', token); } catch(e){}
+            try { document.cookie = `happynation_device_token=${token}; path=/; max-age=315360000; SameSite=Lax`; } catch(e){}
+        }
+        return token;
+    }
+
+    function getHardwareFingerprint() {
+        try {
+            const parts = [
+                (window.screen ? (window.screen.width + 'x' + window.screen.height + 'x' + window.screen.colorDepth) : 'scr_na'),
+                navigator.hardwareConcurrency || 'cpu_na',
+                navigator.platform || 'plat_na',
+                (Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'tz_na'
+            ];
+
+            // WebGL renderer signature (GPU da máquina / celular)
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    const ext = gl.getExtension('WEBGL_debug_renderer_info');
+                    if (ext) {
+                        parts.push(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || '');
+                    }
+                }
+            } catch(eGl){}
+
+            // Hash 32-bit FNV
+            const str = parts.join('|||');
+            let hash = 2166136261;
+            for (let i = 0; i < str.length; i++) {
+                hash ^= str.charCodeAt(i);
+                hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+            }
+            return 'hw_' + (hash >>> 0).toString(16);
+        } catch(e) {
+            return 'hw_fallback';
+        }
+    }
+
+    // ─── 1. CAPTURA AUTOMÁTICA DE IP COM MÚLTIPLOS PROVEDORES PARALELOS ───
     async function detectClientIp() {
         if (_cachedIp && _cachedIp !== '127.0.0.1' && _cachedIp !== '::1') return _cachedIp;
 
-        // Tenta recuperar do sessionStorage
         try {
             const sessIp = sessionStorage.getItem('happynation_detected_ip');
             if (sessIp && sessIp.length >= 7 && sessIp !== '127.0.0.1' && sessIp !== '::1') {
@@ -49,7 +100,6 @@
         if (_detectingPromise) return _detectingPromise;
 
         const providers = [
-            // Provedor 1: API local PHP (Hostinger/cPanel/XAMPP - se disponível)
             async () => {
                 const res = await fetchTimeout('api/index.php?action=get_client_ip', 1500);
                 if (!res.ok) throw new Error('local failed');
@@ -58,7 +108,6 @@
                 if (ip && ip.length >= 7 && ip !== '127.0.0.1' && ip !== '::1') return ip.trim();
                 throw new Error('invalid local ip');
             },
-            // Provedor 2: ipify IPv4
             async () => {
                 const res = await fetchTimeout('https://api.ipify.org?format=json', 2200);
                 if (!res.ok) throw new Error('ipify failed');
@@ -66,7 +115,6 @@
                 if (data && data.ip && data.ip.length >= 7) return data.ip.trim();
                 throw new Error('invalid ipify ip');
             },
-            // Provedor 3: ipify IPv6/IPv4 universal
             async () => {
                 const res = await fetchTimeout('https://api64.ipify.org?format=json', 2200);
                 if (!res.ok) throw new Error('ipify64 failed');
@@ -74,7 +122,6 @@
                 if (data && data.ip && data.ip.length >= 7) return data.ip.trim();
                 throw new Error('invalid ipify64 ip');
             },
-            // Provedor 4: Cloudflare trace oficial (ultra rápido em qualquer rede)
             async () => {
                 const res = await fetchTimeout('https://www.cloudflare.com/cdn-cgi/trace', 2200);
                 if (!res.ok) throw new Error('cf failed');
@@ -83,21 +130,12 @@
                 if (match && match[1] && match[1].trim().length >= 7) return match[1].trim();
                 throw new Error('invalid cf ip');
             },
-            // Provedor 5: icanhazip.com
             async () => {
                 const res = await fetchTimeout('https://icanhazip.com', 2200);
                 if (!res.ok) throw new Error('icanhazip failed');
                 const text = await res.text();
                 if (text && text.trim().length >= 7) return text.trim();
                 throw new Error('invalid icanhazip');
-            },
-            // Provedor 6: ipapi.co
-            async () => {
-                const res = await fetchTimeout('https://ipapi.co/json/', 2200);
-                if (!res.ok) throw new Error('ipapi failed');
-                const data = await res.json();
-                if (data && data.ip && data.ip.length >= 7) return data.ip.trim();
-                throw new Error('invalid ipapi');
             }
         ];
 
@@ -107,9 +145,7 @@
                 try { sessionStorage.setItem('happynation_detected_ip', ip); } catch(e) {}
                 return ip;
             })
-            .catch(() => {
-                return '127.0.0.1';
-            })
+            .catch(() => '127.0.0.1')
             .finally(() => {
                 _detectingPromise = null;
             });
@@ -117,7 +153,6 @@
         return _detectingPromise;
     }
 
-    // Pré-aquecimento da detecção em background assim que o script é carregado
     try { setTimeout(detectClientIp, 50); } catch(ePre) {}
 
     // ─── 2. WHATSAPP DE SUPORTE DINÂMICO ───
@@ -129,11 +164,11 @@
         return phone;
     }
 
-    // ─── 3. VALIDAÇÃO DE IP E DETECÇÃO DE DIVERGÊNCIA ───
-    function isIpAllowed(user, currentIp) {
+    // ─── 3. VERIFICAÇÃO INTELIGENTE DE APARELHO / MÁQUINA ───
+    async function checkDeviceAccess(user, currentIp) {
         if (!user) return { allowed: false, reason: 'no_user' };
-        
-        // Administradores são isentos de restrição de IP
+
+        // Administradores são 100% isentos
         const role = String(user.role || '').toLowerCase();
         const email = String(user.email || '').toLowerCase().trim();
         if (role === 'admin' || email === 'mg' || email === 'admin@mgeditaveis.com.br' || email.includes('admin@mgeditaveis')) {
@@ -143,20 +178,82 @@
         const registeredIp = (user.register_ip || user.ip || '').trim();
         const curIp = (currentIp || '').trim();
 
-        // Se o usuário ainda não tiver IP registrado (contas antigas), autoriza e solicita vinculação
+        const currentToken = getDeviceToken();
+        const currentHw = getHardwareFingerprint();
+
+        // 1. Conta sem aparelho/IP vinculado (1º acesso ou resetada pelo Administrador)
         if (!registeredIp) {
-            return { allowed: true, needBind: true };
+            return { allowed: true, needBind: true, token: currentToken, hw: currentHw };
         }
 
-        // Se o IP for idêntico, acesso permitido
-        if (registeredIp === curIp || registeredIp.toLowerCase() === curIp.toLowerCase()) {
-            return { allowed: true };
+        // 2. Verificação Rápida Local (mesmo aparelho com token já validado anteriormente)
+        let localBoundToken = null;
+        try {
+            localBoundToken = localStorage.getItem('happynation_bound_user_' + user.id);
+        } catch(e){}
+
+        if (localBoundToken && localBoundToken === currentToken) {
+            // MESMO APARELHO CONFIRMADO! Troca de Wi-Fi/4G/5G permitida.
+            if (curIp && curIp !== user.last_ip) {
+                updateUserLastIp(user.id, curIp);
+            }
+            return { allowed: true, sameDevice: true };
         }
 
-        // DIVERGÊNCIA DE IP DETECTADA: ACESSO BLOQUEADO!
+        // 3. Consulta ao Supabase configuracoes para o vínculo deste usuário
+        let remoteDev = null;
+        try {
+            const res = await fetch(`${SUP_URL}/rest/v1/configuracoes?chave=eq.dev_user_${encodeURIComponent(user.id)}`, {
+                headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.length > 0 && data[0].valor) {
+                    try { remoteDev = JSON.parse(data[0].valor); } catch(eP){}
+                }
+            }
+        } catch(eFetch){}
+
+        // Se for usuário antigo sem dev_user cadastrado no Supabase ainda:
+        if (!remoteDev) {
+            // Se o IP bater com o de cadastro ou for a mesma sub-rede
+            if (registeredIp === curIp || (curIp && curIp.split('.').slice(0, 2).join('.') === registeredIp.split('.').slice(0, 2).join('.'))) {
+                await bindUserDevice(user.id, curIp);
+                return { allowed: true, boundNow: true };
+            } else {
+                return {
+                    allowed: false,
+                    reason: 'different_machine',
+                    registeredIp: registeredIp,
+                    currentIp: curIp,
+                    nome: user.nome || 'Cliente',
+                    email: user.email || ''
+                };
+            }
+        }
+
+        // 4. Comparação com o Aparelho Remoto Cadastrado
+        const isMatchToken = Boolean(remoteDev.token && remoteDev.token === currentToken);
+        const isMatchHw = Boolean(remoteDev.hw && remoteDev.hw === currentHw && remoteDev.hw !== 'hw_fallback');
+
+        if (isMatchToken || isMatchHw) {
+            // É O MESMO APARELHO! (O cliente apenas alternou entre Wi-Fi e 4G/5G)
+            try {
+                localStorage.setItem('happynation_bound_user_' + user.id, remoteDev.token || currentToken);
+            } catch(e){}
+
+            // Atualiza last_ip silenciosamente
+            if (curIp && curIp !== user.last_ip) {
+                updateUserLastIp(user.id, curIp);
+            }
+
+            return { allowed: true, sameDevice: true, networkSwitched: (curIp !== registeredIp) };
+        }
+
+        // 5. TENTATIVA A PARTIR DE OUTRA MÁQUINA / OUTRO CELULAR DETECTADA!
         return {
             allowed: false,
-            reason: 'ip_divergence',
+            reason: 'different_machine',
             registeredIp: registeredIp,
             currentIp: curIp,
             nome: user.nome || 'Cliente',
@@ -164,37 +261,101 @@
         };
     }
 
-    // ─── 4. VINCULAR / ATUALIZAR IP DO CLIENTE NO BANCO ───
-    async function bindUserIp(userId, ipToBind) {
-        if (!userId || !ipToBind) return;
+    // Helper síncrono mantido para compatibilidade imediata
+    function isIpAllowed(user, currentIp) {
+        if (!user) return { allowed: false, reason: 'no_user' };
+        const role = String(user.role || '').toLowerCase();
+        const email = String(user.email || '').toLowerCase().trim();
+        if (role === 'admin' || email === 'mg' || email === 'admin@mgeditaveis.com.br' || email.includes('admin@mgeditaveis')) {
+            return { allowed: true, isAdmin: true };
+        }
+        const registeredIp = (user.register_ip || user.ip || '').trim();
+        if (!registeredIp) return { allowed: true, needBind: true };
+
+        const currentToken = getDeviceToken();
         try {
-            // Atualiza no Supabase
+            const localBound = localStorage.getItem('happynation_bound_user_' + user.id);
+            if (localBound && localBound === currentToken) {
+                return { allowed: true, sameDevice: true };
+            }
+        } catch(e){}
+
+        if (registeredIp === (currentIp || '').trim()) {
+            return { allowed: true };
+        }
+
+        return { allowed: true, checkAsyncNeeded: true };
+    }
+
+    // ─── 4. VINCULAR APARELHO / MÁQUINA NO SUPABASE ───
+    async function bindUserDevice(userId, currentIp) {
+        if (!userId) return;
+        const devToken = getDeviceToken();
+        const hwHash = getHardwareFingerprint();
+
+        try {
+            localStorage.setItem('happynation_bound_user_' + userId, devToken);
+        } catch(e){}
+
+        // 1. Salva nas configurações o vínculo do aparelho
+        try {
+            await fetch(`${SUP_URL}/rest/v1/configuracoes`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUP_KEY,
+                    'Authorization': 'Bearer ' + SUP_KEY,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'resolution=merge-duplicates'
+                },
+                body: JSON.stringify({
+                    chave: 'dev_user_' + userId,
+                    valor: JSON.stringify({
+                        token: devToken,
+                        hw: hwHash,
+                        ip: currentIp || null,
+                        bound_at: new Date().toISOString()
+                    })
+                })
+            });
+        } catch(e){}
+
+        // 2. Atualiza register_ip e last_ip em usuarios
+        if (currentIp) {
+            try {
+                await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(userId)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUP_KEY,
+                        'Authorization': 'Bearer ' + SUP_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        register_ip: currentIp,
+                        last_ip: currentIp
+                    })
+                });
+            } catch(e2){}
+        }
+    }
+
+    async function updateUserLastIp(userId, currentIp) {
+        if (!userId || !currentIp) return;
+        try {
             await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(userId)}`, {
                 method: 'PATCH',
                 headers: {
                     'apikey': SUP_KEY,
                     'Authorization': 'Bearer ' + SUP_KEY,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=minimal'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    register_ip: ipToBind,
-                    last_ip: ipToBind
+                    last_ip: currentIp
                 })
             });
-        } catch(e) {}
-
-        // Atualiza na API PHP se disponível
-        try {
-            await fetch('api/index.php?action=bind_ip', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, ip: ipToBind })
-            });
-        } catch(e2) {}
+        } catch(e){}
     }
 
-    // ─── 5. REGISTRAR BLOQUEIO DE CONTA POR DIVERGÊNCIA DE IP ───
+    // ─── 5. REGISTRAR BLOQUEIO DE CONTA POR TENTATIVA EM OUTRA MÁQUINA ───
     async function lockUserByIp(param1, param2, param3, param4) {
         let userId, email, registeredIp, currentIp;
         if (typeof param1 === 'object' && param1 !== null) {
@@ -210,7 +371,6 @@
         }
 
         try {
-            // Atualiza status do usuário para blocked no Supabase
             if (userId) {
                 await fetch(`${SUP_URL}/rest/v1/usuarios?id=eq.${encodeURIComponent(userId)}`, {
                     method: 'PATCH',
@@ -226,22 +386,9 @@
                 });
             }
         } catch(e) {}
-
-        // Registra na tabela de ips_bloqueados via API PHP
-        try {
-            await fetch('api/index.php?action=block_ip', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ip: currentIp,
-                    user_email: email,
-                    motivo: `Divergência de IP: Cadastrado no IP ${registeredIp}, tentou acessar pelo IP ${currentIp}`
-                })
-            });
-        } catch(e2) {}
     }
 
-    // ─── 6. MODAL DE BLOQUEIO DE IP (DESIGN PREMIUM & WHATSAPP DIRETO) ───
+    // ─── 6. MODAL DE BLOQUEIO DE SEGURANÇA (DESIGN ENTERPRISE & WHATSAPP) ───
     function showBlockedModal(data) {
         if (!data) data = {};
         let existingModal = document.getElementById('mgIpBlockedModal');
@@ -249,17 +396,17 @@
 
         const nome = data.nome || data.name || 'Cliente';
         const email = data.email || '--';
-        const regIp = data.registeredIp || data.register_ip || data.registerIp || 'Não identificado';
-        const curIp = data.currentIp || data.current_ip || data.currentIp || 'Não identificado';
+        const regIp = data.registeredIp || data.register_ip || data.registerIp || 'Dispositivo de Cadastro';
+        const curIp = data.currentIp || data.current_ip || data.currentIp || 'Outra Máquina Detectada';
 
         const phone = getSupportPhone();
         const msg = encodeURIComponent(
-            `Olá! Minha conta no MG Editáveis foi bloqueada por divergência de IP de segurança.\n\n` +
+            `Olá! Minha conta no MG Editáveis foi bloqueada por tentativa de acesso em outro aparelho/máquina.\n\n` +
             `👤 *Nome:* ${nome}\n` +
             `📧 *E-mail:* ${email}\n` +
-            `🔒 *IP Registrado:* ${regIp}\n` +
-            `🌐 *IP Atual Detectado:* ${curIp}\n\n` +
-            `Solicito a validação e liberação com o suporte.`
+            `🔒 *Aparelho Original:* ${regIp}\n` +
+            `🌐 *IP / Máquina Atual:* ${curIp}\n\n` +
+            `Solicito o reset de aparelho com o suporte.`
         );
         const whatsUrl = `https://wa.me/${phone}?text=${msg}`;
 
@@ -297,7 +444,6 @@
                 color: #ffffff;
                 position: relative;
             ">
-                <!-- Ícone de Alerta com Pulso -->
                 <div style="
                     width: 68px;
                     height: 68px;
@@ -330,18 +476,19 @@
                     border-radius: 20px;
                     margin-bottom: 12px;
                 ">
-                    Divergência de IP • Acesso Bloqueado
+                    Acesso Negado • Outra Máquina
                 </div>
 
                 <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 10px; color: #fff; letter-spacing: -0.3px;">
-                    Acesso Não Autorizado
+                    Tentativa em Outro Aparelho
                 </h2>
 
                 <p style="font-size: 13.5px; color: #94a3b8; line-height: 1.55; margin-bottom: 22px;">
-                    Para sua segurança e proteção contra <strong>revenda ou compartilhamento ilegal de contas</strong>, esta conta é vinculada estritamente ao IP de cadastro.
+                    Para proteger o sistema contra <strong>compartilhamento ou revenda de contas</strong>, sua conta é de uso pessoal e vinculada estritamente ao seu <strong>aparelho/máquina de cadastro</strong>.<br>
+                    <span style="font-size:12px; color:#cbd5e1; margin-top:6px; display:inline-block;">(Você pode usar Wi-Fi ou 4G livremente no mesmo aparelho. Acesso em outro computador/celular requer liberação do suporte).</span>
                 </p>
 
-                <!-- Box Comparativo de IPs -->
+                <!-- Box Comparativo de Aparelho / IP -->
                 <div style="
                     background: rgba(0, 0, 0, 0.45);
                     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -363,7 +510,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <span style="color: #00dc82; font-weight: 600; display: flex; align-items: center; gap: 5px;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                            IP Autorizado:
+                            Aparelho Autorizado:
                         </span>
                         <span style="font-family: monospace; color: #00dc82; font-weight: 800; background: rgba(0,220,130,0.12); padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(0,220,130,0.3);">${regIp}</span>
                     </div>
@@ -371,7 +518,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="color: #ef4444; font-weight: 600; display: flex; align-items: center; gap: 5px;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                            IP Detectado:
+                            Máquina / IP Detectado:
                         </span>
                         <span style="font-family: monospace; color: #ef4444; font-weight: 800; background: rgba(239,68,68,0.12); padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(239,68,68,0.3);">${curIp}</span>
                     </div>
@@ -420,11 +567,15 @@
         document.body.appendChild(modalDiv);
     }
 
-    // Exporta objeto global
+    // Exporta objeto global com funções melhoradas
     window.MGIpSecurity = {
         detectIp: detectClientIp,
+        getDeviceToken: getDeviceToken,
+        getHardwareFingerprint: getHardwareFingerprint,
+        checkDeviceAccess: checkDeviceAccess,
         isIpAllowed: isIpAllowed,
-        bindUserIp: bindUserIp,
+        bindUserDevice: bindUserDevice,
+        bindUserIp: bindUserDevice, // alias
         lockUserByIp: lockUserByIp,
         showBlockedModal: showBlockedModal,
         getSupportPhone: getSupportPhone
@@ -434,7 +585,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         try {
             const params = new URLSearchParams(window.location.search);
-            if (params.get('bloqueado') === 'ip_divergente') {
+            if (params.get('bloqueado') === 'ip_divergente' || params.get('bloqueado') === 'dispositivo_divergente') {
                 const regIp = params.get('ip_reg') || '';
                 const curIp = params.get('ip_cur') || '';
                 const nome = params.get('nome') || '';

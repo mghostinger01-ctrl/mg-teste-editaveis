@@ -868,34 +868,34 @@
                 }
 
                 if (!isAdminUser && currentClientIp) {
-                    // Se o usuário ainda não tiver register_ip gravado (ex: cadastrado antes da trava ou resetado pelo adm), vincula ao IP atual
-                    if (!user.register_ip) {
-                        user.register_ip = currentClientIp;
-                        user.last_ip = currentClientIp;
-                        if (window.MGIpSecurity && typeof window.MGIpSecurity.bindUserIp === 'function') {
-                            window.MGIpSecurity.bindUserIp(user.id, currentClientIp);
+                    if (window.MGIpSecurity && typeof window.MGIpSecurity.checkDeviceAccess === 'function') {
+                        const devCheck = await window.MGIpSecurity.checkDeviceAccess(user, currentClientIp);
+                        if (devCheck.needBind) {
+                            user.register_ip = currentClientIp;
+                            user.last_ip = currentClientIp;
+                            window.MGIpSecurity.bindUserDevice(user.id, currentClientIp);
+                        } else if (!devCheck.allowed) {
+                            // TENTATIVA EM OUTRA MÁQUINA / CELULAR DETECTADA! Bloqueio imediato
+                            console.warn('[SECURITY] Bloqueio por tentativa em outro aparelho!', devCheck);
+                            if (typeof window.MGIpSecurity.lockUserByIp === 'function') {
+                                await window.MGIpSecurity.lockUserByIp(user, currentClientIp);
+                            }
+                            user.status = 'blocked';
+                            user.last_ip = currentClientIp;
+                            if (window.MGIpSecurity && typeof window.MGIpSecurity.showBlockedModal === 'function') {
+                                window.MGIpSecurity.showBlockedModal({
+                                    name: user.nome || 'Cliente',
+                                    email: user.email,
+                                    registerIp: user.register_ip,
+                                    currentIp: currentClientIp
+                                });
+                            } else {
+                                showToast('Acesso bloqueado: Login permitido apenas no aparelho original de cadastro. Contate o suporte.', false);
+                            }
+                            btn.disabled = false;
+                            btn.textContent = 'Entrar';
+                            return;
                         }
-                    } else if (String(user.register_ip).trim() !== String(currentClientIp).trim()) {
-                        // IP DIVERGENTE DETECTADO! Bloqueio imediato para evitar revenda/compartilhamento de conta
-                        console.warn('[IP SECURITY] Bloqueio por IP divergente! Reg:', user.register_ip, 'Atual:', currentClientIp);
-                        if (window.MGIpSecurity && typeof window.MGIpSecurity.lockUserByIp === 'function') {
-                            await window.MGIpSecurity.lockUserByIp(user, currentClientIp);
-                        }
-                        user.status = 'blocked';
-                        user.last_ip = currentClientIp;
-                        if (window.MGIpSecurity && typeof window.MGIpSecurity.showBlockedModal === 'function') {
-                            window.MGIpSecurity.showBlockedModal({
-                                name: user.nome || 'Cliente',
-                                email: user.email,
-                                registerIp: user.register_ip,
-                                currentIp: currentClientIp
-                            });
-                        } else {
-                            showToast('Acesso bloqueado: Login permitido apenas no IP original de cadastro (' + user.register_ip + '). Contate o suporte.', false);
-                        }
-                        btn.disabled = false;
-                        btn.textContent = 'Entrar';
-                        return;
                     }
                 }
 

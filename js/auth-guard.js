@@ -202,18 +202,18 @@
                     if (window.MGIpSecurity && typeof window.MGIpSecurity.detectIp === 'function') {
                         var curIp = await window.MGIpSecurity.detectIp();
                         if (curIp && curIp !== '127.0.0.1' && curIp !== '::1') {
-                            // Se o usuário ainda não tiver register_ip gravado, vincula imediatamente
-                            if (!user.register_ip) {
+                            var access = await window.MGIpSecurity.checkDeviceAccess(user, curIp);
+                            if (access.needBind) {
                                 user.register_ip = curIp;
                                 user.last_ip = curIp;
                                 try {
                                     if (rawLocal) localStorage.setItem('happynation_user', JSON.stringify(user));
                                     if (rawSession) sessionStorage.setItem('happynation_user', JSON.stringify(user));
                                 } catch(eStore) {}
-                                window.MGIpSecurity.bindUserIp(user.id, curIp);
-                            } else if (String(user.register_ip).trim() !== String(curIp).trim()) {
-                                // IP DIVERGENTE DETECTADO! Bloqueia conta e expulsa imediatamente para a tela de bloqueio com WhatsApp
-                                console.warn('[Auth-Guard] IP divergente detectado!', user.register_ip, '!=', curIp);
+                                window.MGIpSecurity.bindUserDevice(user.id, curIp);
+                            } else if (!access.allowed) {
+                                // TENTATIVA EM OUTRA MÁQUINA DETECTADA! Bloqueia conta e expulsa para a tela de bloqueio com WhatsApp
+                                console.warn('[Auth-Guard] Tentativa de acesso em outro aparelho detectada!', access);
                                 if (typeof window.MGIpSecurity.lockUserByIp === 'function') {
                                     await window.MGIpSecurity.lockUserByIp(user, curIp);
                                 }
@@ -221,12 +221,13 @@
                                     localStorage.removeItem('happynation_user');
                                     sessionStorage.removeItem('happynation_user');
                                 } catch(eWipe) {}
-                                var redirectUrl = (isSub ? '../' : '') + 'login.html?bloqueado=ip_divergente' +
+                                var redirectUrl = (isSub ? '../' : '') + 'login.html?bloqueado=dispositivo_divergente' +
                                     '&nome=' + encodeURIComponent(user.nome || '') +
                                     '&email=' + encodeURIComponent(user.email || '') +
-                                    '&ip_reg=' + encodeURIComponent(user.register_ip) +
+                                    '&ip_reg=' + encodeURIComponent(user.register_ip || '') +
                                     '&ip_cur=' + encodeURIComponent(curIp);
                                 window.location.replace(redirectUrl);
+                                return;
                             }
                         }
                     }

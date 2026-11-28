@@ -7864,6 +7864,17 @@ function updateDashboardMetrics() {
                     });
                 } catch(eRest) {}
 
+                // Remove vínculo de aparelho em configuracoes para liberar nova máquina
+                try {
+                    await fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes?chave=eq.dev_user_${targetId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUP_PUB_KEY,
+                            'Authorization': `Bearer ${SUP_PUB_KEY}`
+                        }
+                    });
+                } catch(eDelDev) {}
+
                 // Notifica a API local/hospedada se houver
                 try {
                     await fetch('api/index.php?action=reset_user_ip', {
