@@ -4439,9 +4439,117 @@
         const SUP_PROJECT_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
         const SUP_PUB_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
         let _isLoadingAdminData = false;
+        let _lastUsersDataSig = '';
+        let _isFetchingUsersFast = false;
+
+        // ─── PROCESSAMENTO INSTANTÂNEO DE USUÁRIOS E CADASTROS PENDENTES ───
+        function processUsuariosData(sUsers) {
+            if (!Array.isArray(sUsers)) return;
+            let deletedUsers = [];
+            try {
+                deletedUsers = JSON.parse(localStorage.getItem('happynation_deleted_users') || '[]');
+                if (Array.isArray(deletedUsers)) {
+                    const cleanDel = deletedUsers.filter(d => !String(d).includes('@'));
+                    if (cleanDel.length !== deletedUsers.length) {
+                        deletedUsers = cleanDel;
+                        localStorage.setItem('happynation_deleted_users', JSON.stringify(deletedUsers));
+                    }
+                }
+            } catch(e){}
+
+            const mapped = sUsers
+                .filter(u => {
+                    const uIdStr = String(u.id);
+                    return !deletedUsers.includes(uIdStr) && !isMasterAdminAccount(u);
+                })
+                .map(u => {
+                    const uIdStr = String(u.id);
+                    const recent = _recentlyUpdatedUsers[uIdStr];
+                    let effStatus = u.status;
+                    if (recent && (Date.now() - recent.timestamp < 45000)) {
+                        effStatus = recent.status;
+                    }
+                    const rawStatus = String(effStatus || '').toLowerCase().trim();
+                    const normStatus = (rawStatus === 'aprovado' || rawStatus === 'approved') ? 'approved' :
+                                       (rawStatus === 'bloqueado' || rawStatus === 'blocked') ? 'blocked' : 'pending';
+
+                    return {
+                        id: u.id,
+                        nome: u.nome || 'Sem Nome',
+                        email: u.email || '',
+                        senha: u.senha || '',
+                        cpf: u.cpf || '',
+                        phone: u.phone || '--',
+                        saldo: parseFloat(u.saldo || 0),
+                        cnhsCount: 0,
+                        role: u.role || 'client',
+                        status: normStatus,
+                        plano: u.plano || 'Nenhum',
+                        plano_status: u.plano_status || 'inativo',
+                        plano_desconto: parseInt(u.plano_desconto || 0),
+                        plano_comissao: parseInt(u.plano_comissao || 0),
+                        plano_validade: u.plano_validade || 'Vitalício',
+                        plano_ativado_em: u.plano_ativado_em || null,
+                        created_at: u.created_at,
+                        last_seen: u.last_seen || null,
+                        register_ip: u.register_ip || u.ip || null,
+                        last_ip: u.last_ip || u.register_ip || null
+                    };
+                });
+
+            const newSig = mapped.map(u => `${u.id}_${u.nome}_${u.status}_${u.saldo}_${u.register_ip || ''}`).join('|');
+            if (_lastUsersDataSig !== newSig) {
+                _lastUsersDataSig = newSig;
+                usersData = mapped;
+                localStorage.setItem('happynation_admin_users', JSON.stringify(usersData));
+                renderUsersTable();
+                updateDashboardMetrics();
+                if (typeof window.checkNovosCadastros === 'function') window.checkNovosCadastros();
+            }
+        }
+
+        // Busca ultra rápida dos usuários via REST com fallback (sem esperar demais tabelas)
+        async function fetchUsuariosFast() {
+            if (_isFetchingUsersFast) return;
+            _isFetchingUsersFast = true;
+            try {
+                let sUsers = null;
+                try {
+                    const ctrl = new AbortController();
+                    const tId = setTimeout(() => ctrl.abort(), 3500);
+                    const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?select=*&order=id.desc`, {
+                        headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` },
+                        signal: ctrl.signal
+                    });
+                    clearTimeout(tId);
+                    if (r.ok) sUsers = await r.json();
+                } catch(eREST) {}
+
+                if (!sUsers) {
+                    const client = window.supabaseInstance || window.supabaseClient;
+                    if (client) {
+                        try {
+                            const { data, error } = await client.from('usuarios').select('*').order('id', { ascending: false });
+                            if (!error && Array.isArray(data)) sUsers = data;
+                        } catch(eSDK) {}
+                    }
+                }
+
+                if (Array.isArray(sUsers) && sUsers.length > 0) {
+                    processUsuariosData(sUsers);
+                }
+            } catch(e) {
+                console.warn('[Admin] Erro fetchUsuariosFast:', e);
+            } finally {
+                _isFetchingUsersFast = false;
+            }
+        }
+        window.fetchUsuariosFast = fetchUsuariosFast;
+        try { fetchUsuariosFast(); } catch(eFast){}
 
         // ─── GESTÃO DE DADOS VIA SUPABASE (OTIMIZADO EM PARALELO ULTRA RÁPIDO) ───
         async function loadAdminDataFromSupabase() {
+            fetchUsuariosFast(); // Inicia imediatamente a checagem de usuários sem travar
             if (_isLoadingAdminData) return;
             _isLoadingAdminData = true;
 
@@ -4494,12 +4602,11 @@
                     return null;
                 };
 
-                // Executa TODAS as consultas ao banco SIMULTANEAMENTE em paralelo
+                // Executa consultas das tabelas secundárias ao banco SIMULTANEAMENTE em paralelo
                 const [
-                    resUsers, resAssinantes, resRecargas, resCnhs, resExames,
+                    resAssinantes, resRecargas, resCnhs, resExames,
                     resAtestados, resAtividades, resIps, resIndicacoes, resPres
                 ] = await Promise.allSettled([
-                    fetchTable('usuarios', 'id', false),
                     fetchTable('assinantes', 'id', false),
                     fetchTable('recargas', 'data', false),
                     fetchTable('cnhs', 'created_at', false),
@@ -4510,64 +4617,6 @@
                     fetchIndicacoes(),
                     fetchPresenca()
                 ]);
-
-                // 1. Processa Usuários
-                const sUsers = resUsers.status === 'fulfilled' ? resUsers.value : null;
-                if (Array.isArray(sUsers) && sUsers.length > 0) {
-                    let deletedUsers = [];
-                    try {
-                        deletedUsers = JSON.parse(localStorage.getItem('happynation_deleted_users') || '[]');
-                        if (Array.isArray(deletedUsers)) {
-                            const cleanDel = deletedUsers.filter(d => !String(d).includes('@'));
-                            if (cleanDel.length !== deletedUsers.length) {
-                                deletedUsers = cleanDel;
-                                localStorage.setItem('happynation_deleted_users', JSON.stringify(deletedUsers));
-                            }
-                        }
-                    } catch(e){}
-
-                    usersData = sUsers
-                        .filter(u => {
-                            const uIdStr = String(u.id);
-                            return !deletedUsers.includes(uIdStr) && !isMasterAdminAccount(u);
-                        })
-                        .map(u => {
-                            const uIdStr = String(u.id);
-                            const recent = _recentlyUpdatedUsers[uIdStr];
-                            let effStatus = u.status;
-                            if (recent && (Date.now() - recent.timestamp < 45000)) {
-                                effStatus = recent.status;
-                            }
-                            const rawStatus = String(effStatus || '').toLowerCase().trim();
-                            const normStatus = (rawStatus === 'aprovado' || rawStatus === 'approved') ? 'approved' :
-                                               (rawStatus === 'bloqueado' || rawStatus === 'blocked') ? 'blocked' : 'pending';
-
-                            return {
-                                id: u.id,
-                                nome: u.nome || 'Sem Nome',
-                                email: u.email || '',
-                                senha: u.senha || '',
-                                cpf: u.cpf || '',
-                                phone: u.phone || '--',
-                                saldo: parseFloat(u.saldo || 0),
-                                cnhsCount: 0,
-                                role: u.role || 'client',
-                                status: normStatus,
-                                plano: u.plano || 'Nenhum',
-                                plano_status: u.plano_status || 'inativo',
-                                plano_desconto: parseInt(u.plano_desconto || 0),
-                                plano_comissao: parseInt(u.plano_comissao || 0),
-                                plano_validade: u.plano_validade || 'Vitalício',
-                                plano_ativado_em: u.plano_ativado_em || null,
-                                created_at: u.created_at,
-                                last_seen: u.last_seen || null,
-                                register_ip: u.register_ip || u.ip || null,
-                                last_ip: u.last_ip || u.register_ip || null
-                            };
-                        });
-
-                    localStorage.setItem('happynation_admin_users', JSON.stringify(usersData));
-                }
 
                 // 2. Assinantes
                 const sAssinantes = resAssinantes.status === 'fulfilled' ? resAssinantes.value : null;
@@ -4696,43 +4745,47 @@
         // ─── GESTÃO DE SEGURANÇA & IPS BLOQUEADOS ───
         let blockedIpsData = [];
 
-        function refreshSecurityData() {
-            loadAdminDataFromSupabase();
+        // Ouvinte de sincronização em tempo real entre painéis e abas (0ms de latência)
+        function initAdminLiveSync() {
+            if (window._bcLiveRegisteredBR7) return;
+            window._bcLiveRegisteredBR7 = true;
+            try {
+                const bcLive = new BroadcastChannel('happynation_live_sync');
+                bcLive.onmessage = function(ev) {
+                    if (!ev || !ev.data) return;
+                    const t = ev.data.type;
+                    if (t === 'admin_data_updated' || t === 'user_created' || t === 'status_updated' ||
+                        t === 'user_deleted' || t === 'saldo_updated') {
+                        if (typeof fetchUsuariosFast === 'function') fetchUsuariosFast();
+                    }
+                    if (t === 'activity_created' && ev.data.activity) {
+                        try {
+                            let acts = JSON.parse(localStorage.getItem(ADMIN_ACTS_KEY) || '[]');
+                            const isDup = acts.some(a => a.descricao === ev.data.activity.descricao && a.usuario === ev.data.activity.usuario && Math.abs(new Date(a.created_at).getTime() - new Date(ev.data.activity.created_at).getTime()) < 10000);
+                            if (!isDup) {
+                                acts.unshift(ev.data.activity);
+                                if (acts.length > MAX_ACTS) acts = acts.slice(0, MAX_ACTS);
+                                localStorage.setItem(ADMIN_ACTS_KEY, JSON.stringify(acts));
+                                renderAdminActivities();
+                            }
+                        } catch(eAct) {}
+                    }
+                    if (typeof loadAdminDataFromSupabase === 'function') {
+                        loadAdminDataFromSupabase();
+                    }
+                    if (typeof loadAdminTickets === 'function') {
+                        loadAdminTickets();
+                    }
+                };
+            } catch(eBcLive) {}
+        }
+        window.initAdminLiveSync = initAdminLiveSync;
+        try { initAdminLiveSync(); } catch(e){}
 
-            // Ouvinte de sincronização em tempo real entre painéis e abas (0ms de latência)
-            if (!window._bcLiveRegisteredBR7) {
-                window._bcLiveRegisteredBR7 = true;
-                try {
-                    const bcLive = new BroadcastChannel('happynation_live_sync');
-                    bcLive.onmessage = function(ev) {
-                        if (!ev || !ev.data) return;
-                        const t = ev.data.type;
-                        if (t === 'admin_data_updated' || t === 'activity_created' || t === 'saldo_updated' || t === 'status_updated' ||
-                            t === 'cnh_created' || t === 'cnh_deleted' || t === 'cnh_unblocked' || t === 'doc_created' || t === 'document_created' ||
-                            t === 'user_deleted' || t === 'user_created' || t === 'ip_blocked' || t === 'ip_unblocked' || t === 'tickets_updated') {
-                            
-                            if (t === 'activity_created' && ev.data.activity) {
-                                try {
-                                    let acts = JSON.parse(localStorage.getItem(ADMIN_ACTS_KEY) || '[]');
-                                    const isDup = acts.some(a => a.descricao === ev.data.activity.descricao && a.usuario === ev.data.activity.usuario && Math.abs(new Date(a.created_at).getTime() - new Date(ev.data.activity.created_at).getTime()) < 10000);
-                                    if (!isDup) {
-                                        acts.unshift(ev.data.activity);
-                                        if (acts.length > MAX_ACTS) acts = acts.slice(0, MAX_ACTS);
-                                        localStorage.setItem(ADMIN_ACTS_KEY, JSON.stringify(acts));
-                                        renderAdminActivities();
-                                    }
-                                } catch(eAct) {}
-                            }
-                            if (typeof loadAdminDataFromSupabase === 'function') {
-                                loadAdminDataFromSupabase();
-                            }
-                            if (typeof loadAdminTickets === 'function') {
-                                loadAdminTickets();
-                            }
-                        }
-                    };
-                } catch(eBcLive) {}
-            }
+        function refreshSecurityData() {
+            initAdminLiveSync();
+            fetchUsuariosFast();
+            loadAdminDataFromSupabase();
         }
 
         function renderSecurityView() {
@@ -9981,6 +10034,8 @@
         }
 
         window.addEventListener('load', () => {
+            if (typeof initAdminLiveSync === 'function') initAdminLiveSync();
+            if (typeof fetchUsuariosFast === 'function') fetchUsuariosFast();
             renderUsersTable();
             renderAssinantesTable();
             renderRecargasTable();
@@ -10043,17 +10098,36 @@
                 }
                 _lastKnownPending = pendentes;
             }
+            window.checkNovosCadastros = checkNovosCadastros;
 
-            document.addEventListener('visibilitychange', throttledAdminReload);
-            window.addEventListener('focus', throttledAdminReload);
-            // Polling suave periódico para sincronização sem sobrecarregar
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    if (typeof fetchUsuariosFast === 'function') fetchUsuariosFast();
+                    throttledAdminReload();
+                }
+            });
+            window.addEventListener('focus', () => {
+                if (!document.hidden) {
+                    if (typeof fetchUsuariosFast === 'function') fetchUsuariosFast();
+                    throttledAdminReload();
+                }
+            });
+
+            // Polling rápido dedicado exclusivamente para novos clientes e cadastros pendentes (2.5s)
+            if (window._adminBr7FastPollTimer) clearInterval(window._adminBr7FastPollTimer);
+            window._adminBr7FastPollTimer = setInterval(() => {
+                if (!document.hidden) {
+                    if (typeof fetchUsuariosFast === 'function') fetchUsuariosFast();
+                }
+            }, 2500);
+
+            // Polling suave periódico para recargas, documentos e demais tabelas (10s)
             if (window._adminBr7MainPollTimer) clearInterval(window._adminBr7MainPollTimer);
             window._adminBr7MainPollTimer = setInterval(() => {
                 if (!document.hidden) {
                     throttledAdminReload();
-                    checkNovosCadastros();
                 }
-            }, 8000);
+            }, 10000);
 
             // 2. Listener instantâneo de storage (atualiza na mesma hora se houver ação em outra aba)
             window.addEventListener('storage', () => {

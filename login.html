@@ -1308,6 +1308,13 @@
                     console.warn('[Indicação] Falha ao processar vínculo:', eRef);
                 }
 
+                // Notifica instantaneamente todos os painéis administrativos abertos (0ms de latência)
+                try {
+                    const bc = new BroadcastChannel('happynation_live_sync');
+                    bc.postMessage({ type: 'user_created', user: newUser ? newUser[0] : null });
+                    bc.close();
+                } catch(eBc) {}
+
                 const supPhone = getActiveSupportPhone();
                 const whatsUrl = 'https://wa.me/' + supPhone + '?text=' + encodeURIComponent('Olá, acabei de me cadastrar no MG Editáveis (' + email + ') e gostaria de solicitar a aprovação do meu cadastro.');
                 openPendingModal(nome, email, whatsUrl);
