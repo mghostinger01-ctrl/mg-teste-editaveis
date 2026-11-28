@@ -4,7 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- CLOAKER SHIELD: esconde tudo imediatamente, antes de qualquer render -->
-    <style id="cloakShield">html,body{visibility:hidden!important;pointer-events:none!important;}</style>
+    <style id="cloakShield">html,body{visibility:hidden!important;pointer-events:none!important;}
+        .user-row-clickable {
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .user-row-clickable:hover td {
+            background: rgba(0, 220, 130, 0.045) !important;
+        }
+        .user-row-clickable:active td {
+            background: rgba(0, 220, 130, 0.08) !important;
+        }
+        .data-table th, .data-table td {
+            padding: 8px 10px !important;
+        }
+
+</style>
     <script>
     (function(){
         var PAGE_404 = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>404 - Pagina nao encontrada<\/title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f1114;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh}.box{text-align:center;padding:40px}.code{font-size:96px;font-weight:900;color:#1e2328;line-height:1;letter-spacing:-4px}.title{font-size:22px;font-weight:700;color:#374151;margin:16px 0 8px}.sub{font-size:14px;color:#4b5563;margin-bottom:28px}.btn{display:inline-block;padding:10px 24px;background:#1e2328;border:1px solid #2d3748;border-radius:8px;color:#6b7280;font-size:13px;text-decoration:none}<\/style><\/head><body><div class="box"><div class="code">404<\/div><div class="title">Pagina nao encontrada<\/div><div class="sub">O recurso solicitado nao existe neste servidor.<\/div><a class="btn" href="\/">Voltar ao inicio<\/a><\/div><\/body><\/html>';
@@ -7105,7 +7120,7 @@ function updateDashboardMetrics() {
             return `<span class="presence-badge days" title="Ausente há ${d} dias (Última atividade: ${dateFmt})"><span class="presence-dot days"></span> há ${d} dias</span>`;
         }
 
-        function buildUserRow(u) {
+                function buildUserRow(u) {
             let badgeHtml = '';
             if (u.status === 'approved') badgeHtml = `<span class="badge approved">✓ Aprovado</span>`;
             else if (u.status === 'pending') badgeHtml = `<span class="badge pending">⏳ Pendente</span>`;
@@ -7113,7 +7128,7 @@ function updateDashboardMetrics() {
 
             const uNome = u.nome || 'Cliente';
             const uSaldo = (u.saldo !== undefined && u.saldo !== null) ? parseFloat(u.saldo) : 0;
-            const uCount = countUserDocuments(u);
+            const uCount = typeof countUserDocuments === 'function' ? countUserDocuments(u) : 0;
             u.docsCount = uCount;
             u.cnhsCount = uCount;
 
@@ -7123,67 +7138,65 @@ function updateDashboardMetrics() {
             const isDivergent = Boolean(hasIp && ipLast && String(ipReg).trim() !== String(ipLast).trim() && ipLast !== '--' && ipLast !== 'Não registrado');
 
             const tr = document.createElement('tr');
+            tr.className = 'user-row-clickable';
+            tr.setAttribute('onclick', `openUserDetailsModal('${u.id}')`);
+            tr.setAttribute('title', `Clique para abrir todos os detalhes de ${uNome}`);
+
             tr.innerHTML = `
-                <td>
+                <td style="max-width:250px;">
                     <div class="user-cell">
                         <div class="user-avatar-sm">${uNome.charAt(0).toUpperCase()}</div>
-                        <div>
-                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                <span class="user-name">${uNome}</span>
+                        <div style="min-width:0; overflow:hidden;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span class="user-name" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${uNome}</span>
                                 ${getUserActivityBadge(u)}
                             </div>
-                            <div class="user-email">${u.email || ''}</div>
-                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:3px;">
+                            <div class="user-email" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${u.email || ''}</div>
+                            <div style="display:flex; align-items:center; gap:4px; margin-top:2px;">
                                 ${hasIp ? `
-                                    <span class="ip-tag verified" title="IP de cadastro verificado">
-                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                        <span>IP: <strong>${ipReg}</strong></span>
+                                    <span class="ip-tag verified" title="IP: ${ipReg}">
+                                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                        <span>IP Vinculado</span>
                                     </span>
                                 ` : `
-                                    <span class="ip-tag none" title="IP será vinculado automaticamente no primeiro login">
-                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                        <span>IP Livre (1º acesso)</span>
+                                    <span class="ip-tag none" title="IP livre para o 1º login">
+                                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                        <span>1º Acesso Livre</span>
                                     </span>
                                 `}
                                 ${isDivergent ? `
-                                    <span class="ip-tag divergent" title="Tentativa de acesso com IP divergente: ${ipLast}">⚠️ Divergente (${ipLast})</span>
+                                    <span class="ip-tag divergent" title="Tentativa divergente detectada: ${ipLast}">⚠️ Divergência</span>
                                 ` : ''}
                             </div>
                         </div>
                     </div>
                 </td>
-                <td style="white-space:nowrap;">${formatWhatsAppNumber(u.phone)}</td>
-                <td style="white-space:nowrap;">
-                    <span style="font-weight:800; color:#00dc82; font-size:13.5px; font-family:var(--font-mono, monospace); letter-spacing:-0.3px;">R$ ${uSaldo.toFixed(2).replace('.', ',')}</span>
+                <td style="white-space:nowrap; padding:8px;" onclick="event.stopPropagation();">${formatWhatsAppNumber(u.phone)}</td>
+                <td style="white-space:nowrap; padding:8px;">
+                    <span style="font-weight:800; color:#00dc82; font-size:13px; font-family:var(--font-mono, monospace); letter-spacing:-0.2px;">R$ ${uSaldo.toFixed(2).replace('.', ',')}</span>
                 </td>
-                <td style="white-space:nowrap;">
-                    <span style="display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:3.5px 8px; border-radius:6px; font-size:11.5px; color:#cbd5e1;">
+                <td style="white-space:nowrap; padding:8px;">
+                    <span style="display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:3px 7px; border-radius:6px; font-size:11px; color:#cbd5e1;">
                         <strong style="color:#38bdf8; font-weight:800;">${uCount}</strong> Docs
                     </span>
                 </td>
-                <td style="white-space:nowrap;">${badgeHtml}</td>
-                <td style="white-space:nowrap; text-align:right;">
+                <td style="white-space:nowrap; padding:8px;">${badgeHtml}</td>
+                <td style="white-space:nowrap; text-align:right; padding:8px 10px;" onclick="event.stopPropagation();">
                     <div class="actions-row">
                         ${u.status === 'approved' ? `
-                            <button class="btn-act add-balance" onclick="openAddSaldoModal('${u.id}')" title="Adicionar Saldo">+ Saldo</button>
-                            <button class="btn-act edit-btn" onclick="openEditUserModal('${u.id}')" title="Editar Cliente">
+                            <button class="btn-act add-balance" onclick="event.stopPropagation(); openAddSaldoModal('${u.id}')" title="Adicionar Saldo">+ Saldo</button>
+                            <button class="btn-act edit-btn" onclick="event.stopPropagation(); openEditUserModal('${u.id}')" title="Editar Cliente">
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                                 <span>Editar</span>
                             </button>
-                            <button class="btn-act" onclick="adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.35); font-size:11px; padding:4px 8px; border-radius:6px;" title="Resetar IP (Permite vincular novo IP no próximo acesso)">🔄 Reset IP</button>
-                            <button class="btn-act block" onclick="changeUserStatus('${u.id}', 'blocked')" title="Bloquear Cliente">Bloquear</button>
-                            <button class="btn-act delete" onclick="deleteUser('${u.id}')" title="Excluir Usuário">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            </button>
+                            <button class="btn-act" onclick="event.stopPropagation(); adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\'")}')" style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.3); font-size:11px; padding:3.5px 7px; border-radius:6px;" title="Resetar trava de IP">🔄 IP</button>
+                            <button class="btn-act block" onclick="event.stopPropagation(); changeUserStatus('${u.id}', 'blocked')" style="padding:3.5px 7px;" title="Bloquear Cliente">Bloquear</button>
                         ` : u.status === 'blocked' ? `
-                            <button class="btn-act" onclick="adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\\'")}')" style="background:rgba(56, 189, 248, 0.15); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); font-size:11px; padding:4.5px 9px; border-radius:6px; font-weight:700;" title="Desbloqueia e reseta a trava de IP">🔄 Reset IP & Desbloquear</button>
-                            <button class="btn-act approve" onclick="changeUserStatus('${u.id}', 'approved')" title="Desbloquear Cliente">Desbloquear</button>
-                            <button class="btn-act delete" onclick="deleteUser('${u.id}')" title="Excluir Usuário">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            </button>
+                            <button class="btn-act approve" onclick="event.stopPropagation(); changeUserStatus('${u.id}', 'approved')" title="Desbloquear Cliente">Desbloquear</button>
+                            <button class="btn-act" onclick="event.stopPropagation(); adminResetUserIp('${u.id}', '${uNome.replace(/'/g, "\'")}')" style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.3); font-size:11px; padding:3.5px 7px; border-radius:6px;" title="Resetar IP">🔄 Reset IP</button>
                         ` : `
-                            <button class="btn-act approve" id="btnApproveUser_${u.id}" onclick="changeUserStatus('${u.id}', 'approved')" style="background:#00dc82; color:#062517; font-weight:800; padding:6px 14px; font-size:11.5px; border-radius:6px; box-shadow:0 0 10px rgba(0,220,130,0.25); border:none; cursor:pointer;" title="Aprovar e Liberar Acesso">✓ Aceitar</button>
-                            <button class="btn-act block" onclick="rejectAndDeleteUser('${u.id}')" style="padding:6px 10px; font-size:11.5px; border-radius:6px;" title="Recusar Cadastro">✕ Recusar</button>
+                            <button class="btn-act approve" onclick="event.stopPropagation(); approvePendingUserDirect('${u.id}')" style="padding:4px 9px;" title="Aprovar Cadastro">✓ Aprovar</button>
+                            <button class="btn-act block" onclick="event.stopPropagation(); rejectAndDeleteUser('${u.id}')" style="padding:4px 9px;" title="Recusar Cadastro">✕ Recusar</button>
                         `}
                     </div>
                 </td>
@@ -11805,7 +11818,230 @@ function updateDashboardMetrics() {
         document.addEventListener('DOMContentLoaded', function() {
             loadDomainsConfig();
         });
-    </script>
+    
+        let activeDetailUserId = null;
+
+        function openUserDetailsModal(userId) {
+            const u = usersData.find(user => String(user.id) === String(userId));
+            if (!u) return;
+            activeDetailUserId = userId;
+
+            const modal = document.getElementById('modalUserDetails');
+            if (!modal) return;
+
+            const avatarEl = document.getElementById('modalUserDetailAvatar');
+            if (avatarEl) avatarEl.textContent = (u.nome || 'C').charAt(0).toUpperCase();
+
+            const nomeEl = document.getElementById('modalUserDetailNome');
+            if (nomeEl) nomeEl.textContent = u.nome || 'Cliente';
+
+            const presEl = document.getElementById('modalUserDetailPresence');
+            if (presEl) presEl.innerHTML = typeof getUserActivityBadge === 'function' ? getUserActivityBadge(u) : '';
+
+            const emailEl = document.getElementById('modalUserDetailEmail');
+            if (emailEl) emailEl.textContent = u.email || 'Sem e-mail';
+
+            const saldoEl = document.getElementById('modalUserDetailSaldo');
+            if (saldoEl) saldoEl.textContent = `R$ ${parseFloat(u.saldo || 0).toFixed(2).replace('.', ',')}`;
+
+            const docsEl = document.getElementById('modalUserDetailDocs');
+            const uCount = typeof countUserDocuments === 'function' ? countUserDocuments(u) : (u.docsCount || 0);
+            if (docsEl) docsEl.textContent = `${uCount} Docs`;
+
+            const statusEl = document.getElementById('modalUserDetailStatus');
+            if (statusEl) {
+                if (u.status === 'approved') statusEl.innerHTML = `<span style="color:#00dc82;">✓ Aprovado</span>`;
+                else if (u.status === 'pending') statusEl.innerHTML = `<span style="color:#f59e0b;">⏳ Pendente</span>`;
+                else statusEl.innerHTML = `<span style="color:#f87171;">⛔ Bloqueado</span>`;
+            }
+
+            const whatsEl = document.getElementById('modalUserDetailWhats');
+            if (whatsEl) {
+                const ph = u.phone || '--';
+                const cleanPh = String(ph).replace(/\D/g, '');
+                if (cleanPh) {
+                    const formattedPh = typeof formatWhatsAppNumber === 'function' ? formatWhatsAppNumber(ph) : ph;
+                    whatsEl.innerHTML = `${formattedPh} <a href="https://wa.me/${cleanPh.startsWith('55') ? cleanPh : '55' + cleanPh}" target="_blank" style="margin-left:8px; font-size:11px; color:#00dc82; text-decoration:none; background:rgba(0,220,130,0.12); padding:2px 8px; border-radius:4px; font-weight:700;">Abrir WhatsApp ↗</a>`;
+                } else {
+                    whatsEl.textContent = '--';
+                }
+            }
+
+            const senhaEl = document.getElementById('modalUserDetailSenha');
+            if (senhaEl) {
+                senhaEl.textContent = u.senha || 'Não definida';
+            }
+
+            const dataEl = document.getElementById('modalUserDetailData');
+            if (dataEl) {
+                if (u.created_at) {
+                    const d = new Date(u.created_at);
+                    dataEl.textContent = isNaN(d.getTime()) ? u.created_at : d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                } else {
+                    dataEl.textContent = 'Não registrada';
+                }
+            }
+
+            const planoEl = document.getElementById('modalUserDetailPlano');
+            if (planoEl) planoEl.textContent = u.plano || 'Nenhum Plano Ativo';
+
+            const ipRegEl = document.getElementById('modalUserDetailIpReg');
+            const ipReg = u.register_ip || u.ip || '';
+            if (ipRegEl) ipRegEl.textContent = ipReg || 'IP Livre (Aguardando primeiro login)';
+
+            const warnEl = document.getElementById('modalUserDetailIpWarning');
+            const ipLast = u.last_ip || ipReg;
+            const isDivergent = Boolean(ipReg && ipLast && String(ipReg).trim() !== String(ipLast).trim() && ipLast !== '--');
+            if (warnEl) warnEl.style.display = isDivergent ? 'block' : 'none';
+
+            const blockBtn = document.getElementById('modalBtnBlock');
+            if (blockBtn) {
+                if (u.status === 'blocked') {
+                    blockBtn.textContent = 'Desbloquear';
+                    blockBtn.className = 'btn-act approve';
+                } else {
+                    blockBtn.textContent = 'Bloquear';
+                    blockBtn.className = 'btn-act block';
+                }
+            }
+
+            modal.classList.add('active');
+        }
+
+        function copyModalUserIp() {
+            const ipEl = document.getElementById('modalUserDetailIpReg');
+            if (ipEl && ipEl.textContent && ipEl.textContent !== '--') {
+                navigator.clipboard.writeText(ipEl.textContent).then(() => {
+                    showToast('✓ IP copiado para a área de transferência!');
+                });
+            }
+        }
+
+        function handleModalAddSaldo() {
+            if (!activeDetailUserId) return;
+            const id = activeDetailUserId;
+            closeModal('modalUserDetails');
+            openAddSaldoModal(id);
+        }
+
+        function handleModalEdit() {
+            if (!activeDetailUserId) return;
+            const id = activeDetailUserId;
+            closeModal('modalUserDetails');
+            openEditUserModal(id);
+        }
+
+        function handleModalResetIp() {
+            if (!activeDetailUserId) return;
+            const u = usersData.find(user => String(user.id) === String(activeDetailUserId));
+            if (!u) return;
+            closeModal('modalUserDetails');
+            adminResetUserIp(u.id, u.nome || 'Cliente');
+        }
+
+        function handleModalToggleBlock() {
+            if (!activeDetailUserId) return;
+            const u = usersData.find(user => String(user.id) === String(activeDetailUserId));
+            if (!u) return;
+            const newStatus = u.status === 'blocked' ? 'approved' : 'blocked';
+            closeModal('modalUserDetails');
+            changeUserStatus(u.id, newStatus);
+        }
+
+</script>
+
+
+    <!-- MODAL DE DETALHES COMPLETOS DO CLIENTE (PREMIUM) -->
+    <div class="modal-overlay" id="modalUserDetails" onclick="if(event.target===this)closeModal('modalUserDetails')">
+        <div class="modal-card" style="max-width: 620px; width: 94%; border: 1px solid rgba(0, 220, 130, 0.35); border-radius: 18px; background: #0f1214; box-shadow: 0 25px 60px rgba(0,0,0,0.9); padding: 22px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <div id="modalUserDetailAvatar" style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg, rgba(0,220,130,0.25), rgba(15,23,42,0.95)); border:1.5px solid #00dc82; color:#00dc82; font-weight:800; font-size:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 16px rgba(0,220,130,0.25);">A</div>
+                    <div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span id="modalUserDetailNome" style="font-weight:800; color:#fff; font-size:17px; letter-spacing:-0.3px;">Nome do Cliente</span>
+                            <span id="modalUserDetailPresence"></span>
+                        </div>
+                        <div id="modalUserDetailEmail" style="font-size:12.5px; color:#94a3b8; margin-top:2px;">email@exemplo.com</div>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('modalUserDetails')" style="background:transparent; border:none; color:#64748b; font-size:22px; cursor:pointer; padding:4px 8px; line-height:1; transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#64748b'">✕</button>
+            </div>
+
+            <!-- CARDS DE RESUMO (KPIs) -->
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:18px;">
+                <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px; text-align:center;">
+                    <div style="font-size:11px; color:#94a3b8; text-transform:uppercase; font-weight:700; letter-spacing:0.4px;">Saldo Atual</div>
+                    <div id="modalUserDetailSaldo" style="font-size:17px; font-weight:800; color:#00dc82; margin-top:4px; font-family:var(--font-mono, monospace);">R$ 0,00</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px; text-align:center;">
+                    <div style="font-size:11px; color:#94a3b8; text-transform:uppercase; font-weight:700; letter-spacing:0.4px;">Documentos</div>
+                    <div id="modalUserDetailDocs" style="font-size:17px; font-weight:800; color:#38bdf8; margin-top:4px;">0 Docs</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px; text-align:center;">
+                    <div style="font-size:11px; color:#94a3b8; text-transform:uppercase; font-weight:700; letter-spacing:0.4px;">Status</div>
+                    <div id="modalUserDetailStatus" style="font-size:13px; font-weight:800; margin-top:6px;">Aprovado</div>
+                </div>
+            </div>
+
+            <!-- DETALHES DE CONTATO E CONTA -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:14px; margin-bottom:14px;">
+                <div style="font-size:12px; font-weight:800; color:#00dc82; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Dados de Acesso e Contato</span>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:12px;">
+                    <div>
+                        <span style="color:#64748b;">WhatsApp:</span>
+                        <div id="modalUserDetailWhats" style="margin-top:3px; font-weight:600; color:#fff;">--</div>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;">Senha de Acesso:</span>
+                        <div id="modalUserDetailSenha" style="margin-top:3px; font-weight:700; color:#cbd5e1; font-family:var(--font-mono, monospace);">******</div>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;">Data de Cadastro:</span>
+                        <div id="modalUserDetailData" style="margin-top:3px; font-weight:500; color:#cbd5e1;">--</div>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;">Plano Ativo:</span>
+                        <div id="modalUserDetailPlano" style="margin-top:3px; font-weight:600; color:#a855f7;">Nenhum</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEGURANÇA E TRAVA DE DISPOSITIVO (IP) -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:14px; margin-bottom:18px;">
+                <div style="font-size:12px; font-weight:800; color:#38bdf8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Segurança & Trava de Aparelho (Anti-Venda)</span>
+                </div>
+                <div style="font-size:12px; display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.25); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.04);">
+                        <div>
+                            <span style="color:#64748b; font-size:11px; display:block;">IP de Cadastro Original:</span>
+                            <span id="modalUserDetailIpReg" style="font-weight:700; color:#38bdf8; font-family:var(--font-mono, monospace); font-size:11.5px; word-break:break-all;">--</span>
+                        </div>
+                        <button type="button" id="btnCopyIp" onclick="copyModalUserIp()" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.25); padding:4px 9px; border-radius:5px; font-size:11px; cursor:pointer;">Copiar IP</button>
+                    </div>
+                    <div id="modalUserDetailIpWarning" style="display:none; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px 10px; color:#f87171; font-size:11.5px;">
+                        ⚠️ <strong>Divergência detectada:</strong> Última tentativa de acesso registrada com IP diferente.
+                    </div>
+                </div>
+            </div>
+
+            <!-- AÇÕES RÁPIDAS NO MODAL -->
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; border-top:1px solid rgba(255,255,255,0.06); padding-top:14px;">
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <button type="button" id="modalBtnAddSaldo" class="btn-act add-balance" style="padding:6px 14px; font-size:12px; font-weight:800;" onclick="handleModalAddSaldo()">+ Adicionar Saldo</button>
+                    <button type="button" id="modalBtnEdit" class="btn-act edit-btn" style="padding:6px 12px; font-size:12px;" onclick="handleModalEdit()">✏️ Editar</button>
+                    <button type="button" id="modalBtnResetIp" class="btn-act" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); padding:6px 12px; font-size:12px;" onclick="handleModalResetIp()">🔄 Resetar IP</button>
+                    <button type="button" id="modalBtnBlock" class="btn-act block" style="padding:6px 12px; font-size:12px;" onclick="handleModalToggleBlock()">Bloquear</button>
+                </div>
+                <button type="button" onclick="closeModal('modalUserDetails')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#94a3b8; padding:6px 14px; border-radius:6px; font-size:12px; cursor:pointer; font-weight:600;">Fechar</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
