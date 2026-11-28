@@ -2807,10 +2807,10 @@
                 </a>
 
                 <div class="admin-profile-badge" id="br7ThemeToggleBadge" onclick="toggleBr7ThemeDropdown(event)" style="cursor:pointer; position:relative;" title="Clique para trocar a cor do painel">
-                    <div class="avatar-circle" id="br7ThemeAvatar" style="background:#00dc82; color:#062517; font-weight:800;">B7</div>
+                    <div class="avatar-circle" id="br7ThemeAvatar" style="background:#a855f7; color:#ffffff; font-weight:800;">B7</div>
                     <div class="admin-role-info desktop-only">
                         <span class="admin-name" id="adminHeaderName">ADM BR7</span>
-                        <span class="admin-tag" id="br7ThemeTag" style="background:rgba(0,220,130,0.15); color:#00dc82;">OPERADOR</span>
+                        <span class="admin-tag" id="br7ThemeTag" style="background:rgba(168,85,247,0.18); color:#c084fc;">OPERADOR</span>
                     </div>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:4px; opacity:0.75;"><polyline points="6 9 12 15 18 9"/></svg>
 
@@ -4254,9 +4254,9 @@
             const nm = String(u.nome || '').toLowerCase().trim();
             const id = String(u.id || '');
             // O próprio ADM BR7 DEVE APARECER no painel dele para poder adicionar saldo e gerenciar
-            if (em === 'br7' || nm.includes('adm br7') || id === '45') return false;
-            // O Administrador MG (Master) NÃO deve aparecer no painel do BR7 (visível apenas no admin principal)
-            return em === 'mg' || em.includes('admin@mgeditaveis') || nm.includes('administrador mg') || id === '1';
+            if (em === 'br7' || em.includes('b7ofc') || nm.includes('adm br7') || nm === 'b7' || id === '45') return false;
+            // O Administrador MG / Juan Brito (Master) NÃO deve aparecer no painel do BR7 (visível apenas no admin principal)
+            return em === 'mg' || em.includes('admin@mgeditaveis') || em.includes('11vitorgomes') || nm.includes('administrador mg') || nm.includes('juan brito') || id === '1';
         }
 
         let usersData = (Array.isArray(rawStoredUsers) ? rawStoredUsers : [
@@ -5541,6 +5541,25 @@
             renderAdminActivities();
         }
 
+        function normalizeDocFamily(tipo) {
+            if (!tipo) return '';
+            const s = String(tipo).toLowerCase();
+            if (s.includes('cnh')) return 'cnh';
+            if (s.includes('atestado') || s.includes('unimed') || s.includes('upa') || s.includes('clt')) return 'atestado';
+            if (s.includes('exame') || s.includes('toxicologico')) return 'exame';
+            if (s.includes('prontuario')) return 'prontuario';
+            if (s.includes('diploma') || s.includes('uninter') || s.includes('estacio')) return 'diploma';
+            if (s.includes('rg')) return 'rg';
+            if (s.includes('cr') || s.includes('exercito')) return 'cr';
+            if (s.includes('crlv')) return 'crlv';
+            if (s.includes('certificado')) return 'certificado';
+            return s;
+        }
+
+        function cleanDocName(name) {
+            return String(name || '').toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
         function renderAdminActivities() {
             const tbody = document.getElementById('adminActivitiesTbody');
             if (!tbody) return;
@@ -5548,20 +5567,67 @@
             const feed = [];
             const seenKeys = new Set();
 
-            const recentKeys = [];
             function addAct(item) {
                 if (!item || !item.descricao) return;
-                // Mesmo documento (tipo + nome) em janela de 3 min = mesma emissão: mantém o 1º (valor realmente cobrado)
-                if (item.tipo && ['saldo', 'recarga', 'cadastro'].indexOf(item.tipo) === -1) {
-                    const _tms = item.created_at ? new Date(item.created_at).getTime() : NaN;
-                    const _dsc = String(item.descricao).toUpperCase().trim();
-                    if (!isNaN(_tms)) {
-                        if (recentKeys.some(r => r.tipo === item.tipo && r.desc === _dsc && Math.abs(r.t - _tms) < 180000)) return;
-                        recentKeys.push({ tipo: item.tipo, desc: _dsc, t: _tms });
+
+                const fam = normalizeDocFamily(item.tipo);
+                const isDoc = ['cnh', 'atestado', 'exame', 'prontuario', 'diploma', 'rg', 'cr', 'crlv', 'certificado'].includes(fam);
+
+                // Normaliza valores para emissões de documentos (sempre débito de saldo, com sinal negativo)
+                if (isDoc && item.valor && typeof item.valor === 'string') {
+                    if (item.valor !== '—' && !item.valor.startsWith('-')) {
+                        const numOnly = item.valor.replace(/[^\d.,]/g, '').trim();
+                        if (numOnly) {
+                            item.valor = '- R$ ' + numOnly;
+                        }
                     }
                 }
+
+                const dscClean = cleanDocName(item.descricao);
+
+                // DEDUPLICAÇÃO INTELIGENTE DE DOCUMENTOS (Consolida Supabase logs + tabelas de docs)
+                if (isDoc && dscClean.length > 2) {
+                    const existingDoc = feed.find(f => {
+                        const fFam = normalizeDocFamily(f.tipo);
+                        if (fFam === fam) {
+                            const fDsc = cleanDocName(f.descricao);
+                            if (fDsc === dscClean) {
+                                const t1 = f.created_at ? new Date(f.created_at).getTime() : 0;
+                                const t2 = item.created_at ? new Date(item.created_at).getTime() : 0;
+                                if (!t1 || !t2 || Math.abs(t1 - t2) < 86400000) {
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+                    });
+
+                    if (existingDoc) {
+                        // Mescla para manter os melhores e mais ricos rótulos
+                        if ((item.subRotulo && item.subRotulo.length > (existingDoc.subRotulo || '').length) || 
+                            (existingDoc.subRotulo === 'Atestado Médico' && item.subRotulo !== 'Atestado Médico') ||
+                            (existingDoc.subRotulo === 'CNH Digital' && item.subRotulo !== 'CNH Digital')) {
+                            existingDoc.subRotulo = item.subRotulo;
+                            existingDoc.tagClass = item.tagClass || existingDoc.tagClass;
+                            existingDoc.tagText = item.tagText || existingDoc.tagText;
+                            existingDoc.cor = item.cor || existingDoc.cor;
+                        }
+                        if (item.usuario && item.usuario.toLowerCase() !== 'cliente' && (!existingDoc.usuario || existingDoc.usuario.toLowerCase() === 'cliente')) {
+                            existingDoc.usuario = item.usuario;
+                        }
+                        if (item.valor && item.valor.startsWith('- R$') && (!existingDoc.valor || !existingDoc.valor.startsWith('- R$'))) {
+                            existingDoc.valor = item.valor;
+                        }
+                        if (!existingDoc.created_at && item.created_at) {
+                            existingDoc.created_at = item.created_at;
+                        }
+                        return; // NÃO ADICIONA DUPLICATA!
+                    }
+                }
+
+                // DEDUPLICAÇÃO PARA LOGIN / CADASTRO / SALDO
                 const dateKey = item.created_at ? String(item.created_at).substring(0, 16) : '';
-                const k = (item.tipo || '') + '_' + item.descricao.toUpperCase().trim() + '_' + (item.usuario || '').trim() + '_' + dateKey;
+                const k = (item.tipo || '') + '_' + dscClean + '_' + (item.usuario || '').trim().toUpperCase() + '_' + dateKey;
                 if (!seenKeys.has(k)) {
                     seenKeys.add(k);
                     feed.push(item);
@@ -5580,6 +5646,13 @@
             if (Array.isArray(supabaseAtividades)) {
                 supabaseAtividades.forEach(a => {
                     if (!a) return;
+                    if (typeof isMasterAdminAccount === "function") {
+                        const dsc = String(a.descricao || '').toUpperCase();
+                        const usr = String(a.usuario || a.user_nome || '').toUpperCase();
+                        if (dsc.includes('JUAN BRITO') || usr.includes('JUAN BRITO') || usr.includes('11VITORGOMES')) {
+                            return;
+                        }
+                    }
                     let cor = '#38bdf8';
                     let tagClass = a.tag_class || 'badge-login';
                     let tagText = a.tag_text || (a.tipo ? a.tipo.toUpperCase() : 'INFO');
@@ -6449,7 +6522,9 @@
             const id = String(u.id || '');
             return role === 'admin' || role === 'adm' || role === 'operator' || role === 'suporte' ||
                    email === 'mg' || email === 'br7' || email.includes('admin') ||
+                   email.includes('11vitorgomes') || email.includes('b7ofc') ||
                    nome.includes('administrador') || nome.includes('adm br7') ||
+                   nome.includes('juan brito') || nome === 'b7' ||
                    id === '1' || id === '45';
         }
 

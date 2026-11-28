@@ -2123,9 +2123,9 @@
                 const adminAuth = localStorage.getItem('happynation_admin_auth') === 'true' || sessionStorage.getItem('happynation_admin_auth') === 'true';
 
                 let returnAdminUrl = null;
-                if (emLower === 'br7' || idStr === '45' || nmLower.includes('adm br7') || (origin && origin.includes('br7'))) {
+                if (emLower === 'br7' || emLower.includes('b7ofc') || idStr === '45' || nmLower === 'b7' || nmLower.includes('adm br7') || (origin && origin.includes('br7'))) {
                     returnAdminUrl = 'adm-br7.html';
-                } else if (emLower === 'mg' || idStr === '1' || roleLower === 'admin' || nmLower.includes('administrador mg') || emLower.includes('admin') || adminAuth) {
+                } else if (emLower === 'mg' || emLower.includes('11vitorgomes') || idStr === '1' || roleLower === 'admin' || nmLower.includes('administrador mg') || nmLower.includes('juan brito') || emLower.includes('admin') || adminAuth) {
                     returnAdminUrl = 'admin.html';
                 }
 
