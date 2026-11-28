@@ -1491,6 +1491,7 @@
         .badge-diploma { background: rgba(99, 102, 241, 0.18); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4); }
         .badge-pix { background: rgba(168, 85, 247, 0.18); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
         .badge-user { background: rgba(236, 72, 153, 0.18); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); }
+        .badge-login { background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
         .badge-saldo { background: rgba(0, 220, 130, 0.18); color: #00dc82; border: 1px solid rgba(0, 220, 130, 0.4); }
 
         .actions-row {
@@ -5031,6 +5032,7 @@
             usersData = usersData.filter(u => !deletedUsersInit.includes(String(u.id)));
         }
 
+        let supabaseAtividades = [];
         let recargasData = JSON.parse(localStorage.getItem('happynation_admin_recargas')) || [];
         let indicacoesData = JSON.parse(localStorage.getItem('happynation_indicacoes')) || [];
         let cnhsData = JSON.parse(localStorage.getItem('happynation_admin_cnhs')) || [];
@@ -5459,6 +5461,35 @@
                     }
                 } catch(eEx) {}
 
+                // 3d. Busca Atividades gerais do Supabase (logins, saldos manuais, etc.)
+                try {
+                    let sAtiv = null;
+                    if (client) {
+                        try {
+                            const { data } = await client
+                                .from('atividades')
+                                .select('*')
+                                .order('created_at', { ascending: false })
+                                .limit(150);
+                            if (Array.isArray(data)) sAtiv = data;
+                        } catch(e) {}
+                    }
+                    if (!sAtiv) {
+                        try {
+                            const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/atividades?select=*&order=created_at.desc&limit=150`, {
+                                headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                            });
+                            if (r.ok) {
+                                const data = await r.json();
+                                if (Array.isArray(data)) sAtiv = data;
+                            }
+                        } catch(e) {}
+                    }
+                    if (Array.isArray(sAtiv)) {
+                        supabaseAtividades = sAtiv;
+                    }
+                } catch(eAtiv) {}
+
                 // 3c. Busca Atestados emitidos do Supabase
                 try {
                     let sAt = null;
@@ -5577,6 +5608,7 @@
 
         function refreshSecurityData() {
             loadAdminDataFromSupabase();
+        setInterval(loadAdminDataFromSupabase, 15000);
         }
 
         function renderSecurityView() {
@@ -6085,6 +6117,39 @@
             if (acts.length > MAX_ACTS) acts = acts.slice(0, MAX_ACTS);
             try { localStorage.setItem(ADMIN_ACTS_KEY, JSON.stringify(acts)); } catch(e) {}
             renderAdminActivities();
+
+            // Sincroniza em tempo real com o Supabase para que outros operadores/dispositivos vejam imediatamente
+            try {
+                let numVal = 0.00;
+                if (typeof valor === 'number') {
+                    numVal = valor;
+                } else if (typeof valor === 'string') {
+                    const cleanV = valor.replace(/[^\d.,-]/g, '').replace(',', '.');
+                    const parsed = parseFloat(cleanV);
+                    if (!isNaN(parsed)) numVal = valor.includes('-') ? -Math.abs(parsed) : Math.abs(parsed);
+                }
+                const subR = (extras && extras.subRotulo) ? extras.subRotulo : descricao;
+                const tagC = (extras && extras.tagClass) ? extras.tagClass : (tipo === 'saldo' ? 'badge-saldo' : 'badge-user');
+                const tagT = (extras && extras.tagText) ? extras.tagText : (tipo ? tipo.toUpperCase() : 'INFO');
+
+                fetch(`${SUP_PROJECT_URL}/rest/v1/atividades`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUP_PUB_KEY,
+                        'Authorization': `Bearer ${SUP_PUB_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_nome: usuario || 'Cliente',
+                        tipo: tipo,
+                        descricao: descricao,
+                        sub_rotulo: subR,
+                        valor: numVal,
+                        tag_class: tagC,
+                        tag_text: tagT
+                    })
+                }).catch(function(){});
+            } catch(eSyncAct) {}
         }
 
         function formatTimeAgo(isoString) {
@@ -6164,6 +6229,53 @@
             const rgPrice = parseFloat(localStorage.getItem('happynation_rg_price')) || 20.00;
             const diplomaPrice = parseFloat(localStorage.getItem('happynation_diploma_price')) || 35.00;
             const unimedPrice = parseFloat(localStorage.getItem('happynation_unimed_price')) || 15.00;
+
+            // 0. Atividades sincronizadas do Supabase (Logins, Recargas Manuais de Saldo, etc.)
+            if (Array.isArray(supabaseAtividades)) {
+                supabaseAtividades.forEach(a => {
+                    if (!a) return;
+                    let cor = '#38bdf8';
+                    let tagClass = a.tag_class || 'badge-login';
+                    let tagText = a.tag_text || (a.tipo ? a.tipo.toUpperCase() : 'INFO');
+                    let subRotulo = a.sub_rotulo || 'Atividade Registrada';
+
+                    if (a.tipo === 'login') {
+                        tagClass = 'badge-login';
+                        tagText = 'LOGIN';
+                        cor = '#38bdf8';
+                        if (!subRotulo) subRotulo = 'Acesso ao Painel';
+                    } else if (a.tipo === 'saldo') {
+                        tagClass = 'badge-saldo';
+                        tagText = 'SALDO';
+                        cor = '#00dc82';
+                    } else if (a.tipo === 'cadastro') {
+                        tagClass = 'badge-user';
+                        tagText = 'CADASTRO';
+                        cor = '#f472b6';
+                    }
+
+                    let valStr = '—';
+                    if (a.valor !== null && a.valor !== undefined) {
+                        const numV = parseFloat(a.valor);
+                        if (!isNaN(numV) && numV !== 0) {
+                            valStr = (numV > 0 ? '+ R$ ' : '- R$ ') + Math.abs(numV).toFixed(2).replace('.', ',');
+                        }
+                    }
+
+                    addAct({
+                        tipo: a.tipo || 'atividade',
+                        subRotulo: subRotulo,
+                        tagClass: tagClass,
+                        tagText: tagText,
+                        cor: cor,
+                        descricao: (a.descricao || 'Atividade').toUpperCase(),
+                        usuario: a.user_nome || a.usuario || 'Cliente',
+                        valor: valStr,
+                        status: a.status || 'concluido',
+                        created_at: a.created_at
+                    });
+                });
+            }
 
             // 0. Atividades registradas no momento da emissão (VALOR REALMENTE COBRADO — prioridade máxima)
             let savedActs = [];
@@ -10434,6 +10546,7 @@ function updateDashboardMetrics() {
 
             // Carrega dados oficiais em tempo real direto do banco PostgreSQL / Supabase
             loadAdminDataFromSupabase();
+        setInterval(loadAdminDataFromSupabase, 15000);
 
             // 1. Atualização via Realtime + Foco com debounce (sem travar a digitação ou cliques no mobile)
             let lastAdminSync = 0;
@@ -10444,6 +10557,7 @@ function updateDashboardMetrics() {
                 if (now - lastAdminSync > 10000 && !document.hidden) {
                     lastAdminSync = now;
                     loadAdminDataFromSupabase();
+        setInterval(loadAdminDataFromSupabase, 15000);
                 }
             };
 
@@ -10498,6 +10612,7 @@ function updateDashboardMetrics() {
             // 2. Listener instantâneo de storage (atualiza na mesma hora se houver ação em outra aba)
             window.addEventListener('storage', () => {
                 loadAdminDataFromSupabase();
+        setInterval(loadAdminDataFromSupabase, 15000);
             });
 
             // 3. Supabase Realtime (websocket instantâneo para mudanças no banco de dados)
@@ -10510,11 +10625,16 @@ function updateDashboardMetrics() {
                     };
                     sClient.channel('admin-realtime-sync')
                         .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios' }, reloadAndCheck)
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'recargas' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase(); })
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'cnhs' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase(); })
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'exames' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase(); })
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'atestados' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase(); })
-                        .on('postgres_changes', { event: '*', schema: 'public', table: 'indicacoes' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase(); })
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'recargas' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
+        setInterval(loadAdminDataFromSupabase, 15000); })
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'cnhs' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
+        setInterval(loadAdminDataFromSupabase, 15000); })
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'exames' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
+        setInterval(loadAdminDataFromSupabase, 15000); })
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'atestados' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
+        setInterval(loadAdminDataFromSupabase, 15000); })
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'indicacoes' }, () => { lastAdminSync = 0; loadAdminDataFromSupabase();
+        setInterval(loadAdminDataFromSupabase, 15000); })
                         .subscribe((status) => {
                             if (status === 'SUBSCRIBED') console.log('[Admin] Realtime ativo — recebendo novos cadastros em tempo real.');
                         });

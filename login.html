@@ -936,6 +936,29 @@
                     } catch(eIpUp) {}
                 }
 
+                // Registrar Atividade de Login em Tempo Real no Supabase para os Painéis ADM
+                try {
+                    const loginActPayload = {
+                        user_id: user.id || null,
+                        user_nome: user.nome || user.email || 'Cliente',
+                        tipo: 'login',
+                        descricao: 'Acesso ao Painel do Cliente',
+                        sub_rotulo: 'Login Autorizado' + (currentClientIp ? ' • IP: ' + currentClientIp : ''),
+                        valor: 0.00,
+                        tag_class: 'badge-login',
+                        tag_text: 'LOGIN'
+                    };
+                    fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/atividades', {
+                        method: 'POST',
+                        headers: {
+                            'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(loginActPayload)
+                    }).catch(function(){});
+                } catch(eActLog) {}
+
                 // Heartbeat imediato de presença no login
                 try {
                     const nowIso = new Date().toISOString();
