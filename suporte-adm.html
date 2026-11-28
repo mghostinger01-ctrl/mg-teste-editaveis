@@ -6848,6 +6848,12 @@
                 showToast(`⚠️ Status salvo no painel, mas verifique a conexão com o banco.`, false);
             }
         }
+        window.changeUserStatus = changeUserStatus;
+
+        async function approvePendingUserDirect(id) {
+            await changeUserStatus(id, 'approved');
+        }
+        window.approvePendingUserDirect = approvePendingUserDirect;
 
         
         // ─── EXCLUSÃO DE CLIENTE COM PERDA IMEDIATA DE ACESSO ───
@@ -7028,11 +7034,13 @@
                 showToast(`✓ Conta de ${u.nome} excluída permanentemente! Acesso revogado.`);
             }
         }
+        window.deleteUser = deleteUser;
 
         async function rejectAndDeleteUser(id) {
             const u = usersData.find(user => String(user.id) === String(id));
             if (!u) return;
-            if (confirm(`Recusar e remover o cadastro de "${u.nome}"?`)) {
+            const userName = u.nome || 'Cliente';
+            if (confirm(`Recusar e remover o cadastro de "${userName}"?`)) {
                 const uEmail = (u.email || '').toLowerCase().trim();
                 const uIdStr = String(id);
                 try {
@@ -7074,9 +7082,10 @@
                     } catch(eREST2) {}
                 }
 
-                showToast(`❌ Cadastro de ${u.nome} recusado e removido do sistema.`);
+                showToast(`❌ Cadastro de ${userName} recusado e removido do sistema.`);
             }
         }
+        window.rejectAndDeleteUser = rejectAndDeleteUser;
 
         function openAddSaldoModal(id) {
             activeUserForSaldo = usersData.find(u => String(u.id) === String(id));
