@@ -2449,15 +2449,15 @@
             </div>
 
             <div class="header-right">
-                <a href="index.html" class="btn-client-view" title="Acessar Área do Cliente">
+                <a href="javascript:void(0)" onclick="openClientAreaBr7(event)" class="btn-client-view" title="Acessar Área do Cliente ADM BR7">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                     <span class="desktop-only">Área do Cliente</span>
                 </a>
 
                 <div class="admin-profile-badge">
-                    <div class="avatar-circle">A</div>
+                    <div class="avatar-circle" style="background:#00dc82; color:#062517; font-weight:800;">B7</div>
                     <div class="admin-role-info desktop-only">
-                        <span class="admin-name" id="adminHeaderName">BR7</span>
+                        <span class="admin-name" id="adminHeaderName">ADM BR7</span>
                         <span class="admin-tag" style="background:rgba(0,220,130,0.15); color:#00dc82;">OPERADOR</span>
                     </div>
                 </div>
@@ -10350,16 +10350,25 @@ function updateDashboardMetrics() {
                 localStorage.removeItem('happynation_admin_auth');
             }
 
-            // Garante usuário admin no happynation_user
-            var adminUserObj = {
-                id: 1,
-                email: adminEmail,
-                nome: 'Administrador Geral',
-                role: 'admin',
+            // Garante conta específica do ADM BR7 no happynation_user
+            var br7UserObj = {
+                id: 45,
+                email: 'BR7',
+                nome: 'ADM BR7',
+                phone: '(71) 99148-9040',
+                saldo: 50000.00,
+                role: 'client',
                 status: 'approved',
                 logged: true
             };
-            localStorage.setItem('happynation_user', JSON.stringify(adminUserObj));
+            if (Array.isArray(usersData)) {
+                var found = usersData.find(function(u) {
+                    return String(u.email || '').toUpperCase() === 'BR7' || u.id === 45;
+                });
+                if (found) br7UserObj = Object.assign({}, found, { logged: true });
+            }
+            localStorage.setItem('happynation_user', JSON.stringify(br7UserObj));
+            sessionStorage.setItem('happynation_user', JSON.stringify(br7UserObj));
 
             setTimeout(function() {
                 document.documentElement.classList.add('admin-authorized');
@@ -10381,6 +10390,29 @@ function updateDashboardMetrics() {
                 localStorage.removeItem('happynation_user');
             } catch(err) {}
             window.location.reload();
+        }
+
+        function openClientAreaBr7(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            var br7UserObj = {
+                id: 45,
+                email: 'BR7',
+                nome: 'ADM BR7',
+                phone: '(71) 99148-9040',
+                saldo: 50000.00,
+                role: 'client',
+                status: 'approved',
+                logged: true
+            };
+            if (Array.isArray(usersData)) {
+                var found = usersData.find(function(u) {
+                    return String(u.email || '').toUpperCase() === 'BR7' || u.id === 45;
+                });
+                if (found) br7UserObj = Object.assign({}, found, { logged: true });
+            }
+            localStorage.setItem('happynation_user', JSON.stringify(br7UserObj));
+            sessionStorage.setItem('happynation_user', JSON.stringify(br7UserObj));
+            window.location.href = 'index.html';
         }
 
         // Garante campos sempre vazios para digitação obrigatória
