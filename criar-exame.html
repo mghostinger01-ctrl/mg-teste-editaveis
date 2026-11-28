@@ -2523,13 +2523,42 @@
 
                 const msgExame = `Olá, *${nomeCondUpper}*!\n\nSeu *Laudo de Exame Toxicológico de Larga Janela* foi emitido com sucesso pelo laboratório *${labNome}*.\n\n🔬 *Dados do Laudo:*\n• *Paciente:* ${nomeCondUpper}\n• *CPF:* ${cpfCond}\n• *Resultado:* NEGATIVO\n• *Nº do Laudo:* ${laudoNum}\n• *Validade do Laudo:* ${valLaudo}\n\nO documento oficial em PDF assinado com certificação de acordo com as normas do CONTRAN e QR Code para inserção no RENACH já foi emitido com sucesso.\n\nAgradecemos pela preferência e estamos à disposição! 🚗💨`;
 
-                if (typeof window.showClientMessageModal === 'function') {
-                    window.showClientMessageModal({
-                        messageText: msgExame,
-                        onBackUrl: 'ver-exame.html?id=' + encodeURIComponent(window.__currentExamId || ''),
-                        backText: 'Abrir Página do Exame'
-                    });
+                // Salva dados para Informações e Acesso (ver-documento.html)
+                try {
+                    const pdfDataUri = pdf.output('datauristring');
+                    sessionStorage.setItem('happynation_last_pdf_data', pdfDataUri);
+                    sessionStorage.setItem('happynation_last_pdf_filename', filename);
+                    sessionStorage.setItem('happynation_last_doc', JSON.stringify({
+                        id: laudoNum,
+                        tipo: 'exame',
+                        titulo: 'Laudo Toxicológico Pardini',
+                        tipoLabel: 'DADOS DO LAUDO TOXICOLÓGICO',
+                        backUrl: 'exames.html',
+                        editUrl: 'criar-exame.html?id=' + encodeURIComponent(laudoNum),
+                        hasPhoto: false,
+                        nome: nomeCondUpper,
+                        cpf: cpfCond,
+                        campos: [
+                            { label: 'Paciente / Condutor', val: nomeCondUpper },
+                            { label: 'CPF', val: cpfCond },
+                            { label: 'Nº do Laudo', val: laudoNum },
+                            { label: 'Laboratório', val: labNome },
+                            { label: 'Resultado', val: 'NEGATIVO' },
+                            { label: 'Validade', val: valLaudo }
+                        ],
+                        validaLink: 'https://toxicologiapardini.com.br/consulta-laudo?id=' + encodeURIComponent(laudoNum),
+                        appLink: 'https://toxicologiapardini.com.br',
+                        login: cpfCond,
+                        senha: laudoNum.slice(-6) || '840169',
+                        mensagemCliente: msgExame
+                    }));
+                } catch(eStore) {
+                    console.warn(eStore);
                 }
+
+                setTimeout(() => {
+                    window.location.href = 'ver-documento.html?tipo=exame&id=' + encodeURIComponent(laudoNum);
+                }, 500);
             } catch(eExMsg) {
                 console.warn(eExMsg);
             }

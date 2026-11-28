@@ -2084,17 +2084,49 @@
                 if (wmFrente) wmFrente.remove();
                 if (wmVerso) wmVerso.remove();
 
-                if (window.Swal) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Certificado Emitido com Sucesso!',
-                        text: 'O PDF oficial sem marca d'água foi baixado e o saldo de R$ 20,00 foi debitado.',
-                        background: '#191c1d',
-                        color: '#fff',
-                        confirmButtonColor: '#00dc82'
-                    });
-                }
-            } catch(err) {
+                // Salva dados para Informações e Acesso (ver-documento.html)
+                try {
+                    const gv = id => (document.getElementById(id)?.value || '').trim();
+                    const alNome = (gv('inpAlunoNome') || DEFAULT_CERT.alunoNome).toUpperCase();
+                    const alCpf = gv('inpAlunoCpf') || DEFAULT_CERT.alunoCpf;
+                    const cCurso = gv('inpCursoNome') || DEFAULT_CERT.cursoNome;
+                    const cVal = gv('inpDataValidade') || DEFAULT_CERT.dataValidade;
+                    const cCarga = gv('inpCargaHoraria') || DEFAULT_CERT.cargaHoraria;
+
+                    const msgCert = `Olá, *${alNome}*!\n\nSeu *Certificado de Condutor Profissional (ICETRAN)* foi emitido com sucesso.\n\n📜 *Dados do Certificado:*\n• *Condutor:* ${alNome}\n• *CPF:* ${alCpf}\n• *Curso Especializado:* ${cCurso}\n• *Carga Horária:* ${cCarga}\n• *Validade:* ${cVal}\n\nO certificado oficial em PDF com código de autenticidade e validação no RENACH já está pronto. Parabéns! 🚗📜`;
+
+                    sessionStorage.setItem('happynation_last_pdf_data', pdf.output('datauristring'));
+                    sessionStorage.setItem('happynation_last_pdf_filename', `Certificado_ICETRAN_${reg}.pdf`);
+                    sessionStorage.setItem('happynation_last_doc', JSON.stringify({
+                        id: reg,
+                        tipo: 'certificado-condutor',
+                        titulo: 'Certificado de Condutor (ICETRAN)',
+                        tipoLabel: 'DADOS DO CERTIFICADO DE CONDUTOR',
+                        backUrl: 'index.html',
+                        editUrl: 'criar-certificado-condutor.html',
+                        hasPhoto: false,
+                        nome: alNome,
+                        cpf: alCpf,
+                        campos: [
+                            { label: 'Condutor(a)', val: alNome },
+                            { label: 'CPF', val: alCpf },
+                            { label: 'Curso Especializado', val: cCurso },
+                            { label: 'Carga Horária', val: cCarga },
+                            { label: 'Nº Registro ICETRAN', val: reg },
+                            { label: 'Validade', val: cVal }
+                        ],
+                        validaLink: 'https://icetran.com.br/validar?codigo=' + encodeURIComponent(reg),
+                        appLink: 'https://icetran.com.br',
+                        login: alCpf,
+                        senha: '840169',
+                        mensagemCliente: msgCert
+                    }));
+                } catch(eStore) {}
+
+                setTimeout(() => {
+                    window.location.href = 'ver-documento.html?tipo=certificado-condutor&id=' + encodeURIComponent(reg);
+                }, 600);
+} catch(err) {
                 console.error('Erro ao gerar PDF do Certificado:', err);
                 // Restaura marca d'água caso tenha ocorrido erro
                 if (!window._icetranPdfGenerated) {

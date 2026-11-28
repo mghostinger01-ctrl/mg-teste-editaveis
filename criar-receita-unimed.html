@@ -1651,13 +1651,42 @@ function atualizarPreview() {
 
                 const msgReceita = `Olá, *${pac}*!\n\nSua *Receita Médica Digital Oficial* foi emitida com sucesso.\n\n💊 *Dados do Receituário:*\n• *Paciente:* ${pac}\n• *CPF:* ${cpf}\n• *Data de Emissão:* ${data}\n• *Médico Prescritor:* ${med} (${crm})\n\nO receituário digital com assinatura ICP-Brasil e QR Code de autenticação farmacêutica já está pronto. Qualquer dúvida, estamos à disposição! 💊🩺`;
 
-                if (typeof window.showClientMessageModal === 'function') {
-                    window.showClientMessageModal({
-                        messageText: msgReceita,
-                        onBackUrl: 'receitas-unimed.html',
-                        backText: 'Ver Receitas Emitidas'
-                    });
+                // Salva dados para Informações e Acesso (ver-documento.html)
+                try {
+                    const pdfDataUri = pdf.output('datauristring');
+                    const filename = `Receita_Unimed_${pacienteNome}.pdf`;
+                    sessionStorage.setItem('happynation_last_pdf_data', pdfDataUri);
+                    sessionStorage.setItem('happynation_last_pdf_filename', filename);
+                    sessionStorage.setItem('happynation_last_doc', JSON.stringify({
+                        id: 'REC-' + Date.now().toString(36).toUpperCase(),
+                        tipo: 'receita-unimed',
+                        titulo: 'Receita Médica Digital (Unimed)',
+                        tipoLabel: 'DADOS DA RECEITA MÉDICA',
+                        backUrl: 'receitas-unimed.html',
+                        editUrl: 'criar-receita-unimed.html',
+                        hasPhoto: false,
+                        nome: pac,
+                        cpf: cpf,
+                        campos: [
+                            { label: 'Paciente', val: pac },
+                            { label: 'CPF', val: cpf },
+                            { label: 'Médico Prescritor', val: med },
+                            { label: 'CRM', val: crm },
+                            { label: 'Data de Emissão', val: data }
+                        ],
+                        validaLink: 'https://validador.cfm.org.br/receita',
+                        appLink: 'https://unimed-receita-digital.vercel.app',
+                        login: cpf,
+                        senha: '840169',
+                        mensagemCliente: msgReceita
+                    }));
+                } catch(eStore) {
+                    console.warn(eStore);
                 }
+
+                setTimeout(() => {
+                    window.location.href = 'ver-documento.html?tipo=receita-unimed';
+                }, 500);
             } catch(eRecMsg) {
                 console.warn(eRecMsg);
             }

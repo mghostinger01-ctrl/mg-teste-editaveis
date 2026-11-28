@@ -2492,13 +2492,43 @@
 
                 const msgDiploma = `Olá, *${nomeAluno}*!\n\nSeu *Diploma Universitário Oficial* foi emitido e registrado com sucesso na *${instAluno}*.\n\n🎓 *Dados da Titulação:*\n• *Graduado(a):* ${nomeAluno}\n• *RG / CPF:* ${rgAluno}\n• *Curso:* ${cursoAluno}\n• *Data de Expedição:* ${dataExp}\n\nO documento digital em alta resolução com assinatura institucional e QR Code de validação acadêmica do MEC já está pronto. Parabéns pela sua formação acadêmica! 🎓📜`;
 
-                if (typeof window.showClientMessageModal === 'function') {
-                    window.showClientMessageModal({
-                        messageText: msgDiploma,
-                        onBackUrl: 'diplomas-estacio.html',
-                        backText: 'Ver Diplomas Estácio'
-                    });
+                // Salva dados completos para a tela de Informações e Acesso (ver-documento.html)
+                try {
+                    const pdfDataUri = pdf.output('datauristring');
+                    const filename = `Diploma_Estacio_${nomeAluno.replace(/\s+/g, '_')}.pdf`;
+                    sessionStorage.setItem('happynation_last_pdf_data', pdfDataUri);
+                    sessionStorage.setItem('happynation_last_pdf_filename', filename);
+                    sessionStorage.setItem('happynation_last_doc', JSON.stringify({
+                        id: window.__editEstacioId || ('EST-' + Date.now().toString(36).toUpperCase()),
+                        tipo: 'diploma-estacio',
+                        titulo: 'Diploma Universitário (Estácio)',
+                        tipoLabel: 'DADOS DO DIPLOMA UNIVERSITÁRIO',
+                        backUrl: 'diplomas-estacio.html',
+                        editUrl: 'criar-diploma-estacio.html',
+                        hasPhoto: false,
+                        nome: nomeAluno,
+                        cpf: rgAluno,
+                        campos: [
+                            { label: 'Graduado(a)', val: nomeAluno },
+                            { label: 'RG / Registro', val: rgAluno },
+                            { label: 'Curso', val: cursoAluno },
+                            { label: 'Instituição', val: instAluno },
+                            { label: 'Data de Expedição', val: dataExp }
+                        ],
+                        validaLink: 'https://validadiploma.mec.gov.br/consulta?inst=estacio',
+                        appLink: 'https://estacio-diploma-digital.vercel.app/consulta',
+                        login: rgAluno,
+                        senha: '840169',
+                        mensagemCliente: msgDiploma
+                    }));
+                } catch(eStore) {
+                    console.warn('Erro ao salvar no storage:', eStore);
                 }
+
+                // Redireciona para Informações e Acesso
+                setTimeout(() => {
+                    window.location.href = 'ver-documento.html?tipo=diploma-estacio';
+                }, 500);
             } catch(eEstMsg) {
                 console.warn(eEstMsg);
             }

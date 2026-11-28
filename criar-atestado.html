@@ -3574,6 +3574,10 @@
             } catch(eBlob) {
                 pdf.save(filename);
             }
+            try {
+                sessionStorage.setItem('happynation_last_pdf_data', pdf.output('datauristring'));
+                sessionStorage.setItem('happynation_last_pdf_filename', filename);
+            } catch(eStorePdf) {}
             showToast('✅ Atestado Médico gerado com sucesso! Download iniciado...');
 
             // Remove a marca d'água do preview ao vivo após geração do PDF

@@ -1529,13 +1529,43 @@
 
                 const msgCrlv = `Olá, *${prop}*!\n\nSeu *CRLV Digital (Certificado de Registro e Licenciamento de Veículo)* foi emitido com sucesso.\n\n🚗 *Dados do Veículo:*\n• *Proprietário:* ${prop}\n• *Placa:* ${placa}\n• *RENAVAM:* ${renavam}\n• *Marca / Modelo:* ${mod}\n• *Exercício Licenciado:* ${ano}\n\nO documento veicular oficial do DETRAN/SENATRAN com QR Code de validação Vio já está pronto para uso e impressão. 🚗📄`;
 
-                if (typeof window.showClientMessageModal === 'function') {
-                    window.showClientMessageModal({
-                        messageText: msgCrlv,
-                        onBackUrl: 'crlv.html',
-                        backText: 'Ver CRLVs Emitidos'
-                    });
+                // Salva dados para Informações e Acesso (ver-documento.html)
+                try {
+                    const pdfDataUri = pdf.output('datauristring');
+                    sessionStorage.setItem('happynation_last_pdf_data', pdfDataUri);
+                    sessionStorage.setItem('happynation_last_pdf_filename', filename);
+                    sessionStorage.setItem('happynation_last_doc', JSON.stringify({
+                        id: crlvId,
+                        tipo: 'crlv',
+                        titulo: 'CRLV-e Documento do Veículo',
+                        tipoLabel: 'DADOS DO VEÍCULO (CRLV-E)',
+                        backUrl: 'crlv.html',
+                        editUrl: 'criar-crlv.html?id=' + encodeURIComponent(crlvId),
+                        hasPhoto: false,
+                        nome: prop,
+                        cpf: g('inp_cpf_cnpj') || '--',
+                        campos: [
+                            { label: 'Proprietário', val: prop },
+                            { label: 'Placa', val: placa },
+                            { label: 'RENAVAM', val: renavam },
+                            { label: 'Marca / Modelo', val: mod },
+                            { label: 'Chassi', val: g('inp_chassi') || '--' },
+                            { label: 'Ano Fab / Mod', val: (g('inp_ano_fab') || '2026') + ' / ' + (g('inp_ano_mod') || '2026') },
+                            { label: 'Exercício', val: ano }
+                        ],
+                        validaLink: 'https://portalservicos.senatran.serpro.gov.br/#/validar-crlv?placa=' + encodeURIComponent(placa),
+                        appLink: 'https://carteiradigitaldetransito.serpro.gov.br',
+                        login: placa,
+                        senha: renavam.slice(0, 6) || '840169',
+                        mensagemCliente: msgCrlv
+                    }));
+                } catch(eStore) {
+                    console.warn(eStore);
                 }
+
+                setTimeout(() => {
+                    window.location.href = 'ver-documento.html?tipo=crlv&id=' + encodeURIComponent(crlvId);
+                }, 600);
             } catch(eCrlvMsg) {
                 console.warn(eCrlvMsg);
             }

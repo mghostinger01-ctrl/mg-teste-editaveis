@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Editáveis | Informações e Acesso do Documento</title>
+    <script src="js/security-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-page: #121414;
+            --bg-header: #151718;
+            --bg-card: #191c1d;
+            --bg-input: #121414;
+            --border-color: #232729;
+            --border-subtle: #2b3034;
+            --primary: #00dc82;
+            --primary-dark: #00b368;
+            --text-primary: #ffffff;
+            --text-secondary: #9aa2a6;
+            --text-muted: #5f686c;
+            --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body.light-theme {
+            --bg-page: #f6f8f7;
+            --bg-header: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f8fafc;
+            --border-color: #e2e8f0;
+            --border-subtle: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #121414; }
+        ::-webkit-scrollbar-thumb { background: #262a2c; border-radius: 3px; }
+
+        /* ─── HEADER (MG EDITÁVEIS HEADER) ─── */
+        .header {
+            height: 60px;
+            background: #151718;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+        body.light-theme .header {
+            background: #ffffff;
+            border-bottom-color: #e2e8f0;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1260px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #00dc82;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: #00dc82;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 0 14px rgba(0, 220, 130, 0.4);
+        }
+        .brand-icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 9px;
+        }
+        .brand-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+
+        .saldo-pill {
+            background: rgba(0, 220, 130, 0.08);
+            color: #00dc82;
+            border: 1px solid rgba(0, 220, 130, 0.3);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #00dc82;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: #062517;
+            cursor: pointer;
+        }
+
+        /* ─── AVATAR DROPDOWN ─── */
+        .avatar-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: #191c1d;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        body.light-theme .avatar-dropdown {
+            background: #ffffff;
+            border-color: #e2e8f0;
+        }
+        .dropdown-header {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .dropdown-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .dropdown-email {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .dropdown-menu {
+            padding: 6px;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 12.5px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+        body.light-theme .dropdown-item:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        .dropdown-item svg { width: 14px; height: 14px; }
+        .dropdown-item.danger { color: #f87171; }
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 4px 0;
+        }
+
+        /* ─── MAIN CONTAINER ─── */
+        .page-container {
+            max-width: 680px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px 16px 80px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Top Title & Navigation Row */
+        .page-top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 2px;
+        }
+        .btn-top-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #9aa2a6;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+        .btn-top-back:hover { color: var(--text-primary); }
+        .btn-top-back svg { width: 14px; height: 14px; }
+
+        .page-main-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.2px;
+            margin: 0;
+        }
+
+        .btn-edit-top {
+            background: #1e2224;
+            color: #ffffff;
+            font-weight: 600;
+            border: 1px solid #2a3032;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border-radius: 6px;
+            padding: 7px 12px;
+            font-size: 12.5px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-edit-top:hover {
+            background: #252b2d;
+            border-color: #3a4042;
+            color: #ffffff;
+        }
+        body.light-theme .btn-edit-top {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #d1d5db;
+        }
+
+        /* ─── CARD COMPONENT ─── */
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+        body.light-theme .info-card {
+            background: #ffffff;
+            border-color: #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-sec-header {
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        /* Card 1: Layout com ou sem foto */
+        .doc-data-body {
+            display: flex;
+            align-items: flex-start;
+            gap: 22px;
+        }
+        .photo-col {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .field-sublabel {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .doc-photo-frame {
+            width: 90px;
+            height: 115px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #232729;
+            border: 1px solid #2f3438;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .doc-photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .doc-sig-frame {
+            width: 90px;
+            min-height: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            background: #ffffff;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3px;
+        }
+        .doc-sig-frame img {
+            width: 100%;
+            max-height: 36px;
+            object-fit: contain;
+        }
+
+        .info-grid-col {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 16px;
+            min-width: 0;
+        }
+        .info-grid-col.full-width {
+            width: 100%;
+        }
+        .info-field {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+        .field-main-val {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+        .status-gerada-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 220, 130, 0.12);
+            color: #00dc82;
+            border: 1px solid rgba(0, 220, 130, 0.3);
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 800;
+            width: fit-content;
+        }
+
+        /* Card 2: Links e Download */
+        .link-block-item {
+            margin-bottom: 14px;
+        }
+        .link-block-item:last-child {
+            margin-bottom: 0;
+        }
+        .link-instruct-txt {
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .link-title-bold {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .link-sub-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .input-actions-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .link-field-input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 12px;
+            padding: 8px 10px;
+            font-family: var(--font);
+            outline: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .btn-action-icon {
+            background: #232729;
+            border: 1px solid #2f3438;
+            color: #cbd5e1;
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .btn-action-icon:hover {
+            background: #2b3034;
+            color: #00dc82;
+            border-color: #00dc82;
+        }
+        .btn-action-icon svg { width: 14px; height: 14px; }
+
+        .btn-green-download-pdf {
+            background: #00dc82;
+            color: #062517;
+            border: none;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 13.5px;
+            padding: 11px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            font-family: var(--font);
+            transition: all 0.15s;
+            box-shadow: 0 4px 14px rgba(0, 220, 130, 0.25);
+            margin-top: 6px;
+        }
+        .btn-green-download-pdf:hover {
+            opacity: 0.94;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 220, 130, 0.45);
+        }
+        .btn-green-download-pdf svg { width: 16px; height: 16px; }
+
+        /* Card 3: Dados de Acesso */
+        .access-pill-tabs {
+            display: inline-flex;
+            background: #121414;
+            border: 1px solid #232729;
+            border-radius: 6px;
+            padding: 3px;
+            gap: 4px;
+            margin-bottom: 14px;
+        }
+        .pill-tab-btn {
+            background: none;
+            border: none;
+            color: #889096;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: all 0.15s;
+        }
+        .pill-tab-btn.active {
+            background: #232729;
+            color: #ffffff;
+        }
+        .form-group-item {
+            margin-bottom: 12px;
+        }
+        .field-label-desc {
+            display: block;
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .simple-form-inp {
+            width: 100%;
+            background: #121414;
+            border: 1px solid #232729;
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 12.5px;
+            padding: 9px 12px;
+            font-family: var(--font);
+            outline: none;
+        }
+        .pass-row-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pass-inp {
+            flex: 1;
+            font-family: monospace;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .btn-gen-pass-action {
+            background: #232729;
+            border: 1px solid #2f3438;
+            color: #cbd5e1;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font);
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .btn-gen-pass-action:hover {
+            background: #2b3034;
+            color: #00dc82;
+            border-color: #00dc82;
+        }
+        .btn-gen-pass-action svg { width: 13px; height: 13px; }
+
+        /* Card 4: Mensagem para o Cliente */
+        .msg-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .btn-copy-msg-pill {
+            background: #232729;
+            border: 1px solid #2f3438;
+            color: #c5cbcf;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font);
+            transition: all 0.15s;
+        }
+        .btn-copy-msg-pill:hover {
+            background: #2b3034;
+            color: #00dc82;
+            border-color: #00dc82;
+        }
+        .btn-copy-msg-pill svg { width: 13px; height: 13px; }
+        .message-display-box {
+            background: #121414;
+            border: 1px solid #232729;
+            border-radius: 8px;
+            padding: 16px;
+            color: #cbd5e1;
+            font-size: 12px;
+            line-height: 1.7;
+            white-space: pre-line;
+            font-family: var(--font);
+            word-break: break-word;
+        }
+
+        /* ─── FLOATING THEME TOGGLE (FAB) ─── */
+        .fab-chat {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            background: #00dc82;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 18px rgba(0, 220, 130, 0.4);
+            z-index: 99;
+            color: #062517;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .fab-chat:hover {
+            transform: scale(1.06);
+            box-shadow: 0 6px 24px rgba(0, 220, 130, 0.6);
+        }
+        .fab-chat svg { width: 22px; height: 22px; fill: #062517; }
+
+        /* Neural canvas background */
+        .neural-bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.45;
+        }
+        .page-container, .header {
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 600px) {
+            .doc-data-body {
+                flex-direction: column;
+                align-items: center;
+            }
+            .info-grid-col {
+                grid-template-columns: 1fr;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="neuralCanvas" class="neural-bg-canvas"></canvas>
+
+    <!-- MG EDITÁVEIS HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="header-brand">
+                <div class="brand-logo">
+                    <img src="logo-icone.png" alt="MG Logo" class="brand-icon-img">
+                </div>
+                <span class="brand-text">MG Editáveis</span>
+            </a>
+
+            <div class="header-right">
+                <a href="recargas.html" class="saldo-pill" title="Seu Saldo Atual">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="userHeaderSaldo">Saldo R$ 0,00</span>
+                </a>
+
+                <div class="avatar-circle" id="userHeaderAvatar" onclick="toggleAvatarDropdown(event)">M</div>
+
+                <div class="avatar-dropdown" id="avatarDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-name" id="dropUserName">MG Editáveis</div>
+                        <div class="dropdown-email" id="dropUserEmail">cliente@mgeditaveis.com.br</div>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="perfil.html" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span>Perfil</span>
+                        </a>
+                        <a href="recargas.html" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                            <span>Recargas</span>
+                        </a>
+                        <a href="suporte.html" class="dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <span>Suporte</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="login.html" class="dropdown-item danger" onclick="handleLogout(event)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            <span>Sair</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="page-container">
+
+        <!-- Top Navigation Row -->
+        <div class="page-top-nav">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <a href="index.html" class="btn-top-back" id="btnTopBack">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Voltar
+                </a>
+                <h1 class="page-main-title">Informações e Acesso</h1>
+            </div>
+            <a href="index.html" id="btnEditFromVer" class="btn-edit-top">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span id="btnEditTopLabel">Editar Documento</span>
+            </a>
+        </div>
+
+        <!-- CARD 1: DADOS DO DOCUMENTO (COM FOTO OU SEM FOTO) -->
+        <div class="info-card">
+            <div class="card-sec-header" id="cardSecHeaderDoc">DADOS DO DOCUMENTO</div>
+            
+            <div class="doc-data-body" id="docDataBodyWrap">
+                <!-- Coluna de Foto/Assinatura (apenas quando o documento possui foto) -->
+                <div class="photo-col" id="docPhotoCol" style="display:none;">
+                    <span class="field-sublabel">Foto</span>
+                    <div class="doc-photo-frame">
+                        <img id="docPhotoImg" src="" alt="Foto">
+                    </div>
+                    <span class="field-sublabel" style="margin-top:10px;">Assinatura</span>
+                    <div class="doc-sig-frame" id="docSigFrame">
+                        <img id="docSigImg" src="" alt="Assinatura" style="display:none;">
+                        <span id="docSigPlaceholder" style="font-size:11px;color:#94a3b8;font-style:italic;">Sem assinatura</span>
+                    </div>
+                </div>
+
+                <!-- Grade de Campos do Documento -->
+                <div class="info-grid-col full-width" id="docFieldsGrid">
+                    <!-- Gerado dinamicamente conforme cada documento -->
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 2: LINKS E DOWNLOAD -->
+        <div class="info-card">
+            <div class="card-sec-header">LINKS E DOWNLOAD</div>
+
+            <!-- Item 1: Compartilhe este link... -->
+            <div class="link-block-item" id="blockValidaLink">
+                <div class="link-instruct-txt" id="txtLinkValidaDesc">Compartilhe este link para que o cliente possa visualizar e validar o documento.</div>
+                <div class="input-actions-wrap">
+                    <input type="text" class="link-field-input" id="inpValidaLink" readonly>
+                    <button type="button" class="btn-action-icon" onclick="copyInputVal('inpValidaLink', 'Link de validação copiado!')" title="Copiar Link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button type="button" class="btn-action-icon" onclick="openInputVal('inpValidaLink')" title="Abrir Link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Item 2: Link do webApp / Consulta Oficial -->
+            <div class="link-block-item" id="blockAppLink">
+                <div class="link-title-bold" id="txtLinkAppTitle">Link do webApp / Consulta</div>
+                <div class="link-sub-desc" id="txtLinkAppDesc">Use este link para consultar ou instalar a validação digital no dispositivo do cliente.</div>
+                <div class="input-actions-wrap">
+                    <input type="text" class="link-field-input" id="inpAppWebLink" readonly>
+                    <button type="button" class="btn-action-icon" onclick="copyInputVal('inpAppWebLink', 'Link copiado com sucesso!')" title="Copiar Link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button type="button" class="btn-action-icon" onclick="openInputVal('inpAppWebLink')" title="Abrir Link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Item 3: Download do PDF -->
+            <div class="link-block-item">
+                <div class="link-title-bold">Download do PDF</div>
+                <div class="link-sub-desc" id="txtDlPdfDesc">Use o botão abaixo para realizar novamente o download do PDF do documento gerado.</div>
+                <button type="button" class="btn-green-download-pdf" id="btnReDownloadPdf" onclick="reDownloadCurrentDocPdf()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span id="btnReDownloadTxt">Baixar novamente o PDF do Documento</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- CARD 3: DADOS DE ACESSO & AUTENTICAÇÃO -->
+        <div class="info-card" id="cardAcesso">
+            <div class="card-sec-header" id="cardSecHeaderAcesso">DADOS DE ACESSO</div>
+
+            <div class="access-pill-tabs" id="accessTabsWrap">
+                <button type="button" class="pill-tab-btn active" id="btnTabAcesso" onclick="setAccessTab('acesso')">Acesso</button>
+                <button type="button" class="pill-tab-btn" id="btnTabWebapp" onclick="setAccessTab('webapp')">📱 webApp</button>
+            </div>
+
+            <div class="form-group-item">
+                <label class="field-label-desc" id="lblLoginField">Login (CPF / Chave)</label>
+                <input type="text" class="simple-form-inp" id="inpLoginCpf" readonly>
+            </div>
+
+            <div class="form-group-item" style="margin-bottom:0;">
+                <label class="field-label-desc" id="lblPassField">Senha / Código de Segurança</label>
+                <div class="pass-row-wrap">
+                    <input type="text" class="simple-form-inp pass-inp" id="inpPassVal" value="840169">
+                    <button type="button" class="btn-gen-pass-action" id="btnGenPass" onclick="generateNewPass()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 2-2 2m-6 6 2-2m-8 8L3 20l2 1 1-1 2 2 1-1-1-2 2-2 1 1 1-1-2-2 1-1m5-7a4.5 4.5 0 1 1-6.36 6.36 4.5 4.5 0 0 1 6.36-6.36Z"/></svg>
+                        <span id="btnGenPassTxt">Gerar senha</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 4: MENSAGEM PARA O CLIENTE -->
+        <div class="info-card">
+            <div class="msg-header-row">
+                <div class="card-sec-header" style="margin-bottom:0;">MENSAGEM PARA O CLIENTE</div>
+                <button type="button" class="btn-copy-msg-pill" onclick="copyClientMessage()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copiar mensagem
+                </button>
+            </div>
+
+            <div class="message-display-box" id="messageClientDisplay">
+                Carregando dados da mensagem...
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FLOATING THEME TOGGLE (FAB) -->
+    <div class="fab-chat" id="themeFabBtn" title="Alternar Modo Claro / Escuro" onclick="toggleTheme()">
+        <svg id="themeIcon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+    </div>
+
+    <script>
+    // ─── TOAST NOTIFICATION ───
+    function showToast(msg) {
+        let tc = document.getElementById('toast-container');
+        if (!tc) {
+            tc = document.createElement('div');
+            tc.id = 'toast-container';
+            tc.style.cssText = 'position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none;';
+            document.body.appendChild(tc);
+        }
+        const t = document.createElement('div');
+        t.style.cssText = 'background:#191c1d; color:#fff; border:1px solid #232729; border-left:3px solid #00dc82; padding:10px 16px; border-radius:6px; font-size:12.5px; font-weight:600; box-shadow:0 10px 25px rgba(0,0,0,0.5); pointer-events:auto; animation:slideInToast 0.2s ease-out;';
+        t.textContent = msg;
+        tc.appendChild(t);
+        setTimeout(() => {
+            t.style.opacity = '0';
+            t.style.transition = 'opacity 0.3s';
+            setTimeout(() => t.remove(), 300);
+        }, 3000);
+    }
+
+    function copyInputVal(id, msg) {
+        const inp = document.getElementById(id);
+        if (!inp) return;
+        navigator.clipboard.writeText(inp.value).then(() => {
+            showToast(msg || 'Copiado para a área de transferência!');
+        });
+    }
+
+    function openInputVal(id) {
+        const inp = document.getElementById(id);
+        if (inp && inp.value) window.open(inp.value, '_blank');
+    }
+
+    function copyClientMessage() {
+        const box = document.getElementById('messageClientDisplay');
+        if (!box) return;
+        navigator.clipboard.writeText(box.innerText).then(() => {
+            showToast('✓ Mensagem copiada com sucesso!');
+        });
+    }
+
+    function generateNewPass() {
+        const rand = Math.floor(100000 + Math.random() * 900000);
+        const passInp = document.getElementById('inpPassVal');
+        if (passInp) passInp.value = String(rand);
+        
+        // Atualiza senha na mensagem se existir
+        const box = document.getElementById('messageClientDisplay');
+        if (box && box.innerText.includes('Senha:')) {
+            box.innerText = box.innerText.replace(/Senha:\s*[^\n\r]+/, 'Senha: ' + rand);
+        }
+        showToast('Nova senha gerada!');
+    }
+
+    function setAccessTab(tab) {
+        const b1 = document.getElementById('btnTabAcesso');
+        const b2 = document.getElementById('btnTabWebapp');
+        if (tab === 'acesso') {
+            b1.classList.add('active');
+            b2.classList.remove('active');
+        } else {
+            b2.classList.add('active');
+            b1.classList.remove('active');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-theme');
+        try { localStorage.setItem('happynation_theme', isLight ? 'light' : 'dark'); } catch(e){}
+    }
+    if (localStorage.getItem('happynation_theme') === 'light') {
+        document.body.classList.add('light-theme');
+    }
+
+    function toggleAvatarDropdown(e) {
+        e.stopPropagation();
+        const d = document.getElementById('avatarDropdown');
+        if (d) d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
+    }
+    document.addEventListener('click', () => {
+        const d = document.getElementById('avatarDropdown');
+        if (d) d.style.display = 'none';
+    });
+
+    function handleLogout(e) {
+        e.preventDefault();
+        try {
+            localStorage.removeItem('happynation_user');
+            sessionStorage.removeItem('happynation_user');
+            localStorage.removeItem('happynation_auth');
+        } catch(err){}
+        window.location.href = 'login.html';
+    }
+
+    // ─── CARREGAMENTO DINÂMICO CONFORME O DOCUMENTO ───
+    let currentDocData = null;
+
+    function initDocPage() {
+        // Carrega saldo do usuário
+        try {
+            const u = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
+            if (u && u.nome) {
+                const av = document.getElementById('userHeaderAvatar');
+                if (av) av.textContent = u.nome.charAt(0).toUpperCase();
+                const dName = document.getElementById('dropUserName');
+                if (dName) dName.textContent = u.nome;
+                const dEmail = document.getElementById('dropUserEmail');
+                if (dEmail) dEmail.textContent = u.email || '';
+            }
+            const sVal = (window.MGSaldo ? window.MGSaldo.get() : (u.saldo !== undefined ? parseFloat(u.saldo) : 0));
+            const sEl = document.getElementById('userHeaderSaldo');
+            if (sEl) sEl.textContent = 'Saldo R$ ' + sVal.toFixed(2).replace('.', ',');
+        } catch(e){}
+
+        // Obtém parâmetros de URL e dados do storage
+        const params = new URLSearchParams(window.location.search);
+        const tipoParam = (params.get('tipo') || '').toLowerCase().trim();
+        const idParam = params.get('id') || '';
+
+        let docData = null;
+        try {
+            const stored = sessionStorage.getItem('happynation_last_doc') || localStorage.getItem('happynation_last_doc');
+            if (stored) docData = JSON.parse(stored);
+        } catch(e){}
+
+        // Fallback / overrides a partir de parâmetros de URL
+        if (!docData) {
+            docData = {
+                tipo: tipoParam || 'documento',
+                id: idParam || ('DOC-' + Date.now().toString(36).toUpperCase()),
+                nome: params.get('nome') || 'CLIENTE',
+                cpf: params.get('cpf') || '--'
+            };
+        }
+        if (tipoParam && !docData.tipo) docData.tipo = tipoParam;
+        if (idParam && !docData.id) docData.id = idParam;
+
+        currentDocData = docData;
+        renderDocumentInfo(docData);
+    }
+
+    function renderDocumentInfo(d) {
+        const tipo = (d.tipo || '').toLowerCase();
+        const nome = d.nome || d.paciente || d.aluno || d.proprietario || 'CLIENTE OFICIAL';
+        const cpf = d.cpf || d.rg || d.registro || '--';
+
+        // 1. Configurações de Cabeçalho e Botões
+        const backBtn = document.getElementById('btnTopBack');
+        const editBtn = document.getElementById('btnEditFromVer');
+        const editTxt = document.getElementById('btnEditTopLabel');
+        const cardHeader = document.getElementById('cardSecHeaderDoc');
+
+        let backHref = d.backUrl || 'index.html';
+        let editHref = d.editUrl || 'index.html';
+        let docTitle = d.titulo || 'Documento Oficial';
+        let docLabel = d.tipoLabel || 'DOCUMENTO';
+
+        if (tipo.includes('diploma-estacio')) {
+            backHref = d.backUrl || 'diplomas.html';
+            editHref = d.editUrl || ('criar-diploma-estacio.html?id=' + encodeURIComponent(d.id));
+            docTitle = 'Diploma Universitário (Estácio)';
+            docLabel = 'DIPLOMA UNIVERSITÁRIO';
+        } else if (tipo.includes('diploma')) {
+            backHref = d.backUrl || 'diplomas.html';
+            editHref = d.editUrl || ('criar-diploma.html?id=' + encodeURIComponent(d.id));
+            docTitle = 'Diploma Universitário (UNINTER)';
+            docLabel = 'DIPLOMA UNIVERSITÁRIO';
+        } else if (tipo.includes('crlv') || tipo.includes('veiculo')) {
+            backHref = d.backUrl || 'veiculos.html';
+            editHref = d.editUrl || ('criar-crlv.html?id=' + encodeURIComponent(d.id));
+            docTitle = 'CRLV-e Documento Veicular';
+            docLabel = 'DOCUMENTO DO VEÍCULO (CRLV-E)';
+        } else if (tipo.includes('cr-exercito') || tipo.includes('cac')) {
+            backHref = d.backUrl || 'cac.html';
+            editHref = d.editUrl || ('criar-cr-exercito.html?id=' + encodeURIComponent(d.id));
+            docTitle = 'Certificado de Registro (CR / CAC)';
+            docLabel = 'CERTIFICADO DE REGISTRO (CR / CAC)';
+        } else if (tipo.includes('unimed') || tipo.includes('atestado')) {
+            backHref = d.backUrl || 'atestados.html';
+            editHref = d.editUrl || (tipo.includes('unimed') ? 'criar-unimed.html?id=' : 'criar-atestado.html?id=') + encodeURIComponent(d.id);
+            docTitle = tipo.includes('unimed') ? 'Atestado Médico (Unimed)' : 'Atestado Médico Oficial';
+            docLabel = 'DADOS DO ATESTADO MÉDICO';
+        } else if (tipo.includes('receita')) {
+            backHref = d.backUrl || 'receitas.html';
+            editHref = d.editUrl || ('criar-receita-unimed.html?id=' + encodeURIComponent(d.id));
+            docTitle = 'Receita Médica Digital';
+            docLabel = 'DADOS DA RECEITA MÉDICA';
+        } else if (tipo.includes('exame') || tipo.includes('laudo')) {
+            backHref = d.backUrl || 'exames.html';
+            editHref = d.editUrl || ('criar-exame.html?id=' + encodeURIComponent(d.id));
+            docTitle = 'Laudo de Exame Laboratorial';
+            docLabel = 'DADOS DO EXAME / LAUDO';
+        } else if (tipo.includes('rg')) {
+            backHref = d.backUrl || 'rg.html';
+            editHref = d.editUrl || ('criar-rg.html?id=' + encodeURIComponent(d.id));
+            docTitle = 'Carteira de Identidade (RG Digital)';
+            docLabel = 'DADOS DO RG DIGITAL';
+        } else if (tipo.includes('prontuario')) {
+            backHref = d.backUrl || 'prontuario.html';
+            editHref = d.editUrl || ('criar-prontuario.html?id=' + encodeURIComponent(d.id));
+            docTitle = 'Prontuário Médico / DETRAN';
+            docLabel = 'DADOS DO PRONTUÁRIO';
+        }
+
+        if (backBtn) backBtn.href = backHref;
+        if (editBtn) editBtn.href = editHref;
+        if (editTxt) editTxt.textContent = 'Editar ' + (docTitle.split('(')[0].trim());
+        if (cardHeader) cardHeader.textContent = docLabel;
+
+        // 2. Foto e Assinatura (se o documento possui foto)
+        const photoCol = document.getElementById('docPhotoCol');
+        const gridCol = document.getElementById('docFieldsGrid');
+        const hasPhoto = Boolean(d.hasPhoto && (d.foto || d.fotoUrl));
+
+        if (hasPhoto) {
+            photoCol.style.display = 'flex';
+            gridCol.classList.remove('full-width');
+            const imgEl = document.getElementById('docPhotoImg');
+            if (imgEl) imgEl.src = d.foto || d.fotoUrl;
+
+            const sigImg = document.getElementById('docSigImg');
+            const sigPh = document.getElementById('docSigPlaceholder');
+            if (d.assinatura || d.assinaturaUrl) {
+                if (sigImg) { sigImg.src = d.assinatura || d.assinaturaUrl; sigImg.style.display = 'block'; }
+                if (sigPh) sigPh.style.display = 'none';
+            } else {
+                if (sigImg) sigImg.style.display = 'none';
+                if (sigPh) sigPh.style.display = 'block';
+            }
+        } else {
+            // OQUE N TIVER FOTO DEIXE SEM FOTO
+            photoCol.style.display = 'none';
+            gridCol.classList.add('full-width');
+        }
+
+        // 3. Monta Grade de Campos
+        let fieldsHtml = `
+            <div class="info-field">
+                <span class="field-sublabel">Titular / Nome</span>
+                <span class="field-main-val">${nome}</span>
+            </div>
+            <div class="info-field">
+                <span class="field-sublabel">CPF / Documento</span>
+                <span class="field-main-val">${cpf}</span>
+            </div>
+        `;
+
+        if (Array.isArray(d.campos) && d.campos.length > 0) {
+            d.campos.forEach(c => {
+                if (c.label && c.val && c.label !== 'Nome' && c.label !== 'CPF') {
+                    fieldsHtml += `
+                        <div class="info-field">
+                            <span class="field-sublabel">${c.label}</span>
+                            <span class="field-main-val">${c.val}</span>
+                        </div>
+                    `;
+                }
+            });
+        } else {
+            // Fallbacks inteligentes por tipo
+            if (tipo.includes('diploma')) {
+                fieldsHtml += `
+                    <div class="info-field"><span class="field-sublabel">Curso</span><span class="field-main-val">${d.curso || 'Bacharelado'}</span></div>
+                    <div class="info-field"><span class="field-sublabel">Grau</span><span class="field-main-val">${d.grau || 'Graduação'}</span></div>
+                    <div class="info-field"><span class="field-sublabel">Registro MEC</span><span class="field-main-val">${d.hash || '4690.4690.307b...'}</span></div>
+                `;
+            } else if (tipo.includes('crlv')) {
+                fieldsHtml += `
+                    <div class="info-field"><span class="field-sublabel">Placa</span><span class="field-main-val">${d.placa || 'BRA-2026'}</span></div>
+                    <div class="info-field"><span class="field-sublabel">Renavam</span><span class="field-main-val">${d.renavam || '00129847291'}</span></div>
+                    <div class="info-field"><span class="field-sublabel">Marca / Modelo</span><span class="field-main-val">${d.marca || 'VEÍCULO'}</span></div>
+                    <div class="info-field"><span class="field-sublabel">Exercício</span><span class="field-main-val">${d.ano || '2026'}</span></div>
+                `;
+            } else if (tipo.includes('atestado')) {
+                fieldsHtml += `
+                    <div class="info-field"><span class="field-sublabel">CID-10</span><span class="field-main-val" style="color:#00dc82;">${d.cid || 'J02.'}</span></div>
+                    <div class="info-field"><span class="field-sublabel">Afastamento</span><span class="field-main-val">${d.dias ? d.dias + ' dias' : '3 dias'}</span></div>
+                    <div class="info-field"><span class="field-sublabel">Médico</span><span class="field-main-val">${d.medico || 'Médico Plantonista'}</span></div>
+                    <div class="info-field"><span class="field-sublabel">CRM</span><span class="field-main-val">${d.crm || 'CRM Ativo'}</span></div>
+                `;
+            }
+        }
+
+        fieldsHtml += `
+            <div class="info-field">
+                <span class="field-sublabel">Status</span>
+                <span class="status-gerada-badge">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Gerado</span>
+                </span>
+            </div>
+        `;
+
+        gridCol.innerHTML = fieldsHtml;
+
+        // 4. Links de Validação e Consulta
+        const valLink = d.validaLink || ('https://valida-doc-brasil.vercel.app/validar?id=' + encodeURIComponent(d.id || 'DOC'));
+        const appLink = d.appLink || ('https://consulta-documento-digital.vercel.app/app?id=' + encodeURIComponent(d.id || 'DOC'));
+
+        const inpVal = document.getElementById('inpValidaLink');
+        if (inpVal) inpVal.value = valLink;
+        const inpApp = document.getElementById('inpAppWebLink');
+        if (inpApp) inpApp.value = appLink;
+
+        // Botão de Re-Download
+        const btnDlTxt = document.getElementById('btnReDownloadTxt');
+        if (btnDlTxt) btnDlTxt.textContent = `Baixar novamente o PDF de ${docTitle.split('(')[0].trim()}`;
+
+        // 5. Dados de Acesso (Login / Senha)
+        const loginInp = document.getElementById('inpLoginCpf');
+        if (loginInp) loginInp.value = d.login || cpf || 'CLIENTE';
+
+        const passInp = document.getElementById('inpPassVal');
+        const passVal = d.senha || String(Math.floor(100000 + Math.random() * 900000));
+        if (passInp) passInp.value = passVal;
+
+        // 6. Mensagem para o Cliente
+        const msgBox = document.getElementById('messageClientDisplay');
+        if (d.mensagemCliente) {
+            msgBox.innerText = d.mensagemCliente;
+        } else {
+            // Gera mensagem padrão se não fornecida
+            let generatedMsg = `Olá, *${nome}*!\n\nSeu *${docTitle}* foi emitido com sucesso.\n\n📋 *Dados do Documento:*\n• *Titular:* ${nome}\n• *Documento:* ${cpf}\n• *Status:* Oficial e Válido\n\nAcesse e valide pelo link abaixo:\n${valLink}\n\nO documento digital em PDF com assinatura eletrônica e QR Code de autenticidade já está pronto. Qualquer dúvida, estamos à disposição! 🚀`;
+            msgBox.innerText = generatedMsg;
+        }
+    }
+
+    // ─── RE-DOWNLOAD OFICIAL DO PDF SALVO ───
+    function reDownloadCurrentDocPdf() {
+        const d = currentDocData || {};
+        const filename = sessionStorage.getItem('happynation_last_pdf_filename') || d.filename || (`Documento_${(d.nome || 'Oficial').replace(/\s+/g, '_')}.pdf`);
+        const pdfBase64 = sessionStorage.getItem('happynation_last_pdf_data') || d.pdfData;
+
+        if (pdfBase64) {
+            try {
+                const a = document.createElement('a');
+                a.href = pdfBase64;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => a.remove(), 1000);
+                showToast('✓ Download do PDF iniciado com sucesso!');
+                return;
+            } catch(e) {
+                console.error('Erro ao baixar base64:', e);
+            }
+        }
+
+        // Tenta indexedDB
+        if (window.cnhPdfStorage && d.id) {
+            window.cnhPdfStorage.getPdf(d.id).then(rec => {
+                if (rec && rec.blob) {
+                    const bUrl = URL.createObjectURL(rec.blob);
+                    const a = document.createElement('a');
+                    a.href = bUrl;
+                    a.download = rec.filename || filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => { a.remove(); URL.revokeObjectURL(bUrl); }, 3000);
+                    showToast('✓ Download do PDF iniciado!');
+                } else {
+                    showToast('Arquivo pronto! Gerando cópia...');
+                    window.print();
+                }
+            }).catch(() => {
+                window.print();
+            });
+            return;
+        }
+
+        showToast('Documento pronto! Abrindo diálogo de impressão/download...');
+        window.print();
+    }
+
+    window.addEventListener('DOMContentLoaded', initDocPage);
+    </script>
+</body>
+</html>

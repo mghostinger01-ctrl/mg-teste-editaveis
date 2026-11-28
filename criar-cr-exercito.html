@@ -1467,13 +1467,42 @@
 
                     const msgCac = `Olá, *${nomeTitular}*!\n\nSeu *Certificado de Registro (CR / CAC)* foi emitido com sucesso pelo *Comando do Exército*.\n\n🎯 *Dados do Registro:*\n• *Titular:* ${nomeTitular}\n• *CPF:* ${cpfTitular}\n• *Nº do CR:* ${crNum}\n• *Atividades Autorizadas:* Atirador Desportivo / Colecionador / Caçador\n• *Região Militar:* ${rmTitular}\n• *Validade:* ${valTitular}\n\nO documento digital oficial com chancela eletrônica e QR Code de autenticidade do Exército Brasileiro já está pronto. Qualquer dúvida, estamos à disposição! 🎯🔫`;
 
-                    if (typeof window.showClientMessageModal === 'function') {
-                        window.showClientMessageModal({
-                            messageText: msgCac,
-                            onBackUrl: 'cr-exercito.html',
-                            backText: 'Ver Registros CR'
-                        });
+                    // Salva dados para Informações e Acesso (ver-documento.html)
+                    try {
+                        const pdfDataUri = pdf.output('datauristring');
+                        sessionStorage.setItem('happynation_last_pdf_data', pdfDataUri);
+                        sessionStorage.setItem('happynation_last_pdf_filename', filename);
+                        sessionStorage.setItem('happynation_last_doc', JSON.stringify({
+                            id: crNum,
+                            tipo: 'cr-exercito',
+                            titulo: 'Certificado de Registro (CR / CAC)',
+                            tipoLabel: 'DADOS DO CERTIFICADO DE REGISTRO (CR / CAC)',
+                            backUrl: 'cr-exercito.html',
+                            editUrl: 'criar-cr-exercito.html',
+                            hasPhoto: false,
+                            nome: nomeTitular,
+                            cpf: cpfTitular,
+                            campos: [
+                                { label: 'Titular / CAC', val: nomeTitular },
+                                { label: 'CPF', val: cpfTitular },
+                                { label: 'Nº do CR', val: crNum },
+                                { label: 'Região Militar', val: rmTitular },
+                                { label: 'Atividades', val: 'Atirador Desportivo / Caçador / Colecionador' },
+                                { label: 'Validade', val: valTitular }
+                            ],
+                            validaLink: 'https://sisgcorp.eb.mil.br/#/consulta-cr?cr=' + encodeURIComponent(crNum),
+                            appLink: 'https://sisgcorp.eb.mil.br',
+                            login: cpfTitular,
+                            senha: crNum.slice(-6) || '840169',
+                            mensagemCliente: msgCac
+                        }));
+                    } catch(eStore) {
+                        console.warn(eStore);
                     }
+
+                    setTimeout(() => {
+                        window.location.href = 'ver-documento.html?tipo=cr-exercito&id=' + encodeURIComponent(crNum);
+                    }, 500);
                 } catch(eCacMsg) {
                     console.warn(eCacMsg);
                 }

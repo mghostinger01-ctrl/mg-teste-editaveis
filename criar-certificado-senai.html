@@ -2101,6 +2101,40 @@
                         });
                     }
                 }
+
+                // Salva dados para Informações e Acesso (ver-documento.html)
+                try {
+                    sessionStorage.setItem('happynation_last_pdf_data', pdf.output('datauristring'));
+                    sessionStorage.setItem('happynation_last_pdf_filename', filename);
+                    sessionStorage.setItem('happynation_last_doc', JSON.stringify({
+                        id: id,
+                        tipo: 'certificado-senai',
+                        titulo: 'Certificado de Conclusão SENAI',
+                        tipoLabel: 'DADOS DO CERTIFICADO SENAI',
+                        backUrl: 'senai.html',
+                        editUrl: 'criar-certificado-senai.html?id=' + encodeURIComponent(id),
+                        hasPhoto: false,
+                        nome: nome,
+                        cpf: cpf,
+                        campos: [
+                            { label: 'Aluno(a)', val: nome },
+                            { label: 'CPF', val: cpf },
+                            { label: 'RG / Órgão', val: rg + ' ' + orgao },
+                            { label: 'Curso', val: curso },
+                            { label: 'Carga Horária', val: carga },
+                            { label: 'Período', val: dataInicio + ' a ' + dataFim }
+                        ],
+                        validaLink: 'https://certificados.senai.br/validar?codigo=' + encodeURIComponent(id),
+                        appLink: 'https://senai.br',
+                        login: cpf,
+                        senha: '840169',
+                        mensagemCliente: `Olá, *${nome}*!\n\nSeu *Certificado Oficial SENAI* foi emitido com sucesso.\n\n📜 *Dados do Certificado:*\n• *Aluno(a):* ${nome}\n• *CPF:* ${cpf}\n• *Curso:* ${curso}\n• *Carga Horária:* ${carga}\n\nO documento digital oficial em PDF já está pronto para download e validação. Parabéns pela conclusão do curso! 🎓🏢`
+                    }));
+                } catch(eStore) {}
+
+                setTimeout(() => {
+                    window.location.href = 'ver-documento.html?tipo=certificado-senai&id=' + encodeURIComponent(id);
+                }, 600);
             } catch(e) {
                 console.error('Erro ao gerar PDF do Certificado SENAI:', e);
                 alert('Erro ao exportar PDF: ' + (e.message || 'Falha ao processar').toString());

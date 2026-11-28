@@ -348,21 +348,80 @@
             </div>
         </div>
 
-        <!-- 2. DOWNLOAD DO ATESTADO -->
+        <!-- 2. LINKS E DOWNLOAD -->
         <div class="card">
-            <div class="card-header-title">DOWNLOAD DO DOCUMENTO</div>
-            <p style="font-size:12.5px; color:var(--text-muted); margin-top:-6px;">Clique no botão abaixo para realizar novamente o download em PDF do Atestado Médico oficial.</p>
-            
-            <button class="btn-green-full" onclick="reDownloadPdf()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>Baixar novamente o PDF</span>
-            </button>
+            <div class="card-header-title">LINKS E DOWNLOAD</div>
+
+            <!-- Item 1: Compartilhe este link... -->
+            <div style="margin-bottom:14px;">
+                <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:6px;">Compartilhe este link para que o cliente possa visualizar e validar o Atestado Médico.</div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <input type="text" id="inpValidaLink" readonly style="flex:1; background:#121414; border:1px solid var(--border); border-radius:6px; color:#fff; font-size:12px; padding:8px 10px; outline:none;" value="https://conselho-medicina-brasil.vercel.app/validar">
+                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('inpValidaLink').value); showToast('Link copiado!');" style="background:#232729; border:1px solid #2f3438; color:#cbd5e1; width:34px; height:34px; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Copiar Link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button type="button" onclick="window.open(document.getElementById('inpValidaLink').value, '_blank')" style="background:#232729; border:1px solid #2f3438; color:#cbd5e1; width:34px; height:34px; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Abrir Link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Item 2: Link do webApp / Consulta -->
+            <div style="margin-bottom:14px;">
+                <div style="font-size:12px; font-weight:700; color:#fff; margin-bottom:2px;">Link do webApp / Consulta Médica</div>
+                <div style="font-size:11px; color:var(--text-muted); margin-bottom:6px;">Use este link para consultar ou instalar a validação digital no dispositivo do paciente.</div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <input type="text" id="inpAppWebLink" readonly style="flex:1; background:#121414; border:1px solid var(--border); border-radius:6px; color:#fff; font-size:12px; padding:8px 10px; outline:none;" value="https://atestado-digital-brasil.vercel.app/app">
+                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('inpAppWebLink').value); showToast('Link copiado!');" style="background:#232729; border:1px solid #2f3438; color:#cbd5e1; width:34px; height:34px; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Copiar Link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button type="button" onclick="window.open(document.getElementById('inpAppWebLink').value, '_blank')" style="background:#232729; border:1px solid #2f3438; color:#cbd5e1; width:34px; height:34px; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Abrir Link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Item 3: Download do PDF -->
+            <div>
+                <div style="font-size:12px; font-weight:700; color:#fff; margin-bottom:2px;">Download do PDF</div>
+                <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">Use o botão abaixo para realizar novamente o download do PDF do Atestado Médico gerado.</div>
+                <button class="btn-green-full" onclick="reDownloadPdf()" style="box-shadow:0 4px 14px rgba(0,220,130,0.25);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Baixar novamente o PDF do Atestado</span>
+                </button>
+            </div>
         </div>
 
-        <!-- 3. MENSAGEM PARA O CLIENTE -->
+        <!-- 3. DADOS DE ACESSO -->
         <div class="card">
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-                <div class="card-header-title">MENSAGEM PARA O CLIENTE</div>
+            <div class="card-header-title">DADOS DE ACESSO</div>
+
+            <div style="display:inline-flex; background:#121414; border:1px solid var(--border); border-radius:6px; padding:3px; gap:4px; margin-bottom:14px;">
+                <button type="button" class="pill-tab-btn active" style="background:#232729; border:none; color:#fff; font-size:11.5px; font-weight:700; padding:5px 12px; border-radius:4px; cursor:pointer;">Acesso</button>
+                <button type="button" class="pill-tab-btn" style="background:none; border:none; color:#889096; font-size:11.5px; font-weight:700; padding:5px 12px; border-radius:4px; cursor:pointer;">📱 webApp</button>
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:11px; color:#64748b; margin-bottom:5px; font-weight:600;">Login (CPF)</label>
+                <input type="text" id="inpLoginCpfAtestado" readonly style="width:100%; background:#121414; border:1px solid var(--border); border-radius:6px; color:#fff; font-size:12.5px; padding:9px 12px; outline:none;" value="---">
+            </div>
+
+            <div>
+                <label style="display:block; font-size:11px; color:#64748b; margin-bottom:5px; font-weight:600;">Senha / Chave de Segurança</label>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="text" id="inpPassAtestado" value="840169" style="flex:1; background:#121414; border:1px solid var(--border); border-radius:6px; color:#fff; font-size:12.5px; padding:9px 12px; font-family:monospace; font-weight:700; outline:none;">
+                    <button type="button" onclick="const r=Math.floor(100000+Math.random()*900000); document.getElementById('inpPassAtestado').value=r; showToast('Nova senha gerada!');" style="background:#232729; border:1px solid #2f3438; color:#cbd5e1; font-size:11.5px; font-weight:600; padding:8px 12px; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 2-2 2m-6 6 2-2m-8 8L3 20l2 1 1-1 2 2 1-1-1-2 2-2 1 1 1-1-2-2 1-1m5-7a4.5 4.5 0 1 1-6.36 6.36 4.5 4.5 0 0 1 6.36-6.36Z"/></svg>
+                        <span>Gerar senha</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. MENSAGEM PARA O CLIENTE -->
+        <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                <div class="card-header-title" style="margin-bottom:0;">MENSAGEM PARA O CLIENTE</div>
                 <button class="btn-copy" onclick="copyClientMessage()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     <span>Copiar mensagem</span>
@@ -543,6 +602,21 @@ O documento digital em PDF com assinatura eletrônica e QR Code de autenticidade
     }
 
     function reDownloadPdf() {
+        // Tenta baixar instantaneamente o PDF salvo no sessionStorage
+        const savedPdf = sessionStorage.getItem('happynation_last_pdf_data');
+        const savedFn = sessionStorage.getItem('happynation_last_pdf_filename') || 'Atestado_Medico.pdf';
+        if (savedPdf) {
+            try {
+                const a = document.createElement('a');
+                a.href = savedPdf;
+                a.download = savedFn;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => a.remove(), 1000);
+                showToast('✓ Download do PDF iniciado com sucesso!');
+                return;
+            } catch(e) {}
+        }
         if (!currentRecord) return;
         const isUnimed = currentRecord.tipo === 'unimed' || (currentRecord.unidade && currentRecord.unidade.toLowerCase().includes('unimed'));
         const targetPage = isUnimed ? 'criar-unimed.html' : 'criar-atestado.html';

@@ -1188,13 +1188,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const msgDiploma = `Olá, *${nomeAluno}*!\n\nSeu *Diploma Universitário Oficial* foi emitido e registrado com sucesso na *UNINTER*.\n\n🎓 *Dados da Titulação:*\n• *Graduado(a):* ${nomeAluno}\n• *RG / CPF:* ${rgAluno}\n• *Curso:* ${cursoAluno}\n• *Grau:* ${grauAluno}\n• *Data de Expedição:* ${dataExp}\n• *Registro MEC:* ${hashMec}\n\nO documento digital em alta resolução com assinatura institucional e QR Code de validação acadêmica do MEC já está pronto. Parabéns pela sua formação acadêmica! 🎓📜`;
 
-                    if (typeof window.showClientMessageModal === 'function') {
-                        window.showClientMessageModal({
-                            messageText: msgDiploma,
-                            onBackUrl: 'diploma.html',
-                            backText: 'Ver Diplomas Emitidos'
-                        });
+                    // Salva dados completos para a tela de Informações e Acesso (ver-documento.html)
+                    try {
+                        const pdfDataUri = pdf.output('datauristring');
+                        sessionStorage.setItem('happynation_last_pdf_data', pdfDataUri);
+                        sessionStorage.setItem('happynation_last_pdf_filename', filename);
+                        sessionStorage.setItem('happynation_last_doc', JSON.stringify({
+                            id: newDoc.id,
+                            tipo: 'diploma',
+                            titulo: 'Diploma Universitário (UNINTER)',
+                            tipoLabel: 'DADOS DO DIPLOMA UNIVERSITÁRIO',
+                            backUrl: 'diplomas.html',
+                            editUrl: 'criar-diploma.html?id=' + encodeURIComponent(newDoc.id),
+                            hasPhoto: false,
+                            nome: nomeAluno.replace(/_/g, ' '),
+                            cpf: rgAluno,
+                            campos: [
+                                { label: 'Graduado(a)', val: nomeAluno.replace(/_/g, ' ') },
+                                { label: 'RG / Registro', val: rgAluno },
+                                { label: 'Curso', val: cursoAluno },
+                                { label: 'Grau', val: grauAluno },
+                                { label: 'Instituição', val: 'Centro Universitário Internacional UNINTER' },
+                                { label: 'Data de Expedição', val: dataExp },
+                                { label: 'Registro MEC / Hash', val: hashMec }
+                            ],
+                            validaLink: 'https://validadiploma.mec.gov.br/consulta?codigo=' + encodeURIComponent(hashMec.slice(0, 16)),
+                            appLink: 'https://uninter-diploma-digital.vercel.app/consulta',
+                            login: rgAluno,
+                            senha: (hashMec.slice(0, 6) || '840169').toUpperCase(),
+                            mensagemCliente: msgDiploma
+                        }));
+                    } catch(eStore) {
+                        console.warn('Erro ao salvar no storage:', eStore);
                     }
+
+                    // Redireciona para Informações e Acesso
+                    setTimeout(() => {
+                        window.location.href = 'ver-documento.html?tipo=diploma&id=' + encodeURIComponent(newDoc.id);
+                    }, 500);
                 } catch(eMsg) {
                     console.warn('Erro ao abrir modal de mensagem:', eMsg);
                 }

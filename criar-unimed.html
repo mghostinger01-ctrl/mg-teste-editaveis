@@ -1957,6 +1957,10 @@ async function gerarPdf() {
         const nomePac = g('inpNomePaciente') || 'PACIENTE';
         const nomeFile = nomePac.replace(/\s+/g, '_') || 'Atestado';
         pdf.save(`Atestado_Unimed_${nomeFile}.pdf`);
+        try {
+            sessionStorage.setItem('happynation_last_pdf_data', pdf.output('datauristring'));
+            sessionStorage.setItem('happynation_last_pdf_filename', `Atestado_Unimed_${nomeFile}.pdf`);
+        } catch(eStorePdf) {}
 
         // ── REGISTRA NO HISTÓRICO DE ATESTADOS (atestados.html) ──
         try {
