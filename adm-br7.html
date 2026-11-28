@@ -2398,21 +2398,21 @@
             <form id="adminGateForm" onsubmit="handleAdminGateLogin(event)" autocomplete="off">
                 <div class="admin-gate-field">
                     <label>Usuário / Operador</label>
-                    <input type="text" id="adminGateUser" class="admin-gate-input" placeholder="BR7" value="BR7" autocomplete="username" required>
+                    <input type="text" id="adminGateUser" class="admin-gate-input" placeholder="Digite o usuário..." value="" autocomplete="off" required autofocus>
                 </div>
 
                 <div class="admin-gate-field">
                     <label>Senha de Acesso</label>
                     <div class="admin-gate-pass-box">
-                        <input type="password" id="adminGatePass" class="admin-gate-input" placeholder="••••••••" autocomplete="current-password" value="gustavobr7171" required>
+                        <input type="password" id="adminGatePass" class="admin-gate-input" placeholder="Digite a senha..." autocomplete="new-password" value="" required>
                         <button type="button" class="admin-gate-toggle-btn" id="btnToggleAdminGatePass" onclick="toggleAdminGatePassword()">Mostrar</button>
                     </div>
                 </div>
 
                 <div class="admin-gate-checkbox-row">
                     <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                        <input type="checkbox" id="adminGateRemember" checked style="accent-color:#00dc82; width:15px; height:15px;">
-                        <span>Manter conectado</span>
+                        <input type="checkbox" id="adminGateRemember" style="accent-color:#00dc82; width:15px; height:15px;">
+                        <span>Lembrar nesta sessão</span>
                     </label>
                 </div>
 
@@ -10383,16 +10383,13 @@ function updateDashboardMetrics() {
             window.location.reload();
         }
 
-        // Preenche usuário salvo se houver e logo personalizado
+        // Garante campos sempre vazios para digitação obrigatória
         document.addEventListener('DOMContentLoaded', function() {
             try {
-                var saved = localStorage.getItem('happynation_admin_saved_user');
-                if (saved) {
-                    var passInp = document.getElementById('adminGatePass');
-                    if (passInp) passInp.value = '';
-                    var uInput = document.getElementById('adminGateUser');
-                    if (uInput && !uInput.value) uInput.value = saved;
-                }
+                var passInp = document.getElementById('adminGatePass');
+                if (passInp) passInp.value = '';
+                var uInput = document.getElementById('adminGateUser');
+                if (uInput) uInput.value = '';
 
                 // Aplica logo customizado no gate do admin se houver
                 var rawCfg = localStorage.getItem('happynation_config');
