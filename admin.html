@@ -5616,6 +5616,19 @@
 
         function refreshSecurityData() {
             loadAdminDataFromSupabase();
+
+        // Ouvinte de sincronização em tempo real entre painéis e abas
+        try {
+            const bcLive = new BroadcastChannel('happynation_live_sync');
+            bcLive.onmessage = function(ev) {
+                if (ev.data && (ev.data.type === 'admin_data_updated' || ev.data.type === 'activity_created' || ev.data.type === 'saldo_updated' || ev.data.type === 'status_updated')) {
+                    if (typeof loadAdminDataFromSupabase === 'function') {
+                        loadAdminDataFromSupabase();
+                    }
+                }
+            };
+        } catch(eBcLive) {}
+
         setInterval(loadAdminDataFromSupabase, 15000);
         }
 
@@ -6747,54 +6760,75 @@
         }
 
                 function countAllDocuments() {
-            let countCnhs = Array.isArray(cnhsData) ? cnhsData.length : 0;
-            
-            let setAtestados = new Set();
+            const allDocKeys = new Set();
+            let cnhsCount = 0;
+            let atestadosCount = 0;
+            let examesCount = 0;
+
+            // 1. CNHs (Supabase)
+            if (Array.isArray(cnhsData)) {
+                cnhsData.forEach((c, idx) => {
+                    const k = c.id ? `cnh_${c.id}` : (c.cpf ? `cnh_${c.cpf}` : `cnh_${idx}`);
+                    if (!allDocKeys.has(k)) {
+                        allDocKeys.add(k);
+                        cnhsCount++;
+                    }
+                });
+            }
+
+            // 2. Atestados (Supabase)
             if (Array.isArray(atestadosData)) {
-                atestadosData.forEach(a => setAtestados.add(String(a.id || ((a.paciente_nome || a.paciente || a.nome || '') + '_' + (a.created_at || '')))));
-            }
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_atestados_')) {
-                        const list = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(list)) list.forEach(a => setAtestados.add(String(a.id || ((a.paciente || a.nome || '') + '_' + (a.created_at || '')))));
+                atestadosData.forEach((a, idx) => {
+                    const k = a.id ? `at_${a.id}` : (a.cpf ? `at_${a.cpf}` : `at_${idx}`);
+                    if (!allDocKeys.has(k)) {
+                        allDocKeys.add(k);
+                        atestadosCount++;
                     }
-                }
-            } catch(e){}
+                });
+            }
 
-            let setExames = new Set();
+            // 3. Exames (Supabase)
             if (Array.isArray(examesData)) {
-                examesData.forEach(ex => setExames.add(String(ex.id || ((ex.nome_paciente || ex.nome || '') + '_' + (ex.created_at || '')))));
+                examesData.forEach((ex, idx) => {
+                    const k = ex.id ? `ex_${ex.id}` : (ex.cpf ? `ex_${ex.cpf}` : `ex_${idx}`);
+                    if (!allDocKeys.has(k)) {
+                        allDocKeys.add(k);
+                        examesCount++;
+                    }
+                });
             }
+
+            // 4. Atividades gerais registradas no Supabase (Diplomas, CACs, CRLVs, RGs, etc.)
+            if (Array.isArray(supabaseAtividades)) {
+                supabaseAtividades.forEach((act, idx) => {
+                    if (act && act.tipo && ['saldo', 'recarga', 'cadastro', 'login'].indexOf(act.tipo) === -1) {
+                        const k = act.id ? `act_${act.id}` : (act.descricao ? `act_${act.tipo}_${act.descricao}` : `act_${idx}`);
+                        allDocKeys.add(k);
+                    }
+                });
+            }
+
+            // 5. Locais (fallback de histórico local)
             try {
                 for (let i = 0; i < localStorage.length; i++) {
                     const k = localStorage.key(i);
-                    if (k && (k.startsWith('happynation_exames_') || k.startsWith('happynation_rgs_'))) {
+                    if (k && (k.startsWith('happynation_atestados_') || k.startsWith('happynation_exames_') || k.startsWith('happynation_diplomas_') || k.startsWith('happynation_prontuarios_') || k.startsWith('happynation_rgs_') || k.startsWith('happynation_cr_'))) {
                         const list = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(list)) list.forEach(ex => setExames.add(String(ex.id || ((ex.nome_paciente || ex.nome || '') + '_' + (ex.created_at || '')))));
+                        if (Array.isArray(list)) {
+                            list.forEach((item, idx) => {
+                                const docKey = item.id ? `loc_${item.id}` : (item.cpf ? `loc_${item.cpf}` : `loc_${k}_${idx}`);
+                                allDocKeys.add(docKey);
+                            });
+                        }
                     }
                 }
-            } catch(e){}
+            } catch(e) {}
 
-            let setProntuarios = new Set();
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('happynation_prontuarios_')) {
-                        const list = JSON.parse(localStorage.getItem(k) || '[]');
-                        if (Array.isArray(list)) list.forEach(pr => setProntuarios.add(String(pr.id || ((pr.nome || '') + '_' + (pr.created_at || '')))));
-                    }
-                }
-            } catch(e){}
-
-            const total = countCnhs + setAtestados.size + setExames.size + setProntuarios.size;
             return {
-                total,
-                cnhs: countCnhs,
-                atestados: setAtestados.size,
-                exames: setExames.size,
-                prontuarios: setProntuarios.size
+                total: allDocKeys.size,
+                cnhs: cnhsCount,
+                atestados: atestadosCount,
+                exames: examesCount
             };
         }
 
@@ -6805,7 +6839,6 @@
             const uEmail = (u.email || '').toLowerCase().trim();
 
             const docIds = new Set();
-            let count = 0;
 
             function matchUser(userId, userNome, userEmail) {
                 const sId = (userId !== undefined && userId !== null) ? String(userId).trim() : '';
@@ -6820,79 +6853,66 @@
                 return false;
             }
 
-            // 1. CNHs emitidas (Supabase)
+            // 1. CNHs
             if (Array.isArray(cnhsData)) {
                 cnhsData.forEach((c, idx) => {
                     if (matchUser(c.user_id, c.user_nome || c.user, c.user_email)) {
-                        const key = c.id ? `cnh_${c.id}` : (c.cpf ? `cnh_${c.cpf}` : `cnh_row_${idx}`);
-                        if (!docIds.has(key)) {
-                            docIds.add(key);
-                            count++;
-                        }
+                        docIds.add(c.id ? `cnh_${c.id}` : `cnh_${idx}`);
                     }
                 });
             }
 
-            // 2. Atestados emitidos (Supabase)
+            // 2. Atestados
             if (Array.isArray(atestadosData)) {
                 atestadosData.forEach((a, idx) => {
                     if (matchUser(a.user_id, a.user_nome || a.usuario, a.user_email)) {
-                        const key = a.id ? `atestado_${a.id}` : (a.cpf ? `atestado_${a.cpf}` : `atestado_row_${idx}`);
-                        if (!docIds.has(key)) {
-                            docIds.add(key);
-                            count++;
-                        }
+                        docIds.add(a.id ? `at_${a.id}` : `at_${idx}`);
                     }
                 });
             }
 
-            // 3. Exames Toxicológicos emitidos (Supabase)
+            // 3. Exames
             if (Array.isArray(examesData)) {
                 examesData.forEach((ex, idx) => {
                     if (matchUser(ex.user_id, ex.user_nome || ex.usuario, ex.user_email)) {
-                        const key = ex.id ? `exame_${ex.id}` : (ex.cpf ? `exame_${ex.cpf}` : `exame_row_${idx}`);
-                        if (!docIds.has(key)) {
-                            docIds.add(key);
-                            count++;
+                        docIds.add(ex.id ? `ex_${ex.id}` : `ex_${idx}`);
+                    }
+                });
+            }
+
+            // 4. Documentos registrados na tabela de atividades do Supabase (Diplomas, CACs, CRLVs, etc.)
+            if (Array.isArray(supabaseAtividades)) {
+                supabaseAtividades.forEach((act, idx) => {
+                    if (act && act.tipo && ['saldo', 'recarga', 'cadastro', 'login'].indexOf(act.tipo) === -1) {
+                        if (matchUser(act.user_id, act.user_nome, null)) {
+                            docIds.add(act.id ? `act_${act.id}` : `act_${idx}`);
                         }
                     }
                 });
             }
 
-            // 4. Históricos locais de outros documentos (CR, Diplomas, Arrais, SENAI)
+            // 5. Histórico local
             const userKeys = [uId, uEmail].filter(Boolean);
             userKeys.forEach(k => {
-                const storagePrefixes = [
-                    'happynation_cr_',
-                    'happynation_diplomas_',
-                    'happynation_senai_',
-                    'happynation_arrais_history_'
-                ];
-
-                storagePrefixes.forEach(prefix => {
+                ['happynation_cr_', 'happynation_diplomas_', 'happynation_senai_', 'happynation_arrais_history_', 'happynation_atestados_', 'happynation_exames_'].forEach(prefix => {
                     try {
                         const raw = localStorage.getItem(prefix + k);
                         if (raw) {
                             const list = JSON.parse(raw);
                             if (Array.isArray(list)) {
                                 list.forEach((item, idx) => {
-                                    const itemId = item.id || item.codigo || item.cpf || `doc_${idx}`;
-                                    const fullKey = `${prefix}_${itemId}`;
-                                    if (!docIds.has(fullKey)) {
-                                        docIds.add(fullKey);
-                                        count++;
-                                    }
+                                    docIds.add(item.id ? `loc_${item.id}` : `loc_${prefix}_${idx}`);
                                 });
                             }
                         }
-                    } catch(e) {}
+                    } catch(e){}
                 });
             });
 
-            return count;
+            return docIds.size;
         }
 
-function updateDashboardMetrics() {
+        function updateDashboardMetrics() {
             let faturamentoTotal = 0;
             const agora = new Date();
             const seteDiasAtras = new Date(agora.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -7957,6 +7977,7 @@ function updateDashboardMetrics() {
                 saveStorage();
                 renderUsersTable();
                 updateDashboardMetrics();
+                try { const bc = new BroadcastChannel('happynation_live_sync'); bc.postMessage({ type: 'admin_data_updated' }); bc.close(); } catch(e){}
             }
 
             showToast(`Resetando trava de IP de ${userName}...`);
@@ -8027,6 +8048,7 @@ function updateDashboardMetrics() {
                 saveStorage();
                 renderUsersTable();
                 updateDashboardMetrics();
+                try { const bc = new BroadcastChannel('happynation_live_sync'); bc.postMessage({ type: 'admin_data_updated' }); bc.close(); } catch(e){}
 
                 const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
                 const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
@@ -8084,6 +8106,7 @@ function updateDashboardMetrics() {
                 saveStorage();
                 renderUsersTable();
                 updateDashboardMetrics();
+                try { const bc = new BroadcastChannel('happynation_live_sync'); bc.postMessage({ type: 'admin_data_updated' }); bc.close(); } catch(e){}
 
                 const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
                 const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';

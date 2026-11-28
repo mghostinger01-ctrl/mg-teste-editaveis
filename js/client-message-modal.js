@@ -234,6 +234,42 @@
     }
 
     window.showClientMessageModal = function(options) {
+        // Grava a emissão do documento no Supabase public.atividades em tempo real
+        try {
+            let loggedUser = {};
+            try { loggedUser = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}'); } catch(e){}
+            const uNome = (loggedUser && (loggedUser.nome || loggedUser.email)) ? loggedUser.nome : 'Cliente';
+            const uId = (loggedUser && (loggedUser.id || loggedUser.user_id)) ? loggedUser.id : null;
+            const docType = (options && options.docType) || 'documento';
+            const docDesc = (options && options.docDesc) || (options && options.title) || 'Documento Emitido';
+            const docSub = (options && options.docSub) || 'Emissão Oficial';
+
+            fetch('https://bgaurmeuimrtvawworxv.supabase.co/rest/v1/atividades', {
+                method: 'POST',
+                headers: {
+                    'apikey': 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                    'Authorization': 'Bearer sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: uId,
+                    user_nome: uNome,
+                    tipo: docType,
+                    descricao: docDesc,
+                    sub_rotulo: docSub,
+                    valor: 0.00,
+                    tag_class: 'badge-' + docType,
+                    tag_text: docType.toUpperCase()
+                })
+            }).catch(function(){});
+
+            if (typeof BroadcastChannel !== 'undefined') {
+                const bc = new BroadcastChannel('happynation_live_sync');
+                bc.postMessage({ type: 'activity_created', tipo: docType });
+                bc.close();
+            }
+        } catch(eActSync) {}
+
         injectModalStyles();
         const msgText = (options && options.messageText) || '';
         const backUrl = (options && options.onBackUrl) || '';
