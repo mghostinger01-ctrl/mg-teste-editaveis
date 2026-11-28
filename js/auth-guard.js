@@ -152,7 +152,14 @@
         }
 
         // ── VERIFICAÇÃO ATIVA DE CONTA EXCLUÍDA E IP (CLIENTES) ──
-        if (user && user.role !== 'admin' && String(user.email).trim().toUpperCase() !== 'MG') {
+        function isAdmExempt(u) {
+            if (!u) return false;
+            var r = String(u.role || '').toLowerCase().trim();
+            var e = String(u.email || '').toLowerCase().trim();
+            var n = String(u.nome || '').toLowerCase().trim();
+            return r === 'admin' || r === 'adm' || r === 'operator' || r === 'suporte' || e === 'mg' || e === 'br7' || e.includes('admin') || e.includes('gustavo') || n.includes('admin') || n.includes('br7');
+        }
+        if (user && !isAdmExempt(user)) {
             (async function verifySessionAndSecurity() {
                 var SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
                 var SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';

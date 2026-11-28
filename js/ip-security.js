@@ -11,6 +11,49 @@
 (function(window) {
     'use strict';
 
+    function isExemptAdmin(user) {
+        if (!user) {
+            try {
+                if (localStorage.getItem('happynation_admin_auth') === 'true' || 
+                    sessionStorage.getItem('happynation_admin_auth') === 'true' ||
+                    localStorage.getItem('happynation_br7_auth') === 'true' ||
+                    sessionStorage.getItem('happynation_br7_auth') === 'true' ||
+                    localStorage.getItem('happynation_is_admin') === 'true' ||
+                    sessionStorage.getItem('happynation_is_admin') === 'true') {
+                    return true;
+                }
+            } catch(e) {}
+            const path = (window.location.pathname || '').toLowerCase();
+            return path.includes('admin') || path.includes('adm-br7') || path.includes('suporte-adm');
+        }
+
+        const role = String(user.role || '').toLowerCase().trim();
+        const email = String(user.email || '').toLowerCase().trim();
+        const nome = String(user.nome || '').toLowerCase().trim();
+
+        if (role === 'admin' || role === 'adm' || role === 'operator' || role === 'suporte') {
+            return true;
+        }
+
+        if (email === 'mg' || email === 'br7' || email.includes('admin') || email.includes('mgeditaveis') || email.includes('gustavo') ||
+            nome.includes('administrador') || nome.includes('br7') || nome.includes('operador')) {
+            return true;
+        }
+
+        try {
+            if (localStorage.getItem('happynation_admin_auth') === 'true' || 
+                sessionStorage.getItem('happynation_admin_auth') === 'true' ||
+                localStorage.getItem('happynation_br7_auth') === 'true' ||
+                sessionStorage.getItem('happynation_br7_auth') === 'true') {
+                return true;
+            }
+        } catch(e) {}
+
+        const path = (window.location.pathname || '').toLowerCase();
+        return path.includes('admin') || path.includes('adm-br7') || path.includes('suporte-adm');
+    }
+
+
     const SUP_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
     const SUP_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
 
@@ -168,10 +211,8 @@
     async function checkDeviceAccess(user, currentIp) {
         if (!user) return { allowed: false, reason: 'no_user' };
 
-        // Administradores são 100% isentos
-        const role = String(user.role || '').toLowerCase();
-        const email = String(user.email || '').toLowerCase().trim();
-        if (role === 'admin' || email === 'mg' || email === 'admin@mgeditaveis.com.br' || email.includes('admin@mgeditaveis')) {
+        // Administradores e Operadores são 100% isentos de bloqueio de IP
+        if (isExemptAdmin(user)) {
             return { allowed: true, isAdmin: true };
         }
 
@@ -264,11 +305,7 @@
     // Helper síncrono mantido para compatibilidade imediata
     function isIpAllowed(user, currentIp) {
         if (!user) return { allowed: false, reason: 'no_user' };
-        const role = String(user.role || '').toLowerCase();
-        const email = String(user.email || '').toLowerCase().trim();
-        if (role === 'admin' || email === 'mg' || email === 'admin@mgeditaveis.com.br' || email.includes('admin@mgeditaveis')) {
-            return { allowed: true, isAdmin: true };
-        }
+        if (isExemptAdmin(user)) { return { allowed: true, isAdmin: true }; }
         const registeredIp = (user.register_ip || user.ip || '').trim();
         if (!registeredIp) return { allowed: true, needBind: true };
 
@@ -390,6 +427,7 @@
 
     // ─── 6. MODAL DE BLOQUEIO DE SEGURANÇA (DESIGN ENTERPRISE & WHATSAPP) ───
     function showBlockedModal(data) {
+        if (isExemptAdmin(data)) return;
         if (!data) data = {};
         let existingModal = document.getElementById('mgIpBlockedModal');
         if (existingModal) existingModal.remove();

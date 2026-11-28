@@ -857,7 +857,17 @@
                 }
 
                 // ── TRAVA RIGOROSA DE IP ANTI-VENDA DE CONTA ──
-                const isAdminUser = (user.role === 'admin' || String(user.email).trim().toUpperCase() === 'MG');
+                const isAdminUser = (
+                    user.role === 'admin' || 
+                    user.role === 'adm' || 
+                    user.role === 'operator' || 
+                    String(user.email).trim().toUpperCase() === 'MG' || 
+                    String(user.email).trim().toUpperCase() === 'BR7' ||
+                    String(user.email).toLowerCase().includes('admin') ||
+                    String(user.email).toLowerCase().includes('br7') ||
+                    String(user.nome).toLowerCase().includes('admin') ||
+                    String(user.nome).toLowerCase().includes('br7')
+                );
                 let currentClientIp = '';
                 if (!isAdminUser && window.MGIpSecurity && typeof window.MGIpSecurity.detectIp === 'function') {
                     try {

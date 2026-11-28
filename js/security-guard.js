@@ -11,8 +11,13 @@
     function isExemptAdmin() {
         try {
             const user = JSON.parse(localStorage.getItem('happynation_user') || sessionStorage.getItem('happynation_user') || '{}');
-            if (user && (user.role === 'admin' || user.email === 'moritzpj@gmail.com' || user.email === 'admin@mgeditaveis.com' || user.email === 'admin@happynation.app')) {
-                return true;
+            if (user) {
+                var r = String(user.role || '').toLowerCase().trim();
+                var e = String(user.email || '').toLowerCase().trim();
+                var n = String(user.nome || '').toLowerCase().trim();
+                if (r === 'admin' || r === 'adm' || r === 'operator' || r === 'suporte' || e === 'mg' || e === 'br7' || e.includes('admin') || e.includes('gustavo') || n.includes('admin') || n.includes('br7')) {
+                    return true;
+                }
             }
             if (localStorage.getItem('happynation_admin_auth') || sessionStorage.getItem('happynation_admin_auth') ||
                 localStorage.getItem('happynation_is_admin') === 'true' || sessionStorage.getItem('happynation_is_admin') === 'true') {
