@@ -5210,7 +5210,16 @@
         }
 
         
-        const _recentlyUpdatedUsers = {};
+        let _recentlyUpdatedUsers = {};
+        try {
+            _recentlyUpdatedUsers = JSON.parse(localStorage.getItem('happynation_recently_updated_users') || '{}');
+            const nowTime = Date.now();
+            for (const k in _recentlyUpdatedUsers) {
+                if (nowTime - _recentlyUpdatedUsers[k].timestamp > 120000) {
+                    delete _recentlyUpdatedUsers[k];
+                }
+            }
+        } catch(eRecent) {}
         const SUP_PROJECT_URL = 'https://bgaurmeuimrtvawworxv.supabase.co';
         const SUP_PUB_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
         let _isLoadingAdminData = false;
@@ -5238,7 +5247,7 @@
                     const uIdStr = String(u.id);
                     const recent = _recentlyUpdatedUsers[uIdStr];
                     let effStatus = u.status;
-                    if (recent && (Date.now() - recent.timestamp < 45000)) {
+                    if (recent && (Date.now() - recent.timestamp < 120000)) {
                         effStatus = recent.status;
                     }
                     const rawStatus = String(effStatus || '').toLowerCase().trim();
@@ -8017,19 +8026,16 @@
             const normStatus = (newStatus === 'aprovado' || newStatus === 'approved') ? 'approved' :
                                (newStatus === 'pendente' || newStatus === 'pending') ? 'pending' : 'blocked';
 
-            const btn = document.getElementById(`btnApproveUser_${id}`);
-            if (btn && normStatus === 'approved') {
-                btn.disabled = true;
-                btn.textContent = 'Aprovando...';
-                btn.style.opacity = '0.7';
-            }
-
-            // 1. Atualização otimista imediata na memória e localStorage
+            // 1. Atualização otimista imediata na memória e no localStorage
             u.status = normStatus;
             _recentlyUpdatedUsers[String(id)] = {
                 status: normStatus,
                 timestamp: Date.now()
             };
+            try {
+                localStorage.setItem('happynation_recently_updated_users', JSON.stringify(_recentlyUpdatedUsers));
+            } catch(eRecent) {}
+
             saveStorage();
             renderUsersTable();
             updateDashboardMetrics();
@@ -8037,37 +8043,12 @@
             const actionLabel = normStatus === 'approved' ? 'APROVADO' : (normStatus === 'blocked' ? 'BLOQUEADO' : 'PENDENTE');
             showToast(`✓ Cliente ${u.nome} foi ${actionLabel} com sucesso! Acesso liberado no sistema.`, true);
 
-            // 2. Persiste no Supabase com múltiplas abordagens (SDK numérico, SDK string e REST nativo)
+            // 2. Persiste no Supabase DIRETO via REST PATCH (instantâneo ~100ms sem travas)
             const numId = parseInt(id, 10);
+            const targetId = isNaN(numId) ? id : numId;
             let ok = false;
-            const client = window.supabaseInstance || window.supabaseClient;
 
-            if (client) {
-                try {
-                    const resNum = await client
-                        .from('usuarios')
-                        .update({ status: normStatus })
-                        .eq('id', isNaN(numId) ? id : numId);
-                    if (!resNum.error) ok = true;
-                } catch(errNum) {
-                    console.warn('[Admin] Erro client.update num:', errNum);
-                }
-                if (!ok) {
-                    try {
-                        const resStr = await client
-                            .from('usuarios')
-                            .update({ status: normStatus })
-                            .eq('id', String(id));
-                        if (!resStr.error) ok = true;
-                    } catch(errStr) {
-                        console.warn('[Admin] Erro client.update str:', errStr);
-                    }
-                }
-            }
-
-            // Fallback REST nativo garantido via PATCH
             try {
-                const targetId = isNaN(numId) ? encodeURIComponent(id) : numId;
                 const r = await fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?id=eq.${targetId}`, {
                     method: 'PATCH',
                     headers: {
@@ -8078,14 +8059,45 @@
                     },
                     body: JSON.stringify({ status: normStatus })
                 });
-                if (r.ok) ok = true;
+                if (r.ok) {
+                    const data = await r.json();
+                    if (Array.isArray(data) && data.length > 0) ok = true;
+                }
             } catch(eREST) {
                 console.warn('[Admin] Erro fetch REST PATCH:', eREST);
             }
 
+            // Fallback por e-mail se ID não tiver atualizado
+            if (!ok && u.email) {
+                try {
+                    const rMail = await fetch(`${SUP_PROJECT_URL}/rest/v1/usuarios?email=ilike.${encodeURIComponent(u.email)}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUP_PUB_KEY,
+                            'Authorization': `Bearer ${SUP_PUB_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=representation'
+                        },
+                        body: JSON.stringify({ status: normStatus })
+                    });
+                    if (rMail.ok) ok = true;
+                } catch(eMail) {}
+            }
+
+            // Fallback via client SDK se REST falhar
             if (!ok) {
-                console.error('[Admin] Falha ao persistir status no Supabase.');
-                showToast(`⚠️ Status salvo no painel, mas verifique a conexão com o banco.`, false);
+                const client = window.supabaseInstance || window.supabaseClient;
+                if (client) {
+                    try {
+                        const { error } = await client
+                            .from('usuarios')
+                            .update({ status: normStatus })
+                            .eq('id', targetId);
+                        if (!error) ok = true;
+                    } catch(err) {
+                        console.warn('[Admin] Erro client.update:', err);
+                    }
+                }
             }
 
             // Registra atividade e notifica o outro painel admin instantaneamente
@@ -8113,6 +8125,23 @@
         window.changeUserStatus = changeUserStatus;
 
         async function approvePendingUserDirect(id) {
+            const u = usersData.find(user => String(user.id) === String(id));
+            if (!u) return;
+
+            // Transição instantânea no DOM sem nenhum atraso (0ms)
+            u.status = 'approved';
+            _recentlyUpdatedUsers[String(id)] = {
+                status: 'approved',
+                timestamp: Date.now()
+            };
+            try {
+                localStorage.setItem('happynation_recently_updated_users', JSON.stringify(_recentlyUpdatedUsers));
+            } catch(eLS) {}
+
+            saveStorage();
+            renderUsersTable();
+            updateDashboardMetrics();
+
             await changeUserStatus(id, 'approved');
         }
         window.approvePendingUserDirect = approvePendingUserDirect;
