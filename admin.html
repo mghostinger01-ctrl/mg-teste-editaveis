@@ -5964,18 +5964,6 @@
             window.scrollTo({ top: 300, behavior: 'smooth' });
         }
 
-        // ─── SUPORTE / GESTÃO DE CHAMADOS ───
-        let adminTickets = [];
-        let selectedAdminTicketId = null;
-        let currentAdminFilter = 'todos';
-
-        function escapeAdmHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/[&<>"']/g, function(m) {
-                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
-            });
-        }
-
         // ─── SUPORTE / GESTÃO DE CHAMADOS SINCRONIZADA EM TEMPO REAL ───
         const CURRENT_ADMIN_DISPLAY_NAME = 'Administrador MG';
         let adminTickets = [];
