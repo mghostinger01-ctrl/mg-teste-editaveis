@@ -234,6 +234,46 @@
             background: rgba(0, 220, 130, 0.15);
         }
 
+        .btn-voltar-admin {
+            background: linear-gradient(135deg, rgba(0, 220, 130, 0.16), rgba(6, 37, 23, 0.95));
+            color: #00dc82;
+            border: 1px solid rgba(0, 220, 130, 0.45);
+            font-weight: 700;
+            font-size: 12.5px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            box-shadow: 0 0 12px rgba(0, 220, 130, 0.18);
+            cursor: pointer;
+            flex-shrink: 0;
+            line-height: 1.2;
+        }
+        .btn-voltar-admin:hover {
+            background: #00dc82;
+            color: #062517;
+            border-color: #00dc82;
+            box-shadow: 0 0 18px rgba(0, 220, 130, 0.45);
+            transform: translateY(-1px);
+        }
+        .btn-voltar-admin svg {
+            transition: transform 0.2s ease;
+        }
+        .btn-voltar-admin:hover svg {
+            transform: translateX(-2px);
+        }
+        @media (max-width: 480px) {
+            .btn-voltar-admin {
+                padding: 5px 10px;
+                font-size: 11.5px;
+                gap: 4px;
+            }
+        }
+
         .header-link {
             color: var(--text-secondary);
             font-size: 13px;
@@ -1609,6 +1649,11 @@
             </a>
 
             <div class="header-right">
+                <a href="admin.html" id="btnVoltarAdminHeader" class="btn-voltar-admin" style="display:none;" title="Voltar ao Painel Administrativo">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    <span>Voltar Admin</span>
+                </a>
+
                 <a href="recargas.html" class="saldo-pill" title="Clique para recarregar saldo">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                     <span id="userHeaderSaldo">Saldo R$ 0,00</span>
@@ -2066,6 +2111,31 @@
             const formattedSaldo = 'Saldo R$ ' + saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             const headerSaldo = document.getElementById('userHeaderSaldo');
             if (headerSaldo) headerSaldo.textContent = formattedSaldo;
+
+            // Botão "Voltar Admin" no cabeçalho ao lado do saldo (apenas para contas de administrador)
+            const btnAdmin = document.getElementById('btnVoltarAdminHeader');
+            if (btnAdmin) {
+                const emLower = (email || '').toLowerCase().trim();
+                const nmLower = (rawNome || '').toLowerCase().trim();
+                const roleLower = String(user.role || '').toLowerCase().trim();
+                const idStr = String(user.id || '');
+                const origin = localStorage.getItem('happynation_admin_panel_origin');
+                const adminAuth = localStorage.getItem('happynation_admin_auth') === 'true' || sessionStorage.getItem('happynation_admin_auth') === 'true';
+
+                let returnAdminUrl = null;
+                if (emLower === 'br7' || idStr === '45' || nmLower.includes('adm br7') || (origin && origin.includes('br7'))) {
+                    returnAdminUrl = 'adm-br7.html';
+                } else if (emLower === 'mg' || idStr === '1' || roleLower === 'admin' || nmLower.includes('administrador mg') || emLower.includes('admin') || adminAuth) {
+                    returnAdminUrl = 'admin.html';
+                }
+
+                if (returnAdminUrl) {
+                    btnAdmin.href = returnAdminUrl;
+                    btnAdmin.style.display = 'inline-flex';
+                } else {
+                    btnAdmin.style.display = 'none';
+                }
+            }
 
             const dropNome = document.getElementById('dropUserName');
             if (dropNome) dropNome.textContent = rawNome;

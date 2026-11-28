@@ -10643,13 +10643,14 @@
 
         function openClientAreaBr7(e) {
             if (e && e.preventDefault) e.preventDefault();
+            localStorage.setItem('happynation_admin_panel_origin', 'adm-br7.html');
             var br7UserObj = {
                 id: 45,
                 email: 'BR7',
                 nome: 'ADM BR7',
                 phone: '(71) 99148-9040',
                 saldo: 50000.00,
-                role: 'client',
+                role: 'admin',
                 status: 'approved',
                 logged: true
             };
@@ -10657,7 +10658,7 @@
                 var found = usersData.find(function(u) {
                     return String(u.email || '').toUpperCase() === 'BR7' || u.id === 45;
                 });
-                if (found) br7UserObj = Object.assign({}, found, { logged: true });
+                if (found) br7UserObj = Object.assign({}, found, { role: 'admin', logged: true });
             }
             localStorage.setItem('happynation_user', JSON.stringify(br7UserObj));
             sessionStorage.setItem('happynation_user', JSON.stringify(br7UserObj));

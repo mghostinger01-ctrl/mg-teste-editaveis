@@ -90,6 +90,130 @@
     document.querySelectorAll('[data-mg-saldo]').forEach(el => {
       el.textContent = moneyStr;
     });
+
+    // 5. Botão "Voltar Admin" no cabeçalho ao lado do saldo (apenas para contas de admin)
+    updateAdminReturnButton();
+  }
+
+  // ─── Botão "Voltar Admin" para Contas de Administrador na Área do Cliente ───
+  function getAdminReturnUrl() {
+    try {
+      const user = safeJSON(USER_KEY, {});
+      const email = String(user.email || '').toLowerCase().trim();
+      const nome = String(user.nome || '').toLowerCase().trim();
+      const role = String(user.role || '').toLowerCase().trim();
+      const id = String(user.id || '');
+
+      const origin = localStorage.getItem('happynation_admin_panel_origin');
+      const adminAuth = localStorage.getItem('happynation_admin_auth') === 'true' || sessionStorage.getItem('happynation_admin_auth') === 'true';
+
+      // 1. ADM BR7 -> retorna para adm-br7.html
+      if (email === 'br7' || id === '45' || nome.includes('adm br7') || (origin && origin.includes('br7'))) {
+        return 'adm-br7.html';
+      }
+
+      // 2. Administrador MG / Super Admin -> retorna para admin.html
+      if (email === 'mg' || id === '1' || role === 'admin' || nome.includes('administrador mg') || email.includes('admin') || adminAuth) {
+        return 'admin.html';
+      }
+
+      return null;
+    } catch(e) {
+      return null;
+    }
+  }
+
+  function injectAdminReturnStyles() {
+    if (document.getElementById('mg-admin-return-style')) return;
+    try {
+      const style = document.createElement('style');
+      style.id = 'mg-admin-return-style';
+      style.textContent = `
+        .btn-voltar-admin {
+          background: linear-gradient(135deg, rgba(0, 220, 130, 0.16), rgba(6, 37, 23, 0.95)) !important;
+          color: #00dc82 !important;
+          border: 1px solid rgba(0, 220, 130, 0.45) !important;
+          font-weight: 700 !important;
+          font-size: 12.5px !important;
+          padding: 6px 14px !important;
+          border-radius: 20px !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          text-decoration: none !important;
+          transition: all 0.2s ease !important;
+          white-space: nowrap !important;
+          box-shadow: 0 0 12px rgba(0, 220, 130, 0.18) !important;
+          cursor: pointer !important;
+          flex-shrink: 0 !important;
+          line-height: 1.2 !important;
+        }
+        .btn-voltar-admin:hover {
+          background: #00dc82 !important;
+          color: #062517 !important;
+          border-color: #00dc82 !important;
+          box-shadow: 0 0 18px rgba(0, 220, 130, 0.45) !important;
+          transform: translateY(-1px);
+        }
+        .btn-voltar-admin svg {
+          transition: transform 0.2s ease !important;
+        }
+        .btn-voltar-admin:hover svg {
+          transform: translateX(-2px);
+        }
+        @media (max-width: 480px) {
+          .btn-voltar-admin {
+            padding: 5px 10px !important;
+            font-size: 11.5px !important;
+            gap: 4px !important;
+          }
+        }
+      `;
+      (document.head || document.documentElement).appendChild(style);
+    } catch(e) {}
+  }
+
+  function updateAdminReturnButton() {
+    try {
+      // Não executa dentro dos próprios painéis de admin ou login
+      const path = (window.location.pathname || '').toLowerCase();
+      if (path.includes('admin.html') || path.includes('adm-br7.html') || path.includes('suporte-adm.html') || path.includes('login.html')) {
+        return;
+      }
+
+      const returnUrl = getAdminReturnUrl();
+
+      // Se NÃO for conta de admin, remove o botão se existir
+      if (!returnUrl) {
+        document.querySelectorAll('.btn-voltar-admin').forEach(el => el.remove());
+        const btnExisting = document.getElementById('btnVoltarAdminHeader');
+        if (btnExisting) btnExisting.style.display = 'none';
+        return;
+      }
+
+      injectAdminReturnStyles();
+
+      // Procura o elemento de saldo no header (.saldo-pill ou #userHeaderSaldo)
+      const saldoPill = document.querySelector('.saldo-pill');
+      let btn = document.getElementById('btnVoltarAdminHeader') || document.querySelector('.btn-voltar-admin');
+
+      if (!btn && saldoPill && saldoPill.parentNode) {
+        btn = document.createElement('a');
+        btn.id = 'btnVoltarAdminHeader';
+        btn.className = 'btn-voltar-admin';
+        btn.title = 'Voltar ao Painel Administrativo';
+        btn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Voltar Admin</span>
+        `;
+        saldoPill.parentNode.insertBefore(btn, saldoPill);
+      }
+
+      if (btn) {
+        btn.href = returnUrl;
+        btn.style.display = 'inline-flex';
+      }
+    } catch(err) {}
   }
 
   // ─── Propaga para todas as chaves do localStorage ──────────────────────────
