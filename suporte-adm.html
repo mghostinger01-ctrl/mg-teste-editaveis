@@ -3872,7 +3872,7 @@
             }
         } catch(e){}
         let rawStoredUsers = null;
-        try { rawStoredUsers = JSON.parse(localStorage.getItem('happynation_admin_users')); } catch(e){}
+        try { rawStoredUsers = JSON.parse(localStorage.getItem('happynation_suporte_adm_users') || localStorage.getItem('happynation_admin_users')); } catch(e){}
         
         function isMasterAdminAccount(u) {
             if (!u) return false;
@@ -3904,8 +3904,21 @@
         let usersPresenceMap = {};
 
         function saveStorage() {
-            localStorage.setItem('happynation_admin_users', JSON.stringify(usersData));
-            localStorage.setItem('happynation_registered_users', JSON.stringify(usersData));
+            localStorage.setItem('happynation_suporte_adm_users', JSON.stringify(usersData));
+            try {
+                let masterList = JSON.parse(localStorage.getItem('happynation_admin_users') || '[]');
+                if (Array.isArray(masterList) && masterList.length > 0) {
+                    usersData.forEach(u => {
+                        const idx = masterList.findIndex(m => String(m.id) === String(u.id));
+                        if (idx !== -1) masterList[idx] = Object.assign({}, masterList[idx], u);
+                        else masterList.unshift(u);
+                    });
+                    localStorage.setItem('happynation_admin_users', JSON.stringify(masterList));
+                    localStorage.setItem('happynation_registered_users', JSON.stringify(masterList));
+                } else {
+                    localStorage.setItem('happynation_registered_users', JSON.stringify(usersData));
+                }
+            } catch(eMaster) {}
             localStorage.setItem('happynation_admin_recargas', JSON.stringify(recargasData));
             localStorage.setItem('happynation_admin_cnhs', JSON.stringify(cnhsData));
             localStorage.setItem('happynation_admin_atestados', JSON.stringify(atestadosData));
@@ -4091,6 +4104,13 @@
                 }
             } catch(e){}
 
+            // Recarrega atualizações recentes do localStorage para manter integridade entre abas
+            try {
+                const rawRec = JSON.parse(localStorage.getItem('happynation_recently_updated_users') || '{}');
+                _recentlyUpdatedUsers = Object.assign({}, _recentlyUpdatedUsers, rawRec);
+            } catch(eRec) {}
+
+            let dirtyRecent = false;
             const mapped = sUsers
                 .filter(u => {
                     const uIdStr = String(u.id);
@@ -4100,8 +4120,16 @@
                     const uIdStr = String(u.id);
                     const recent = _recentlyUpdatedUsers[uIdStr];
                     let effStatus = u.status;
-                    if (recent && (Date.now() - recent.timestamp < 120000)) {
-                        effStatus = recent.status;
+                    if (recent) {
+                        const rawUStatus = String(u.status || '').toLowerCase().trim();
+                        const isConfirmedInSupabase = (recent.status === 'approved' && (rawUStatus === 'approved' || rawUStatus === 'aprovado')) ||
+                                                     (recent.status === 'blocked' && (rawUStatus === 'blocked' || rawUStatus === 'bloqueado'));
+                        if (isConfirmedInSupabase) {
+                            delete _recentlyUpdatedUsers[uIdStr];
+                            dirtyRecent = true;
+                        } else {
+                            effStatus = recent.status;
+                        }
                     }
                     const rawStatus = String(effStatus || '').toLowerCase().trim();
                     const normStatus = (rawStatus === 'aprovado' || rawStatus === 'approved') ? 'approved' :
@@ -4131,11 +4159,26 @@
                     };
                 });
 
+            if (dirtyRecent) {
+                try { localStorage.setItem('happynation_recently_updated_users', JSON.stringify(_recentlyUpdatedUsers)); } catch(e){}
+            }
+
             const newSig = mapped.map(u => `${u.id}_${u.nome}_${u.status}_${u.saldo}_${u.register_ip || ''}`).join('|');
             if (_lastUsersDataSig !== newSig) {
                 _lastUsersDataSig = newSig;
                 usersData = mapped;
-                localStorage.setItem('happynation_admin_users', JSON.stringify(usersData));
+                localStorage.setItem('happynation_suporte_adm_users', JSON.stringify(usersData));
+                try {
+                    let masterList = JSON.parse(localStorage.getItem('happynation_admin_users') || '[]');
+                    if (Array.isArray(masterList) && masterList.length > 0) {
+                        mapped.forEach(u => {
+                            const idx = masterList.findIndex(m => String(m.id) === String(u.id));
+                            if (idx !== -1) masterList[idx] = Object.assign({}, masterList[idx], u);
+                            else masterList.unshift(u);
+                        });
+                        localStorage.setItem('happynation_admin_users', JSON.stringify(masterList));
+                    }
+                } catch(eMaster) {}
                 renderUsersTable();
                 updateDashboardMetrics();
                 if (typeof window.checkNovosCadastros === 'function') window.checkNovosCadastros();
@@ -6308,11 +6351,11 @@
             const allApproved = usersData.filter(u => u.status === 'approved' && u.status !== 'deleted');
             const allPending = usersData.filter(u => u.status === 'pending');
             const allBlocked = usersData.filter(u => u.status === 'blocked');
+            const totalValidUsers = usersData.filter(u => u.status !== 'deleted' && u.status !== 'excluido');
 
             // Atualiza contadores dos filtros
-            const nonPendingList = usersData.filter(u => u.status !== 'pending' && u.status !== 'deleted' && u.status !== 'excluido');
             const elCountAll = document.getElementById('countFilterAll');
-            if (elCountAll) elCountAll.textContent = `(${nonPendingList.length})`;
+            if (elCountAll) elCountAll.textContent = `(${totalValidUsers.length})`;
             const elCountPend = document.getElementById('countFilterPending');
             if (elCountPend) elCountPend.textContent = pendingCount;
             const elCountApp = document.getElementById('countFilterApproved');
@@ -6333,8 +6376,12 @@
                 else if (currentUserFilter === 'pending') baseList = allPending;
                 else if (currentUserFilter === 'blocked') baseList = allBlocked;
                 else {
-                    // Todos os Clientes: NÃO incluir cadastros pendentes na tabela principal, pois eles já possuem a seção exclusiva no topo
-                    baseList = nonPendingList.sort((a, b) => (b.id || 0) - (a.id || 0));
+                    // Todos os Clientes: exibe TODOS os clientes com cadastros pendentes priorizados no topo
+                    baseList = [...totalValidUsers].sort((a, b) => {
+                        if (a.status === 'pending' && b.status !== 'pending') return -1;
+                        if (b.status === 'pending' && a.status !== 'pending') return 1;
+                        return (b.id || 0) - (a.id || 0);
+                    });
                 }
 
                 const filteredMain = qMain
@@ -6384,7 +6431,7 @@
 
             // 2. Seção Prioritária: Pendentes (Aguardando Aprovação)
             if (pendingSection && pendingTbody) {
-                if (allPending.length > 0) {
+                if (allPending.length > 0 && (currentUserFilter === 'all' || currentUserFilter === 'pending')) {
                     pendingSection.style.display = 'block';
                     if (pendingCountEl) pendingCountEl.textContent = allPending.length;
                     pendingTbody.innerHTML = '';

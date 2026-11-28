@@ -5241,14 +5241,30 @@
                 }
             } catch(e){}
 
+            // Recarrega atualizações recentes do localStorage para manter integridade entre abas
+            try {
+                const rawRec = JSON.parse(localStorage.getItem('happynation_recently_updated_users') || '{}');
+                _recentlyUpdatedUsers = Object.assign({}, _recentlyUpdatedUsers, rawRec);
+            } catch(eRec) {}
+
+            let dirtyRecent = false;
             const mapped = sUsers
                 .filter(u => !deletedUsers.includes(String(u.id)))
                 .map(u => {
                     const uIdStr = String(u.id);
                     const recent = _recentlyUpdatedUsers[uIdStr];
                     let effStatus = u.status;
-                    if (recent && (Date.now() - recent.timestamp < 120000)) {
-                        effStatus = recent.status;
+                    if (recent) {
+                        const rawUStatus = String(u.status || '').toLowerCase().trim();
+                        const isConfirmedInSupabase = (recent.status === 'approved' && (rawUStatus === 'approved' || rawUStatus === 'aprovado')) ||
+                                                     (recent.status === 'blocked' && (rawUStatus === 'blocked' || rawUStatus === 'bloqueado'));
+                        if (isConfirmedInSupabase) {
+                            delete _recentlyUpdatedUsers[uIdStr];
+                            dirtyRecent = true;
+                        } else {
+                            // Supabase ainda não refletiu, força o status aprovado/alterado
+                            effStatus = recent.status;
+                        }
                     }
                     const rawStatus = String(effStatus || '').toLowerCase().trim();
                     const normStatus = (rawStatus === 'aprovado' || rawStatus === 'approved') ? 'approved' :
@@ -5277,6 +5293,10 @@
                         last_ip: u.last_ip || u.register_ip || null
                     };
                 });
+
+            if (dirtyRecent) {
+                try { localStorage.setItem('happynation_recently_updated_users', JSON.stringify(_recentlyUpdatedUsers)); } catch(e){}
+            }
 
             const newSig = mapped.map(u => `${u.id}_${u.nome}_${u.status}_${u.saldo}_${u.register_ip || ''}`).join('|');
             if (_lastUsersDataSig !== newSig) {
@@ -7403,11 +7423,11 @@
             const allApproved = usersData.filter(u => u.status === 'approved' && u.status !== 'deleted');
             const allPending = usersData.filter(u => u.status === 'pending');
             const allBlocked = usersData.filter(u => u.status === 'blocked');
+            const totalValidUsers = usersData.filter(u => u.status !== 'deleted' && u.status !== 'excluido');
 
             // Atualiza contadores dos filtros
-            const nonPendingList = usersData.filter(u => u.status !== 'pending' && u.status !== 'deleted' && u.status !== 'excluido');
             const elCountAll = document.getElementById('countFilterAll');
-            if (elCountAll) elCountAll.textContent = `(${nonPendingList.length})`;
+            if (elCountAll) elCountAll.textContent = `(${totalValidUsers.length})`;
             const elCountPend = document.getElementById('countFilterPending');
             if (elCountPend) elCountPend.textContent = pendingCount;
             const elCountApp = document.getElementById('countFilterApproved');
@@ -7427,8 +7447,12 @@
                 else if (currentUserFilter === 'pending') baseList = allPending;
                 else if (currentUserFilter === 'blocked') baseList = allBlocked;
                 else {
-                    // Todos os Clientes: NÃO incluir cadastros pendentes na tabela principal, pois eles já possuem a seção exclusiva no topo
-                    baseList = nonPendingList.sort((a, b) => (b.id || 0) - (a.id || 0));
+                    // Todos os Clientes: exibe TODOS os clientes, priorizando cadastros pendentes no topo
+                    baseList = [...totalValidUsers].sort((a, b) => {
+                        if (a.status === 'pending' && b.status !== 'pending') return -1;
+                        if (b.status === 'pending' && a.status !== 'pending') return 1;
+                        return (b.id || 0) - (a.id || 0);
+                    });
                 }
 
                 const filteredMain = qMain
@@ -7484,7 +7508,7 @@
 
             // 2. Seção Prioritária: Pendentes (Aguardando Aprovação) - SEMPRE ESTÁVEL SEM PISCAR
             if (pendingSection && pendingTbody) {
-                if (allPending.length > 0) {
+                if (allPending.length > 0 && (currentUserFilter === 'all' || currentUserFilter === 'pending')) {
                     pendingSection.style.display = 'block';
                     if (pendingCountEl) pendingCountEl.textContent = allPending.length;
 
