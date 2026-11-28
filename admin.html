@@ -3357,12 +3357,12 @@
 
                     <div class="cfg-card">
                         <div class="cfg-label">
-                            <span>Senha de Acesso ADM BR7 (/adm-br7)</span>
+                            <span>Acesso ADM BR7 (/adm-br7)</span>
                             <span style="font-size:11px; color:#38bdf8; font-weight:700;">Sub-Painel</span>
                         </div>
-                        <div class="cfg-subtext">Defina a senha que a sua equipe usará para acessar o painel limitado em <strong>/adm-br7</strong>.</div>
+                        <div class="cfg-subtext">Usuário do sub-painel: <strong style="color:#38bdf8;">BR7</strong>. Defina a senha de acesso da equipe para a rota <strong>/adm-br7</strong>.</div>
                         <div class="cfg-input-row">
-                            <input type="text" class="cfg-input" id="cfgSenhaSuporteInp" value="suporte123" placeholder="Senha da equipe">
+                            <input type="text" class="cfg-input" id="cfgSenhaSuporteInp" value="gustavobr7171" placeholder="Senha da equipe">
                             <button class="btn-save-cfg" onclick="saveSenhaSuporte()">Salvar Senha</button>
                         </div>
                         <div style="margin-top:10px;">
@@ -9804,7 +9804,7 @@ function updateDashboardMetrics() {
             const wppInp = document.getElementById('cfgWhatsappInp');
             if (wppInp && wpp) wppInp.value = wpp;
 
-            const savedSenhaSup = localStorage.getItem('happynation_senha_suporte') || 'suporte123';
+            const savedSenhaSup = localStorage.getItem('happynation_senha_suporte') || 'gustavobr7171';
             const supInp = document.getElementById('cfgSenhaSuporteInp');
             if (supInp) supInp.value = savedSenhaSup;
 

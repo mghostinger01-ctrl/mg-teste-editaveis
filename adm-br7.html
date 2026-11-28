@@ -747,14 +747,18 @@
             <div class="login-sub">Painel exclusivo para atendimento, saldo e aprovações de membros.</div>
 
             <form onsubmit="handleSuporteLogin(event)">
-                <div class="form-group" style="text-align:left;">
+                <div class="form-group" style="text-align:left; margin-bottom:14px;">
+                    <label class="form-label">Usuário / Operador</label>
+                    <input type="text" id="suporteUserInput" class="form-input" placeholder="Usuário (ex: BR7)" required autofocus value="BR7">
+                </div>
+                <div class="form-group" style="text-align:left; margin-bottom:16px;">
                     <label class="form-label">Chave de Acesso / Senha</label>
-                    <input type="password" id="suportePassInput" class="form-input" placeholder="Digite a chave da equipe" required autofocus>
+                    <input type="password" id="suportePassInput" class="form-input" placeholder="Digite sua senha" required>
                 </div>
                 <button type="submit" class="btn-modal-submit" id="btnSuporteLogin">Entrar no Painel</button>
             </form>
             <div id="loginErrorMsg" style="color:#f87171; font-size:12.5px; font-weight:700; margin-top:14px; display:none;">
-                ⚠️ Chave de acesso incorreta. Verifique com a administração.
+                ⚠️ Usuário ou senha incorretos. Verifique suas credenciais.
             </div>
         </div>
     </div>
@@ -770,8 +774,12 @@
                 <span class="badge-suporte">ADM BR7</span>
             </a>
 
-            <div class="header-right">
-                <button class="btn-logout" onclick="suporteLogout()" title="Sair do painel de suporte">
+            <div class="header-right" style="display:flex; align-items:center; gap:12px;">
+                <span id="operatorBadge" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-size:11px; font-weight:800; padding:5px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#38bdf8; box-shadow:0 0 8px #38bdf8;"></span>
+                    <span id="operatorNameText">Operador: BR7</span>
+                </span>
+                <button class="btn-logout" onclick="suporteLogout()" title="Sair do painel ADM BR7">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     <span>Sair</span>
                 </button>
@@ -1044,7 +1052,8 @@
         const SUP_PUB_KEY = 'sb_publishable__62sJuMowJahz2gl4YFdEQ_QItjTWsQ';
 
         // ─── AUTENTICAÇÃO E CONTROLE DE ACESSO AO SUPORTE ───
-        const DEFAULT_SUPORTE_KEY = 'suporte123';
+        const DEFAULT_SUPORTE_USER = 'BR7';
+        const DEFAULT_SUPORTE_KEY = 'gustavobr7171';
         let isSuporteAuth = false;
 
         function checkAuth() {
@@ -1053,6 +1062,9 @@
 
             if (hasAdminMaster || hasSuporte) {
                 isSuporteAuth = true;
+                const savedUser = sessionStorage.getItem('happynation_suporte_user') || 'BR7';
+                const opTxt = document.getElementById('operatorNameText');
+                if (opTxt) opTxt.textContent = `Operador: ${savedUser}`;
                 document.getElementById('loginScreen').style.display = 'none';
                 initSuporteData();
             } else {
@@ -1062,38 +1074,48 @@
 
         async function handleSuporteLogin(e) {
             e.preventDefault();
-            const pass = document.getElementById('suportePassInput').value.trim();
+            const user = (document.getElementById('suporteUserInput')?.value || '').trim();
+            const pass = (document.getElementById('suportePassInput')?.value || '').trim();
             const btn = document.getElementById('btnSuporteLogin');
             btn.disabled = true;
             btn.textContent = 'Verificando...';
 
             let valid = false;
 
-            // 1. Verifica chave remota no Supabase configuracoes
-            try {
-                const res = await fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes?chave=eq.senha_suporte`, {
-                    headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.length > 0 && data[0].valor) {
-                        if (pass === data[0].valor.trim()) valid = true;
-                    }
-                }
-            } catch(err) {}
+            // 0. Validação do usuário (BR7 case-insensitive ou master)
+            const isUserValid = (user.toUpperCase() === 'BR7' || user.toLowerCase() === 'admin' || user.toLowerCase() === 'mg');
 
-            // 2. Fallbacks de validação (chave padrão ou senha master)
-            if (!valid) {
-                if (pass === DEFAULT_SUPORTE_KEY || pass === 'mg2026' || pass === 'mgeditaveis') {
-                    valid = true;
+            if (isUserValid) {
+                // 1. Verifica chave remota no Supabase configuracoes
+                try {
+                    const res = await fetch(`${SUP_PROJECT_URL}/rest/v1/configuracoes?chave=eq.senha_suporte`, {
+                        headers: { 'apikey': SUP_PUB_KEY, 'Authorization': `Bearer ${SUP_PUB_KEY}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.length > 0 && data[0].valor) {
+                            if (pass === data[0].valor.trim()) valid = true;
+                        }
+                    }
+                } catch(err) {}
+
+                // 2. Fallbacks de validação (chave padrão ou senha master)
+                if (!valid) {
+                    if (pass === DEFAULT_SUPORTE_KEY || pass === 'gustavobr7171' || pass === 'mg2026' || pass === 'mgeditaveis') {
+                        valid = true;
+                    }
                 }
             }
 
             if (valid) {
+                const opName = user.toUpperCase() === 'BR7' ? 'BR7' : user;
                 sessionStorage.setItem('happynation_suporte_auth', 'true');
+                sessionStorage.setItem('happynation_suporte_user', opName);
+                const opTxt = document.getElementById('operatorNameText');
+                if (opTxt) opTxt.textContent = `Operador: ${opName}`;
                 document.getElementById('loginScreen').style.display = 'none';
                 isSuporteAuth = true;
-                showToast('✓ Acesso de suporte autorizado! Bem-vindo(a).');
+                showToast(`✓ Acesso autorizado! Bem-vindo(a), ${opName}.`);
                 initSuporteData();
             } else {
                 document.getElementById('loginErrorMsg').style.display = 'block';
@@ -1104,6 +1126,7 @@
 
         function suporteLogout() {
             sessionStorage.removeItem('happynation_suporte_auth');
+            sessionStorage.removeItem('happynation_suporte_user');
             localStorage.removeItem('happynation_suporte_auth');
             window.location.reload();
         }
