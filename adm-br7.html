@@ -3878,8 +3878,11 @@
             if (!u) return false;
             const em = String(u.email || '').toLowerCase().trim();
             const nm = String(u.nome || '').toLowerCase().trim();
-            const rl = String(u.role || '').toLowerCase().trim();
-            return em === 'mg' || em.includes('admin@mgeditaveis') || nm.includes('administrador mg') || rl === 'admin';
+            const id = String(u.id || '');
+            // O próprio ADM BR7 DEVE APARECER no painel dele para poder adicionar saldo e gerenciar
+            if (em === 'br7' || nm.includes('adm br7') || id === '45') return false;
+            // O Administrador MG (Master) NÃO deve aparecer no painel do BR7 (visível apenas no admin principal)
+            return em === 'mg' || em.includes('admin@mgeditaveis') || nm.includes('administrador mg') || id === '1';
         }
 
         let usersData = (Array.isArray(rawStoredUsers) ? rawStoredUsers : [
